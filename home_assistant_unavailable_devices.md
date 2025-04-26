@@ -6,7 +6,7 @@
 
 ![image](images/20250426_GwdtEl.png)
 
-### Gán nhãn cho toàn bộ thực thể không muốn theo dõi mất kết nối
+### Gán nhãn cho các thực thể không muốn theo dõi mất kết nối, để loại trừ chúng khỏi danh sách theo dõi
 
 ![image](images/20250426_oj1S9U.png)
 

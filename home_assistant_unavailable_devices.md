@@ -52,7 +52,7 @@ template:
 
 ### Khởi động lại Home Assistant
 
-## Bước 2: Tạo tự động thông báo. Thông báo sẽ tự động mất sau khi thiết bị kết nối trở lại
+## Bước 2: Tạo tự động thông báo. Thông báo sẽ tự động ẩn sau khi thiết bị kết nối trở lại
 
 ### Tùy chọn thông báo qua giao diện Home Assistant
 

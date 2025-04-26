@@ -146,7 +146,7 @@ max: 10
 
 ## Bước 3: Hiển thị ở giao diện trang chủ Home Assistant
 
-### Tạo thẻ Markdown
+### Tạo thẻ Markdown chỉ hiển thị khi có thiết bị mất kết nối
 
 ```
 type: markdown

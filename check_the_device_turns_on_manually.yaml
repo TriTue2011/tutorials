@@ -22,7 +22,7 @@ blueprint:
           filter:
             - domain: input_boolean
 
-mode: queue
+mode: queued
 max_exceeded: silent
 
 triggers:

@@ -1,5 +1,5 @@
 blueprint:
-  name: Check the device turns on manually.
+  name: Check the device turns on manually
   description: |
     ## Check if the device turns on manually by hand or by automation / app.
 

@@ -7,8 +7,6 @@ blueprint:
 
     You can select any entity, but only entities supported by the `homeassistant.turn_on` or `homeassistant.turn_off` action calls will work.
 
-    Use The Time Options (Optional)
-
     ### Requirements
     * All selected entities MUST suport `homeassistant.turn_on` and `homeassistant.turn_off` or errors will be logged and the blueprint will not work.
     * Requires Home Assistant 2024.10.0 or newer.

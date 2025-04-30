@@ -52,7 +52,7 @@ template:
 
 ### Khởi động lại Home Assistant
 
-## Bước 2: Tạo tự động thông báo
+## Bước 2: Tạo tự động thông báo. Thông báo sẽ tự động ẩn sau khi thiết bị kết nối trở lại
 
 ### Tùy chọn thông báo qua giao diện Home Assistant
 
@@ -146,7 +146,7 @@ max: 10
 
 ## Bước 3: Hiển thị ở giao diện trang chủ Home Assistant
 
-### Tạo thẻ Markdown
+### Tạo thẻ Markdown chỉ hiển thị khi có thiết bị mất kết nối
 
 ```
 type: markdown

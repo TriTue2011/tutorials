@@ -4,6 +4,26 @@ blueprint:
   description:
     "
     # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa.
+
+    ### Blueprint setup
+
+    #### Required
+
+    * Date Conversion Tool script must be installed.
+
+    * Pyscript integration must be installed from HACS.
+
+    #### Optional
+
+    * Adjust the prompts for each field used in the script. The descriptions guide
+    the LLM to provide the correct input.
+
+    #### Note:
+
+    * Give the script a clear description. This will be used by the LLM to understand
+    it should use this script for date conversion from Solar date to Lunar date and vice versa.
+
+    * **Make sure to expose the script to Assist after the script has been saved.**
     "
   domain: script
   homeassistant:
@@ -20,7 +40,7 @@ blueprint:
         conversion_type_prompt:
           name: Conversion type prompt
           description:
-            The prompt which will be used to the LLM can provide the conversion type for the date.
+            The prompt which will be used to the LLM can provide the type for the conversion.
           selector:
             text:
               multiline: true
@@ -54,8 +74,7 @@ blueprint:
         leap_month_prompt:
           name: Leap month prompt
           description:
-            The prompt which will be used to the LLM can provide the optional
-            leap month for the conversion.
+            The prompt which will be used to the LLM can provide the optional leap month for the conversion.
           selector:
             text:
               multiline: true
@@ -102,7 +121,7 @@ sequence:
       - condition: template
         value_template: "{{ not (conversion_type in ['s2l', 'l2s']) }}"
     then:
-      - alias: Set variable for eror message
+      - alias: Set variable for error message
         variables:
           response:
             error:

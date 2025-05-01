@@ -44,12 +44,13 @@ blueprint:
               multiline: true
               multiple: false
           default:
-            "This argument is mandatory and must always be provided no matter
-            what!
+            "This argument is mandatory and must always be provided no matter what!
 
             Provide the date on which the requested conversion. This date should
-            be in the format YYYY-MM-DD. Always provide a date, so in case request
-            is the conversion is for today, provide today's date."
+            be in the format YYYY-MM-DD.
+
+            Always provide a date, so in case request is the conversion is for today,
+            provide today's date. In case the request without the year, it means current year."
         leap_month_prompt:
           name: Leap month prompt
           description:

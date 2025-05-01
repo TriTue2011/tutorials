@@ -9,9 +9,9 @@ blueprint:
 
     #### Required
 
-    * Date Conversion Tool script must be installed.
-
     * Pyscript integration must be installed from HACS.
+
+    * Date Conversion Tool script must be installed.
 
     #### Optional
 
@@ -23,7 +23,7 @@ blueprint:
     * Give the script a clear description. This will be used by the LLM to understand
     it should use this script for date conversion from Solar date to Lunar date and vice versa.
 
-    * **Make sure to expose the script to Assist after the script has been saved.**
+    * Make sure to expose the script to Assist after the script has been saved.
     "
   domain: script
   homeassistant:

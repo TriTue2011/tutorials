@@ -70,7 +70,11 @@ blueprint:
             be in the format YYYY-MM-DD.
 
             Always provide a date, so in case request is the conversion is for today,
-            provide today's date. In case the request without the year, it means current year."
+            provide today's date.
+
+            If a request does not specify the year, it refers to the current year.
+            However, if the request does not include the year and the event has
+            already occurred, it refers to the next year."
         leap_month_prompt:
           name: Leap month prompt
           description:

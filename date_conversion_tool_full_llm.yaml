@@ -1,0 +1,124 @@
+blueprint:
+  name: Voice - Date Conversion Tool - Full LLM script
+  author: VuLQ
+  description:
+    "
+    # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa.
+    "
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    pyscript_action:
+      name: Pyscript Action
+      description: Select the Pyscript action to fetch the data
+      selector:
+        action:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        conversion_type_prompt:
+          name: Conversion type prompt
+          description:
+            The prompt which will be used to the LLM can provide the conversion type for the date.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            "This argument is mandatory and must always be provided no matter what!
+
+            'conversion_type' can only be one of 2 different values:
+
+            - Use 's2l' in case the request is for Solar date to Lunar date.
+
+            - Use 'l2s' in case the request is for Lunar date to Solar date.
+
+            conversion_type is mandatory and must always be provided."
+        date_prompt:
+          name: Date prompt
+          description:
+            The prompt which will be used to the LLM can provide the input date for the conversion.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            "This argument is mandatory and must always be provided no matter
+            what!
+
+            Provide the date on which the requested conversion. This date should
+            be in the format YYYY-MM-DD. Always provide a date, so in case request
+            is the conversion is for today, provide today's date."
+        leap_month_prompt:
+          name: Leap month prompt
+          description:
+            The prompt which will be used to the LLM can provide the optional
+            leap month for the conversion.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            "Only use 'leap_month' parameter if the requested conversion from Lunar date
+            to Solar date.
+ 
+            'leap_month' can only be one of 2 different values:
+
+            - 'true' if the requested month is a leap month.
+            
+            - 'false' if the requested month is a normal month."
+mode: parallel
+max_exceeded: silent
+fields:
+  conversion_type:
+    name: Conversion Type
+    description: !input conversion_type_prompt
+    selector:
+      select:
+        options:
+          - s2l
+          - l2s
+    required: true
+  date:
+    name: Date
+    description: !input date_prompt
+    selector:
+      date:
+    required: true
+  leap_month:
+    name: Leap Month
+    description: !input leap_month_prompt
+    selector:
+      boolean:
+sequence:
+  - variables:
+      conversion_type: "{{ conversion_type | default }}"
+      date: "{{ (date | as_datetime(default=now())).date() }}"
+      leap_month: "{{ leap_month | default(false) }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: "{{ not (conversion_type in ['s2l', 'l2s']) }}"
+    then:
+      - alias: Set variable for eror message
+        variables:
+          response:
+            error:
+              Unable to provide date conversion because parameters were set incorrectly.
+      - alias: Stop the script
+        stop: Unable to determine the conversion type.
+        response_variable: response
+  - action: !input pyscript_action
+    response_variable: response
+    data:
+      conversion_type: "{{ conversion_type }}"
+      date: "{{ date }}"
+      leap_month: "{{ leap_month }}"
+  - stop: ""
+    response_variable: response

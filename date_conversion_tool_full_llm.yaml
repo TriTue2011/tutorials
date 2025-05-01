@@ -74,7 +74,7 @@ blueprint:
         leap_month_prompt:
           name: Leap month prompt
           description:
-            The prompt which will be used to the LLM can provide the optional leap month for the conversion.
+            The prompt which will be used to the LLM can provide the leap month for the conversion.
           selector:
             text:
               multiline: true

@@ -9,11 +9,6 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
-    pyscript_action:
-      name: Pyscript Action
-      description: Select the Pyscript action to fetch the data
-      selector:
-        action:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -114,7 +109,7 @@ sequence:
       - alias: Stop the script
         stop: Unable to determine the conversion type.
         response_variable: response
-  - action: !input pyscript_action
+  - action: pyscript.date_conversion_tool
     response_variable: response
     data:
       conversion_type: "{{ conversion_type }}"

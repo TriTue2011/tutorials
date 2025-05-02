@@ -66,22 +66,23 @@ blueprint:
           default:
             "This argument is mandatory and must always be provided no matter what!
 
-            Provide the date on which the requested conversion. This date should
-            be in the format YYYY-MM-DD.
+            Provide the date on which the requested conversion. This date should be
+            in the format YYYY-MM-DD.
 
             Always provide a date, so in case request is the conversion is for today,
             provide today's date.
 
             If a request does not specify the year, it refers to the current year.
-            If the request date has already passed and the year is not included,
-            it refers to the next year.
 
-            Some specific terms in Vietnamese.
-            'Tháng Giêng' means January of Lunar calendar.
-            'Tháng Chạp' means December of Lunar calendar.
-            'Rằm' or 'Ngày Rằm' means day 15th of month of Lunar calendar.
-            'Tết Nguyên Đán' means January 1st of Lunar calendar.
-            "
+            Some specific terms in Vietnamese:
+
+            - 'Tháng Giêng' means January of Lunar calendar.
+
+            - 'Tháng Chạp' means December of Lunar calendar.
+
+            - 'Rằm' or 'Ngày Rằm' means day 15th of requested month of Lunar calendar.
+
+            - 'Tết Nguyên Đán' means January 1st of Lunar calendar."
         leap_month_prompt:
           name: Leap month prompt
           description:
@@ -91,8 +92,7 @@ blueprint:
               multiline: true
               multiple: false
           default:
-            "Only use 'leap_month' parameter if the requested conversion from Lunar date
-            to Solar date.
+            "Only use 'leap_month' parameter if the requested conversion from Lunar date to Solar date.
 
             'leap_month' can only be one of 2 different values:
 

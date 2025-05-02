@@ -11,7 +11,7 @@ blueprint:
 
     * Pyscript integration must be installed from HACS.
 
-    * Date Conversion Tool script must be installed.
+    * Date Conversion Tool script (pyscript.date_conversion_tool) must be installed.
 
     #### Optional
 
@@ -29,11 +29,6 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
-    pyscript_entry:
-      name: Pyscript action entry
-      description: Select the Date Conversion Tool script to query the data from
-      selector:
-        action:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -138,7 +133,7 @@ sequence:
       - alias: Stop the script
         stop: Unable to determine the conversion type.
         response_variable: response
-  - action: !input pyscript_entry
+  - action: pyscript.date_conversion_tool
     response_variable: response
     data:
       conversion_type: "{{ conversion_type }}"

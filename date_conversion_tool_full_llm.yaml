@@ -29,6 +29,11 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
+    pyscript_entry:
+      name: Pyscript action entry
+      description: Select the Date Conversion Tool script to query the data from
+      selector:
+        action:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -86,11 +91,11 @@ blueprint:
           default:
             "Only use 'leap_month' parameter if the requested conversion from Lunar date
             to Solar date.
- 
+
             'leap_month' can only be one of 2 different values:
 
             - 'true' if the requested month is a leap month.
-            
+
             - 'false' if the requested month is a normal month."
 mode: parallel
 max_exceeded: silent
@@ -133,7 +138,7 @@ sequence:
       - alias: Stop the script
         stop: Unable to determine the conversion type.
         response_variable: response
-  - action: pyscript.date_conversion_tool
+  - action: !input pyscript_entry
     response_variable: response
     data:
       conversion_type: "{{ conversion_type }}"

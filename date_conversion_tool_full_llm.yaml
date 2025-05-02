@@ -77,9 +77,9 @@ blueprint:
             it refers to the next year.
 
             Some specific terms in Vietnamese.
-            'Tháng Giêng' means January month of Lunar calendar.
-            'Tháng Chạp' means December month of Lunar calendar.
-            'Ngày Rằm' means day 15th of Lunar calendar month or the day of full moon.
+            'Tháng Giêng' means January of Lunar calendar.
+            'Tháng Chạp' means December of Lunar calendar.
+            'Rằm' or 'Ngày Rằm' means day 15th of month of Lunar calendar.
             'Tết Nguyên Đán' means January 1st of Lunar calendar.
             "
         leap_month_prompt:

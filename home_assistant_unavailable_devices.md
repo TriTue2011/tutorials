@@ -2,11 +2,11 @@
 
 ## Bước 1: Tạo một thực thể lưu trữ thông tin toàn bộ thiết bị đang bị mất kết nối
 
-### Tạo một nhãn đặt tên là Ignored
+### Tạo một nhãn đặt tên là **Ignored**
 
 ![image](images/20250426_GwdtEl.png)
 
-### Gán nhãn Ignored cho các thực thể không muốn theo dõi mất kết nối, để loại trừ chúng khỏi danh sách theo dõi
+### Gán nhãn **Ignored** cho các thực thể không muốn theo dõi mất kết nối, để loại trừ chúng khỏi danh sách theo dõi
 
 ![image](images/20250426_oj1S9U.png)
 
@@ -52,7 +52,7 @@ template:
 
 ### Khởi động lại Home Assistant
 
-## Bước 2: Tạo tự động thông báo. Thông báo sẽ tự động ẩn sau khi thiết bị kết nối trở lại
+## Bước 2: Tạo tự động thông báo. Thông báo sẽ tự động được ẩn sau khi thiết bị kết nối trở lại
 
 ### Tùy chọn thông báo qua giao diện Home Assistant
 
@@ -144,34 +144,34 @@ mode: queued
 max: 10
 ```
 
-## Bước 3: Hiển thị ở giao diện trang chủ Home Assistant
+## Bước 3: Tùy chọn hiển thị thẻ ở giao diện Home Assistant
 
 ### Tạo thẻ Markdown chỉ hiển thị khi có thiết bị mất kết nối
 
 ```
 type: markdown
 content: >
-  {% set list_entities = state_attr('binary_sensor.devices_unavailable',
-  'list_entities') | default([], true) -%}
+  {% set entities = state_attr('binary_sensor.unavailable_devices',
+  'entities') | default([], true) -%}
 
-  {% set list_devices = state_attr('binary_sensor.devices_unavailable',
-  'list_devices') | default([], true) -%}
+  {% set devices = state_attr('binary_sensor.unavailable_devices',
+  'devices') | default([], true) -%}
 
 
-  ### Có {{ list_devices | count }} thiết bị ({{ list_entities | count }} thực
+  ### Có {{ devices | count }} thiết bị ({{ entities | count }} thực
   thể) đang bị mất kết nối.
 
 
-  {% for device in list_devices %}- ***{{ device }}***
+  {% for device in devices %}- ***{{ device }}***
 
   {% endfor %}
 
-  {% for entity in list_entities %}  - *{{ entity }}*
+  {% for entity in entities %}  - *{{ entity }}*
 
   {% endfor %}
 visibility:
   - condition: state
-    entity: binary_sensor.devices_unavailable
+    entity: binary_sensor.unavailable_devices
     state: "on"
-title: Devices Unavailable
+title: Unavailable Devices
 ```

@@ -1,13 +1,16 @@
 blueprint:
   name: Check the device turns on manually
   description: |
-    ## Check if the device turns on manually by hand or by automation / app.
+    
+    # Check if the device turns on manually by hand or by automation / app.
+
   domain: automation
   homeassistant:
     min_version: 2024.10.0
   input:
     linked_entity:
-      name: Entity to link
+      name: Entity
+      description: Entity to link
       selector:
         entity:
           filter:
@@ -15,7 +18,8 @@ blueprint:
               - switch
               - light
     linked_boolean:
-      name: Input Boolean Helper to link
+      name: Input Boolean
+      description: Input Boolean Helper to link
       selector:
         entity:
           filter:

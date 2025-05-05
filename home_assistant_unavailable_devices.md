@@ -18,16 +18,16 @@ template:
       - name: Unavailable Devices
         unique_id: unavailable_devices
         device_class: problem
-        icon: >-
+        icon: >
           {{ iif((this.attributes.raw | default([], true) | count > 0), 'mdi:alert-circle', 'mdi:check-circle') }}
-        state: >-
+        state: >
           {{ this.attributes.raw | default([], true) | count > 0 }}
         attributes:
-          devices: >-
+          devices: >
             {{ this.attributes.raw | default([], true) | map('device_id') | reject('none') | unique | map('device_attr', 'name') | list }}
-          entities: >-
+          entities: >
             {{ this.attributes.raw | default([], true) }}
-          raw: >-
+          raw: >
             {% set ignored_label = 'ignored' -%} {% set ignored_domains = ['button'] -%}
             {% set ignored_integrations = ['demo', 'private_ble_device'] -%}
             {% set ignored_integration_entities = namespace(entities=[]) -%}
@@ -82,7 +82,7 @@ actions:
         metadata: {}
         data:
           notification_id: "{{ notify_tag }}"
-          message: >-
+          message: >
             ### Có {{ devices | count }} thiết bị ({{ entities | count }} thực
             thể) đang bị mất kết nối.
 
@@ -128,7 +128,7 @@ actions:
         metadata: {}
         data:
           title: Mất kết nối thiết bị
-          message: >-
+          message: >
             Có {{ devices | count }} thiết bị ({{ entities | count }} thực thể)
             đang bị mất kết nối.
           data:

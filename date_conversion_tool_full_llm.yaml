@@ -1,8 +1,7 @@
 blueprint:
   name: Voice - Date Conversion Tool - Full LLM script
   author: VuLQ
-  description:
-    "
+  description: |
     # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa.
 
     ### Blueprint setup
@@ -24,7 +23,6 @@ blueprint:
     it should use this script for date conversion from Solar date to Lunar date and vice versa.
 
     * Make sure to expose the script to Assist after the script has been saved.
-    "
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -32,21 +30,21 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
+      description: >
         You can use these settings to finetune the prompts for your specific
         LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         conversion_type_prompt:
           name: Conversion type prompt
-          description:
+          description: >
             The prompt which will be used to the LLM can provide the type for the conversion.
           selector:
             text:
               multiline: true
               multiple: false
-          default:
-            "This argument is mandatory and must always be provided no matter what!
+          default: |
+            This argument is mandatory and must always be provided no matter what!
 
             'conversion_type' can only be one of 2 different values:
 
@@ -54,17 +52,17 @@ blueprint:
 
             - Use 'l2s' in case the request is for Lunar date to Solar date.
 
-            conversion_type is mandatory and must always be provided."
+            conversion_type is mandatory and must always be provided.
         date_prompt:
           name: Date prompt
-          description:
+          description: >
             The prompt which will be used to the LLM can provide the input date for the conversion.
           selector:
             text:
               multiline: true
               multiple: false
-          default:
-            "This argument is mandatory and must always be provided no matter what!
+          default: |
+            This argument is mandatory and must always be provided no matter what!
 
             Provide the date on which the requested conversion. This date should be
             in the format YYYY-MM-DD.
@@ -82,23 +80,23 @@ blueprint:
 
             - 'Rằm' or 'Ngày Rằm' means day 15th of requested month of Lunar calendar.
 
-            - 'Tết Nguyên Đán' means January 1st of Lunar calendar."
+            - 'Tết Nguyên Đán' means January 1st of Lunar calendar.
         leap_month_prompt:
           name: Leap month prompt
-          description:
+          description: >
             The prompt which will be used to the LLM can provide the leap month for the conversion.
           selector:
             text:
               multiline: true
               multiple: false
-          default:
-            "Only use 'leap_month' parameter if the requested conversion from Lunar date to Solar date.
+          default: |
+            Only use 'leap_month' parameter if the requested conversion from Lunar date to Solar date.
 
             'leap_month' can only be one of 2 different values:
 
             - 'true' if the requested month is a leap month.
 
-            - 'false' if the requested month is a normal month."
+            - 'false' if the requested month is a normal month.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -135,8 +133,7 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to provide date conversion because parameters were set incorrectly.
+            error: Unable to provide date conversion because parameters were set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the conversion type.
         response_variable: response

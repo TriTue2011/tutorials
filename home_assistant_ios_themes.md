@@ -99,7 +99,7 @@
 	          - action: frontend.set_theme
 	            metadata: {}
 	            data:
-	              name: >-
+	              name: >
 	                {% set which = 'dark' if
 	                is_state('input_boolean.ios_themes_dark_mode', 'on') else
 	                'light' -%} {% set name = states('input_select.ios_themes') -%}

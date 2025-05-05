@@ -2,7 +2,6 @@ blueprint:
   name: Check the device turns on manually
   description: |
     ## Check if the device turns on manually by hand or by automation / app.
-
   domain: automation
   homeassistant:
     min_version: 2024.10.0

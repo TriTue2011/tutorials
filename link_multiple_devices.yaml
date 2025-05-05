@@ -46,7 +46,7 @@ conditions:
   - condition: template
     value_template: "{{ (trigger.to_state.state == 'on') or (trigger.to_state.state == 'off') }}"
   - condition: template
-    value_template: >-
+    value_template: >
       {{
         trigger.to_state.context.parent_id is none or
         (
@@ -70,5 +70,5 @@ conditions:
 actions:
 - action: homeassistant.turn_{{ trigger.to_state.state }}
   target:
-    entity_id: >-
+    entity_id: >
       {{ expand(linked_entities) | selectattr('entity_id', '!=', trigger.entity_id) | map(attribute='entity_id') | list }}

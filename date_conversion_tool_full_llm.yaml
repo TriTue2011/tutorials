@@ -68,11 +68,11 @@ blueprint:
             Always provide a date, so in case request is the conversion is for today, provide today's date.
             If a request does not specify the year, it refers to the current year.
 
-            Some specific Lunar calendar terms in Vietnamese:
-            'Tháng Giêng' means January of Lunar calendar.
-            'Tháng Chạp' means December of Lunar calendar.
-            'Rằm' or 'Ngày Rằm' means day 15th of requested month of Lunar calendar.
-            'Tết Nguyên Đán' means January 1st of Lunar calendar.
+            Vietnamese Lunar calendar terms:
+            'tháng giêng' refers to the January month in the Lunar calendar.
+            'tháng chạp' refers to the December month in the Lunar calendar.
+            'rằm' or 'ngày rằm' refers to the 15th day of a month in the Lunar calendar.
+            'tết nguyên đán' refers to January 1st in the Lunar calendar.
         leap_month_prompt:
           name: Leap month prompt
           description: >

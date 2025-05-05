@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Date Conversion Tool - Full LLM script
   author: VuLQ
-  description: |
+  description: >
     # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa.
 
     ## Blueprint setup
@@ -23,6 +23,7 @@ blueprint:
     it should use this script for date conversion from Solar date to Lunar date and vice versa.
 
     * Make sure to expose the script to Assist after the script has been saved.
+
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -47,10 +48,8 @@ blueprint:
             This argument is mandatory and must always be provided no matter what!
 
             'conversion_type' can only be one of 2 different values:
-
-            - Use 's2l' in case the request is for Solar date to Lunar date.
-
-            - Use 'l2s' in case the request is for Lunar date to Solar date.
+            's2l' in case the request is for Solar date to Lunar date.
+            'l2s' in case the request is for Lunar date to Solar date.
 
             conversion_type is mandatory and must always be provided.
         date_prompt:
@@ -64,23 +63,16 @@ blueprint:
           default: >
             This argument is mandatory and must always be provided no matter what!
 
-            Provide the date on which the requested conversion. This date should be
-            in the format YYYY-MM-DD.
-
-            Always provide a date, so in case request is the conversion is for today,
-            provide today's date.
-
+            Provide the date on which the requested conversion.
+            This date should be in the format YYYY-MM-DD.
+            Always provide a date, so in case request is the conversion is for today, provide today's date.
             If a request does not specify the year, it refers to the current year.
 
             Some specific terms in Vietnamese:
-
-            - 'Tháng Giêng' means January of Lunar calendar.
-
-            - 'Tháng Chạp' means December of Lunar calendar.
-
-            - 'Rằm' or 'Ngày Rằm' means day 15th of requested month of Lunar calendar.
-
-            - 'Tết Nguyên Đán' means January 1st of Lunar calendar.
+            'Tháng Giêng' means January of Lunar calendar.
+            'Tháng Chạp' means December of Lunar calendar.
+            'Rằm' or 'Ngày Rằm' means day 15th of requested month of Lunar calendar.
+            'Tết Nguyên Đán' means January 1st of Lunar calendar.
         leap_month_prompt:
           name: Leap month prompt
           description: >
@@ -93,10 +85,8 @@ blueprint:
             Only use 'leap_month' parameter if the requested conversion from Lunar date to Solar date.
 
             'leap_month' can only be one of 2 different values:
-
-            - 'true' if the requested month is a leap month.
-
-            - 'false' if the requested month is a normal month.
+            'true' if the requested month is a leap month.
+            'false' if the requested month is a normal month.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -133,7 +123,8 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: Unable to provide date conversion because parameters were set incorrectly.
+            error: >
+              Unable to provide date conversion because parameters were set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the conversion type.
         response_variable: response

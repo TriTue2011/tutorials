@@ -31,14 +31,14 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description: >
+      description:
         You can use these settings to finetune the prompts for your specific
         LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         conversion_type_prompt:
           name: Conversion type prompt
-          description: >
+          description:
             The prompt which will be used to the LLM can provide the type for the conversion.
           selector:
             text:
@@ -54,7 +54,7 @@ blueprint:
             conversion_type is mandatory and must always be provided.
         date_prompt:
           name: Date prompt
-          description: >
+          description:
             The prompt which will be used to the LLM can provide the input date for the conversion.
           selector:
             text:
@@ -75,7 +75,7 @@ blueprint:
             'Tết Trung Thu' means August 15th in the Lunar calendar.
         leap_month_prompt:
           name: Leap month prompt
-          description: >
+          description:
             The prompt which will be used to the LLM can provide the leap month for the conversion.
           selector:
             text:
@@ -123,8 +123,7 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: >
-              Unable to provide date conversion because parameters were set incorrectly.
+            error: Unable to provide date conversion because parameters were set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the conversion type.
         response_variable: response

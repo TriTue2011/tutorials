@@ -123,7 +123,8 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: Unable to provide date conversion because parameters were set incorrectly.
+            error:
+              Unable to provide date conversion because parameters were set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the conversion type.
         response_variable: response

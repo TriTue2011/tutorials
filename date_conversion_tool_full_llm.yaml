@@ -48,8 +48,8 @@ blueprint:
             This argument is mandatory and must always be provided no matter what!
 
             'conversion_type' can only be one of 2 different values:
-            's2l' in case the request is for Solar date to Lunar date.
-            'l2s' in case the request is for Lunar date to Solar date.
+            Use 's2l' in case the request is for Solar date to Lunar date.
+            Use 'l2s' in case the request is for Lunar date to Solar date.
 
             conversion_type is mandatory and must always be provided.
         date_prompt:
@@ -68,7 +68,7 @@ blueprint:
             Always provide a date, so in case request is the conversion is for today, provide today's date.
             If a request does not specify the year, it refers to the current year.
 
-            Some specific terms in Vietnamese:
+            Some specific Lunar terms in Vietnamese:
             'Tháng Giêng' means January of Lunar calendar.
             'Tháng Chạp' means December of Lunar calendar.
             'Rằm' or 'Ngày Rằm' means day 15th of requested month of Lunar calendar.
@@ -85,8 +85,8 @@ blueprint:
             Only use 'leap_month' parameter if the requested conversion from Lunar date to Solar date.
 
             'leap_month' can only be one of 2 different values:
-            'true' if the requested month is a leap month.
-            'false' if the requested month is a normal month.
+            Use 'true' if the requested month is a leap month.
+            Use 'false' if the requested month is a normal month.
 mode: parallel
 max_exceeded: silent
 fields:

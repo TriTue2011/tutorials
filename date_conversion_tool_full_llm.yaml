@@ -70,7 +70,7 @@ blueprint:
             Some specific Lunar calendar terms in Vietnamese:
             'Tháng Giêng' means January in the Lunar calendar.
             'Tháng Chạp' means December in the Lunar calendar.
-            'Ngày Rằm' means the 15th day of a month in the Lunar calendar.
+            'Ngày Rằm' means the 15th day of the requested month in the Lunar calendar.
             'Tết Nguyên Đán' means January 1st in the Lunar calendar.
             'Tết Trung Thu' means August 15th in the Lunar calendar.
         leap_month_prompt:

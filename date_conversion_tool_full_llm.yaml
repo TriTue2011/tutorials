@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Date Conversion Tool - Auspicious Hours Tool - Full LLM script
+  name: Voice - Date Conversion Tool - Auspicious Hours Tool
   author: VuLQ
   description: >
     # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa.

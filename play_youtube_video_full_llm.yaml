@@ -18,7 +18,7 @@ blueprint:
     ### Note
 
     * Give the script a clear description. This will be used by the LLM to understand
-    it should use this script for date conversion from Solar date to Lunar date and vice versa.
+    it should use this script for playing YouTube video on a smart TV.
 
     * Make sure to expose the script to Assist after the script has been saved.
 

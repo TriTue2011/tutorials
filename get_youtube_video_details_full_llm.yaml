@@ -47,7 +47,9 @@ blueprint:
           default: >
             This argument is mandatory and must always be provided no matter what!
 
-            Provide the name of which YouTube Channel sensor to query video details.
+            Provide the name of which YouTube Channel entity to query video details.
+
+            After got the result, ask to play the video on TV.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -76,8 +78,8 @@ sequence:
   - variables:
       entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
       response:
-        media_content_title: "{{ state_attr(entity_id, 'entries')[0].title }}"
-        media_content_published: "{{ state_attr(entity_id, 'entries')[0].published }}"
+        title: "{{ state_attr(entity_id, 'entries')[0].title }}"
+        published: "{{ state_attr(entity_id, 'entries')[0].published }}"
         media_content_id: "{{ state_attr(entity_id, 'entries')[0].link }}"
   - stop: ""
     response_variable: response

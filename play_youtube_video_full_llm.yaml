@@ -30,7 +30,7 @@ blueprint:
       name: Settings for Media Player
       description: You can use these settings to configure a TV class media player.
       input:
-        media_player_id:
+        media_player:
           name: Media Player
           selector:
             entity:
@@ -47,8 +47,8 @@ blueprint:
         LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
-        media_content_id_prompt:
-          name: Media Content ID Prompt
+        media_id_prompt:
+          name: Media ID Prompt
           description:
             The prompt which will be used to the LLM can provide the entity for the query.
           selector:
@@ -58,24 +58,24 @@ blueprint:
           default: >
             This argument is mandatory and must always be provided no matter what!
 
-            Provide the media content ID of which video want to play.
+            Provide the media ID of which video want to play.
 mode: parallel
 max_exceeded: silent
 fields:
-  media_content_id:
-    name: Media Content ID
-    description: !input media_content_id_prompt
+  media_id:
+    name: Media ID
+    description: !input media_id_prompt
     selector:
         text:
     required: true
 sequence:
   - variables:
-      media_player_id: !input media_player_id
-      media_content_id: "{{ media_content_id | default }}"
+      media_player: !input media_player
+      media_id: "{{ media_id | default }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: "{{ not media_content_id }}"
+        value_template: "{{ not media_id }}"
     then:
       - alias: Set variable for error message
         variables:
@@ -87,10 +87,10 @@ sequence:
         response_variable: response
   - action: media_player.turn_on
     target:
-      entity_id: "{{ media_player_id }}"
+      entity_id: "{{ media_player }}"
   - action: media_player.play_media
     data:
       media_content_type: url
-      media_content_id: "{{ media_content_id }}"
+      media_content_id: "{{ media_id }}"
     target:
-      entity_id: "{{ media_player_id }}"
+      entity_id: "{{ media_player }}"

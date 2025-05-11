@@ -10,7 +10,7 @@ blueprint:
 
     * Feedparser Integration.
 
-    * YouTube RSS Feed sensor.
+    * Expose YouTube Channel entities to Assist.
 
     ### Optional
 

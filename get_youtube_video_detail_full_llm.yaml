@@ -47,7 +47,7 @@ blueprint:
           default: >
             This argument is mandatory and must always be provided no matter what!
 
-            Provide the entity_id of which YouTube Channel sensor to query video detail.
+            Provide the 'entity_id' of which YouTube Channel sensor to query video detail.
 mode: parallel
 max_exceeded: silent
 fields:

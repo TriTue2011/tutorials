@@ -79,7 +79,7 @@ sequence:
       entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
       response:
         title: "{{ state_attr(entity_id, 'entries')[0].title }}"
-        published: "{{ state_attr(entity_id, 'entries')[0].published }}"
+        published: "{{ strptime(state_attr(entity_id, 'entries')[0].published, '%c').isoformat() }}"
         media_id: "{{ state_attr(entity_id, 'entries')[0].link }}"
   - stop: ""
     response_variable: response

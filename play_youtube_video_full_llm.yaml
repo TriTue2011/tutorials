@@ -1,0 +1,96 @@
+blueprint:
+  name: Voice - Play YouTube Video - Full LLM Script
+  author: VuLQ
+  description: >
+    # Tool plays YouTube video to TV.
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * An Android TV Media Player.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script. The descriptions guide
+    the LLM to provide the correct input.
+
+    ### Note
+
+    * Give the script a clear description. This will be used by the LLM to understand
+    it should use this script for date conversion from Solar date to Lunar date and vice versa.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    media_player_settings:
+      name: Settings for Media Player
+      description: You can use these settings to configure an Android TV media player.
+      input:
+        media_player_id:
+          name: Media Player
+          selector:
+            entity:
+              filter:
+                - domain: media_player
+                  device_class: tv
+              multiple: false
+          default:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        media_content_id_prompt:
+          name: Media Content ID Prompt
+          description:
+            The prompt which will be used to the LLM can provide the entity for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >
+            This argument is mandatory and must always be provided no matter what!
+
+            Provide the media content ID of which video want to play.
+mode: parallel
+max_exceeded: silent
+fields:
+  media_content_id:
+    name: Media Content ID
+    description: !input media_content_id_prompt
+    selector:
+        text:
+    required: true
+sequence:
+  - variables:
+      media_player_id: !input media_player_id
+      media_content_id: "{{ media_content_id | default }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: "{{ not media_content_id }}"
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error:
+              Unable to play video because parameter was set incorrectly.
+      - alias: Stop the script
+        stop: Unable to determine the entity.
+        response_variable: response
+  - action: media_player.turn_on
+    target:
+      entity_id: "{{ media_player_id }}"
+  - action: media_player.play_media
+    data:
+      media_content_type: url
+      media_content_id: "{{ media_content_id }}"
+    target:
+      entity_id: "{{ media_player_id }}"

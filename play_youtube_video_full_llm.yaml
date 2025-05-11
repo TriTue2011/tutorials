@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Play YouTube Video - Full LLM Script
   author: VuLQ
   description: >
-    # Tool plays YouTube video to TV.
+    # Tool plays YouTube video to TV
 
     ## Blueprint Setup
 

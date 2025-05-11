@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Date Conversion Tool - Full LLM Script
   author: VuLQ
   description: >
-    # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa.
+    # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa
 
     ## Blueprint Setup
 

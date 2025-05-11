@@ -1,5 +1,6 @@
 blueprint:
   name: Check the device turns on manually
+  author: VuLQ
   description: |
     # Check if the device turns on manually by hand or by automation / app.
 

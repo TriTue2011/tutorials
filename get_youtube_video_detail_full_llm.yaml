@@ -1,0 +1,89 @@
+blueprint:
+  name: Voice - Get YouTube Video Detail - Full LLM Script
+  author: VuLQ
+  description: >
+    # Tool gets YouTube video detail from entity attributes.
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * Feedparser Integration.
+
+    * YouTube RSS Feed sensor.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script. The descriptions guide
+    the LLM to provide the correct input.
+
+    ### Note
+
+    * Give the script a clear description. This will be used by the LLM to understand
+    it should use this script for date conversion from Solar date to Lunar date and vice versa.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        entity_prompt:
+          name: Entity prompt
+          description:
+            The prompt which will be used to the LLM can provide the entity for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >
+            This argument is mandatory and must always be provided no matter what!
+
+            Provide the entity of which YouTube Channel sensor to query video detail.
+
+            'entity' is mandatory and must always be provided.
+mode: parallel
+max_exceeded: silent
+fields:
+  entity:
+    name: Entity
+    description: !input entity_prompt
+    selector:
+      select:
+        entity:
+          filter:
+            - integration: feedparser
+    required: true
+sequence:
+  - variables:
+      entity: "{{ entity | default }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: "{{ not (entity in integration_entities('feedparser')) }}"
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error:
+              Unable to provide video details because parameter was set incorrectly.
+      - alias: Stop the script
+        stop: Unable to determine the entity.
+        response_variable: response
+  - variables:
+      response:
+        media_content_title: "{{ state_attr(entity, 'title') }}"
+        media_content_author: "{{ state_attr(entity, 'author') }}"
+        media_content_published: "{{ state_attr(entity, 'published') }}"
+        media_content_id: "{{ state_attr(entity, 'link') }}"
+        media_content_type: url
+  - stop: ""
+    response_variable: response

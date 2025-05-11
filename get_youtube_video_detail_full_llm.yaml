@@ -77,10 +77,10 @@ sequence:
         response_variable: response
   - variables:
       response:
-        media_content_title: "{{ state_attr(entity, 'title') }}"
-        media_content_author: "{{ state_attr(entity, 'author') }}"
-        media_content_published: "{{ state_attr(entity, 'published') }}"
-        media_content_id: "{{ state_attr(entity, 'link') }}"
+        media_content_title: "{{ state_attr(entity, 'entries')[0].title }}"
+        media_content_author: "{{ state_attr(entity, 'entries')[0].author }}"
+        media_content_published: "{{ state_attr(entity, 'entries')[0].published }}"
+        media_content_id: "{{ state_attr(entity, 'entries')[0].link }}"
         media_content_type: url
   - stop: ""
     response_variable: response

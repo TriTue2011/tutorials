@@ -55,7 +55,6 @@ fields:
     name: Entity
     description: !input entity_prompt
     selector:
-      select:
         entity:
           filter:
             - integration: feedparser

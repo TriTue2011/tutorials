@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * An Android TV Media Player.
+    * A Smart TV.
 
     ### Optional
 
@@ -28,7 +28,7 @@ blueprint:
   input:
     media_player_settings:
       name: Settings for Media Player
-      description: You can use these settings to configure an Android TV media player.
+      description: You can use these settings to configure a TV class media player.
       input:
         media_player_id:
           name: Media Player

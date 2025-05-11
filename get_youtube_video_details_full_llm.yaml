@@ -80,6 +80,6 @@ sequence:
       response:
         title: "{{ state_attr(entity_id, 'entries')[0].title }}"
         published: "{{ state_attr(entity_id, 'entries')[0].published }}"
-        media_content_id: "{{ state_attr(entity_id, 'entries')[0].link }}"
+        media_id: "{{ state_attr(entity_id, 'entries')[0].link }}"
   - stop: ""
     response_variable: response

@@ -77,10 +77,14 @@ sequence:
         response_variable: response
   - variables:
       entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
+      entities: "{{ state_attr(entity_id, 'entries') }}"
       response:
-        title: "{{ state_attr(entity_id, 'entries')[0].title }}"
-        published: "{{ strptime(state_attr(entity_id, 'entries')[0].published, '%c').isoformat() }}"
-        published_relative_time: "{{ strptime(state_attr(entity_id, 'entries')[0].published, '%c') | relative_time }} ago"
-        media_id: "{{ state_attr(entity_id, 'entries')[0].link }}"
+        entries: >-
+          {% for i range (entities | length) -%}
+            title: {{ entities[i].title }}
+            published: {{ strptime(entities[i].published, '%c').isoformat() }}
+            published_relative_time: {{ strptime(entities[i].published, '%c') | relative_time }} ago
+            media_id: {{ entities[i].link }}
+          {% endfor -%}
   - stop: ""
     response_variable: response

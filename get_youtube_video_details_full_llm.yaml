@@ -63,8 +63,7 @@ blueprint:
             This argument is optional. This will be the number of days
             since the date of the videos published until now.
 
-            Default is 10 (days). Min is 1 (day) and max is 30 (days).
-
+            Min is 1 (day) and max is 30 (days).
             Today means 1 (day). Last week means 7 (days).
             Last month means 30 (days).
 mode: parallel

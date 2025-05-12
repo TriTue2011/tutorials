@@ -83,7 +83,7 @@ fields:
 sequence:
   - variables:
       entity_name: "{{ entity_name | default }}"
-      period_length: "{{ period_length | default(10) }}"
+      period_length: "{{ period_length | default(10) | abs }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -108,11 +108,13 @@ sequence:
             media_id: {{ entity.link }}
 
           {% endfor -%}
+
         total_entries: >
           {% set ns = namespace(entries=0) -%}
           {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z') > (now() - timedelta(days=period_length))) -%}
             {% set ns.entries = ns.entries + 1 -%}
           {% endfor -%}
           {{ ns.entries }}
+
   - stop: ""
     response_variable: response

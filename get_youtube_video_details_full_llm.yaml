@@ -101,14 +101,14 @@ sequence:
       entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
       response: >
         entries:
+
         {% set ns = namespace(entries=0) -%}
         {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z') > (now() - timedelta(days=period_length))) -%}
-          {% set ns.entries = ns.entries + 1 -%}
           - title: {{ entity.title | title }}
             published: {{ strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z').isoformat() }}
             published_relative_time: {{ strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z') | relative_time }} ago
             media_id: {{ entity.link }}
-
+          {% set ns.entries = ns.entries + 1 %}
         {% endfor %}
 
         total_entries: {{ ns.entries }}

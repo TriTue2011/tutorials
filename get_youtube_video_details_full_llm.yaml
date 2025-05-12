@@ -81,10 +81,10 @@ sequence:
       response:
         entries: >
           {% for entity in entities %}
-          title: {{ entity.title }}
-          published: {{ strptime(entity.published, '%c').isoformat() }}
-          published_relative_time: {{ strptime(entity.published, '%c') | relative_time }} ago
-          media_id: {{ entity.link }}
+          - title: {{ entity.title }}
+            published: {{ strptime(entity.published, '%c').isoformat() }}
+            published_relative_time: {{ strptime(entity.published, '%c') | relative_time }} ago
+            media_id: {{ entity.link }}
 
           {% endfor %}
   - stop: ""

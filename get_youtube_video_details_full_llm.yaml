@@ -80,8 +80,7 @@ sequence:
       entities: "{{ state_attr(entity_id, 'entries') }}"
       response:
         entries: >
-          {% for entity in entities -%}
-
+          {% for entity in entities %}
           - title: {{ entity.title | title }}
 
             published: {{ strptime(entity.published, '%c').isoformat() }}
@@ -91,6 +90,6 @@ sequence:
             media_id: {{ entity.link }}
 
 
-          {% endfor -%}
+          {% endfor %}
   - stop: ""
     response_variable: response

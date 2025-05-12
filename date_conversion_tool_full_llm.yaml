@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Date Conversion Tool - Full LLM Script
   author: VuLQ
   description: >
-    # Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa
+    # Tool converts Solar date to Lunar date and vice versa.
 
     ## Blueprint Setup
 
@@ -10,7 +10,7 @@ blueprint:
 
     * Pyscript integration must be installed from HACS.
 
-    * Date Conversion Tool script (pyscript.date_conversion_tool) must be installed.
+    * Date Conversion Tool script must be installed.
 
     ### Optional
 

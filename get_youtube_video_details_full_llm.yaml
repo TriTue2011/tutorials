@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Get YouTube Video Details - Full LLM Script
   author: VuLQ
   description: >
-    # Tool gets YouTube video details from entity attributes
+    # Tool gets YouTube video info details from entity attributes
 
     ## Blueprint Setup
 
@@ -20,7 +20,7 @@ blueprint:
     ### Note
 
     * Give the script a clear description. This will be used by the LLM to understand
-    it should use this script to get the latest video of an YouTube channel.
+    it should use this script to get the latest video info on a YouTube channel.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
@@ -47,9 +47,9 @@ blueprint:
           default: >
             This argument is mandatory and must always be provided no matter what!
 
-            Provide the name of which YouTube Channel entity to query video details.
+            Provide the name of which YouTube Channel entity to query video info details.
 
-            After got the result, ask to play the video on TV.
+            After getting the result, ask to play the video on the TV.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -71,7 +71,7 @@ sequence:
         variables:
           response:
             error:
-              Unable to provide video details because parameter was set incorrectly.
+              Unable to provide video info details because parameter was set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the entity.
         response_variable: response
@@ -80,6 +80,7 @@ sequence:
       response:
         title: "{{ state_attr(entity_id, 'entries')[0].title }}"
         published: "{{ strptime(state_attr(entity_id, 'entries')[0].published, '%c').isoformat() }}"
+        published_relative_time: "{{ strptime(state_attr(entity_id, 'entries')[0].published, '%c') | relative_time }} ago"
         media_id: "{{ state_attr(entity_id, 'entries')[0].link }}"
   - stop: ""
     response_variable: response

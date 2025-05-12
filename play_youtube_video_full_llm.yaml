@@ -2,13 +2,13 @@ blueprint:
   name: Voice - Play YouTube Video - Full LLM Script
   author: VuLQ
   description: >
-    # Tool plays YouTube video to TV
+    # Tool plays YouTube video to a smart TV
 
     ## Blueprint Setup
 
     ### Required
 
-    * A Smart TV.
+    * A smart TV.
 
     ### Optional
 
@@ -28,10 +28,10 @@ blueprint:
   input:
     media_player_settings:
       name: Settings for Media Player
-      description: You can use these settings to configure a TV class media player.
+      description: You can use these settings to configure a smart TV.
       input:
         media_player:
-          name: Media Player
+          name: Smart TV
           selector:
             entity:
               filter:

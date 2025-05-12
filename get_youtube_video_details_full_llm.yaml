@@ -50,6 +50,20 @@ blueprint:
             Provide the name of which YouTube Channel entity to query video info details.
 
             After getting the result, ask to play the video on the TV.
+        period_length_prompt:
+          name: Period Length Prompt
+          description:
+            The prompt which will be used to the LLM can provide the length
+            of the period for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >
+            This argument is optional. This will be the number of days
+            since the date of the videos published until now.
+
+            Default is 10 (days). Min is 1 (day) and max is 30 (days).
 mode: parallel
 max_exceeded: silent
 fields:
@@ -59,9 +73,17 @@ fields:
     selector:
         text:
     required: true
+  period_length:
+    name: Period Length
+    description: !input period_length_prompt
+    selector:
+      number:
+        min: 1
+        max: 30
 sequence:
   - variables:
       entity_name: "{{ entity_name | default }}"
+      period_length: "{{ period_length | default(10) }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -77,15 +99,20 @@ sequence:
         response_variable: response
   - variables:
       entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
-      entities: "{{ state_attr(entity_id, 'entries') }}"
       response:
         entries: >
-          {% for entity in entities -%}
+          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%c') > (now() - timedelta(days=period_length))) -%}
           - title: {{ entity.title | title }}
             published: {{ strptime(entity.published, '%c').isoformat() }}
             published_relative_time: {{ strptime(entity.published, '%c') | relative_time }} ago
             media_id: {{ entity.link }}
 
           {% endfor -%}
+        total_entries: >
+          {% set ns = namespace(entries=0) -%}
+          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%c') > (now() - timedelta(days=period_length))) -%}
+            {% set ns.entries = ns.entries + 1 -%}
+          {% endfor -%}
+          {{ ns.entries }}
   - stop: ""
     response_variable: response

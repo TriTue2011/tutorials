@@ -81,6 +81,7 @@ sequence:
       response:
         entries: >
           {% for entity in entities -%}
+
           - title: {{ entity.title | title }}
 
             published: {{ strptime(entity.published, '%c').isoformat() }}

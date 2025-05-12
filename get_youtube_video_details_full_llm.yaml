@@ -79,13 +79,18 @@ sequence:
       entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
       entities: "{{ state_attr(entity_id, 'entries') }}"
       response:
-        entries: >-
+        entries: >
           {% for entity in entities %}
+
           title: {{ entity.title }}
+
           published: {{ strptime(entity.published, '%c').isoformat() }}
+
           published_relative_time: {{ strptime(entity.published, '%c') | relative_time }} ago
+
           media_id: {{ entity.link }}
 
           {% endfor %}
+
   - stop: ""
     response_variable: response

@@ -66,7 +66,7 @@ blueprint:
 
             Min is 1 (day) and max is 30 (days).
             Today means 1 (day). Recent days means 5 (days).
-            Last week means 7 (days). Last month means 30 (days).
+            This week means 7 (days). This month means 30 (days).
 mode: parallel
 max_exceeded: silent
 fields:

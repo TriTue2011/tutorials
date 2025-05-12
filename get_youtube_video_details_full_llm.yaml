@@ -86,6 +86,6 @@ sequence:
             published_relative_time: {{ strptime(entity.published, '%c') | relative_time }} ago
             media_id: {{ entity.link }}
 
-          {% endfor %}
+          {% endfor -%}
   - stop: ""
     response_variable: response

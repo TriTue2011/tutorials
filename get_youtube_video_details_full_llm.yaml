@@ -101,16 +101,16 @@ sequence:
       entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
       response:
         entries: >
-          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%c') > (now() - timedelta(days=period_length))) -%}
+          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z') > (now() - timedelta(days=period_length))) -%}
           - title: {{ entity.title | title }}
-            published: {{ strptime(entity.published, '%c').isoformat() }}
-            published_relative_time: {{ strptime(entity.published, '%c') | relative_time }} ago
+            published: {{ strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z').isoformat() }}
+            published_relative_time: {{ strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z') | relative_time }} ago
             media_id: {{ entity.link }}
 
           {% endfor -%}
         total_entries: >
           {% set ns = namespace(entries=0) -%}
-          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%c') > (now() - timedelta(days=period_length))) -%}
+          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%Y-%m-%dT%H:%M:%S.%f%z') > (now() - timedelta(days=period_length))) -%}
             {% set ns.entries = ns.entries + 1 -%}
           {% endfor -%}
           {{ ns.entries }}

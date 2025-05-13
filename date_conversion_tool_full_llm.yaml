@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Date Conversion Tool - Full LLM Script
   author: VuLQ
-  description: >
+  description: |
     # Tool converts Solar date to Lunar date and vice versa
 
     ## Blueprint Setup
@@ -44,7 +44,7 @@ blueprint:
             text:
               multiline: true
               multiple: false
-          default: >
+          default: >-
             This argument is mandatory and must always be provided no matter what!
 
             'conversion_type' argument can only be one of 2 different values:
@@ -60,7 +60,7 @@ blueprint:
             text:
               multiline: true
               multiple: false
-          default: >
+          default: >-
             This argument is mandatory and must always be provided no matter what!
 
             Provide the date on which the requested conversion. This date should be in the format YYYY-MM-DD.
@@ -81,7 +81,7 @@ blueprint:
             text:
               multiline: true
               multiple: false
-          default: >
+          default: >-
             Only use 'leap_month' argument if the requested conversion from Lunar date to Solar date.
 
             'leap_month' argument can only be one of 2 different values:

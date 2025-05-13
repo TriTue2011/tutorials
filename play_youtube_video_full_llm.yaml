@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Play YouTube Video - Full LLM Script
   author: VuLQ
-  description: >
+  description: |
     # Tool plays YouTube video to a smart TV
 
     ## Blueprint Setup
@@ -55,7 +55,7 @@ blueprint:
             text:
               multiline: true
               multiple: false
-          default: >
+          default: >-
             This argument is mandatory and must always be provided no matter what!
 
             Provide the media ID of which video want to play.

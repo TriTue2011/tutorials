@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Get YouTube Video Details - Full LLM Script
   author: VuLQ
-  description: >
+  description: |
     # Tool gets YouTube video info details from entity attributes
 
     ## Blueprint Setup
@@ -44,7 +44,7 @@ blueprint:
             text:
               multiline: true
               multiple: false
-          default: >
+          default: >-
             This argument is mandatory and must always be provided no matter what!
 
             Provide the name of which YouTube Channel entity to query video info details.
@@ -60,7 +60,7 @@ blueprint:
             text:
               multiline: true
               multiple: false
-          default: >
+          default: >-
             This argument is optional. This will be the number of days
             since the date of the videos published until now.
 

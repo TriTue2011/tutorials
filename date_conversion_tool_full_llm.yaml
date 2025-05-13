@@ -50,8 +50,6 @@ blueprint:
             'conversion_type' argument can only be one of 2 different values:
             's2l' in case the request is for Solar date to Lunar date.
             'l2s' in case the request is for Lunar date to Solar date.
-
-            conversion_type is mandatory and must always be provided.
         date_prompt:
           name: Date prompt
           description:

@@ -1,8 +1,8 @@
 blueprint:
-  name: Voice - Get YouTube Video Details - Full LLM Script
+  name: Voice - Get YouTube Video Info - Full LLM Script
   author: VuLQ
   description: |
-    # Tool gets YouTube video info details from entity attributes
+    # Tool gets YouTube video info from entity attributes
 
     ## Blueprint Setup
 
@@ -47,7 +47,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided no matter what!
 
-            Provide the name of which YouTube Channel entity to query video info details.
+            Provide the name of which YouTube Channel entity to query video info.
 
             After getting the result, ask to play the video on the TV.
             Do not include Media ID in the answer.
@@ -96,7 +96,7 @@ sequence:
         variables:
           response:
             error:
-              Unable to provide video info details because parameter was set incorrectly.
+              Unable to provide video info because parameter was set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the entity.
         response_variable: response

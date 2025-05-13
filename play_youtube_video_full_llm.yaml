@@ -75,7 +75,9 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: "{{ not media_id }}"
+        value_template: >-
+          {{ not (media_id and
+          media_id.startswith('https://www.youtube.com/watch?v=')) }}
     then:
       - alias: Set variable for error message
         variables:

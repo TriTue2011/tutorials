@@ -83,7 +83,7 @@ sequence:
         variables:
           response:
             error:
-              Unable to play video because parameter was set incorrectly.
+              Unable to play video because parameters were set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the entity.
         response_variable: response

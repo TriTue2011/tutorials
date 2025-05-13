@@ -64,7 +64,7 @@ blueprint:
             This argument is optional. This will be the number of days
             since the date of the videos published until now.
 
-            Min is 1 (day) and max is 30 (days).
+            Default is 10 (days). Min is 1 (day) and max is 30 (days).
             Today means 1 (day). Recent days means 5 (days).
             This week means 7 (days). This month means 30 (days).
 mode: parallel
@@ -96,7 +96,7 @@ sequence:
         variables:
           response:
             error:
-              Unable to provide video info because parameter was set incorrectly.
+              Unable to provide video info because parameters were set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the entity.
         response_variable: response

@@ -63,9 +63,10 @@ blueprint:
 
             Provide the date on which the requested conversion. This date should be in the format YYYY-MM-DD.
             Always provide a date, so in case request is the conversion is for today, provide today's date.
+            The request for tomorrow, provide tomorrow's date.
             If a request does not specify the year, it means the current year.
 
-            The result includes the full date, the day of week, remaining days, solar term and auspicious hours.
+            The result includes the full date, the day of week, remaining days, solar term, and auspicious hours.
 
             Some specific Lunar calendar terms in Vietnamese:
             'Tháng Giêng' means January in the Lunar calendar.

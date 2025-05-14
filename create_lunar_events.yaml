@@ -2,7 +2,7 @@ blueprint:
   name: Create Lunar Events
   author: VuLQ
   description: |
-    # Tool help to create Lunar events
+    # Tool help to create Lunar calendar events
 
     ## Blueprint Setup
 
@@ -48,7 +48,7 @@ fields:
       date: {}
     required: true
     name: Lunar Date
-    description: Choose the start date of the event.
+    description: Choose the start Lunar date of the event.
   days:
     selector:
       number:

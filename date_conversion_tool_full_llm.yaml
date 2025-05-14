@@ -51,8 +51,6 @@ blueprint:
             's2l' if the request is for Solar date to Lunar date.
             'l2s' if the request is for Lunar date to Solar date.
 
-            If the request does not have conversion type, set it to 's2l'.
-
             After getting the result, your answer must include both Solar date and Lunar date in the response.
         date_prompt:
           name: Date prompt
@@ -66,9 +64,10 @@ blueprint:
             This argument is mandatory and must always be provided no matter what!
 
             Provide the date on which the requested conversion. This date should be in the format YYYY-MM-DD.
+
             Always provide a date. So, if the request for today, provide today's date.
             The request for tomorrow, provide tomorrow's date.
-            If the request does not specify the year, it means the current year.
+            In case the request does not specify the year, it means the current year.
 
             Some specific Lunar calendar terms in Vietnamese:
             'Tháng Giêng' means January in the Lunar calendar.

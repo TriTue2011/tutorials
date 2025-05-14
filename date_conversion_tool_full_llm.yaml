@@ -47,12 +47,12 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided no matter what!
 
-            'conversion_type' argument can only be one of 2 different values:
+            It can only be one of two different values:
             's2l' in case the request is for Solar date to Lunar date.
             'l2s' in case the request is for Lunar date to Solar date.
 
             In case the request does not have conversion type, set it to s2l.
-            After getting the result, the answer include both Solar date and Lunar date.
+            After getting the result, the answer must be both Solar date and Lunar date.
         date_prompt:
           name: Date prompt
           description:
@@ -83,11 +83,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            Only use 'leap_month' argument if the requested conversion from Lunar date to Solar date.
+            Only use this argument in case the requested conversion from Lunar date to Solar date.
 
-            'leap_month' argument can only be one of 2 different values:
-            'true' if the requested month is a leap month.
-            'false' if the requested month is a normal month.
+            It can only be one of two different values:
+            'true' in case the requested month is a leap month.
+            'false' in case the requested month is a normal month.
 mode: parallel
 max_exceeded: silent
 fields:

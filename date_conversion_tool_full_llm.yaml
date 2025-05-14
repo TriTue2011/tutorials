@@ -53,7 +53,7 @@ blueprint:
 
             If the request does not have conversion type, set it to 's2l'.
 
-            After getting the result, your response must include both request date and query date.
+            After getting the result, your response must include both request date and query date in the answer.
         date_prompt:
           name: Date prompt
           description:

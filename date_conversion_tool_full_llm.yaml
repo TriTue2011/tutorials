@@ -50,6 +50,8 @@ blueprint:
             'conversion_type' argument can only be one of 2 different values:
             's2l' in case the request is for Solar date to Lunar date.
             'l2s' in case the request is for Lunar date to Solar date.
+
+            In case the request does not have conversion type, set it to s2l.
         date_prompt:
           name: Date prompt
           description:
@@ -65,8 +67,6 @@ blueprint:
             Always provide a date, so in case request is the conversion is for today, provide today's date.
             The request for tomorrow, provide tomorrow's date.
             If a request does not specify the year, it means the current year.
-
-            The result includes the full date, the day of week, remaining days, solar term, and auspicious hours.
 
             Some specific Lunar calendar terms in Vietnamese:
             'Tháng Giêng' means January in the Lunar calendar.

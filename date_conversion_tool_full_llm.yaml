@@ -65,7 +65,8 @@ blueprint:
             This argument is mandatory and must always be provided no matter what!
 
             Provide the date on which the requested conversion. This date should be in the format YYYY-MM-DD.
-            Always provide a date, example the request of the conversion is for today, provide today's date.
+            Always provide a date. So, in case the request for today, provide today's date.
+            The request for tomorrow, provide tomorrow's date.
             If a request does not specify the year, it means the current year.
 
             Some specific Lunar calendar terms in Vietnamese:

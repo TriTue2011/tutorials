@@ -14,12 +14,11 @@ blueprint:
 
     * A Local Calendar entity.
 
-    * Google Calendar will be supported in the next version.
-
     ### Note
 
-    * When choose Repeat type Yearly, the event will be added to
-    the calendar up to next 15 years.
+    * When choose Repeat type Yearly, the event will be added to the calendar up to next 15 years.
+
+    * Support Local Calendar only. Google Calendar will be supported in the next version.
 
   domain: script
   homeassistant:

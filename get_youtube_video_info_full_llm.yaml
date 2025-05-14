@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Get YouTube Video Info - Full LLM Script
+  name: Voice - Get YouTube Video Info Tool
   author: VuLQ
   description: |
     # Tool gets YouTube video info from entity attributes

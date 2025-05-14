@@ -1,0 +1,166 @@
+blueprint:
+  name: Create Lunar Events
+  author: VuLQ
+  description: |
+    # Tool help to create Lunar events
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * Pyscript integration must be installed from HACS.
+
+    * Date Conversion Tool script must be installed.
+
+    * A Local Calendar entity.
+
+    * Google Calendar will be supported in the next version.
+
+    ### Note
+
+    * When choose Repeat type Yearly, the event will be added to
+    the calendar up to next 15 years.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    calendar_settings:
+      name: Settings for Calendar
+      description: You can use these settings to configure a Calendar.
+      input:
+        calendar:
+          name: Calendar
+          selector:
+            entity:
+              filter:
+                - domain: calendar
+                  integration: local_calendar
+                  supported_features:
+                    - calendar.CalendarEntityFeature.CREATE_EVENT
+              multiple: false
+          default:
+mode: single
+max_exceeded: silent
+fields:
+  lunar_date:
+    selector:
+      date: {}
+    required: true
+    name: Lunar Date
+    description: Choose the start date of the event.
+  days:
+    selector:
+      number:
+        min: 1
+        max: 30
+        step: 1
+        mode: box
+    name: Days
+    default: 1
+    description: Choose the duration of the event.
+  event_summary:
+    selector:
+      text: {}
+    name: Event Summary
+    required: true
+    description: The summary of the event.
+  event_description:
+    selector:
+      text:
+        multiple: false
+        multiline: true
+    name: Event Description
+    description: More details about the event.
+  repeat:
+    selector:
+      select:
+        options:
+          - label: No Repeat
+            value: no_repeat
+          - label: Yearly
+            value: yearly
+    name: Repeat
+    required: true
+    description: Choose the repeat type.
+  leap_month:
+    name: Leap Month
+    description:
+      When the event is in the leap month. The script will force Repeat type option to No Repeat.
+    selector:
+      boolean: {}
+sequence:
+  - variables:
+      lunar_date: "{{ lunar_date | as_datetime(default='') }}"
+      start_date: "{{ as_datetime(lunar_date).date() if lunar_date else 'n/a' }}"
+      days: "{{ days | int(1) | abs }}"
+      event_summary: "{{ event_summary | default }}"
+      event_description: "{{ event_description | default }}"
+      repeat: "{{ repeat | default }}"
+      leap_month: "{{ leap_month | default(false) }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: >-
+          {{ start_date == 'n/a' or not event_summary or repeat not in ['no_repeat', 'yearly'] }}
+    then:
+      - alias: Stop the script
+        stop: Unable to add event because parameters were set incorrectly.
+        error: true
+  - alias: Verify the leap month
+    if:
+      - condition: template
+        value_template: "{{ leap_month }}"
+    then:
+      - variables:
+          repeat: no_repeat
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ repeat == 'no_repeat' }}"
+        sequence:
+          - action: pyscript.date_conversion_tool
+            data:
+              conversion_type: l2s
+              date: "{{ start_date }}"
+              leap_month: "{{ leap_month }}"
+            response_variable: response
+          - variables:
+              solar_date: >-
+                {{ response.date if (response is defined and response.get('date')) }}
+          - action: calendar.create_event
+            data:
+              summary: "{{ event_summary }}"
+              description: "{{ event_description }}"
+              start_date: "{{ solar_date }}"
+              end_date: "{{ (as_datetime(solar_date) + timedelta(days=days)).date() }}"
+            target:
+              entity_id: !input calendar
+      - conditions:
+          - condition: template
+            value_template: "{{ repeat == 'yearly' }}"
+        sequence:
+          - repeat:
+              sequence:
+                - action: pyscript.date_conversion_tool
+                  data:
+                    conversion_type: l2s
+                    date: "{{ start_date }}"
+                    leap_month: "{{ leap_month }}"
+                  response_variable: response
+                - variables:
+                    solar_date: >-
+                      {{ response.date if (response is defined and response.get('date')) }}
+                - action: calendar.create_event
+                  data:
+                    summary: "{{ event_summary }}"
+                    description: "{{ event_description }}"
+                    start_date: "{{ solar_date }}"
+                    end_date: >-
+                      {{ (as_datetime(solar_date) + timedelta(days=days)).date() }}
+                  target:
+                    entity_id: !input calendar
+                - variables:
+                    start_date: >-
+                      {{ as_datetime(start_date).replace(year=as_datetime(start_date).year + 1).date() }}
+              count: 16

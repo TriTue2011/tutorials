@@ -52,7 +52,8 @@ blueprint:
             'l2s' in case the request is for Lunar date to Solar date.
 
             In case the request does not have conversion type, set it to s2l.
-            After getting the result, the answer must be both Solar date and Lunar date.
+
+            After getting the result, the answer must include Solar date and Lunar date.
         date_prompt:
           name: Date prompt
           description:

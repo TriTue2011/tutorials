@@ -48,10 +48,10 @@ blueprint:
             This argument is mandatory and must always be provided no matter what!
 
             It can only be one of two different values:
-            's2l' in case the request is for Solar date to Lunar date.
-            'l2s' in case the request is for Lunar date to Solar date.
+            's2l' if the request is for Solar date to Lunar date.
+            'l2s' if the request is for Lunar date to Solar date.
 
-            In case the request does not have conversion type, set it to s2l.
+            If the request does not have conversion type, set it to 's2l'.
 
             After getting the result, the answer must include Solar date and Lunar date.
         date_prompt:
@@ -66,7 +66,7 @@ blueprint:
             This argument is mandatory and must always be provided no matter what!
 
             Provide the date on which the requested conversion. This date should be in the format YYYY-MM-DD.
-            Always provide a date. So, in case the request for today, provide today's date.
+            Always provide a date. So, if the request for today, provide today's date.
             The request for tomorrow, provide tomorrow's date.
             If a request does not specify the year, it means the current year.
 
@@ -85,11 +85,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            Only use this argument in case the requested conversion from Lunar date to Solar date.
+            Only use this argument if the requested conversion from Lunar date to Solar date.
 
             It can only be one of two different values:
-            'true' in case the requested month is a leap month.
-            'false' in case the requested month is a normal month.
+            'true' if the requested month is a leap month.
+            'false' if the requested month is a normal month.
 mode: parallel
 max_exceeded: silent
 fields:

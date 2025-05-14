@@ -50,7 +50,7 @@ blueprint:
             Provide the name of which YouTube Channel entity to query video info.
 
             After getting the result, ask to play the video on the TV.
-            Do not include Media ID in the answer.
+            Do not include Media ID in the response.
         period_length_prompt:
           name: Period Length Prompt
           description:

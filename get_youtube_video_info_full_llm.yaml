@@ -49,7 +49,7 @@ blueprint:
 
             Provide the name of the YouTube channel to query video information.
 
-            After obtaining the result, request to play the video on the TV.
+            After obtaining the result, ask to play the video on the TV.
             Do not include Media ID in your response.
         period_length_prompt:
           name: Period Length Prompt
@@ -61,12 +61,12 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This optional argument represents the number of days
-            since the videos were published.
+            This argument is optional. This will be the number of days
+            since the date of the videos published until now.
 
-            Default: 10 days; Min: 1 day; Max: 30 days;
-            Today: 1 day; Recent days: 5 days;
-            This week: 7 days; This month: 30 days.
+            Default is 10 (days). The minimum is 1 (day). The maximum is 30 (days).
+            Today means 1 (day). Recent days means 5 (days).
+            This week means 7 (days). This month means 30 (days).
 mode: parallel
 max_exceeded: silent
 fields:

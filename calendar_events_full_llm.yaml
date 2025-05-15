@@ -53,10 +53,10 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Use 'daily' in case the request is for full days,
-            examples: today, next Thursday, coming weekend.
-            Use 'hourly' in case the request is for a part of a day,
-            examples: at 8 hours this evening, next morning, this evening, from 3 to 5.
+            Use 'daily' if the request for full days,
+            examples: today, next Thursday, coming weekend, next week, this month.
+            Use 'hourly' if the request for a part of a day,
+            examples: at 8 hours this evening, next morning, from 6 to 10.
         time_period_length_prompt:
           name: Time period length prompt
           description:
@@ -68,17 +68,16 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            The length of the period. This will be the number of days in case
-            'time_period_type' is 'daily' and the number of hours in case
-            'time_period_type' is 'hourly'. Examples: 1 (day) if the request is
-            for the forecast for today, 2 (days) if the request is for the calendar
-            events for this weekend, 6 (hours) if the request is for the calendar
-            events for periods like night, morning, afternoon, and evening.
+            The length of the period. This will be measured in days if
+            'time_period_type' is 'daily', and in hours if 'time_period_type' is 'hourly'.
+
+            Examples: 1 (day) for today's forecast, 2 (days) for weekend events,
+            7 (days) for the next few days, 30 (days) for in this month, 60 (days) for in next month,
+            6 (hours) for morning, afternoon, or evening events.
         date_prompt:
           name: Date prompt
           description:
-            The prompt which will be used for the LLM can provide the start
-            date for the forecast period.
+            The prompt which will be used for the LLM can provide the start date for the forecast period.
           selector:
             text:
               multiline: true
@@ -86,17 +85,15 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the date on which the requested period starts. This date should
-            be in the format YYYY-MM-DD. Always provide a date, so in case request
-            is the forecast for today, provide today's date.
+            Provide the date for the requested period starts. Use the format YYYY-MM-DD.
+            Always provide a date, so if the request does not specify a date, it means today's date.
 
             When the requested period is for the night, do not use today's date but
             always use the next day, unless the current time is still before 05:00:00
         time_prompt:
           name: Time prompt
           description:
-            The prompt which will be used for the LLM can provide the start
-            time for the forecast period.
+            The prompt which will be used for the LLM can provide the start time for the forecast period.
           selector:
             text:
               multiline: true
@@ -104,13 +101,11 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the time on which the requested period starts. This time should
-            be in the format HH:MM:SS in 24-hour format (for example 17:00:00). Always
-            provide time. In case a full day is requested, use 00:00:00, in case
-            the current hour is requested, use the start of the hour.
-
-            Night starts at 00:00:00, morning starts at 06:00:00, afternoon starts
-            at 12:00:00 and evening starts at 18:00:00
+            Provide the start time in HH:MM:SS format.
+            Always provide time. For a full day, use 00:00:00.
+            For the current hour, use the start of the hour.
+            Night starts at 00:00:00, morning starts at 06:00:00,
+            afternoon starts at 12:00:00 and evening starts at 18:00:00
 mode: parallel
 max_exceeded: silent
 fields:
@@ -152,8 +147,8 @@ sequence:
       end: >-
         {% if start != 'n/a' %}
         {% set start = as_datetime(start) %}
-        {% set add = time_period_length | default(1) | int(1) %}
-        {% set type = time_period_type | default if time_period_type | default in ['daily', 'hourly'] else 'daily' %}
+        {% set add = time_period_length | int(1) | abs %}
+        {% set type = time_period_type if (time_period_type | default) in ['daily', 'hourly'] else 'daily' %}
         {{ (start + timedelta(days = add if type == 'daily' else 0, hours = add if type == 'hourly' else 0)).isoformat() }}
         {% endif %}
   - alias: Check if variables were set correctly

@@ -72,7 +72,7 @@ blueprint:
             'time_period_type' is 'daily', and in hours if 'time_period_type' is 'hourly'.
 
             Examples: 1 (day) for today's forecast, 2 (days) for weekend events,
-            7 (days) for the next few days, 30 (days) for in this month, 60 (days) for in next month,
+            7 (days) for the next few days, 30 (days) for in the month,
             6 (hours) for morning, afternoon, or evening events.
         date_prompt:
           name: Date prompt
@@ -86,7 +86,7 @@ blueprint:
             This argument is mandatory and must always be provided!
 
             Provide the date for the requested period starts. Use the format YYYY-MM-DD.
-            Always provide a date, so if the request does not specify a date, it means today's date.
+            Always provide a date, so in case the request does not specify a date, it means today's date.
 
             When the requested period is for the night, do not use today's date but
             always use the next day, unless the current time is still before 05:00:00

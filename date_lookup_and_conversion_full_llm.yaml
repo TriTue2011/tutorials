@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Date Lookup And Conversion Tool
+  name: Voice - Date Lookup and Conversion Tool
   author: VuLQ
   description: |
     # Tool converts Solar date to Lunar date and vice versa
@@ -45,13 +45,14 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided no matter what!
+            This argument is mandatory and must always be provided!
 
-            It can only be one of two different values:
-            's2l' if the request is for Solar date to Lunar date.
-            'l2s' if the request is for Lunar date to Solar date.
+            It can only be one of the two following values:
+            's2l' to convert Solar date to Lunar date,
+            'l2s' to convert Lunar date to Solar date.
 
-            After getting the result, your answer must include both Solar date and Lunar date in the response.
+            After obtaining the result, ensure that your response includes
+            both the Solar date and the Lunar date.
         date_prompt:
           name: Date prompt
           description:
@@ -61,15 +62,16 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided no matter what!
+            This argument is mandatory and must always be provided!
 
-            Provide the date on which the requested conversion. This date should be in the format YYYY-MM-DD.
+            Provide the date for the requested conversion. Use the format YYYY-MM-DD.
 
-            Always provide a date. So, if the request for today, provide today's date.
-            The request for tomorrow, provide tomorrow's date.
-            In case the request does not specify the year, it means the current year.
+            Always include the relevant date: today's for today's request,
+            tomorrow's for tomorrow's request.
 
-            Some specific Lunar calendar terms in Vietnamese:
+            If the request does not specify a year, it means the current year.
+
+            Vietnamese Lunar calendar terms:
             'Tháng Giêng' means January in the Lunar calendar.
             'Tháng Chạp' means December in the Lunar calendar.
             'Ngày Rằm' means the 15th day of the requested month in the Lunar calendar.
@@ -84,11 +86,10 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            Only use this argument if the requested conversion from Lunar date to Solar date.
+            Use this argument only to convert Lunar dates to Solar dates.
 
-            It can only be one of two different values:
-            'true' if the requested month is a leap month.
-            'false' if the requested month is a normal month.
+            It can only be one of the two following values:
+            'true' for a leap month, 'false' for a normal month.
 mode: parallel
 max_exceeded: silent
 fields:

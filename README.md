@@ -1,1 +1,1 @@
-# Tricks and Tutorials
+# Home Assistant Tricks and Tutorials

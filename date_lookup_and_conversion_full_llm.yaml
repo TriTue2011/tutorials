@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Date Conversion And Lookup Tool
+  name: Voice - Date Lookup And Conversion Tool
   author: VuLQ
   description: |
     # Tool converts Solar date to Lunar date and vice versa

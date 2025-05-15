@@ -71,13 +71,13 @@ blueprint:
             The length of the period. This will be measured in days if
             'time_period_type' is 'daily', and in hours if 'time_period_type' is 'hourly'.
 
-            Examples: 1 (day) for today's forecast, 2 (days) for weekend events,
+            Examples: 1 (day) for today's events, 2 (days) for weekend events,
             7 (days) for the next few days, 30 (days) for in the month,
             6 (hours) for morning, afternoon, or evening events.
         date_prompt:
           name: Date prompt
           description:
-            The prompt which will be used for the LLM can provide the start date for the forecast period.
+            The prompt which will be used for the LLM can provide the start date for the events period.
           selector:
             text:
               multiline: true
@@ -93,7 +93,7 @@ blueprint:
         time_prompt:
           name: Time prompt
           description:
-            The prompt which will be used for the LLM can provide the start time for the forecast period.
+            The prompt which will be used for the LLM can provide the start time for the events period.
           selector:
             text:
               multiline: true

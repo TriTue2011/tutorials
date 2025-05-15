@@ -86,7 +86,10 @@ blueprint:
             This argument is mandatory and must always be provided!
 
             Provide the date for the requested period starts. Use the format YYYY-MM-DD.
-            Always provide a date, so in case the request does not specify a date, it means today's date.
+
+            Always include a date with each request. If the request does not specify a date,
+            you should provide today's date. Examples of dates that can be used include
+            today, this week, and this month.
 
             When the requested period is for the night, do not use today's date but
             always use the next day, unless the current time is still before 05:00:00

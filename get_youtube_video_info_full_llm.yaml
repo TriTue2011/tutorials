@@ -96,7 +96,7 @@ sequence:
         variables:
           response:
             error:
-              Unable to provide video info because parameters were set incorrectly.
+              Unable to provide video information because parameters were set incorrectly.
       - alias: Stop the script
         stop: Unable to determine the entity.
         response_variable: response

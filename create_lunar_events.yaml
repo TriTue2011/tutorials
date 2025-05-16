@@ -12,13 +12,13 @@ blueprint:
 
     * Date Conversion Tool script must be installed.
 
-    * A Local Calendar entity.
+    * A Local Calendar or a Google Calendar entity.
 
     ### Note
 
     * When choose Repeat type Yearly, the event will be added to the calendar up to next 15 years.
 
-    * Support Local Calendar Integration entries only. Google Calendar will be supported in the next version.
+    * Support Local Calendar and Google Calendar Integration entries only. Google Calendar must have Read/Write access.
 
   domain: script
   homeassistant:
@@ -34,7 +34,8 @@ blueprint:
             entity:
               filter:
                 - domain: calendar
-                  integration: local_calendar
+                  supported_features:
+                    - calendar.CalendarEntityFeature.CREATE_EVENT
               multiple: false
           default:
 mode: single
@@ -42,7 +43,7 @@ max_exceeded: silent
 fields:
   lunar_date:
     selector:
-      date: {}
+      date:
     required: true
     name: Lunar Date
     description: Choose the start Lunar date of the event.
@@ -58,7 +59,7 @@ fields:
     description: Choose the duration of the event.
   event_summary:
     selector:
-      text: {}
+      text:
     name: Event Summary
     required: true
     description: The summary of the event.
@@ -85,7 +86,7 @@ fields:
     description:
       When the event is in the leap month. The script will force Repeat type option to No Repeat.
     selector:
-      boolean: {}
+      boolean:
 sequence:
   - variables:
       lunar_date: "{{ lunar_date | as_datetime(default='') }}"
@@ -95,11 +96,16 @@ sequence:
       event_description: "{{ event_description | default }}"
       repeat: "{{ repeat | default }}"
       leap_month: "{{ leap_month | default(false) }}"
+      calendar: !input calendar
   - alias: Check if variables were set correctly
     if:
       - condition: template
         value_template: >-
-          {{ start_date == 'n/a' or not event_summary or repeat not in ['no_repeat', 'yearly'] }}
+          {{ start_date == 'n/a'
+            or not event_summary
+            or repeat not in ['no_repeat', 'yearly']
+            or calendar not in (integration_entities('local_calendar') + integration_entities('google'))
+          }}
     then:
       - alias: Stop the script
         stop: Unable to add event because parameters were set incorrectly.
@@ -111,6 +117,21 @@ sequence:
     then:
       - variables:
           repeat: no_repeat
+  - alias: Choose the action
+    choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ calendar in (integration_entities('local_calendar') }}"
+        sequence:
+          - variables:
+              create_event: calendar.create_event
+      - conditions:
+          - condition: template
+            value_template: "{{ calendar in (integration_entities('google') }}"
+        sequence:
+          - variables:
+              create_event: google.create_event
+              delay_milliseconds: 200
   - choose:
       - conditions:
           - condition: template
@@ -125,14 +146,14 @@ sequence:
           - variables:
               solar_date: >-
                 {{ response.date if (response is defined and response.get('date')) }}
-          - action: calendar.create_event
+          - action: "{{ create_event }}"
             data:
               summary: "{{ event_summary }}"
               description: "{{ event_description }}"
               start_date: "{{ solar_date }}"
               end_date: "{{ (as_datetime(solar_date) + timedelta(days=days)).date() }}"
             target:
-              entity_id: !input calendar
+              entity_id: "{{ calendar }}"
       - conditions:
           - condition: template
             value_template: "{{ repeat == 'yearly' }}"
@@ -148,7 +169,7 @@ sequence:
                 - variables:
                     solar_date: >-
                       {{ response.date if (response is defined and response.get('date')) }}
-                - action: calendar.create_event
+                - action: "{{ create_event }}"
                   data:
                     summary: "{{ event_summary }}"
                     description: "{{ event_description }}"
@@ -156,8 +177,18 @@ sequence:
                     end_date: >-
                       {{ (as_datetime(solar_date) + timedelta(days=days)).date() }}
                   target:
-                    entity_id: !input calendar
+                    entity_id: "{{ calendar }}"
                 - variables:
                     start_date: >-
                       {{ as_datetime(start_date).replace(year=as_datetime(start_date).year + 1).date() }}
+                - alias: Add a small delay when creating Google Calendar events.
+                  if:
+                    - condition: template
+                      value_template: "{{ delay_milliseconds is defined }}"
+                  then:
+                    - delay:
+                        hours: 0
+                        minutes: 0
+                        seconds: 0
+                        milliseconds: "{{ delay_milliseconds }}"
               count: 16

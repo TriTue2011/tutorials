@@ -146,7 +146,7 @@ sequence:
       start_date: "{{ start_date | as_datetime(default='') }}"
       start_time: "{{ start_time | default('00:00:00') | as_timedelta | default('00:00:00', true) }}"
       start: >-
-        {{ (start_date | as_datetime + as_timedelta(start_time)) | as_local if start_date else 'n/a' }}
+        {{ (start_date | as_datetime + as_timedelta(start_time)).isoformat() if start_date else 'n/a' }}
       end: >-
         {% if start != 'n/a' %}
         {% set start = as_datetime(start) %}

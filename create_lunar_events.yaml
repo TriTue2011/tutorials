@@ -34,6 +34,8 @@ blueprint:
             entity:
               filter:
                 - domain: calendar
+                  # supported_features: # Disable because a bug of parsing error from HA frontend.
+                  #   - calendar.CalendarEntityFeature.CREATE_EVENT
               multiple: false
           default:
 mode: single

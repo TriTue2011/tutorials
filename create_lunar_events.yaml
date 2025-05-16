@@ -35,7 +35,7 @@ blueprint:
               filter:
                 - domain: calendar
                   supported_features:
-                    - 1
+                    - calendar.CalendarEntityFeature.CREATE_EVENT
               multiple: false
           default:
 mode: single

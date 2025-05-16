@@ -57,6 +57,12 @@ blueprint:
             examples: today, next Thursday, coming weekend, next week, this month.
             Use 'hourly' if the request for a part of a day,
             examples: at 8 hours this evening, next morning, from 6 to 10.
+
+            After obtaining the result, ensure that your response
+            includes only the start date of the event.
+            Add the duration only if the event is longer
+            than 2 days for daily events, and longer
+            than 2 hours for hourly events.
         time_period_length_prompt:
           name: Time period length prompt
           description:

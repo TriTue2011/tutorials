@@ -146,13 +146,13 @@ sequence:
       start_date: "{{ start_date | as_datetime(default='') }}"
       start_time: "{{ start_time | default('00:00:00') | as_timedelta | default('00:00:00', true) }}"
       start: >-
-        {{ (start_date | as_datetime + as_timedelta(start_time)).isoformat() if start_date else 'n/a' }}
+        {{ (start_date | as_datetime + as_timedelta(start_time)) | as_local if start_date else 'n/a' }}
       end: >-
         {% if start != 'n/a' %}
         {% set start = as_datetime(start) %}
         {% set add = time_period_length | int(1) | abs %}
         {% set type = time_period_type if (time_period_type | default) in ['daily', 'hourly'] else 'daily' %}
-        {{ (start + timedelta(days = add if type == 'daily' else 0, hours = add if type == 'hourly' else 0)).isoformat() }}
+        {{ (start + timedelta(days = add if type == 'daily' else 0, hours = add if type == 'hourly' else 0)) | as_local }}
         {% endif %}
   - alias: Check if variables were set correctly
     if:

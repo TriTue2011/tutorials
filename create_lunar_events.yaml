@@ -119,13 +119,13 @@ sequence:
     choose:
       - conditions:
           - condition: template
-            value_template: "{{ calendar in (integration_entities('local_calendar') }}"
+            value_template: "{{ calendar in integration_entities('local_calendar') }}"
         sequence:
           - variables:
               create_event: calendar.create_event
       - conditions:
           - condition: template
-            value_template: "{{ calendar in (integration_entities('google') }}"
+            value_template: "{{ calendar in integration_entities('google') }}"
         sequence:
           - variables:
               create_event: google.create_event

@@ -58,7 +58,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the media ID of the video you want to play.
+            Provide the Media ID URL of the video you want to play.
 mode: parallel
 max_exceeded: silent
 fields:

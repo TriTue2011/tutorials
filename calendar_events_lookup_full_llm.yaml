@@ -53,8 +53,8 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Use 'daily' if the request for full days.
-            Use 'hourly' if the request for a part of a day.
+            Use 'daily' for requests covering full days or periods longer than one day.
+            Use 'hourly' for requests covering part of a day or a specific start hour.
 
             After obtaining the result, ensure that your response
             includes only the start date of the event.

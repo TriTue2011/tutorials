@@ -53,15 +53,13 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Use 'daily' if the request for full days,
-            examples: today, next Thursday, coming weekend, next week, this month.
-            Use 'hourly' if the request for a part of a day,
-            examples: at 8 hours this evening, next morning, from 6 to 10.
+            Use 'daily' if the request for full days.
+            Use 'hourly' if the request for a part of a day.
 
             After obtaining the result, ensure that your response
             includes only the start date of the event.
-            Add the duration only if the event is longer
-            than 2 days for daily events, and longer
+            Add the duration only if the event is larger
+            than 2 days for daily events, and larger
             than 2 hours for hourly events.
         time_period_length_prompt:
           name: Time period length prompt
@@ -94,8 +92,8 @@ blueprint:
             Provide the date for the requested period starts. Use the format YYYY-MM-DD.
 
             Always include a date with each request. If the request does not specify a date,
-            you should provide today's date. Examples of dates that can be used include
-            today, this week, and this month.
+            you should provide today's date. Examples of dates that can be used
+            include today, this week, this month, etc.
 
             When the requested period is for the night, do not use today's date but
             always use the next day, unless the current time is still before 05:00:00
@@ -152,7 +150,7 @@ sequence:
       start_date: "{{ start_date | as_datetime(default='') }}"
       start_time: "{{ start_time | default('00:00:00') | as_timedelta | default('00:00:00', true) }}"
       start: >-
-        {{ (start_date | as_datetime + as_timedelta(start_time)) | as_local if start_date else 'n/a' }}
+        {{ ((start_date | as_datetime + as_timedelta(start_time)) | as_local) if start_date else 'n/a' }}
       end: >-
         {% if start != 'n/a' %}
         {% set start = as_datetime(start) %}

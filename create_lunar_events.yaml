@@ -72,19 +72,18 @@ fields:
     description: More details about the event.
   repeat:
     selector:
-      select:
-        options:
-          - label: No Repeat
-            value: no_repeat
-          - label: Yearly
-            value: yearly
+      number:
+        min: 1
+        max: 30
+        step: 1
+        mode: slice
     name: Repeat
-    required: true
-    description: Choose the repeat type.
+    default: 1
+    description: Select the number of years the event will repeat.
   leap_month:
     name: Leap Month
     description:
-      When the event is in the leap month. The script will force Repeat type option to No Repeat.
+      When the event is in the leap month. The script will force Repeat to 1 which means no repeat.
     selector:
       boolean:
 sequence:
@@ -94,7 +93,7 @@ sequence:
       days: "{{ days | int(1) | abs }}"
       event_summary: "{{ event_summary | default }}"
       event_description: "{{ event_description | default }}"
-      repeat: "{{ repeat | default }}"
+      repeat: "{{ repeat | int(1) | abs }}"
       leap_month: "{{ leap_month | default(false) }}"
       calendar: !input calendar
   - alias: Check if variables were set correctly
@@ -103,7 +102,6 @@ sequence:
         value_template: >-
           {{ start_date == 'n/a'
             or not event_summary
-            or repeat not in ['no_repeat', 'yearly']
             or calendar not in (integration_entities('local_calendar') + integration_entities('google'))
           }}
     then:
@@ -116,7 +114,7 @@ sequence:
         value_template: "{{ leap_month }}"
     then:
       - variables:
-          repeat: no_repeat
+          repeat: 1
   - alias: Choose the action
     choose:
       - conditions:
@@ -132,63 +130,37 @@ sequence:
           - variables:
               create_event: google.create_event
               delay_milliseconds: 200
-  - choose:
-      - conditions:
-          - condition: template
-            value_template: "{{ repeat == 'no_repeat' }}"
-        sequence:
-          - action: pyscript.date_conversion_tool
-            data:
-              conversion_type: l2s
-              date: "{{ start_date }}"
-              leap_month: "{{ leap_month }}"
-            response_variable: response
-          - variables:
-              solar_date: >-
-                {{ response.date if (response is defined and response.get('date')) }}
-          - action: "{{ create_event }}"
-            data:
-              summary: "{{ event_summary }}"
-              description: "{{ event_description }}"
-              start_date: "{{ solar_date }}"
-              end_date: "{{ (as_datetime(solar_date) + timedelta(days=days)).date() }}"
-            target:
-              entity_id: "{{ calendar }}"
-      - conditions:
-          - condition: template
-            value_template: "{{ repeat == 'yearly' }}"
-        sequence:
-          - repeat:
-              sequence:
-                - action: pyscript.date_conversion_tool
-                  data:
-                    conversion_type: l2s
-                    date: "{{ start_date }}"
-                    leap_month: "{{ leap_month }}"
-                  response_variable: response
-                - variables:
-                    solar_date: >-
-                      {{ response.date if (response is defined and response.get('date')) }}
-                - action: "{{ create_event }}"
-                  data:
-                    summary: "{{ event_summary }}"
-                    description: "{{ event_description }}"
-                    start_date: "{{ solar_date }}"
-                    end_date: >-
-                      {{ (as_datetime(solar_date) + timedelta(days=days)).date() }}
-                  target:
-                    entity_id: "{{ calendar }}"
-                - variables:
-                    start_date: >-
-                      {{ as_datetime(start_date).replace(year=as_datetime(start_date).year + 1).date() }}
-                - alias: Add a small delay when creating Google Calendar events.
-                  if:
-                    - condition: template
-                      value_template: "{{ delay_milliseconds is defined }}"
-                  then:
-                    - delay:
-                        hours: 0
-                        minutes: 0
-                        seconds: 0
-                        milliseconds: "{{ delay_milliseconds }}"
-              count: 16
+  - repeat:
+      sequence:
+        - action: pyscript.date_conversion_tool
+          data:
+            conversion_type: l2s
+            date: "{{ start_date }}"
+            leap_month: "{{ leap_month }}"
+          response_variable: response
+        - variables:
+            solar_date: >-
+              {{ response.date if (response is defined and response.get('date')) }}
+        - action: "{{ create_event }}"
+          data:
+            summary: "{{ event_summary }}"
+            description: "{{ event_description }}"
+            start_date: "{{ solar_date }}"
+            end_date: >-
+              {{ (as_datetime(solar_date) + timedelta(days=days)).date() }}
+          target:
+            entity_id: "{{ calendar }}"
+        - variables:
+            start_date: >-
+              {{ as_datetime(start_date).replace(year=as_datetime(start_date).year + 1).date() }}
+        - alias: Add a small delay when creating Google Calendar events.
+          if:
+            - condition: template
+              value_template: "{{ delay_milliseconds is defined }}"
+          then:
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 0
+                milliseconds: "{{ delay_milliseconds }}"
+      count: "{{ repeat }}"

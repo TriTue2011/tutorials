@@ -92,10 +92,10 @@ sequence:
   - variables:
       lunar_date: "{{ lunar_date | as_datetime(default='') }}"
       start_date: "{{ as_datetime(lunar_date).date() if lunar_date else 'n/a' }}"
-      days: "{{ days | int(1) | abs }}"
+      days: "{{ days | default(1) | abs }}"
       event_summary: "{{ event_summary | default }}"
       event_description: "{{ event_description | default }}"
-      repeat: "{{ repeat | int(1) | abs }}"
+      repeat: "{{ repeat | default(1) | abs }}"
       leap_month: "{{ leap_month | default(false) }}"
       calendar: !input calendar
   - alias: Check if variables were set correctly

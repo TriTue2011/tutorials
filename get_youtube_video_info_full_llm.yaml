@@ -86,7 +86,7 @@ fields:
 sequence:
   - variables:
       entity_name: "{{ entity_name | default }}"
-      period_length: "{{ period_length | int(10) | abs }}"
+      period_length: "{{ period_length | default(10) | abs }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

@@ -56,9 +56,8 @@ blueprint:
             Use 'daily' for requests covering full days or periods longer than one day.
             Use 'hourly' for requests covering part of a day or a specific start hour.
 
-            After obtaining the result, ensure that your response includes the
-            event's start date and weekday. Only mention the event's duration
-            if daily events exceed 3 days or hourly events exceed 3 hours.
+            After obtaining the result, ensure that your response includes the event's weekday and start date.
+            Only mention the duration or the end date if it is greater than 3 days for daily events, or greater than 3 hours for hourly events.
         time_period_length_prompt:
           name: Time period length prompt
           description:
@@ -152,7 +151,7 @@ sequence:
       end: >-
         {% if start != 'n/a' %}
         {% set start = as_datetime(start) %}
-        {% set add = time_period_length | int(1) | abs %}
+        {% set add = time_period_length | default(1) | abs %}
         {% set type = time_period_type if (time_period_type | default) in ['daily', 'hourly'] else 'daily' %}
         {{ (start + timedelta(days = add if type == 'daily' else 0, hours = add if type == 'hourly' else 0)) | as_local }}
         {% endif %}

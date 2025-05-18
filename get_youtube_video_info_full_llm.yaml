@@ -117,7 +117,6 @@ sequence:
             if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
           - title: {{ entry.title | title }}
             channel: {{ entity.strip() }}
-            published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z').isoformat() }}
             published_relative_time: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
             media_id: {{ entry.link }}
 

@@ -50,6 +50,7 @@ blueprint:
             Provide the full name of the YouTube channel entity to query video info.
 
             When requesting multiple YouTube channels, separate each channel name by a semicolon.
+            When requesting all YouTube channels, it means finding all available channel entities.
 
             After obtaining the result, ask to play the video on the TV.
             Do not include the Media ID URL in your response.
@@ -95,9 +96,9 @@ sequence:
         value_template: >-
           {% set validation = namespace(existed=false) -%}
           {% for entity in entities.split(';') -%}
-            {% if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list | count) > 0 -%}
-            {% set validation.existed = true -%}
-            {% endif -%}
+          {% if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list | count) > 0 -%}
+          {% set validation.existed = true -%}
+          {% endif -%}
           {% endfor -%}
           {{ not validation.existed }}
     then:
@@ -114,10 +115,10 @@ sequence:
         entries: >-
           {% for entity in entities.split(';') -%}
           {% for entry in state_attr((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first), 'entries')
-            if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
-          - title: {{ entry.title | title }}
-            channel: {{ entity.strip() }}
-            published_relative_time: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
+          if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
+          - channel: {{ entity.strip() }}
+            title: {{ entry.title | title }}
+            published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
             media_id: {{ entry.link }}
 
           {% endfor -%}

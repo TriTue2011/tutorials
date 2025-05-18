@@ -67,7 +67,7 @@ blueprint:
             This argument is optional. This will be the number of days
             since the date of the videos published until now.
 
-            Default is 5 (days). The minimum is 1 (day). The maximum is 30 (days).
+            Default is 3 (days). The minimum is 1 (day). The maximum is 30 (days).
             Today means 1 (day). This week means 7 (days). This month means 30 (days).
 mode: parallel
 max_exceeded: silent
@@ -85,11 +85,11 @@ fields:
       number:
         min: 1
         max: 30
-    default: 5
+    default: 3
 sequence:
   - variables:
       entities: "{{ entities | default }}"
-      period_length: "{{ period_length | default(5) | abs }}"
+      period_length: "{{ period_length | default(3) | abs }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

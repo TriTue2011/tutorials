@@ -110,20 +110,18 @@ sequence:
         stop: Unable to determine the entity.
         response_variable: response
   - variables:
+      entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entities) | first }}"
       response:
         entries: >-
           {% for entity in entities.split(';') -%}
-            {% set entries = state_attr((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first), 'entries')
-              if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
-            {% if (entries | count) > 0 -%}
-            - {{ entity.strip() }}
-            {% for entry in entries -%}
-            - title: {{ entry.title | title }}
-              published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z').isoformat() }}
-              published_relative_time: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
-              media_id: {{ entry.link }}
-            {% endfor -%}
-            {% endif -%}
+          {% for entry in state_attr((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first), 'entries')
+            if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
+          - title: {{ entry.title | title }}
+            channel: {{ entity.strip() }}
+            published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z').isoformat() }}
+            published_relative_time: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
+            media_id: {{ entry.link }}
+          {% endfor -%}
           {% endfor -%}
 
   - stop: ""

@@ -49,6 +49,8 @@ blueprint:
 
             Provide the full name of the YouTube Channel entity to query video info.
 
+            When requesting multiple YouTube channels, execute the script multiple times.
+
             After obtaining the result, ask to play the video on the TV.
             Do not include the Media ID URL in your response.
         period_length_prompt:

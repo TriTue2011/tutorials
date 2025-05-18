@@ -129,7 +129,7 @@ sequence:
             error:
               Unable to provide date conversion because parameters were set incorrectly.
       - alias: Stop the script
-        stop: Unable to determine the conversion type.
+        stop: Unable to provide date conversion because parameters were set incorrectly.
         response_variable: response
   - action: pyscript.date_conversion_tool
     response_variable: response

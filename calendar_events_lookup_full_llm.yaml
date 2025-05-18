@@ -166,7 +166,7 @@ sequence:
             error:
               Unable to provide calendar events because parameters were set incorrectly.
       - alias: Stop the script
-        stop: Unable to determine the date for the calendar events, or the date is in the past.
+        stop: Unable to provide calendar events because parameters were set incorrectly.
         response_variable: response
   - action: calendar.get_events
     target:

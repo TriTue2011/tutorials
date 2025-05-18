@@ -47,7 +47,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the full name of the YouTube Channel entity to query video info.
+            Provide the full name of the YouTube channel entity to query video info.
 
             When requesting multiple YouTube channels, execute the script multiple times.
 

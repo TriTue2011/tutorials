@@ -16,8 +16,6 @@ blueprint:
 
     ### Note
 
-    * When choose Repeat type Yearly, the event will be added to the calendar up to next 15 years.
-
     * Support Local Calendar and Google Calendar Integration entries only. Google Calendar must have Read/Write access.
 
   domain: script

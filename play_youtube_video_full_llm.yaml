@@ -17,7 +17,7 @@ blueprint:
 
     ### Note
 
-    * Give the script a clear description. This will be used by the LLM to understand
+    * Give the script a clear description. This will be used by LLM to understand
     it should use this script for playing YouTube video on a smart TV.
 
     * Make sure to expose the script to Assist after the script has been saved.
@@ -50,7 +50,7 @@ blueprint:
         media_id_prompt:
           name: Media ID Prompt
           description:
-            The prompt which will be used to the LLM can provide the entity for the query.
+            The prompt which will be used for the LLM can provide the entity for the query.
           selector:
             text:
               multiline: true

@@ -19,8 +19,8 @@ blueprint:
 
     ### Note
 
-    * Give the script a clear description. This will be used by the LLM to understand
-    it should use this script for date conversion from Solar date to Lunar date and vice versa.
+    * Give the script a clear description. This will be used by LLM to understand it should
+    use this script for date conversion from Solar date to Lunar date and vice versa.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
@@ -39,7 +39,7 @@ blueprint:
         conversion_type_prompt:
           name: Conversion type prompt
           description:
-            The prompt which will be used to the LLM can provide the type for the conversion.
+            The prompt which will be used for the LLM can provide the type for the conversion.
           selector:
             text:
               multiline: true
@@ -56,7 +56,7 @@ blueprint:
         date_prompt:
           name: Date prompt
           description:
-            The prompt which will be used to the LLM can provide the input date for the conversion.
+            The prompt which will be used for the LLM can provide the input date for the conversion.
           selector:
             text:
               multiline: true
@@ -80,7 +80,7 @@ blueprint:
         leap_month_prompt:
           name: Leap month prompt
           description:
-            The prompt which will be used to the LLM can provide the leap month for the conversion.
+            The prompt which will be used for the LLM can provide the leap month for the conversion.
           selector:
             text:
               multiline: true

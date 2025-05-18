@@ -95,7 +95,7 @@ sequence:
       - condition: template
         value_template: >-
           {% set validation = namespace(existed=false) -%}
-          {% for entity in entities.split(';') -%}
+          {% for entity in entities.split(';') if not validation.existed -%}
           {% if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list | count) > 0 -%}
           {% set validation.existed = true -%}
           {% endif -%}

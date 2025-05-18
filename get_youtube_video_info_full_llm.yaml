@@ -84,6 +84,7 @@ fields:
       number:
         min: 1
         max: 30
+    default: 5
 sequence:
   - variables:
       entities: "{{ entities | default }}"

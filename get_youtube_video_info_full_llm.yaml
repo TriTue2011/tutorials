@@ -47,7 +47,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the name of the YouTube channel entity to query video information.
+            Provide the full name of which YouTube channel entity to query video info.
 
             After obtaining the result, ask to play the video on the TV.
             Do not include the Media ID URL in your response.

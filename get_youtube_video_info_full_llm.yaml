@@ -122,8 +122,6 @@ sequence:
             media_id: {{ entry.link }}
 
           {% endfor -%}
-
           {% endfor -%}
-
   - stop: ""
     response_variable: response

@@ -53,7 +53,6 @@ fields:
         min: 1
         max: 30
         step: 1
-        mode: box
     name: Days
     default: 1
     description: Choose the duration of the event.
@@ -76,7 +75,6 @@ fields:
         min: 1
         max: 30
         step: 1
-        mode: slider
     name: Repeat
     default: 1
     description: Select the number of years the event will repeat.

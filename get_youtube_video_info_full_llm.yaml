@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Get YouTube Video Info Tool
   author: VuLQ
   description: |
-    # Tool gets YouTube video info from entity attributes using for LLM
+    # Tool gets YouTube video info using for LLM
 
     ## Blueprint Setup
 
@@ -36,10 +36,10 @@ blueprint:
         LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
-        entity_name_prompt:
-          name: Entity Name Prompt
+        entities_prompt:
+          name: Entities Prompt
           description:
-            The prompt which will be used to the LLM can provide the entity for the query.
+            The prompt which will be used to the LLM can provide the entities for the query.
           selector:
             text:
               multiline: true
@@ -49,7 +49,7 @@ blueprint:
 
             Provide the full name of the YouTube channel entity to query video info.
 
-            When requesting multiple YouTube channels, execute the script multiple times.
+            When requesting multiple YouTube channels, separate each channel name by a semicolon.
 
             After obtaining the result, ask to play the video on the TV.
             Do not include the Media ID URL in your response.
@@ -66,15 +66,14 @@ blueprint:
             This argument is optional. This will be the number of days
             since the date of the videos published until now.
 
-            Default is 10 (days). The minimum is 1 (day). The maximum is 30 (days).
-            Today means 1 (day). Recent days means 5 (days).
-            This week means 7 (days). This month means 30 (days).
+            Default is 5 (days). The minimum is 1 (day). The maximum is 30 (days).
+            Today means 1 (day). This week means 7 (days). This month means 30 (days).
 mode: parallel
 max_exceeded: silent
 fields:
-  entity_name:
-    name: Entity Name
-    description: !input entity_name_prompt
+  entities:
+    name: Entities
+    description: !input entities_prompt
     selector:
         text:
     required: true
@@ -87,12 +86,19 @@ fields:
         max: 30
 sequence:
   - variables:
-      entity_name: "{{ entity_name | default }}"
-      period_length: "{{ period_length | default(10) | abs }}"
+      entities: "{{ entities | default }}"
+      period_length: "{{ period_length | default(5) | abs }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: "{{ not (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | list) }}"
+        value_template: >-
+          {% set validation = namespace(existed=false) -%}
+          {% for entity in entities.split(';') -%}
+            {% if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list | count) > 0 -%}
+            {% set validation.existed = true -%}
+            {% endif -%}
+          {% endfor -%}
+          {{ not validation.existed }}
     then:
       - alias: Set variable for error message
         variables:
@@ -103,23 +109,19 @@ sequence:
         stop: Unable to determine the entity.
         response_variable: response
   - variables:
-      entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity_name) | first }}"
+      entity_id: "{{ integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entities) | first }}"
       response:
-        entries: >
-          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
-          - title: {{ entity.title | title }}
-            published: {{ strptime(entity.published, '%Y-%m-%dT%H:%M:%S%z').isoformat() }}
-            published_relative_time: {{ strptime(entity.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
-            media_id: {{ entity.link }}
-
+        entries: >-
+          {% for entity in entities.split(';') -%}
+          - {{ entity.strip() }}
+            {% for entry in state_attr((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first), 'entries')
+              if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
+            - title: {{ entry.title | title }}
+              published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z').isoformat() }}
+              published_relative_time: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
+              media_id: {{ entry.link }}
+            {% endfor -%}
           {% endfor -%}
-
-        total_entries: >
-          {% set ns = namespace(entries=0) -%}
-          {% for entity in state_attr(entity_id, 'entries') if (strptime(entity.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
-            {% set ns.entries = ns.entries + 1 -%}
-          {% endfor -%}
-          {{ ns.entries }}
 
   - stop: ""
     response_variable: response

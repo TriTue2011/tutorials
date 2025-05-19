@@ -57,7 +57,8 @@ blueprint:
             Use 'hourly' for requests covering part of a day or a specific start hour.
 
             After obtaining the result, ensure that your response includes the event's weekday and start date.
-            Only response the duration or the end date if the event is longer than 3 days for daily event or more than 3 hours for hourly event.
+
+            Only response the end date if the event is greater than 3 days for daily event or greater than 3 hours for hourly event.
         time_period_length_prompt:
           name: Time period length prompt
           description:

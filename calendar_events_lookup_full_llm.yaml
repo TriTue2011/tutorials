@@ -58,7 +58,7 @@ blueprint:
 
             After obtaining the result, ensure that your response includes the event's weekday and start date.
 
-            Only response the event's end date if it is greater than 3 days for daily event or greater than 3 hours for hourly event.
+            Only include the event's end date if it is greater than 3 days for daily events or greater than 3 hours for hourly events.
         time_period_length_prompt:
           name: Time period length prompt
           description:

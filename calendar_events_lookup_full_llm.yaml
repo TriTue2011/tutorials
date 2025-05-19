@@ -58,7 +58,7 @@ blueprint:
 
             After obtaining the result, ensure your response includes the event's weekday and start date.
 
-            Include the event's end date only if the event lasts more than three days, or more than three hours for events shorter than a day.
+            Only include the event's end date if the event lasts more than three days, or more than three hours for events shorter than a day.
         time_period_length_prompt:
           name: Time period length prompt
           description:

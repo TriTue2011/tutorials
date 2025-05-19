@@ -57,7 +57,7 @@ blueprint:
             Use 'hourly' for requests covering part of a day or a specific start hour.
 
             After obtaining the result, ensure that your response includes the event's weekday and start date/time.
-            Only mention the end date/time if it is greater than 3 days for daily events, or greater than 3 hours for hourly events.
+            Mention the end date/time only if it exceeds 3 days for daily events or 3 hours for hourly events.
         time_period_length_prompt:
           name: Time period length prompt
           description:

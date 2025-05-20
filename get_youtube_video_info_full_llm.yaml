@@ -115,10 +115,10 @@ sequence:
         entries: >-
           {% for entity in entities.split(';') -%}
           {% for entry in state_attr((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first), 'entries')
-          if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
+          if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%:z') > (now() - timedelta(days=period_length))) -%}
           - channel: {{ entry.author | title }}
             title: {{ entry.title | title }}
-            published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
+            published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%:z') | relative_time }} ago
             media_id: {{ entry.link }}
 
           {% endfor -%}

@@ -58,12 +58,12 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the Media ID URL of the video you want to play.
+            Provide the Media ID of the video you want to play.
 mode: parallel
 max_exceeded: silent
 fields:
   media_id:
-    name: Media ID URL
+    name: Media ID
     description: !input media_id_prompt
     selector:
         text:
@@ -76,7 +76,7 @@ sequence:
     if:
       - condition: template
         value_template: >-
-          {{ not (media_id and media_id.startswith('https://www.youtube.com/watch?v=')) }}
+          {{ not media_id }}
     then:
       - alias: Set variable for error message
         variables:
@@ -91,7 +91,7 @@ sequence:
       entity_id: "{{ media_player }}"
   - action: media_player.play_media
     data:
-      media_content_type: url
-      media_content_id: "{{ media_id }}"
+      media_content_type: video/youtube
+      media_content_id: "{{ 'https://www.youtube.com/watch?v=' ~ media_id }}"
     target:
       entity_id: "{{ media_player }}"

@@ -119,7 +119,7 @@ sequence:
           - channel: {{ entry.author | title }}
             title: {{ entry.title | title }}
             published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%:z') | relative_time }} ago
-            media_id: {{ entry.link }}
+            media_id: {{ entry.yt_videoid }}
 
           {% endfor -%}
           {% endfor -%}

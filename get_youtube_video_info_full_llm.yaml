@@ -53,7 +53,7 @@ blueprint:
             When requesting all YouTube channels, it means finding all available channels.
 
             After obtaining the result, ask to play the video on the TV.
-            Do not include the Media ID URL in your response.
+            Do not include the Media ID in your response.
         period_length_prompt:
           name: Period Length Prompt
           description:

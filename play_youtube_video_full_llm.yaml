@@ -91,7 +91,7 @@ sequence:
       entity_id: "{{ media_player }}"
   - action: media_player.play_media
     data:
-      media_content_type: video/youtube
+      media_content_type: url
       media_content_id: "{{ 'https://www.youtube.com/watch?v=' ~ media_id }}"
     target:
       entity_id: "{{ media_player }}"

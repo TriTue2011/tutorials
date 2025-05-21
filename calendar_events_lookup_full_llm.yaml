@@ -171,7 +171,7 @@ sequence:
   - action: calendar.get_events
     target:
       entity_id: !input calendar_entities
-    response_variable: result
+    response_variable: response
     data:
       start_date_time: "{{ start }}"
       end_date_time: "{{ end }}"
@@ -179,7 +179,7 @@ sequence:
       response:
         events: >-
           {{
-            result.values()
+            response.values()
               | map(attribute='events')
               | sum(start=[])
               | sort(attribute='start')

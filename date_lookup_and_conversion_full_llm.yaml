@@ -53,7 +53,8 @@ blueprint:
 
             After obtaining the result, ensure that your response clearly
             specifies the day of the week, the Solar date, and the Lunar date.
-            If the remaining days exceed zero, make sure to include them in your response.
+
+            If the remaining days are greater than zero, include them in your response.
         date_prompt:
           name: Date prompt
           description:

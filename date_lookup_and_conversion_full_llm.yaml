@@ -51,8 +51,8 @@ blueprint:
             's2l' to convert Solar date to Lunar date,
             'l2s' to convert Lunar date to Solar date.
 
-            After obtaining the result, ensure that your response clearly specifies
-            the day of the week, the Solar date, the Lunar date, and the number of remaining days.
+            After obtaining the result, ensure that your response clearly specifies the day
+            of the week, the Solar date, the Lunar date, and the number of remaining days.
         date_prompt:
           name: Date prompt
           description:

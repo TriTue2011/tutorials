@@ -182,7 +182,7 @@ sequence:
             response.values()
               | map(attribute='events')
               | sum(start=[])
-              | sort(attribute=start)
+              | sort(attribute='start')
           }}
   - stop: ""
     response_variable: result

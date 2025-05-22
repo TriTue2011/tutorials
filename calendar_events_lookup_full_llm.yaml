@@ -177,12 +177,6 @@ sequence:
       end_date_time: "{{ end }}"
   - variables:
       response:
-        events: >-
-          {{
-            response.values()
-              | map(attribute='events')
-              | sum(start=[])
-              | sort(attribute='start')
-          }}
+        events: "{{ merge_response(response) | sort(attribute='start') }}"
   - stop: ""
     response_variable: response

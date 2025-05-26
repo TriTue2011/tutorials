@@ -17,8 +17,9 @@ blueprint:
 
     ### Note
 
-    * Give the script a clear description. This will be used by LLM to understand
-    it should use this script to get events from selected calendars.
+    * Provide a concise and precise description for the script.
+    This script will be utilized by the LLM to understand that
+    it should retrieve events from the specified calendars.
 
     * Make sure to expose the script to Assist after the script has been saved.
   domain: script

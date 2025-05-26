@@ -19,8 +19,9 @@ blueprint:
 
     ### Note
 
-    * Give the script a clear description. This will be used by LLM to understand it should
-    use this script for date conversion from Solar date to Lunar date and vice versa.
+    * Provide a concise and precise description for the script.
+    This will be utilized by the LLM to understand it should use this
+    script for date conversion from Solar date to Lunar date and vice versa.
 
     * Make sure to expose the script to Assist after the script has been saved.
 

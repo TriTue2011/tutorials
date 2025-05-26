@@ -19,8 +19,9 @@ blueprint:
 
     ### Note
 
-    * Give the script a clear description. This will be used by LLM to understand
-    it should use this script to get the latest video info on a YouTube channel.
+    * Provide a concise and precise description for the script.
+    This description will enable the LLM to recognize that the script is designed to
+    retrieve the latest video information from a YouTube channel or multiple channels.
 
     * Make sure to expose the script to Assist after the script has been saved.
 

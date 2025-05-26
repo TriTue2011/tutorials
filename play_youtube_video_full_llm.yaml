@@ -17,8 +17,9 @@ blueprint:
 
     ### Note
 
-    * Give the script a clear description. This will be used by LLM to understand
-    it should use this script for playing YouTube video on a smart TV.
+    * Provide a concise and precise description for the script.
+    This will be utilized by the LLM to understand it should
+    use this script for playing YouTube videos on a smart TV.
 
     * Make sure to expose the script to Assist after the script has been saved.
 

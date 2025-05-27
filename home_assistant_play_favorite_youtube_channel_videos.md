@@ -70,9 +70,11 @@ sensor:
     date_format: "%Y-%m-%dT%H:%M:%S%z"
 ```
 
+> Lặp lại các bước trên với những kênh YouTube khác bạn muốn thêm nữa.
+
 > Sau khi thêm xong khởi động lại Home Assistant.
 
-> Sau khi khởi động lại, chia sẻ sensor kênh YouTube mới tạo đó với Assist.
+> Sau khi khởi động lại, chia sẻ sensor các kênh YouTube mới tạo đó với Assist.
 
 ## Bước 2: Thêm kịch bản cho Assist
 

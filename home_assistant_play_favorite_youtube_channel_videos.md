@@ -98,6 +98,8 @@ sensor:
 
 > Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. Chỉ định một Smart TV sẽ phát video lên khi gọi Assist. **Giữ tên kịch bản mặc định không thay đổi.**
 
+![image](images/20250527_JC5AOg.png)
+
 > Sau khi tạo xong, chia sẻ kịch bản đó với Assist.
 
 ![image](images/20250527_oMWjtW.png)

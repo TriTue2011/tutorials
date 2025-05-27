@@ -78,7 +78,7 @@ sensor:
 
 > Sau khi khởi động lại, chia sẻ sensor các kênh YouTube mới tạo đó với Assist.
 
-![image](images/20250527_tiJyrT.png)
+![image](images/20250527_gCfAcK.png)
 
 ## Bước 2: Thêm kịch bản cho Assist
 

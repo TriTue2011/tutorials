@@ -113,4 +113,6 @@ sensor:
 
 >> Tuần này [Tên Kênh] và [Tên Kênh] có video mới không? -> Assist trả lời -> Mở video XXX nhé.
 
+>> Tháng này [Tên Kênh] hay là [Tên Kênh] có video nào mới không? Hãy phát nó lên TV ngay bây giờ.
+
 > **Nếu bạn thích tính năng này, hãy theo dõi để đón chờ thêm những tính năng mới hay ho hơn nữa nhé.**

@@ -107,10 +107,10 @@ sensor:
 > **Vậy là xong. Bây giờ bạn có thể thử với một số mẫu câu lệnh như sau, hoặc tùy trí tưởng tượng của bạn:**
 
 >> Hôm nay có video YouTube nào mới không?
->> -> Assist trả lời -> Mở video XXX nhé (XXX chỉ cần là 1 phần trong tiêu đề của video).
+>> -> Assist trả lời -> Mở video A_B_C nhé (A_B_C chỉ cần là 1 phần nhỏ trong tiêu đề của video).
 
->> Gần đây kênh [Tên Kênh] có video nào mới không? Hãy phát nó lên TV.
+>> Gần đây [Tên Kênh] có video nào mới không? Hãy phát nó lên TV ngay bây giờ.
 
->> Tuần này kênh [Tên Kênh] và kênh [Tên Kênh] có video mới không? -> Assist trả lời -> Mở video XXX nhé.
+>> Tuần này [Tên Kênh] và [Tên Kênh] có video mới không? -> Assist trả lời -> Mở video A_B_C nhé.
 
 > **Nếu bạn thích tính năng này, hãy theo dõi để đón chờ thêm những tính năng mới hay ho hơn nữa nhé.**

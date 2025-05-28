@@ -12,11 +12,7 @@
 
 > **Yêu cầu cần có một Smart TV đã tích hợp lên Home Assistant**
 
-<div style="text-align: center;">
-
 ![image](images/20250528_210348.jpg))
-
-</div>
 
 ## Bước 1: Lấy thông tin danh sách video từ các kênh Youtube yêu thích
 
@@ -32,11 +28,7 @@
 
 > Nhập đường dẫn kênh YouTube mà bạn yêu thích để lấy ID của kênh.
 
-<div style="text-align: center;">
-
 ![image](images/20250527_FdZbGj.png)
-
-</div>
 
 > Sau khi có ID của kênh YouTube, thêm sensor như sau vào tập tin cấu hình configuration.yaml của Home Assistant.
 
@@ -88,11 +80,7 @@ sensor:
 
 > Sau khi khởi động lại, chia sẻ sensor các kênh YouTube mới tạo đó với Assist.
 
-<div style="text-align: center;">
-
 ![image](images/20250527_gCfAcK.png)
-
-</div>
 
 ## Bước 2: Thêm kịch bản cho Assist
 
@@ -104,11 +92,7 @@ sensor:
 
 > Sau khi tạo xong, chia sẻ kịch bản đó với Assist.
 
-<div style="text-align: center;">
-
 ![image](images/20250527_jR4Saw.png)
-
-</div>
 
 ### Cài đặt Blueprint tiếp theo
 
@@ -116,19 +100,11 @@ sensor:
 
 > Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. Chỉ định một Smart TV sẽ phát video lên khi gọi Assist. **Giữ tên kịch bản mặc định không thay đổi.**
 
-<div style="text-align: center;">
-
 ![image](images/20250527_JC5AOg.png)
-
-</div>
 
 > Sau khi tạo xong, chia sẻ kịch bản đó với Assist.
 
-<div style="text-align: center;">
-
 ![image](images/20250527_oMWjtW.png)
-
-</div>
 
 > **Vậy là xong. Bây giờ bạn có thể thử với một số mẫu câu lệnh như sau, hoặc tùy trí tưởng tượng của bạn:**
 

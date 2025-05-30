@@ -12,7 +12,7 @@
 
 ### Tạo một template binary_sensor, thêm vào trong cấu hình configuration.yaml
 
-```
+``` yaml
 template:
   - binary_sensor:
       - name: Unavailable Devices
@@ -56,7 +56,7 @@ template:
 
 ### Tùy chọn thông báo qua giao diện Home Assistant
 
-```
+```yaml
 alias: Thông báo khi có thiết bị mất kết nối
 description: ""
 triggers:
@@ -102,7 +102,7 @@ max: 10
 
 ### Tùy chọn thông báo qua điện thoại
 
-```
+```yaml
 alias: Thông báo khi có thiết bị mất kết nối
 description: ""
 triggers:
@@ -148,7 +148,7 @@ max: 10
 
 ### Tạo thẻ Markdown chỉ hiển thị khi có thiết bị mất kết nối
 
-```
+```yaml
 type: markdown
 content: >
   {% set entities = state_attr('binary_sensor.unavailable_devices', 'entities')

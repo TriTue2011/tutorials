@@ -6,9 +6,9 @@
 
 - Tìm kiếm theo từ khóa **iOS Themes**
 
-- Cài đặt **iOS Themes** (Xem chi tiết tại: [basnijholt/lovelace-ios-themes: ❤️📱🏠🤖 Themes inspired by iOS Dark ⬛️ and Light ◻️ Mode for Lovelace Home Assistant with different backgrounds](https://github.com/basnijholt/lovelace-ios-themes))
+- Cài đặt **iOS Themes** (Xem chi tiết tại: [basnijholt/lovelace-ios-themes](https://github.com/basnijholt/lovelace-ios-themes))
 
-- Cài đặt **Spook** một tích hợp có rất nhiều tính năng hay và hữu ích ([frenck/spook: A scary 👻 powerful toolbox 🧰 for Home Assistant 🏡](https://github.com/frenck/spook))
+- Cài đặt **Spook** một tích hợp có rất nhiều tính năng hay và hữu ích (Xem chi tiết tại: [frenck/spook](https://github.com/frenck/spook))
 
 ## Lưu ảnh nền cục bộ
 

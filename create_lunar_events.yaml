@@ -16,7 +16,9 @@ blueprint:
 
     ### Note
 
-    * Support Local Calendar and Google Calendar Integration entries only. Google Calendar must have Read/Write access.
+    * Support Local Calendar and Google Calendar Integration entries only.
+
+    * Google Calendar must have Read/Write access.
 
   domain: script
   homeassistant:

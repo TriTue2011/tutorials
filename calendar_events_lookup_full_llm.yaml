@@ -12,8 +12,8 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide
-    the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script.
+    The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
@@ -22,6 +22,7 @@ blueprint:
     it should retrieve events from the specified calendars.
 
     * Make sure to expose the script to Assist after the script has been saved.
+
   domain: script
   homeassistant:
     min_version: 2024.10.0

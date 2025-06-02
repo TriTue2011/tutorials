@@ -14,8 +14,8 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide
-    the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script.
+    The descriptions guide the LLM to provide the correct input.
 
     ### Note
 

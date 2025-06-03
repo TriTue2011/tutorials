@@ -87,7 +87,7 @@ sensor:
 - Nếu bạn muốn có tính năng tóm tắt tin 24h qua thì đặc biệt lưu ý:
 
   - Không chọn kênh thường xuyên đăng tin với những tiêu đề giật gân không đúng hoặc quá lố với nội dung video.
-  - Không chọn kênh đăng tin hầu hết với những tiêu đề video chung chung không có ý nghĩa rõ ràng.
+  - Không chọn kênh thường xuyên đăng tin với những tiêu đề video chung chung không có ý nghĩa rõ ràng.
   - Những điều này sẽ ảnh hưởng tới chất lượng của bản tin tóm tắt 24h qua.
 
 - Sau khi thêm xong khởi động lại Home Assistant.

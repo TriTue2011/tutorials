@@ -18,7 +18,7 @@
 
 ### Cài đặt tích hợp Feedparser
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?category=Integration&repository=feedparser&owner=custom-components)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
 
 - Sau khi cài đặt xong cần khởi động lại Home Assistant.
 
@@ -37,7 +37,7 @@
 ```yaml
 sensor:
   - platform: feedparser
-    name: FAVORITE_CHANNEL_NAME YouTube Channel
+    name: CHANNEL_NAME YouTube Channel
     feed_url: https://www.youtube.com/feeds/videos.xml?channel_id=XXXXXX
     scan_interval:
       minutes: 30
@@ -51,7 +51,7 @@ sensor:
     date_format: "%Y-%m-%dT%H:%M:%S%z"
 ```
 
-- Trong đó FAVORITE_CHANNEL_NAME để thành tên kênh YouTube bạn đang muốn thêm.
+- Trong đó CHANNEL_NAME để thành tên kênh YouTube bạn đang muốn thêm.
 
 - XXXXXX là ID của kênh.
 

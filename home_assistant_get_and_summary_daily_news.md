@@ -1,6 +1,6 @@
 # Hướng dẫn chi tiết lấy tin tức mới nhất và tạo bản tin tổng hợp 24h
 
-![image](images/20250603_RL5QX2.png))
+![image](images/20250603_RL5QX2.png)
 
 - **Cần có LLM của Google hoặc OpenAI để sử dụng tính năng tóm tắt tin.**
 

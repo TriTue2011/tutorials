@@ -30,6 +30,8 @@
 
 ![image](images/20250527_FdZbGj.png)
 
+### Tạo sensor cho kênh YouTube
+
 - Sau khi có ID của kênh YouTube, thêm sensor như sau vào tập tin cấu hình configuration.yaml của Home Assistant.
 
 ```yaml
@@ -77,6 +79,8 @@ sensor:
 - Lặp lại các bước trên với những kênh YouTube khác bạn muốn thêm nữa.
 
 - Sau khi thêm xong khởi động lại Home Assistant.
+
+### Chia sẻ kênh YouTube với Assist
 
 - Sau khi khởi động lại, chia sẻ sensor các kênh YouTube mới tạo đó với Assist.
 

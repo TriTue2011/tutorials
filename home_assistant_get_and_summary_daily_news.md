@@ -122,6 +122,10 @@ sensor:
 
 ### Thêm tự động lưu tin khi có tin tức mới
 
+- Tin sẽ được lưu tự động khi có nội dung mới.
+
+- Tin tức cũ hơn 24h sẽ được tự động xóa.
+
 ```yaml
 alias: Cập nhật dữ liệu khi có tin tức mới
 description: ""

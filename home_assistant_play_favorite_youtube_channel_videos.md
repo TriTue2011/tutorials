@@ -1,5 +1,7 @@
 # Hướng dẫn chi tiết cài đặt Voice Assist phát video Youtube lên Smart TV
 
+- **Tính năng mới: Hỗ trợ tạo nhiều alias cho tên kênh.**
+
 - **Tính năng này cho phép bạn sử dụng HA Voice Assist mở một video mới ra mắt gần đây của một kênh YouTube bất kỳ mà bạn yêu thích.**
 
 - **Chỉ hỗ trợ các LLM của Google hay OpenAI.**
@@ -21,6 +23,12 @@
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
 
 - Xem chi tiết tại: [github.com/custom-components/feedparser](https://github.com/custom-components/feedparser)
+
+- Lưu ý tính đến thời điểm hiện tại (2025-06-04) tích hợp Feedparser chưa hỗ trợ unique_id. Do đó không thể thêm được alias cho tên kênh YouTube.
+
+- Mình đã tạo pull request, các bạn chờ tác giả cập nhật nhé. Chi tiết theo dõi tại: [github.com/custom-components/feedparser/pull/143](https://github.com/custom-components/feedparser/pull/143)
+
+- Hoặc các bạn có thể sửa code như trong pull request để trải nghiệm sớm tính năng mới.
 
 - Sau khi cài đặt xong cần khởi động lại Home Assistant.
 
@@ -87,6 +95,44 @@ sensor:
 - Sau khi khởi động lại, chia sẻ sensor các kênh YouTube mới tạo đó với Assist.
 
 ![image](images/20250527_gCfAcK.png)
+
+- Tạo thêm các alias cho các kênh nếu muốn. Ví dụ trường hợp kênh nước ngoài, ta có thể đặt thêm alias cho dễ gọi.
+
+### Tạo một shell_command để lấy thông tin về alias
+
+- Thêm vào tập tin cấu hình configuration.yaml của Home Assistant.
+
+```yaml
+shell_command:
+  get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {aliases, entity_id}]' ./.storage/core.entity_registry
+```
+
+### Tạo một sensor để lưu thông tin về alias
+
+- Thêm vào tập tin cấu hình configuration.yaml của Home Assistant.
+
+```yaml
+template:
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - trigger: event
+        event_type: event_template_reloaded
+    action:
+      - service: shell_command.get_entity_alias
+        data: {}
+        response_variable: response
+    sensor:
+      - name: "Assist: Entity IDs and Aliases"
+        unique_id: entity_ids_and_aliases
+        state: "{{ now().isoformat() }}"
+        attributes:
+          entities: "{{ response.stdout }}"
+```
+
+- Sau khi thêm xong khởi động lại Home Assistant.
+
+- **Lưu ý về sau mỗi khi thay đổi alias cần phải reload template**
 
 ## Bước 2: Thêm kịch bản cho Assist
 

@@ -96,7 +96,7 @@ sensor:
 
 ![image](images/20250527_gCfAcK.png)
 
-- Tạo thêm các alias cho các kênh nếu muốn. Ví dụ trường hợp kênh nước ngoài, ta có thể đặt thêm alias cho dễ gọi.
+- Tạo thêm các alias cho các kênh để dễ nhớ hoặc dễ gọi nếu cần. Ví dụ trường hợp kênh nước ngoài.
 
 ![image](images/20250604_VhChze.png)
 

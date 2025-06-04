@@ -98,6 +98,8 @@ sensor:
 
 - Tạo thêm các alias cho các kênh nếu muốn. Ví dụ trường hợp kênh nước ngoài, ta có thể đặt thêm alias cho dễ gọi.
 
+![image](images/20250604_VhChze.png)
+
 ### Tạo một shell_command để lấy thông tin về alias
 
 - Thêm vào tập tin cấu hình configuration.yaml của Home Assistant.

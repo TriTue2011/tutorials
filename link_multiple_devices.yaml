@@ -3,16 +3,20 @@ blueprint:
   description: >-
     # Link On/Off State of Multiple Devices v1.0.2
 
-    Select multiple entities to link their on/off state.  If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.
+    * Select multiple entities to link their on/off state.  If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.
 
-    You can select any entity, but only entities supported by the `homeassistant.turn_on` or `homeassistant.turn_off` action calls will work.
+    * You can select any entity, but only entities supported by the `homeassistant.turn_on` or `homeassistant.turn_off` action calls will work.
 
     ## Requirements
+
     * All selected entities MUST suport `homeassistant.turn_on` and `homeassistant.turn_off` or errors will be logged and the blueprint will not work.
+
     * Requires Home Assistant 2024.10.0 or newer.
 
     ## Credits
+
     * [@adchevrier](https://community.home-assistant.io/u/adchevrier) for the [initial blueprint](https://community.home-assistant.io/t/synchronize-the-on-off-state-of-2-entities/259010)
+
     * [@hebus](https://community.home-assistant.io/u/hebus) for [this fantastic template](https://community.home-assistant.io/t/synchronize-the-on-off-state-of-2-entities/259010/38)
 
   domain: automation

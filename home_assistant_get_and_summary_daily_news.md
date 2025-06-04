@@ -10,6 +10,8 @@
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
 
+- Xem chi tiết tại: [github.com/custom-components/feedparser](https://github.com/custom-components/feedparser)
+
 - Sau khi cài đặt xong cần khởi động lại Home Assistant.
 
 ### Lấy ID kênh Youtube tin tức
@@ -99,6 +101,8 @@ sensor:
 ### Cài đặt tích hợp Variables+History
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=enkama&repository=hass-variables&category=Integration)
+
+- Xem chi tiết tại: [github.com/enkama/hass-variables](https://github.com/enkama/hass-variables)
 
 - Sau khi cài đặt xong cần khởi động lại Home Assistant.
 

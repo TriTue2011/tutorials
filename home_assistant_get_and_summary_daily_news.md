@@ -200,8 +200,7 @@ sequence:
     response_variable: result
   - variables:
       summary: >-
-        {{ result.text if (result is defined and result.text | length > 0) else
-        'n/a' }}
+        {{ result.text if (result is defined and result.get('text')) else 'n/a' }}
   - action: variable.update_sensor
     metadata: {}
     data:

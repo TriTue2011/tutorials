@@ -1,7 +1,7 @@
 blueprint:
   name: Create Lunar Events
   author: VuLQ
-  description: |
+  description: >-
     # Tool help to create Lunar calendar events
 
     ## Blueprint Setup

@@ -1,7 +1,7 @@
 blueprint:
   name: Check the device turns on manually
   author: VuLQ
-  description: |
+  description: >-
     # Verify whether the device activated manually or via automation/application
 
   domain: automation

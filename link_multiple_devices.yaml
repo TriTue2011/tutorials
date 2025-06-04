@@ -1,6 +1,6 @@
 blueprint:
   name: Link On/Off State of Multiple Devices
-  description: |
+  description: >-
     # Link On/Off State of Multiple Devices v1.0.2
 
     Select multiple entities to link their on/off state.  If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.

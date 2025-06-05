@@ -102,7 +102,7 @@ sequence:
           {% if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list) -%}
           {% set validation.existed = true -%}
           {% endif -%}
-          {% if (state_attr('sensor.assist_entity_ids_and_aliases', 'entities') | selectattr('entity_id', 'match', 'sensor.') | selectattr('aliases', 'contains', entity.strip()) | list) -%}
+          {% if (state_attr('sensor.assist_entity_ids_and_aliases', 'entities') | selectattr('entity_id', 'match', 'sensor.*') | selectattr('aliases', 'contains', entity.strip()) | list) -%}
           {% set validation.existed = true -%}
           {% endif -%}
           {% endfor -%}
@@ -122,7 +122,7 @@ sequence:
           {% for entity in entities.split(';') -%}
           {% set entity_id = (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first)
           if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list)
-          else (state_attr('sensor.assist_entity_ids_and_aliases', 'entities') | selectattr('entity_id', 'match', 'sensor.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | first) -%}
+          else (state_attr('sensor.assist_entity_ids_and_aliases', 'entities') | selectattr('entity_id', 'match', 'sensor.*') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | first) -%}
           {% for entry in state_attr(entity_id, 'entries') if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
           - channel: {{ entry.author | title }}
             title: {{ entry.title | title }}

@@ -27,14 +27,19 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
-    calendar_entities:
-      name: Calendar entities
-      description: Select the calendar entities to fetch the events from.
-      selector:
-        entity:
-          filter:
-            domain: calendar
-          multiple: true
+    calendar_settings:
+      name: Settings for Calendar
+      icon: mdi:calendar
+      description: You can use these settings to configure Calendar entities.
+      input:
+        calendar_entities:
+          name: Calendar entities
+          description: Select the calendar entities to fetch the events from.
+          selector:
+            entity:
+              filter:
+                domain: calendar
+              multiple: true
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot

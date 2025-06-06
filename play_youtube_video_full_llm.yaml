@@ -29,6 +29,7 @@ blueprint:
   input:
     media_player_settings:
       name: Settings for Media Player
+      icon: mdi:television
       description: You can use these settings to configure a smart TV.
       input:
         media_player:

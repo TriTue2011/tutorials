@@ -35,6 +35,7 @@ blueprint:
   input:
     entity_aliases_settings:
       name: Settings for Entity Aliases
+      icon: mdi:tools
       description: You can use these settings to configure a template sensor that stores all information about entity aliases.
       input:
         entity_aliases:

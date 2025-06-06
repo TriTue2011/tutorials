@@ -26,6 +26,7 @@ blueprint:
   input:
     calendar_settings:
       name: Settings for Calendar
+      icon: mdi:calendar
       description: You can use these settings to configure a Calendar.
       input:
         calendar:

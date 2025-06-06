@@ -68,8 +68,9 @@ blueprint:
 
             Provide the name of the YouTube channel to query video info.
 
-            When requesting multiple YouTube channels, make sure to separate each YouTube channel name with a semicolon.
-            If the request does not specify a channel name, you should provide all available channels.
+            When requesting multiple YouTube channels, make sure to separate each channel's name with a semicolon.
+            If the request does not specify a channel, you should provide all available channels,
+            but only one name is given for each channel.
 
             After obtaining the result, ask to play the video on the TV.
             Do not include the Media ID in your response.

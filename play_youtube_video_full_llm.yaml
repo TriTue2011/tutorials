@@ -71,7 +71,6 @@ fields:
     required: true
 sequence:
   - variables:
-      media_player: !input media_player
       media_id: "{{ media_id | default }}"
   - alias: Check if variables were set correctly
     if:
@@ -88,10 +87,10 @@ sequence:
         response_variable: response
   - action: media_player.turn_on
     target:
-      entity_id: "{{ media_player }}"
+      entity_id: !input media_player
   - action: media_player.play_media
     data:
       media_content_type: url
       media_content_id: "{{ 'https://www.youtube.com/watch?v=' ~ media_id }}"
     target:
-      entity_id: "{{ media_player }}"
+      entity_id: !input media_player

@@ -144,7 +144,7 @@ template:
 
 - Xem chi tiết tại: [github.com/luuquangvu/tutorials/blob/main/get_youtube_video_info_full_llm.yaml](https://github.com/luuquangvu/tutorials/blob/main/get_youtube_video_info_full_llm.yaml)
 
-- Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. **Giữ tên kịch bản mặc định không thay đổi.**
+- Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. Chỉ định Template Sensor đã tạo ở bước trên. **Giữ tên kịch bản mặc định không thay đổi.**
 
 - Sau khi tạo xong, chia sẻ kịch bản đó với Assist.
 

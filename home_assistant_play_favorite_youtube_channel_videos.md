@@ -106,7 +106,7 @@ sensor:
 
 ```yaml
 shell_command:
-  get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {aliases, entity_id}]' ./.storage/core.entity_registry
+  get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
 ```
 
 ### Tạo một sensor để lưu thông tin về alias

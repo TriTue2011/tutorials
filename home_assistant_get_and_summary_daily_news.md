@@ -193,8 +193,8 @@ sequence:
     metadata: {}
     data:
       prompt: >-
-        Sau đây là danh sách các tin tức trong 24h qua. Hãy tổng hợp và đưa ra
-        bản tóm tắt ngắn gọn:
+        Sau đây là danh sách các tin tức trong 24h qua. Hãy phân tích và đưa ra
+        bản tóm tắt:
 
         {{ contents }}
     response_variable: result

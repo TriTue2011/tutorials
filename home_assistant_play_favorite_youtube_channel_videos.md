@@ -127,6 +127,7 @@ template:
     sensor:
       - name: "Assist: Entity IDs and Aliases"
         unique_id: entity_ids_and_aliases
+        icon: mdi:format-list-bulleted
         state: "{{ now().isoformat() }}"
         attributes:
           entities: "{{ response.stdout }}"

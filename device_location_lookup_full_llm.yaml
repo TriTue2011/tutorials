@@ -1,0 +1,176 @@
+blueprint:
+  name: Voice - Device Location Lookup Tool
+  author: VuLQ
+  description: >-
+    # Device Location Lookup Tool using for LLM
+
+    ## Features
+
+    * The Voice Assist will tell you if the device is at home or not,
+    and the specific room where the device is located if possible.
+
+    * It can determine any BLE Device added by Bermuda BLE Trilateration integration:
+    Android, iOS, some smartwatches, beacon tiles, ...
+
+    * It can determine any Mobile Device with the HA Companion App installed.
+
+    * If the device has the HA Companion App installed, it can also ring
+    to locate more easily, even in Do Not Disturb mode.
+
+    * LLM has extremely limited knowledge about your device's location.
+    It cannot know your device's actual GPS location but may have general information
+    such as whether you are at home or in specific areas like the living room or kitchen.
+    And it only accesses this information when you request it to locate your device.
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * An online LLM like Gemini or OpenAI.
+
+    * Expose Bermuda Device Tracker or Mobile Device Tracker entities to Assist.
+
+    * Only add one device tracker per physical device.
+
+    * If you expose your phone or tablet to Voice Assist using Bermuda Device Tracker,
+    make sure to rename Bermuda Device the same as Mobile Device or Mobile Device name
+    must be part of Bermuda Device name. Because this script identifies the relationship
+    between them to find the notification action. This allows you to locate your
+    phone in a specific room and make it ring.
+
+    * Consider adding entity aliases to make them easier to remember if needed.
+
+    * A template sensor stored all information about entity aliases.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script.
+    The descriptions guide the LLM to provide the correct input.
+
+    ### Note
+
+    * Provide a concise and precise description for the script.
+    This description will enable the LLM to recognize that the
+    script is designed to determine if the device is at home
+    or not, and the specific room where the device is located.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    entity_aliases_settings:
+      name: Settings for Entity Aliases
+      icon: mdi:format-list-bulleted
+      description: You can use these settings to configure a template sensor that stores all information about entity aliases.
+      input:
+        entity_aliases:
+          name: Entity Aliases
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  integration: template
+              multiple: false
+          default:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        entities_prompt:
+          name: Entities Prompt
+          description:
+            The prompt which will be used for the LLM can provide the entities for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided!
+
+            Provide the name of the device to query the device location.
+
+            When requesting multiple devices, make sure to separate each device's name with a semicolon.
+            If the request does not specify a device, you should provide all available devices,
+            but only one name is given for each device.
+
+            After obtaining the result, if the device can ring, ask to activate its ringing function.
+mode: parallel
+max_exceeded: silent
+fields:
+  entities:
+    name: Entities
+    description: !input entities_prompt
+    selector:
+        text:
+    required: true
+sequence:
+  - variables:
+      entity_aliases: !input entity_aliases
+      entities: "{{ entities | default }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: >-
+          {% set validation = namespace(existed=false) -%}
+          {% for entity in entities.split(';') -%}
+          {% if (integration_entities('bermuda') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) -%}
+          {% set validation.existed = true -%}
+          {% endif -%}
+          {% if (integration_entities('mobile_app') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) -%}
+          {% set validation.existed = true -%}
+          {% endif -%}
+          {% if (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', entity.strip()) | list) -%}
+          {% set validation.existed = true -%}
+          {% endif -%}
+          {% endfor -%}
+          {{ not validation.existed }}
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error:
+              Unable to provide device location because parameters were set incorrectly.
+      - alias: Stop the script
+        stop: Unable to provide device location because parameters were set incorrectly.
+        response_variable: response
+  - variables:
+      response:
+        devices: >-
+          {% set mobile_devices = integration_entities('mobile_app') | select('match','device_tracker\.') | map('regex_replace', 'device_tracker\.','') | list -%}
+          {% for entity in entities.split(';') -%}
+          {% set device = namespace(friendly_name=none, entity_id=none, notify_id=none, is_mobile=false, at_home=false) -%}
+          {% set device.friendly_name = entity.strip() -%}
+          {% if (integration_entities('bermuda') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', device.friendly_name) | list) -%}
+          {% set device.entity_id = integration_entities('bermuda') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', device.friendly_name) | first -%}
+          {% elif (integration_entities('mobile_app') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', device.friendly_name) | list) -%}
+          {% set device.entity_id = integration_entities('mobile_app') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', device.friendly_name) | first -%}
+          {% set device.is_mobile = true -%}
+          {% set device.notify_id = device.entity_id.split('device_tracker.')[1] -%}
+          {% else -%}
+          {% set device.entity_id = state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', device.friendly_name) | map(attribute='entity_id') | first -%}
+          {% endif -%}
+          {% if not device.is_mobile -%}
+          {% set parts = device.entity_id.split('device_tracker.')[1].split('_') -%}
+          {% for i in range(1, (parts | list | length) + 1) -%}
+          {% if ((parts | list)[:i] | join('_')) in (mobile_devices | list) -%}
+          {% set device.is_mobile = true -%}
+          {% set device.notify_id = (parts | list)[:i] | join('_') -%}
+          {% endif -%}
+          {% endfor -%}
+          {% endif -%}
+          {% set device.at_home = is_state(device.entity_id, 'home') -%}
+          - friendly_name: {{ device.friendly_name }}
+            at_home: {{ device.at_home }}
+            area: {{ state_attr(device.entity_id, 'area') }}
+            can_ring: {{ device.is_mobile and device.at_home }}
+            ring_id: {{ ('notify.mobile_app_' ~ device.notify_id) if (device.is_mobile and device.at_home) else none }}
+
+          {% endfor -%}
+  - stop: ""
+    response_variable: response

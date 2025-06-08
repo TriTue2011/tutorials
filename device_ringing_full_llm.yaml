@@ -49,7 +49,7 @@ blueprint:
         ring_id_prompt:
           name: Ring ID Prompt
           description:
-            The prompt which will be used for the LLM can provide the entity for the query.
+            The prompt which will be used for the LLM can provide the Ring ID for the query.
           selector:
             text:
               multiline: true

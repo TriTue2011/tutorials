@@ -85,7 +85,7 @@ blueprint:
         entities_prompt:
           name: Entities Prompt
           description:
-            The prompt which will be used for the LLM can provide the entities for the query.
+            The prompt which will be used for the LLM can provide the device's name for the query.
           selector:
             text:
               multiline: true

@@ -101,7 +101,7 @@ sequence:
               priority: high
               channel: alarm_stream
               importance: high
-              tag: find_my_phone
+              tag: "{{ this.entity_id }}"
         - delay:
             hours: 0
             minutes: 0

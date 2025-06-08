@@ -14,7 +14,7 @@
 
 - **Yêu cầu cần có một Smart TV đã tích hợp lên Home Assistant**
 
-![image](images/20250528_210348.jpg))
+![image](images/20250528_210348.jpg)
 
 ## Bước 1: Lấy thông tin danh sách video từ các kênh Youtube yêu thích
 

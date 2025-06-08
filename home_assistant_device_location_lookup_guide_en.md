@@ -1,5 +1,7 @@
 # Guide to configure Voice Assist to locate your device and make it ring
 
+![image](images/20250608_ASxwFa.png)
+
 ## Features
 
 * The Voice Assist will tell you if the device is at home or not,

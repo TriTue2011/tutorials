@@ -1,0 +1,200 @@
+blueprint:
+  name: Voice - Fan Speed Control Tool
+  author: VuLQ
+  description: >-
+    # Tool for Controlling Fan Speed via Voice
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * A smart fan integrated into HA.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script.
+    The descriptions guide the LLM to provide the correct input.
+
+    ### Note
+
+    * Provide a concise and precise description for the script.
+    This will be utilized by the LLM to understand it should
+    use this script for controlling speed of a smart fan.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    entity_aliases_settings:
+      name: Settings for Entity Aliases
+      icon: mdi:format-list-bulleted
+      description: You can use these settings to configure a template sensor that stores all information about entity aliases.
+      input:
+        entity_aliases:
+          name: Entity Aliases
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  integration: template
+              multiple: false
+          default:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        fan_entities_prompt:
+          name: Fan entities prompt
+          description:
+            The prompt which will be used for the LLM can provide the name of fans for controlling.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided!
+
+            Provide the name of the fan to control.
+
+            When requesting multiple fans, make sure to separate each fan's name with a semicolon.
+        speed_adjustment_prompt:
+          name: Speed adjustment prompt
+          description:
+            The prompt which will be used for the LLM can provide speed adjustment.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            The speed adjustment of the fan that you want to set.
+
+            It can only be one of the two following values:
+            'true' for increasing the speed, 'false' for decreasing the speed.
+
+            Only use one of the 'speed_adjustment' parameter or the 'percentage' parameter.
+        percentage_prompt:
+          name: Percentage prompt
+          description:
+            The prompt which will be used for the LLM can provide the speed percentage.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            The speed percentage of the fan that you want to set.
+
+            The number should be in the range 1-100.
+
+            Only use one of the 'speed_adjustment' parameter or the 'percentage' parameter.
+mode: parallel
+max_exceeded: silent
+fields:
+  fan_entities:
+    name: Fan Entities
+    description: !input fan_entities_prompt
+    selector:
+        text:
+    required: true
+  speed_adjustment:
+    name: Speed Adjustment
+    description: !input speed_adjustment_prompt
+    selector:
+      boolean:
+  percentage:
+    name: Percentage
+    description: !input percentage_prompt
+    selector:
+      number:
+        min: 1
+        max: 100
+        step: 1
+sequence:
+  - variables:
+      entity_aliases: !input entity_aliases
+      fan_entities: "{{ fan_entities | default }}"
+      speed_adjustment: "{{ speed_adjustment | default(false) }}"
+      percentage: "{{ percentage | default(0) }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: >-
+          {% set validation = namespace(existed=false) -%}
+          {% for entity in fan_entities.split(';') -%}
+          {% if (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
+          {% set validation.existed = true -%}
+          {% endif -%}
+          {% if (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | list) -%}
+          {% set validation.existed = true -%}
+          {% endif -%}
+          {% endfor -%}
+          {% if ((percentage | int) > 100 or (percentage | int) < 0) -%}
+          {% set validation.existed = false -%}
+          {% endif -%}
+          {{ not validation.existed }}
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error:
+              Unable to control fan because parameters were set incorrectly.
+      - alias: Stop the script
+        stop: Unable to control fan because parameters were set incorrectly.
+        response_variable: response
+  - variables:
+      devices: >-
+        {% set devices = namespace(entities=[]) -%}
+        {% for entity in fan_entities.split(';') -%}
+        {% if (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
+        {% set devices.entities = devices.entities + (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | map(attribute='entity_id') | list) -%}
+        {% else -%}
+        {% set device.entities = devices.entities + (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | list) -%}
+        {% endif -%}
+        {% endfor -%}
+        {{ devices.entities }}
+  - if:
+      - condition: template
+        value_template: "{{ (percentage | int) > 0 }}"
+    then:
+      - repeat:
+          count: "{{ devices | list | length }}"
+          sequence:
+            - action: fan.set_percentage
+              target:
+                entity_id: "{{ devices[repeat.index - 1] }}"
+              data:
+                percentage: >-
+                  {% if (percentage | int) > (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) -%}
+                  {{ percentage | int }}
+                  {% else -%}
+                  {{ state_attr(devices[repeat.index - 1], 'percentage_step') | int(1) }}
+                  {% endif -%}
+    else:
+      - if:
+          - condition: template
+            value_template: "{{ speed_adjustment }}"
+        then:
+          - repeat:
+              count: "{{ devices | list | length }}"
+              sequence:
+                - action: fan.increase_speed
+                  target:
+                    entity_id: "{{ devices[repeat.index - 1] }}"
+                  data:
+                    percentage_step: >-
+                      {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 10 else 10 }}
+        else:
+          - repeat:
+              count: "{{ devices | list | length }}"
+              sequence:
+                - action: fan.decrease_speed
+                  target:
+                    entity_id: "{{ devices[repeat.index - 1] }}"
+                  data:
+                    percentage_step: >-
+                      {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 10 else 10 }}

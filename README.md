@@ -1,5 +1,7 @@
 # Các thủ thuật và hướng dẫn cho Home Assistant
 
+## MỚI - Bản thiết kế dùng cho Voice Assist để điều khiển tốc độ và cho quay quạt
+
 ## Bản thiết kế dùng cho Voice Assist để tìm kiếm và phát video từ các kênh YouTube yêu thích của bạn lên TV
 
 ## Bản thiết kế dùng cho Voice Assist để định vị thiết bị của bạn và làm cho nó đổ chuông
@@ -15,5 +17,7 @@
 ## Hướng dẫn cài đặt lấy tin tức thời sự mới nhất và tạo bản tin tổng hợp 24h qua sử dụng AI
 
 ## Hướng dẫn cài đặt nhận thông báo khi có thiết bị mất kết nối
+
+## Hướng dẫn cài đặt iOS Themes và tự động đổi theme ngẫu nhiên
 
 ### **Nếu bạn thích những tính năng này, hãy theo dõi để đón chờ thêm những tính năng mới hay ho hơn nữa nhé**

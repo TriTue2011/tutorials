@@ -10,6 +10,8 @@ blueprint:
 
     * A smart fan integrated into HA.
 
+    * A template sensor stored all information about entity aliases.
+
     ### Optional
 
     * Adjust the prompts for each field used in the script.
@@ -131,9 +133,9 @@ sequence:
         {% set device.entities = devices.entities + (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | list) -%}
         {% endif -%}
         {% endfor -%}
-        {{ devices.entities | join(', ') }}
+        {{ devices.entities }}
   - action: fan.oscillate
     target:
-      entity_id: "{{ devices }}"
+      entity_id: "{{ devices | list | join(', ') }}"
     data:
       oscillating: "{{ oscillating }}"

@@ -10,6 +10,8 @@ blueprint:
 
     * A smart fan integrated into HA.
 
+    * A template sensor stored all information about entity aliases.
+
     ### Optional
 
     * Adjust the prompts for each field used in the script.

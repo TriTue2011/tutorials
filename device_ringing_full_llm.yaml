@@ -47,7 +47,7 @@ blueprint:
       collapsed: true
       input:
         ring_id_prompt:
-          name: Ring ID Prompt
+          name: Ring ID prompt
           description:
             The prompt which will be used for the LLM can provide the Ring ID for the query.
           selector:

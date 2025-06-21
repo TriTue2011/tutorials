@@ -83,7 +83,7 @@ blueprint:
       collapsed: true
       input:
         entities_prompt:
-          name: Entities Prompt
+          name: Entities prompt
           description:
             The prompt which will be used for the LLM can provide the device's name for the query.
           selector:

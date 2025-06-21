@@ -2,7 +2,7 @@
 
 - **Tính năng mới: Hỗ trợ tạo nhiều alias cho tên kênh.**
 
-- **Tính năng này cho phép bạn sử dụng HA Voice Assist mở một video mới ra mắt gần đây của một kênh YouTube bất kỳ mà bạn yêu thích.**
+- **Tính năng này cho phép bạn sử dụng Home Assistant Voice mở một video mới ra mắt gần đây của một kênh YouTube bất kỳ mà bạn yêu thích.**
 
 - **Chỉ hỗ trợ các LLM của Google hay OpenAI.**
 

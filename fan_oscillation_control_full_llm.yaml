@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * A smart fan integrated into HA.
+    * A smart fan integrated into Home Assistant.
 
     * A template sensor stored all information about entity aliases.
 

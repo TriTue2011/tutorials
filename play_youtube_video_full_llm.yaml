@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * A smart TV integrated into HA.
+    * A smart TV integrated into Home Assistant.
 
     ### Optional
 

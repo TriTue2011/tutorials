@@ -12,9 +12,9 @@ blueprint:
     * It can determine any BLE Device added by Bermuda BLE Trilateration integration:
     Android, iOS, some smartwatches, beacon tiles, ...
 
-    * It can determine any Mobile Device with the HA Companion App installed.
+    * It can determine any Mobile Device with the Home Assistant Companion App installed.
 
-    * If the device has the HA Companion App installed, it can also ring
+    * If the device has the Home Assistant Companion App installed, it can also ring
     to locate more easily, even in Do Not Disturb mode.
 
     * LLM has extremely limited knowledge about your device's location.

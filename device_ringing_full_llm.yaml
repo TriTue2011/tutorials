@@ -6,7 +6,7 @@ blueprint:
 
     ## Features
 
-    * This script is designed to send notifications to devices with the HA Companion App installed,
+    * This script is designed to send notifications to devices with the Home Assistant Companion App installed,
     specifically for the purpose of determining the device's location.
 
     ## Blueprint Setup
@@ -15,11 +15,11 @@ blueprint:
 
     * An online LLM like Gemini or OpenAI.
 
-    * HA Companion App must be installed on the device.
+    * Home Assistant Companion App must be installed on the device.
 
-    * The device must allow notifications permission for HA Companion App.
+    * The device must allow notifications permission for Home Assistant Companion App.
 
-    * The device must allow critical alerts for HA Companion App (iOS).
+    * The device must allow critical alerts for Home Assistant Companion App (iOS).
 
     ### Optional
 

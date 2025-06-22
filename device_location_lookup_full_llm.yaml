@@ -157,10 +157,10 @@ sequence:
           {% endif -%}
           {% if not device.is_mobile -%}
           {% set parts = device.entity_id.split('device_tracker.')[1].split('_') -%}
-          {% for i in range(1, (parts | list | length) + 1) -%}
-          {% if ((parts | list)[:i] | join('_')) in (mobile_devices | list) -%}
+          {% for i in range(1, (parts | length) + 1) -%}
+          {% if (parts[:i] | join('_')) in mobile_devices -%}
           {% set device.is_mobile = true -%}
-          {% set device.notify_id = (parts | list)[:i] | join('_') -%}
+          {% set device.notify_id = parts[:i] | join('_') -%}
           {% endif -%}
           {% endfor -%}
           {% endif -%}

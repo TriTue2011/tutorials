@@ -164,7 +164,7 @@ sequence:
         value_template: "{{ (percentage | int) > 0 }}"
     then:
       - repeat:
-          count: "{{ devices | list | length }}"
+          count: "{{ devices | length }}"
           sequence:
             - action: fan.set_percentage
               target:
@@ -182,7 +182,7 @@ sequence:
             value_template: "{{ speed_adjustment }}"
         then:
           - repeat:
-              count: "{{ devices | list | length }}"
+              count: "{{ devices | length }}"
               sequence:
                 - action: fan.increase_speed
                   target:
@@ -192,7 +192,7 @@ sequence:
                       {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 10 else 10 }}
         else:
           - repeat:
-              count: "{{ devices | list | length }}"
+              count: "{{ devices | length }}"
               sequence:
                 - action: fan.decrease_speed
                   target:

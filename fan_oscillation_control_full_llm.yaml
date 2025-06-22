@@ -136,6 +136,6 @@ sequence:
         {{ devices.entities }}
   - action: fan.oscillate
     target:
-      entity_id: "{{ devices | list | join(', ') }}"
+      entity_id: "{{ devices | join(', ') }}"
     data:
       oscillating: "{{ oscillating }}"

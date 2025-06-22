@@ -153,20 +153,19 @@ actions:
         contents.entries + [entry] -%} {% endfor -%} {{ contents.entries }}
       new_contents: "{{ trigger.to_state.attributes.entries | default([], true) }}"
       merged_contents: >-
-        {% set contents = namespace(entries=(old_contents | list)) -%} {% for
-        entry in (new_contents | list) if strptime(entry.published,
-        '%Y-%m-%dT%H:%M:%S%z') > (strptime((old_contents | list)[0].published,
-        '%Y-%m-%dT%H:%M:%S%z') if (old_contents | list) else (now() -
-        timedelta(hours=24))) -%} {% set contents.entries = [entry] +
-        contents.entries -%} {% endfor -%} {{ contents.entries |
-        sort(reverse=true, attribute='published') }}
+        {% set contents = namespace(entries=old_contents) -%} {% for entry in
+        new_contents if strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') >
+        (strptime(old_contents[0].published, '%Y-%m-%dT%H:%M:%S%z') if
+        old_contents else (now() - timedelta(hours=24))) -%} {% set
+        contents.entries = [entry] + contents.entries -%} {% endfor -%} {{
+        contents.entries | sort(reverse=true, attribute='published') }}
   - action: variable.update_sensor
     metadata: {}
     data:
       replace_attributes: true
       attributes:
-        entries: "{{ merged_contents | list }}"
-      value: "{{ merged_contents | list | count }}"
+        entries: "{{ merged_contents }}"
+      value: "{{ merged_contents | count }}"
     target:
       entity_id: "{{ trigger.entity_id ~ '_last_24_hours' }}"
     enabled: true

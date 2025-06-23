@@ -43,6 +43,19 @@ blueprint:
                   integration: template
               multiple: false
           default:
+    speed_steps_settings:
+      name: Settings for Speed Steps
+      icon: mdi:fan-auto
+      description: These settings allow you to define the minimum number of speed steps for each request. They only apply to fans with 100 speed levels.
+      input:
+        speed_steps:
+          name: Speed Steps
+          selector:
+            number:
+              min: 5
+              max: 20
+              step: 1
+          default: 20
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -119,6 +132,7 @@ fields:
 sequence:
   - variables:
       entity_aliases: !input entity_aliases
+      speed_steps: !input speed_steps
       fan_entities: "{{ fan_entities | default }}"
       speed_adjustment: "{{ speed_adjustment | default(false) }}"
       percentage: "{{ percentage | default(0) }}"
@@ -189,7 +203,7 @@ sequence:
                     entity_id: "{{ devices[repeat.index - 1] }}"
                   data:
                     percentage_step: >-
-                      {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 10 else 10 }}
+                      {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 1 else speed_steps }}
         else:
           - repeat:
               count: "{{ devices | length }}"
@@ -199,4 +213,4 @@ sequence:
                     entity_id: "{{ devices[repeat.index - 1] }}"
                   data:
                     percentage_step: >-
-                      {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 10 else 10 }}
+                      {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 1 else speed_steps }}

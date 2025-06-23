@@ -53,7 +53,7 @@ blueprint:
           selector:
             number:
               min: 5
-              max: 20
+              max: 25
               step: 1
           default: 20
     prompt_settings:

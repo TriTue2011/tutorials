@@ -54,7 +54,7 @@ blueprint:
             number:
               min: 5
               max: 25
-              step: 1
+              step: 5
           default: 20
     prompt_settings:
       name: Prompt settings for the LLM

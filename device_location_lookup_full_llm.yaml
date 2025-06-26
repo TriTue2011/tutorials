@@ -93,7 +93,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the name of the device to query the device location.
+            Provide the full name of the device to query the device location.
 
             When requesting multiple devices, make sure to separate each device's name with a semicolon.
             If the request does not specify a device, you should provide all available devices,

@@ -47,6 +47,17 @@ blueprint:
                   integration: template
               multiple: false
           default:
+    short_videos_settings:
+      name: Settings for Short Videos
+      icon: mdi:video-high-definition
+      description: >-
+        These settings let you choose whether to ignore short videos in the results or include them (Default: Ignored).
+      input:
+        short_videos:
+          name: Short Videos
+          selector:
+            boolean:
+          default: false
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -109,6 +120,7 @@ fields:
 sequence:
   - variables:
       entity_aliases: !input entity_aliases
+      short_videos: "{{ short_videos | default(false) }}"
       entities: "{{ entities | default }}"
       period_length: "{{ period_length | default(3) | abs }}"
   - alias: Check if variables were set correctly
@@ -142,11 +154,19 @@ sequence:
           if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list)
           else (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | first) -%}
           {% for entry in state_attr(entity_id, 'entries') if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
+          {% if entry.link is not search('\/shorts\/') -%}
           - channel: {{ entry.author | title }}
             title: {{ entry.title | title }}
             published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
             media_id: {{ entry.yt_videoid }}
 
+          {% elif short_videos -%}
+          - channel: {{ entry.author | title }}
+            title: {{ entry.title | title }}
+            published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
+            media_id: {{ entry.yt_videoid }}
+
+          {% endif -%}
           {% endfor -%}
           {% endfor -%}
   - stop: ""

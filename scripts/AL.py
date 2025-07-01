@@ -243,7 +243,7 @@ def get_auspicious_hours(jd: int) -> str:
     auspicious_hours_pattern = AUSPICIOUS_HOURS[chi_of_day % 6]
     auspicious_hours = []
     for i in range(12):
-        if auspicious_hours_pattern[i] == '1':
+        if auspicious_hours_pattern[i] == "1":
             hour_name = CHI[i]
             start_hour = (i * 2 + 23) % 24
             end_hour = (i * 2 + 1) % 24
@@ -261,7 +261,7 @@ def get_remaining_days(date):
     return (end_date - start_date).days
 
 
-@service(supports_response="only")  # pyright: ignore[reportUndefinedVariable]
+@service(supports_response="only")
 def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
     """
     yaml
@@ -270,7 +270,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
     fields:
       conversion_type:
         name: Conversion Type
-        description: Type of conversion ('s2l' for Solar-to-Lunar, 'l2s' for Lunar-to-Solar)
+        description: Type of conversion ("s2l" for Solar-to-Lunar, "l2s" for Lunar-to-Solar)
         example: s2l
         required: true
         selector:
@@ -283,7 +283,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
       date:
         name: Date
         description: Format date YYYY-MM-DD
-        example: "'2025-06-15'"
+        example: '"2022-01-01"'
         required: true
         selector:
           date: {}

@@ -77,7 +77,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the full name of the YouTube channel to query video info.
+            Provide the name of the YouTube channel to query video info.
 
             When requesting multiple YouTube channels, make sure to separate each channel's name with a semicolon.
             If the request does not specify a channel, you should provide all available channels,

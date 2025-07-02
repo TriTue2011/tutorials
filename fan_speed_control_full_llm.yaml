@@ -75,7 +75,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the full name of the fan to control.
+            Provide the name of the fan to control.
 
             When requesting multiple fans, make sure to separate each fan's name with a semicolon.
         speed_adjustment_prompt:

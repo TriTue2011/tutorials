@@ -170,7 +170,6 @@ sequence:
             area: {{ state_attr(device.entity_id, 'area') }}
             can_ring: {{ device.is_mobile and device.at_home }}
             ring_id: {{ ('notify.mobile_app_' ~ device.notify_id) if (device.is_mobile and device.at_home) else none }}
-
           {% endfor -%}
   - stop: ""
     response_variable: response

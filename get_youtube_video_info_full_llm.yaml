@@ -163,13 +163,11 @@ sequence:
             title: {{ entry.title | title }}
             published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
             media_id: {{ entry.yt_videoid }}
-
           {% elif short_videos -%}
           - channel: {{ entry.author | title }}
             title: {{ entry.title | title }}
             published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
             media_id: {{ entry.yt_videoid }}
-
           {% endif -%}
           {% endfor -%}
           {% endfor -%}

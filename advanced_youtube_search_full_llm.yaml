@@ -92,7 +92,7 @@ sequence:
   - variables:
       response:
         entries: >-
-          {% for entry in response.get('items') -%}
+          {% for entry in response.get('items') if entry.id.kind == 'youtube#video' -%}
           - channel: {{ entry.snippet.channelTitle | title }}
             title: {{ entry.snippet.title | title }}
             published: {{ strptime(entry.snippet.publishedAt, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago

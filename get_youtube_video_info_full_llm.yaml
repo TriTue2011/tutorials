@@ -83,6 +83,10 @@ blueprint:
             If the request does not specify a channel, you should provide all available channels,
             but only one name is given for each channel.
 
+            If the query contains bilingual elements or misspellings,
+            it should be corrected to the most likely accurate channel name,
+            and the user should be asked for confirmation before proceeding with the query.
+
             After obtaining the result, ask to play the video on the TV.
             Do not include the Media ID in your response.
         period_length_prompt:

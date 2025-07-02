@@ -135,9 +135,9 @@ sequence:
         variables:
           response:
             error:
-              Unable to provide device location because parameters were set incorrectly.
+              Unable to provide device location because the device name is either incorrect or does not exist.
       - alias: Stop the script
-        stop: Unable to provide device location because parameters were set incorrectly.
+        stop: Unable to provide device location because the device name is either incorrect or does not exist.
         response_variable: response
   - variables:
       response:

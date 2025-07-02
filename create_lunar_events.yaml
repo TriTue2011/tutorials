@@ -107,7 +107,7 @@ sequence:
           }}
     then:
       - alias: Stop the script
-        stop: Unable to add event because parameters were set incorrectly.
+        stop: Unable to add event because the Lunar date of the event is empty.
         error: true
   - alias: Verify the leap month
     if:

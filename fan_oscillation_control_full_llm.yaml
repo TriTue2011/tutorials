@@ -119,9 +119,9 @@ sequence:
         variables:
           response:
             error:
-              Unable to control fan because parameters were set incorrectly.
+              Unable to control the fan because the fan name is either incorrect or does not exist.
       - alias: Stop the script
-        stop: Unable to control fan because parameters were set incorrectly.
+        stop: Unable to control the fan because the fan name is either incorrect or does not exist.
         response_variable: response
   - variables:
       devices: >-

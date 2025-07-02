@@ -79,9 +79,9 @@ sequence:
         variables:
           response:
             error:
-              Unable to ring the device because parameters were set incorrectly.
+              Unable to ring the device because the ring id is incorrect.
       - alias: Stop the script
-        stop: Unable to ring the device because parameters were set incorrectly.
+        stop: Unable to ring the device because the ring id is incorrect.
         response_variable: response
   - repeat:
       count: 5

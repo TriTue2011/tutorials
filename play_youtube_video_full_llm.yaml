@@ -82,9 +82,9 @@ sequence:
         variables:
           response:
             error:
-              Unable to play video because parameters were set incorrectly.
+              Unable to play the video because the media id is empty.
       - alias: Stop the script
-        stop: Unable to play video because parameters were set incorrectly.
+        stop: Unable to play the video because the media id is empty.
         response_variable: response
   - action: media_player.turn_on
     target:

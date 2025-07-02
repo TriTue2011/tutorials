@@ -83,7 +83,7 @@ blueprint:
             If the request does not specify a channel, you should provide all available channels,
             but only one name is given for each channel.
 
-            If the query contains bilingual elements or misspellings,
+            If the query contains misspellings caused by bilingual usage or proper names,
             it should be corrected to the most likely accurate channel name,
             and the user should be asked for confirmation before proceeding with the query.
 

@@ -1,0 +1,80 @@
+from googleapiclient.discovery import build
+
+DEVELOPER_KEY = pyscript.config.get("youtube_api_key")
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
+
+
+@pyscript_compile
+def youtube_search(query: str, results: int = 5, search_type: str = "video,channel,playlist") -> dict:
+    """
+    Performs a search on YouTube.
+
+    Args:
+        query: The search query string.
+        results: The maximum number of results to return.
+        search_type: The type of content to search for.
+
+    Returns:
+        A dictionary containing the search results from the YouTube API.
+    """
+    if not DEVELOPER_KEY:
+        raise Exception("You need to configure your YouTube API key")
+    youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
+    search_response = youtube.search().list(
+        q=query,
+        part="id,snippet",
+        maxResults=results,
+        type=search_type
+    ).execute()
+
+    return search_response
+
+
+@service(supports_response="only")
+def youtube_search_tool(query: str, **kwargs) -> dict:
+    """
+    yaml
+    name: YouTube Search Tool
+    description: Tools for searching YouTube videos, channels, and playlists
+    fields:
+      query:
+        name: Query String
+        description: The search query string.
+        example: Cuộc đời và sự nghiệp của Hồ Chí Minh
+        required: true
+        selector:
+          text: {}
+      search_type:
+        name: Search Type
+        description: The type of content to search for.
+        example: video
+        required: true
+        selector:
+          select:
+            options:
+              - video
+              - channel
+              - playlist
+            multiple: true
+        default:
+          - video
+      results:
+        name: Results
+        description: The maximum number of results to return.
+        example: 5
+        selector:
+          number:
+            min: 0
+            max: 50
+        default: 5
+    """
+    if not query:
+        return dict(error="Missing required argument: query")
+    try:
+        results = int(kwargs.get("results", 5))
+        search_type = list(kwargs.get("search_type", ["video"]))
+        response = task.executor(youtube_search, query, results=results, search_type=",".join(search_type))
+        return response
+    except Exception as error:
+        return dict(error=f"An unexpected error occurred: {error}")

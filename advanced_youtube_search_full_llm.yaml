@@ -52,11 +52,12 @@ blueprint:
 
             Provide the search string to query list of videos.
 
-            If the query contains misspellings caused by bilingual usage or proper names,
+            If a query includes spelling mistakes caused by user mispronunciation,
             it should be corrected to the most likely accurate query,
             and the user should be asked for confirmation before proceeding with the query.
 
             After obtaining the result, ask to play the video on the TV.
+            Add a number to each video to make selection easier.
             Do not include the Media ID in your response.
 mode: parallel
 max_exceeded: silent

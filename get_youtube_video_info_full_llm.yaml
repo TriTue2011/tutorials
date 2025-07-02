@@ -88,7 +88,7 @@ blueprint:
             and the user should be asked for confirmation before proceeding with the query.
 
             After obtaining the result, ask to play the video on the TV.
-            Add a number to each video to make selection easier.
+            Add an ordinal number to each video to make selection easier.
             Do not include the Media ID in your response.
         period_length_prompt:
           name: Period length prompt

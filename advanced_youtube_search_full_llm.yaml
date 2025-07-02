@@ -31,6 +31,19 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
+    max_results_settings:
+      name: Settings for the number of results
+      icon: mdi:youtube
+      description: These settings allow you to define the maximum number of results that will return for each request.
+      input:
+        max_results:
+          name: Number Of Results
+          selector:
+            number:
+              min: 0
+              max: 50
+              step: 1
+          default: 5
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -70,6 +83,7 @@ fields:
     required: true
 sequence:
   - variables:
+      max_results: !input max_results
       query_string: "{{ query_string | default }}"
   - alias: Check if variables were set correctly
     if:
@@ -89,7 +103,7 @@ sequence:
     data:
       query: "{{ query_string }}"
       search_type: "video"
-      results: 5
+      results: "{{ max_results }}"
   - if:
       - condition: template
         value_template: "{{ response.get('error') }}"

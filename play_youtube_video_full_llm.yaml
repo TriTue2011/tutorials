@@ -93,5 +93,6 @@ sequence:
     data:
       media_content_type: url
       media_content_id: "{{ 'https://www.youtube.com/watch?v=' ~ media_id }}"
+      enqueue: play
     target:
       entity_id: !input media_player

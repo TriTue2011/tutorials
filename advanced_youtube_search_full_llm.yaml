@@ -52,8 +52,8 @@ blueprint:
 
             Provide the search string to query list of videos.
 
-            If a query includes spelling mistakes caused by user mispronunciation,
-            it should be corrected to the most likely accurate query,
+            If a query includes misreading caused by user mispronunciation,
+            it should be corrected to the most likely accurate search string,
             and the user should be asked for confirmation before proceeding with the query.
 
             After obtaining the result, ask to play the video on the TV.

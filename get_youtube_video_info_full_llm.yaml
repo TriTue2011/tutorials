@@ -83,9 +83,8 @@ blueprint:
             If the request does not specify a channel, you should provide all available channels,
             but only one name is given for each channel.
 
-            If a query includes spelling mistakes caused by user mispronunciation,
-            it should be corrected to the most likely accurate channel name,
-            and the user should be asked for confirmation before proceeding with the query.
+            If a query includes misreading caused by user mispronunciation,
+            it should be corrected to the most likely accurate channel name.
 
             After obtaining the result, ask to play the video on the TV.
             Add an ordinal number to each video to make selection easier.

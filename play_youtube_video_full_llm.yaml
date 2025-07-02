@@ -10,6 +10,8 @@ blueprint:
 
     * A smart TV integrated into Home Assistant.
 
+    * Support only Android TV, Samsung TV, Apple TV.
+
     ### Optional
 
     * Adjust the prompts for each field used in the script.

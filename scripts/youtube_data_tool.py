@@ -5,7 +5,7 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 
-@pyscript_compile
+@pyscript_executor
 def youtube_search(query: str, results: int = 5, search_type: str = "video,channel,playlist") -> dict:
     """
     Performs a search on YouTube.
@@ -74,7 +74,7 @@ def youtube_search_tool(query: str, **kwargs) -> dict:
     try:
         results = int(kwargs.get("results", 5))
         search_type = list(kwargs.get("search_type", ["video"]))
-        response = task.executor(youtube_search, query, results=results, search_type=",".join(search_type))
+        response = youtube_search(query, results=results, search_type=",".join(search_type))
         return response
     except Exception as error:
         return dict(error=f"An unexpected error occurred: {error}")

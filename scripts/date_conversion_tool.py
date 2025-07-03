@@ -9,7 +9,7 @@ import datetime
 import math
 
 
-def jd_from_date(dd, mm, yy):
+def jd_from_date(dd: int, mm: int, yy: int) -> int:
     # Compute the (integral) Julian day number of day dd/mm/yyyy,
     # i.e., the number of days between 1/1/4713 BC (Julian calendar) and dd/mm/yyyy.
     a = int((14 - mm) / 12.)
@@ -21,7 +21,7 @@ def jd_from_date(dd, mm, yy):
     return jd
 
 
-def jd_to_date(jd):  # Convert a Julian day number to day/month/year. jd is an integer.
+def jd_to_date(jd: int) -> list[int]:  # Convert a Julian day number to day/month/year. jd is an integer.
     if jd > 2299160:  ## After 5/10/1582, Gregorian calendar
         a = jd + 32044
         b = int((4 * a + 3) / 146097.)
@@ -39,7 +39,7 @@ def jd_to_date(jd):  # Convert a Julian day number to day/month/year. jd is an i
     return [day, month, year]
 
 
-def new_moon(k):
+def new_moon(k: int) -> float:
     # Compute the time of the k-th new moon after the new moon of 1/1/1900 13:52 UCT
     # measured as the number of days since 1/1/4713 BC noon UCT, e.g., 2451545.125 is 1/1/2000 15:00 UTC.
     # Returns a floating number, e.g., 2415079.9758617813 for k=2 or 2414961.935157746 for k=-2.
@@ -72,7 +72,7 @@ def new_moon(k):
     return jd_new
 
 
-def sun_longitude(jdn):
+def sun_longitude(jdn: float) -> float:
     # Compute the longitude of the sun at any time.
     # Parameter: floating number jdn, the number of days since 1/1/4713 BC noon.
     t = (jdn - 2451545.0) / 36525.
@@ -93,7 +93,7 @@ def sun_longitude(jdn):
     return l
 
 
-def get_sun_longitude(day_number, time_zone):
+def get_sun_longitude(day_number: int, time_zone: int) -> int:
     # Compute sun position at midnight of the day with the given Julian day number.
     # The time zone if the time difference between local time and UTC: 7.0 for UTC+7:00.
     # The function returns a number between 0 and 11.
@@ -102,13 +102,13 @@ def get_sun_longitude(day_number, time_zone):
     return int(sun_longitude(day_number - 0.5 - time_zone / 24.) / math.pi * 6)
 
 
-def get_new_moon_day(k, time_zone):
+def get_new_moon_day(k: int, time_zone: int) -> int:
     # Compute the day of the k-th new moon in the given time zone.
     # The time zone if the time difference between local time and UTC: 7.0 for UTC+7:00.
     return int(new_moon(k) + 0.5 + time_zone / 24.)
 
 
-def get_lunar_month_11(yy, time_zone):
+def get_lunar_month_11(yy: int, time_zone: int) -> int:
     # Find the day that starts the lunar month 11 of the given year for the given time zone.
 
     # off = jd_from_date(31, 12, yy) - 2415021.076998695
@@ -122,7 +122,7 @@ def get_lunar_month_11(yy, time_zone):
     return nm
 
 
-def get_leap_month_offset(a11, time_zone):
+def get_leap_month_offset(a11: int, time_zone: int) -> int:
     # Find the index of the leap month after the month starting on the day a11.
     k = int((a11 - 2415021.076998695) / 29.530588853 + 0.5)
     i = 1  ## start with month following lunar month 11
@@ -136,7 +136,7 @@ def get_leap_month_offset(a11, time_zone):
     return i - 1
 
 
-def solar_to_lunar(dd, mm, yy, time_zone=7):
+def solar_to_lunar(dd: int, mm: int, yy: int, time_zone: int = 7) -> list[int]:
     # Convert solar date dd/mm/yyyy to the corresponding lunar date.
     day_number = jd_from_date(dd, mm, yy)
     k = int((day_number - 2415021.076998695) / 29.530588853)
@@ -168,7 +168,7 @@ def solar_to_lunar(dd, mm, yy, time_zone=7):
     return [lunar_day, lunar_month, lunar_year, lunar_leap, day_number]
 
 
-def lunar_to_sonar(lunar_day, lunar_month, lunar_year, lunar_leap, time_zone=7):
+def lunar_to_sonar(lunar_day: int, lunar_month: int, lunar_year: int, lunar_leap: int, time_zone: int = 7) -> list[int]:
     # Convert a lunar date to the corresponding solar date.
     if lunar_month < 11:
         a11 = get_lunar_month_11(lunar_year - 1, time_zone)
@@ -193,7 +193,7 @@ def lunar_to_sonar(lunar_day, lunar_month, lunar_year, lunar_leap, time_zone=7):
     return jd_to_date(month_start + lunar_day - 1)
 
 
-def get_solar_term(day_number, time_zone):
+def get_solar_term(day_number: int, time_zone: int) -> int:
     return int((sun_longitude(day_number - 0.5 - time_zone / 24.0) / math.pi) * 12)
 
 
@@ -217,7 +217,7 @@ SOLAR_TERM = ["Xuân Phân", "Thanh Minh", "Cốc Vũ", "Lập Hạ", "Tiểu M�
               "Đông Chí", "Tiểu Hàn", "Đại Hàn", "Lập Xuân", "Vũ Thủy", "Kinh Trập"]
 
 
-def validate_date(date):
+def validate_date(date: str) -> bool:
     try:
         datetime.date.fromisoformat(date)
         return True
@@ -225,16 +225,16 @@ def validate_date(date):
         return False
 
 
-def split_date(date):
+def split_date(date: str) -> tuple[int, int, int]:
     current_date = datetime.date.fromisoformat(date)
     return current_date.day, current_date.month, current_date.year
 
 
-def join_date(day, month, year):
+def join_date(day: int, month: int, year: int) -> str:
     return datetime.date(year, month, day).isoformat()
 
 
-def get_day_of_week(day, month, year):
+def get_day_of_week(day: int, month: int, year: int) -> int:
     return datetime.date(year, month, day).weekday()
 
 
@@ -255,7 +255,7 @@ def get_auspicious_hours(jd: int) -> str:
     return ", ".join(auspicious_hours)
 
 
-def get_remaining_days(date):
+def get_remaining_days(date: str) -> int:
     start_date = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
     end_date = datetime.datetime.strptime(date, "%Y-%m-%d")
     return (end_date - start_date).days

@@ -86,7 +86,7 @@ blueprint:
 
             Provide the page token to retrieve additional videos.
 
-            Use it when the initial query results are not satisfactory, and the user wants to find more videos.
+            Use it when the initial query results are unsatisfying, and the user wants to find more videos.
 mode: parallel
 max_exceeded: silent
 fields:

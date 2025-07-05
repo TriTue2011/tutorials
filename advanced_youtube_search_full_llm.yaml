@@ -31,12 +31,12 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
-    max_results_settings:
-      name: Settings for the number of results
+    results_settings:
+      name: Settings for Results
       icon: mdi:youtube
       description: These settings allow you to define the maximum number of results that will return for each request.
       input:
-        max_results:
+        results:
           name: Number Of Results
           selector:
             number:
@@ -53,7 +53,7 @@ blueprint:
       collapsed: true
       input:
         query_string_prompt:
-          name: Query string prompt
+          name: Query String Prompt
           description:
             The prompt which will be used for the LLM can provide the search string for the query.
           selector:
@@ -72,19 +72,40 @@ blueprint:
             After obtaining the result, ask to play the video on the TV.
             Add an ordinal number to each video to make selection easier.
             Do not include the Media ID in your response.
+        page_token_prompt:
+          name: Page Token Prompt
+          description:
+            The prompt which will be used for the LLM can provide
+            the page token to get additional videos that could be retrieved.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is optional.
+
+            Provide the page token to retrieve additional videos.
+
+            Use it when the initial query results are not satisfactory, and the user wants to find more videos.
 mode: parallel
 max_exceeded: silent
 fields:
   query_string:
-    name: Query string
+    name: Query String
     description: !input query_string_prompt
     selector:
         text:
     required: true
+  page_token:
+    name: Page Token
+    description: !input page_token_prompt
+    selector:
+        text:
 sequence:
   - variables:
-      max_results: !input max_results
+      results: !input results
       query_string: "{{ query_string | default }}"
+      page_token: "{{ page_token | default }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -103,7 +124,8 @@ sequence:
     data:
       query: "{{ query_string }}"
       search_type: "video"
-      results: "{{ max_results }}"
+      results: "{{ results }}"
+      page_token: "{{ page_token }}"
   - if:
       - condition: template
         value_template: "{{ response.get('error') }}"
@@ -121,5 +143,6 @@ sequence:
                 published: {{ strptime(entry.snippet.publishedAt, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
                 media_id: {{ entry.id.videoId }}
               {% endfor -%}
+            next_page_token: "{{ response.get('nextPageToken') }}"
   - stop: ""
     response_variable: response

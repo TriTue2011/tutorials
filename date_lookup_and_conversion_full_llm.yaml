@@ -38,7 +38,7 @@ blueprint:
       collapsed: true
       input:
         conversion_type_prompt:
-          name: Conversion type prompt
+          name: Conversion Type Prompt
           description:
             The prompt which will be used for the LLM can provide the type for the conversion.
           selector:
@@ -55,7 +55,7 @@ blueprint:
             After obtaining the result, ensure that your response clearly specifies the day
             of the week, the Solar date, the Lunar date, and the number of remaining days (if different than zero).
         date_prompt:
-          name: Date prompt
+          name: Date Prompt
           description:
             The prompt which will be used for the LLM can provide the input date for the conversion.
           selector:
@@ -77,7 +77,7 @@ blueprint:
             'Tết Nguyên Đán' means January 1st in the Lunar calendar.
             'Tết Trung Thu' means August 15th in the Lunar calendar.
         leap_month_prompt:
-          name: Leap month prompt
+          name: Leap Month Prompt
           description:
             The prompt which will be used for the LLM can provide the leap month for the conversion.
           selector:

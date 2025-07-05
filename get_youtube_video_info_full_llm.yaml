@@ -67,7 +67,7 @@ blueprint:
       collapsed: true
       input:
         entities_prompt:
-          name: Entities prompt
+          name: Entities Prompt
           description:
             The prompt which will be used for the LLM can provide the YouTube channel name for the query.
           selector:
@@ -90,7 +90,7 @@ blueprint:
             Add an ordinal number to each video to make selection easier.
             Do not include the Media ID in your response.
         period_length_prompt:
-          name: Period length prompt
+          name: Period Length Prompt
           description:
             The prompt which will be used for the LLM can provide the length
             of the period for the query.

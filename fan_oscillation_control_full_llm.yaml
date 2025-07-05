@@ -52,7 +52,7 @@ blueprint:
       collapsed: true
       input:
         fan_entities_prompt:
-          name: Fan entities prompt
+          name: Fan Entities Prompt
           description:
             The prompt which will be used for the LLM can provide the name of fans for controlling.
           selector:
@@ -66,7 +66,7 @@ blueprint:
 
             When requesting multiple fans, make sure to separate each fan's name with a semicolon.
         oscillating_prompt:
-          name: Oscillating prompt
+          name: Oscillating Prompt
           description:
             The prompt which will be used for the LLM can provide the oscillation state.
           selector:

@@ -6,7 +6,8 @@ YOUTUBE_API_VERSION = "v3"
 
 
 @pyscript_executor
-def youtube_search(query: str, results: int = 5, search_type: str = "video,channel,playlist") -> dict:
+def youtube_search(query: str, results: int = 5, search_type: str = "video,channel,playlist",
+                   page_token: str = "") -> dict:
     """
     Performs a search on YouTube.
 
@@ -14,6 +15,7 @@ def youtube_search(query: str, results: int = 5, search_type: str = "video,chann
         query: The search query string.
         results: The maximum number of results to return.
         search_type: The type of content to search for.
+        page_token: The page token to get other pages that could be retrieved.
 
     Returns:
         A dictionary containing the search results from the YouTube API.
@@ -25,7 +27,8 @@ def youtube_search(query: str, results: int = 5, search_type: str = "video,chann
         q=query,
         part="id,snippet",
         maxResults=results,
-        type=search_type
+        type=search_type,
+        pageToken=page_token
     ).execute()
 
     return search_response
@@ -68,13 +71,19 @@ def youtube_search_tool(query: str, **kwargs) -> dict:
             min: 0
             max: 50
         default: 5
+      page_token:
+        name: Page Token
+        description:  The page token to get other pages that could be retrieved.
+        selector:
+          text: {}
     """
     if not query:
         return dict(error="Missing required argument: query")
     try:
         results = int(kwargs.get("results", 5))
         search_type = list(kwargs.get("search_type", ["video"]))
-        response = youtube_search(query, results=results, search_type=",".join(search_type))
+        page_token = kwargs.get("page_token", "")
+        response = youtube_search(query, results=results, search_type=",".join(search_type), page_token=page_token)
         return response
     except Exception as error:
         return dict(error=f"An unexpected error occurred: {error}")

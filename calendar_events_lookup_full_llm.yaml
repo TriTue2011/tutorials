@@ -33,7 +33,7 @@ blueprint:
       description: You can use these settings to configure Calendar entities.
       input:
         calendar_entities:
-          name: Calendar entities
+          name: Calendar Entities
           description: Select the calendar entities to fetch the events from.
           selector:
             entity:
@@ -49,7 +49,7 @@ blueprint:
       collapsed: true
       input:
         time_period_type_prompt:
-          name: Time period type prompt
+          name: Time Period Type Prompt
           description:
             The prompt which will be used for the LLM can provide
             the type for the period (days or hours).
@@ -66,7 +66,7 @@ blueprint:
             After obtaining the result, ensure your response include only the event's
             day of the week and start date. The event's end date or time is exclusive.
         time_period_length_prompt:
-          name: Time period length prompt
+          name: Time Period Length Prompt
           description:
             The prompt which will be used for the LLM can provide the length of the period.
           selector:
@@ -83,7 +83,7 @@ blueprint:
             7 (days) for the next few days, 30 (days) for in the month,
             6 (hours) for morning, afternoon, or evening events.
         date_prompt:
-          name: Date prompt
+          name: Date Prompt
           description:
             The prompt which will be used for the LLM can provide the start date for the events period.
           selector:
@@ -102,7 +102,7 @@ blueprint:
             When the requested period is for the night, do not use today's date but
             always use the next day, unless the current time is still before 05:00:00
         time_prompt:
-          name: Time prompt
+          name: Time Prompt
           description:
             The prompt which will be used for the LLM can provide the start time for the events period.
           selector:

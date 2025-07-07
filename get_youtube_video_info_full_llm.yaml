@@ -159,12 +159,12 @@ sequence:
           else (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | first) -%}
           {% for entry in state_attr(entity_id, 'entries') if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
           {% if entry.link is not search('\/shorts\/') -%}
-          - channel: {{ entry.author | title }}
+          - channel: {{ entry.author | lower }}
             title: {{ entry.title | lower }}
             published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
             media_id: {{ entry.yt_videoid }}
           {% elif short_videos -%}
-          - channel: {{ entry.author | title }}
+          - channel: {{ entry.author | lower }}
             title: {{ entry.title | lower }}
             published: {{ strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') | relative_time }} ago
             media_id: {{ entry.yt_videoid }}

@@ -93,11 +93,11 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the name of the device to query the device location.
+            Provide at least one device's name to query the device location.
 
             When requesting multiple devices, make sure to separate each device's name with a semicolon.
-            If the request does not specify a device, you should provide all available devices,
-            but only one name is given for each device.
+
+            If a query does not specify a device, provide all relevant devices based on the context.
 
             After obtaining the result, if the device can ring, ask to activate its ringing function.
 mode: parallel

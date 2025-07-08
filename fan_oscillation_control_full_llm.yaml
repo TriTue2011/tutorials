@@ -62,7 +62,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide the name of the fan to control.
+            Provide at least one fan's name to control.
 
             When requesting multiple fans, make sure to separate each fan's name with a semicolon.
         oscillating_prompt:

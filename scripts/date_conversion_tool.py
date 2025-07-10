@@ -216,6 +216,82 @@ SOLAR_TERM = ["Xuân Phân", "Thanh Minh", "Cốc Vũ", "Lập Hạ", "Tiểu M�
               "Thu Phân", "Hàn Lộ", "Sương Giáng", "Lập Đông", "Tiểu Tuyết", "Đại Tuyết",
               "Đông Chí", "Tiểu Hàn", "Đại Hàn", "Lập Xuân", "Vũ Thủy", "Kinh Trập"]
 
+# Ánh xạ tháng âm lịch (key) tới CHỈ SỐ của Chi khởi đầu chu kỳ Hoàng Đạo (value)
+# Tý=0, Sửu=1, Dần=2, Mão=3, Thìn=4, Tỵ=5, Ngọ=6, Mùi=7, Thân=8, Dậu=9, Tuất=10, Hợi=11
+AUSPICIOUS_DAY_START_CHI = {
+    (1, 7): 0,  # Tháng 1, 7 (Dần, Thân) -> Bắt đầu từ Tý (index 0)
+    (2, 8): 2,  # Tháng 2, 8 (Mão, Dậu)  -> Bắt đầu từ Dần (index 2)
+    (3, 9): 4,  # Tháng 3, 9 (Thìn, Tuất) -> Bắt đầu từ Thìn (index 4)
+    (4, 10): 6,  # Tháng 4, 10 (Tỵ, Hợi)  -> Bắt đầu từ Ngọ (index 6)
+    (5, 11): 8,  # Tháng 5, 11 (Ngọ, Tý)  -> Bắt đầu từ Thân (index 8)
+    (6, 12): 10  # Tháng 6, 12 (Mùi, Sửu)  -> Bắt đầu từ Tuất (index 10)
+}
+# Các sao trong chu kỳ Hoàng Đạo / Hắc Đạo
+# T: Hoàng Đạo (Tốt), X: Hắc Đạo (Xấu), B: Bình Thường (Không tốt không xấu)
+# Thanh Long (T), Minh Đường (T), Thiên Hình (B), Chu Tước (X), Kim Quỹ (B), Kim Đường (T),
+# Bạch Hổ (X), Ngọc Đường (T), Thiên Lao (B), Nguyên Vũ (X), Tư Mệnh (B), Câu Trận (X)
+AUSPICIOUS_DAY_STATUS = [
+    "T", "T", "B", "X", "B", "T",
+    "X", "T", "B", "X", "B", "X"
+]
+
+# ==============================================================================
+# DỮ LIỆU NHỊ THẬP BÁT TÚ
+# ==============================================================================
+
+# Danh sách 28 sao (Tú) theo đúng thứ tự
+# Tên: Tên sao
+# Kiết Hung: Đánh giá tốt/xấu (Cát: Tốt, Hung: Xấu, Bình: Trung bình)
+# Nên: Việc nên làm
+# Kỵ: Việc cần tránh
+TWENTY_EIGHT_LUNAR_MANSIONS = [
+    {"Tên": "Giác Mộc Giao", "Kiết Hung": "Cát",
+     "Nên": "Tạo tác mọi việc đều tốt, đặc biệt là cưới gả, xây cất, chôn cất.", "Kỵ": "Tránh đi thuyền."},
+    {"Tên": "Cang Kim Long", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Chôn cất, cưới gả, xây cất."},
+    {"Tên": "Đê Thổ Lạc", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
+     "Kỵ": "Xây cất, cưới gả, xuất hành xa, sinh con."},
+    {"Tên": "Phòng Nhật Thố", "Kiết Hung": "Cát", "Nên": "Cưới gả, làm nhà, chôn cất, may mặc.",
+     "Kỵ": "Không có việc gì đặc biệt kỵ."},
+    {"Tên": "Tâm Nguyệt Hồ", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Xây cất, cưới gả, kiện tụng."},
+    {"Tên": "Vĩ Hỏa Hổ", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, mở cửa, đào ao.", "Kỵ": "May mặc, chôn cất."},
+    {"Tên": "Cơ Thủy Báo", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, kinh doanh, đi xa.",
+     "Kỵ": "Chôn cất, đóng thuyền."},
+    {"Tên": "Đẩu Mộc Giải", "Kiết Hung": "Cát", "Nên": "Xây cất, mở cửa, cưới gả, nhập học.",
+     "Kỵ": "Chôn cất, đi thuyền."},
+    {"Tên": "Ngưu Kim Ngưu", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
+     "Kỵ": "Cưới gả, đi xa, xây cất, an táng."},
+    {"Tên": "Nữ Thổ Bức", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
+     "Kỵ": "Cưới gả, xây cất, chôn cất, kiện tụng."},
+    {"Tên": "Hư Nhật Thử", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, an táng."},
+    {"Tên": "Nguy Nguyệt Yến", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
+     "Kỵ": "Xây cất, cưới gả, đi xa, an táng."},
+    {"Tên": "Thất Hỏa Trư", "Kiết Hung": "Cát", "Nên": "Xây cất, cưới gả, kinh doanh.", "Kỵ": "Đi xa, chôn cất."},
+    {"Tên": "Bích Thủy Du", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, an táng, kinh doanh.",
+     "Kỵ": "Không có việc gì đặc biệt kỵ."},
+    {"Tên": "Khuê Mộc Lang", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Xây cất, khai trương."},
+    {"Tên": "Lâu Kim Cẩu", "Kiết Hung": "Cát", "Nên": "Cưới gả, đi xa, may mặc, kinh doanh.",
+     "Kỵ": "Xây cất, chôn cất."},
+    {"Tên": "Vị Thổ Trĩ", "Kiết Hung": "Cát", "Nên": "Xây cất, cưới gả, an táng, kinh doanh.",
+     "Kỵ": "Không có việc gì đặc biệt kỵ."},
+    {"Tên": "Mão Nhật Kê", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
+     "Kỵ": "Cưới gả, xây cất, chôn cất, đi thuyền."},
+    {"Tên": "Tất Nguyệt Ô", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, an táng, kinh doanh.",
+     "Kỵ": "Không có việc gì đặc biệt kỵ."},
+    {"Tên": "Chủy Hỏa Hầu", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Xây cất, chôn cất, đi xa."},
+    {"Tên": "Sâm Thủy Viên", "Kiết Hung": "Cát", "Nên": "Cưới gả, kinh doanh, xây cất, làm vườn.",
+     "Kỵ": "Chôn cất, may mặc."},
+    {"Tên": "Tỉnh Mộc Hãn", "Kiết Hung": "Cát", "Nên": "Xây cất, cưới gả, an táng.", "Kỵ": "Đi thuyền."},
+    {"Tên": "Quỷ Kim Dương", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, chôn cất."},
+    {"Tên": "Liễu Thổ Chương", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
+     "Kỵ": "Cưới gả, xây cất, chôn cất, khai trương."},
+    {"Tên": "Tinh Nhật Mã", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, chôn cất."},
+    {"Tên": "Trương Nguyệt Lộc", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, khai trương, làm ruộng.",
+     "Kỵ": "May mặc, chôn cất."},
+    {"Tên": "Dực Hỏa Xà", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, chôn cất."},
+    {"Tên": "Chẩn Thủy Dẫn", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, nhập học, kinh doanh.",
+     "Kỵ": "May mặc, chôn cất."}
+]
+
 
 def validate_date(date: str) -> bool:
     try:
@@ -236,6 +312,57 @@ def join_date(day: int, month: int, year: int) -> str:
 
 def get_day_of_week(day: int, month: int, year: int) -> int:
     return datetime.date(year, month, day).weekday()
+
+
+def get_twenty_eight_lunar_mansions(jd: int) -> dict:
+    """
+    Tính toán và trả về thông tin sao (tú) trong Nhị Thập Bát Tú của một ngày.
+    - jd: Julian Day number
+    """
+    # JD của ngày 01/01/2000 là 2451545.
+    # Vị trí của sao Vị Thổ Trĩ trong mảng TWENTY_EIGHT_LUNAR_MANSIONS là 16.
+    jd_ref = 2451545
+    mansion_ref_index = 16  # Chỉ số của sao Vị
+
+    # Tính khoảng cách từ ngày tham chiếu đến ngày cần xem
+    day_diff = jd - jd_ref
+
+    # Áp dụng công thức: (chỉ số gốc + chênh lệch ngày) % 28
+    # Thêm 28 vào phép tính để đảm bảo kết quả luôn dương khi tính cho các ngày trước mốc
+    current_mansion_index = (mansion_ref_index + day_diff + 28) % 28
+
+    return TWENTY_EIGHT_LUNAR_MANSIONS[current_mansion_index]
+
+
+def get_auspicious_day_status(lunar_month: int, jd: int) -> str:
+    """
+    Xác định ngày là Hoàng Đạo hay Hắc Đạo dựa trên quy tắc Lục Diệu.
+    - lunar_month: tháng âm lịch (1-12)
+    - jd: Julian Day number
+    """
+    chi_of_day_index = (jd + 1) % 12
+
+    start_chi_index = -1
+    # Tìm chỉ số của Chi bắt đầu chu kỳ cho tháng âm lịch hiện tại
+    for months, start_index in AUSPICIOUS_DAY_START_CHI.items():
+        if lunar_month in months:
+            start_chi_index = start_index
+            break
+
+    if start_chi_index == -1:
+        # Trường hợp này không nên xảy ra với tháng âm lịch hợp lệ (1-12)
+        return "Không xác định"
+
+    # Tính toán vị trí của ngày trong chu kỳ 12 thần sát
+    offset = (chi_of_day_index - start_chi_index + 12) % 12
+
+    if AUSPICIOUS_DAY_STATUS[offset] == "T":
+        return "Ngày Hoàng Đạo"
+    elif AUSPICIOUS_DAY_STATUS[offset] == "X":
+        return "Ngày Hắc Đạo"
+    elif AUSPICIOUS_DAY_STATUS[offset] == "B":
+        return "Ngày trung bình (Không tốt không xấu)"
+    return "Không xác định"
 
 
 def get_auspicious_hours(jd: int) -> str:
@@ -312,13 +439,18 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             cc_day = CAN[(l_date[4] + 9) % 10] + " " + CHI[(l_date[4] + 1) % 12]
             cc_month = CAN[(l_date[2] * 12 + l_date[1] + 3) % 10] + " " + CHI[(l_date[1] + 1) % 12]
             cc_year = CAN[(l_date[2] + 6) % 10] + " " + CHI[(l_date[2] + 8) % 12]
+            auspicious_day_status = get_auspicious_day_status(l_date[1], l_date[4])
+            auspicious_hours = get_auspicious_hours(l_date[4])
+            twenty_eight_lunar_mansions = get_twenty_eight_lunar_mansions(l_date[4])
             return dict(date=join_date(l_date[0], l_date[1], l_date[2]),
                         remaining_days=remaining_days,
                         full_date=f"{DAYS[get_day_of_week(day, month, year)]} ngày {l_date[0]} tháng {n_month} năm {cc_year}",
                         full_cc_date=f"{DAYS[get_day_of_week(day, month, year)]} ngày {cc_day} tháng {cc_month} năm {cc_year}",
                         leap_month=True if l_date[3] == 1 else False,
                         solar_term=SOLAR_TERM[get_solar_term(l_date[4] + 1, 7)],
-                        auspicious_hours=get_auspicious_hours(l_date[4]))
+                        auspicious_day_status=auspicious_day_status,
+                        auspicious_hours=auspicious_hours,
+                        twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
         except Exception as e:
             return dict(error=f"Error converting Solar {date} to Lunar: {e}")
     elif conversion_type == "l2s":
@@ -333,9 +465,21 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             is_leap = 1 if leap_month else 0
             s_date = lunar_to_sonar(day, month, year, is_leap)
             remaining_days = get_remaining_days(join_date(s_date[0], s_date[1], s_date[2]))
+            day_numer = jd_from_date(s_date[0], s_date[1], s_date[2])
+            cc_day = CAN[(day_numer + 9) % 10] + " " + CHI[(day_numer + 1) % 12]
+            cc_month = CAN[(year * 12 + month + 3) % 10] + " " + CHI[(month + 1) % 12]
+            cc_year = CAN[(year + 6) % 10] + " " + CHI[(year + 8) % 12]
+            auspicious_day_status = get_auspicious_day_status(month, day_numer)
+            auspicious_hours = get_auspicious_hours(day_numer)
+            twenty_eight_lunar_mansions = get_twenty_eight_lunar_mansions(day_numer)
             return dict(date=join_date(s_date[0], s_date[1], s_date[2]),
                         remaining_days=remaining_days,
-                        full_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {s_date[0]} tháng {s_date[1]} năm {s_date[2]}")
+                        full_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {s_date[0]} tháng {s_date[1]} năm {s_date[2]}",
+                        full_cc_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {cc_day} tháng {cc_month} năm {cc_year}",
+                        solar_term=SOLAR_TERM[get_solar_term(day_numer + 1, 7)],
+                        auspicious_day_status=auspicious_day_status,
+                        auspicious_hours=auspicious_hours,
+                        twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
         except Exception as e:
             return dict(error=f"Error converting Lunar {date} {kwargs} to Solar: {e}")
     else:

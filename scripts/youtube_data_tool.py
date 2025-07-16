@@ -21,7 +21,7 @@ def youtube_search(query: str, results: int = 5, search_type: str = "video,chann
         A dictionary containing the search results from the YouTube API.
     """
     if not DEVELOPER_KEY:
-        raise Exception("You need to configure your YouTube API key")
+        raise ValueError("You need to configure your YouTube API key")
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVELOPER_KEY)
     search_response = youtube.search().list(
         q=query,

@@ -39,7 +39,7 @@ def youtube_search_tool(query: str, **kwargs) -> dict:
     """
     yaml
     name: YouTube Search Tool
-    description: Tools for searching YouTube videos, channels, and playlists
+    description: Tool for searching YouTube videos, channels, and playlists
     fields:
       query:
         name: Query String

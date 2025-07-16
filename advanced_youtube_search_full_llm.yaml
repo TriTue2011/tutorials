@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Advanced YouTube Search Tool
   author: VuLQ
   description: >-
-    # Tools for searching YouTube videos using for LLM
+    # Tool for searching YouTube videos using LLM
 
     ## Blueprint Setup
 

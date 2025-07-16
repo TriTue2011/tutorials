@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Device Location Lookup Tool
   author: VuLQ
   description: >-
-    # Device Location Lookup Tool using for LLM
+    # Device Location Lookup Tool using LLM
 
     ## Features
 

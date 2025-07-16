@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Date Lookup and Conversion Tool
   author: VuLQ
   description: >-
-    # Tool converts Solar date to Lunar date and vice versa using for LLM
+    # Tool converts Solar date to Lunar date and vice versa using LLM
 
     ## Blueprint Setup
 

@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Calendar Events Lookup Tool
   author: VuLQ
   description: >-
-    # Tool gets events from calendar using for LLM
+    # Tool gets events from calendar using LLM
 
     ## Blueprint Setup
 

@@ -1,8 +1,10 @@
 # Các thủ thuật và hướng dẫn cho Home Assistant
 
+## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tra cứu vi phạm giao thông
+
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tìm kiếm và phát video nội dung bất kỳ trên YouTube lên TV
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để điều khiển tốc độ và cho quay quạt
+## Bản thiết kế dùng cho Voice Assist để điều khiển tốc độ và cho quay quạt
 
 ## Bản thiết kế dùng cho Voice Assist để tìm kiếm và phát video mới ra từ các kênh YouTube yêu thích lên TV
 

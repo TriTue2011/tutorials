@@ -1,1 +1,10 @@
+# YouTube Search Tool
 google-api-python-client
+
+# Traffic Fine Lookup Tool
+aiohttp
+redis
+Pillow
+beautifulsoup4
+google-genai
+google-api-core

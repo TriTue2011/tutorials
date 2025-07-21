@@ -18,10 +18,28 @@ from google.api_core.exceptions import ResourceExhausted
 
 TTL = 3
 RETRY_LIMIT = 3
-CAPTCHA_URL = 'https://www.csgt.vn/lib/captcha/captcha.class.php'
-GET_URL = 'https://www.csgt.vn/tra-cuu-phuong-tien-vi-pham.html'
+GET_URL = 'https://www.csgt.vn/'
 POST_URL = 'https://www.csgt.vn/?mod=contact&task=tracuu_post&ajax'
-
+CAPTCHA_URL = 'https://www.csgt.vn/lib/captcha/captcha.class.php'
+GET_HEADERS = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'DNT': '1',
+    'Host': 'www.csgt.vn',
+    'Pragma': 'no-cache',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0',
+    'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Microsoft Edge";v="138"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"'
+}
 POST_HEADERS = {
     'Accept': '*/*',
     'Accept-Encoding': 'gzip, deflate, br, zstd',
@@ -33,7 +51,7 @@ POST_HEADERS = {
     'Host': 'www.csgt.vn',
     'Origin': 'https://www.csgt.vn',
     'Pragma': 'no-cache',
-    'Referer': 'https://www.csgt.vn/tra-cuu-phuong-tien-vi-pham.html',
+    'Referer': 'https://www.csgt.vn/',
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-origin',
@@ -43,28 +61,6 @@ POST_HEADERS = {
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"'
 }
-
-GET_HEADERS = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'DNT': '1',
-    'Host': 'www.csgt.vn',
-    'Pragma': 'no-cache',
-    'Referer': 'https://www.csgt.vn/',
-    'Sec-Fetch-Dest': 'document',
-    'Sec-Fetch-Mode': 'navigate',
-    'Sec-Fetch-Site': 'same-origin',
-    'Sec-Fetch-User': '?1',
-    'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0',
-    'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Microsoft Edge";v="138"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"Windows"'
-}
-
 GEMINI_API_KEY = pyscript.config.get('gemini_api_key')
 
 if not GEMINI_API_KEY:
@@ -200,8 +196,7 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
 
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context)) as ss:
         try:
-            url = f'{GET_URL}?&LoaiXe={vehicle_type}&BienKiemSoat={license_plate}'
-            async with ss.get(url, headers=GET_HEADERS, timeout=30) as response_1st:
+            async with ss.get(GET_URL, headers=GET_HEADERS, timeout=30) as response_1st:
                 response_1st.raise_for_status()
 
                 captcha = None
@@ -222,19 +217,19 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
                 async with ss.post(url=POST_URL, headers=POST_HEADERS, data=data, timeout=30) as response_2nd:
                     response_2nd.raise_for_status()
                     response_2nd_json = await response_2nd.json(content_type='text/html')
-                    href = response_2nd_json.get('href')
+                    url = response_2nd_json.get('href')
 
-                    if not href:
+                    if not url:
                         if retry_count < RETRY_LIMIT:
                             await asyncio.sleep(15)
                             return await check_license_plate(license_plate, vehicle_type, retry_count + 1)
                         else:
                             return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached. Exiting.')
 
-                    async with ss.get(url=href, timeout=30) as response_3rd:
+                    async with ss.get(url=url, timeout=30) as response_3rd:
                         response_3rd.raise_for_status()
                         text_content = await response_3rd.text()
-                        response = extract_violations_from_html(text_content, href)
+                        response = extract_violations_from_html(text_content, url)
 
                         if response and response.get('status') == 'success':
                             await cached.set(f'{license_plate}-{vehicle_type}', json.dumps(response))

@@ -82,7 +82,7 @@ def extract_violations_from_html(content: str, url: str) -> dict:
     body_print = soup.find('div', id='bodyPrint123')
 
     if not body_print:
-        return dict(status='failure', url=url, message='Không tìm thấy dữ liệu', detail='')
+        return dict(status='failure', url=url, message='Không tìm thấy dữ liệu vi phạm', detail='')
 
     sections = body_print.find_all(recursive=False)
     current_violation = None
@@ -123,9 +123,9 @@ def extract_violations_from_html(content: str, url: str) -> dict:
         violations.append(current_violation)
 
     if not violations:
-        return dict(status='success', url=url, message='Không có vi phạm', detail='')
+        return dict(status='success', url=url, message='Không có vi phạm giao thông', detail='')
 
-    return dict(status='success', url=url, message=f'Có {len(violations)} vi phạm', detail=violations)
+    return dict(status='success', url=url, message=f'Có {len(violations)} vi phạm giao thông', detail=violations)
 
 
 @pyscript_compile
@@ -250,7 +250,7 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
 
 
 @service(supports_response='only')
-async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int) -> dict:
+async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int, bypass_caching: bool = False) -> dict:
     """
     yaml
     name: Traffic Fine Lookup Tool
@@ -278,6 +278,12 @@ async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int) -> dic
               - label: Xe đạp điện
                 value: "3"
         default: "1"
+      bypass_caching:
+        name: Bypass Caching
+        description: Bypass the cache to retrieve the latest data from csgt.vn.
+        example: false
+        selector:
+          boolean: {}
     """
     try:
         license_plate = license_plate.upper()
@@ -288,6 +294,10 @@ async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int) -> dic
 
         if vehicle_type not in [1, 2, 3]:
             return dict(error='The type of vehicle is invalid')
+
+        if bool(bypass_caching):
+            await cached.delete(f'{license_plate}-{vehicle_type}')
+            return await check_license_plate(license_plate, vehicle_type)
 
         response = await cached.get(f'{license_plate}-{vehicle_type}')
         if response:

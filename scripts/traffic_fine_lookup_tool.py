@@ -13,7 +13,7 @@ from PIL.ImageFile import ImageFile
 from PIL.ImageFilter import EDGE_ENHANCE
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
-from google import genai
+from google.genai import Client
 from google.api_core.exceptions import ResourceExhausted
 
 TTL = 3
@@ -66,7 +66,7 @@ GEMINI_API_KEY = pyscript.config.get('gemini_api_key')
 if not GEMINI_API_KEY:
     raise ValueError("You need to configure your Gemini API key")
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = Client(api_key=GEMINI_API_KEY)
 
 cached = redis.Redis(host='localhost', port=6379, decode_responses=True)
 

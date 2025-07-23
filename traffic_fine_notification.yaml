@@ -41,13 +41,13 @@ conditions:
     value_template: "{{ trigger.to_state.state not in ['unavailable', 'unknown'] }}"
 
 actions:
-  - alias: "Send a notification to each device"
+  - alias: Send a notification to each device
     repeat:
-    for_each: !input notify_device
-    sequence:
-      - action: "notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}"
-        data:
-          title: Xe {{ trigger.to_state.attributes.friendly_name }}
-          message: "{{ trigger.to_state.state }}"
+      for_each: !input notify_device
+      sequence:
+        - action: "notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}"
           data:
-            tag: "{{ 'tag_' ~ this.attributes.id }}"
+            title: Xe {{ trigger.to_state.attributes.friendly_name }}
+            message: "{{ trigger.to_state.state }}"
+            data:
+              tag: "{{ 'tag_' ~ this.attributes.id }}"

@@ -62,6 +62,7 @@ POST_HEADERS = {
     'sec-ch-ua-platform': '"Windows"'
 }
 GEMINI_API_KEY = pyscript.config.get('gemini_api_key')
+GEMINI_MODEL = 'gemini-2.5-flash'
 
 if not GEMINI_API_KEY:
     raise ValueError("You need to configure your Gemini API key")
@@ -160,7 +161,7 @@ async def solve_captcha(image: ImageFile, retry_count: int = 1) -> Union[str, No
     try:
         response = await loop.run_in_executor(
             None,
-            lambda: client.models.generate_content(model='gemini-2.5-flash', contents=[prompt, image])
+            lambda: client.models.generate_content(model=GEMINI_MODEL, contents=[prompt, image])
         )
         if response.candidates and response.candidates[0].content.parts:
             generated_text = response.candidates[0].content.parts[0].text.strip()

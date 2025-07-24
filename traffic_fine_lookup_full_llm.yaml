@@ -53,7 +53,7 @@ blueprint:
 
             Provide the vehicle's license plate number to check for any traffic fines.
 
-            The license plate number is a series of consecutive digits without spaces.
+            A license plate number is a series of consecutive alphanumeric characters without any spaces.
 
             If a license plate includes misreading caused by user mispronunciation,
             it should be corrected to the most likely accurate license plate number.

@@ -227,7 +227,6 @@ SOLAR_TERM = ["Xuân Phân", "Thanh Minh", "Cốc Vũ", "Lập Hạ", "Tiểu M�
               "Thu Phân", "Hàn Lộ", "Sương Giáng", "Lập Đông", "Tiểu Tuyết", "Đại Tuyết",
               "Đông Chí", "Tiểu Hàn", "Đại Hàn", "Lập Xuân", "Vũ Thủy", "Kinh Trập"]
 
-# Ánh xạ tháng âm lịch (key) tới CHỈ SỐ của Chi khởi đầu chu kỳ Hoàng Đạo (value)
 # Tý=0, Sửu=1, Dần=2, Mão=3, Thìn=4, Tỵ=5, Ngọ=6, Mùi=7, Thân=8, Dậu=9, Tuất=10, Hợi=11
 AUSPICIOUS_DAY_START_CHI = {
     (1, 7): 0,  # Tháng 1, 7 (Dần, Thân) -> Bắt đầu từ Tý (index 0)
@@ -336,7 +335,7 @@ def get_twenty_eight_lunar_mansions(jd: int) -> dict:
     - jd: Julian Day number
     """
     # JD của ngày 01/01/2000 là 2451545.
-    # Vị trí của sao Vị Thổ Trĩ trong mảng TWENTY_EIGHT_LUNAR_MANSIONS là 16.
+    # Vị trí của sao Vị trong mảng TWENTY_EIGHT_LUNAR_MANSIONS là 16.
     jd_ref = 2451545
     mansion_ref_index = 16  # Chỉ số của sao Vị
 
@@ -358,16 +357,13 @@ def get_auspicious_day_status(lunar_month: int, jd: int) -> str:
     - jd: Julian Day number
     """
     chi_of_day_index = (jd + 1) % 12
-
     start_chi_index = -1
-    # Tìm chỉ số của Chi bắt đầu chu kỳ cho tháng âm lịch hiện tại
     for months, start_index in AUSPICIOUS_DAY_START_CHI.items():
         if lunar_month in months:
             start_chi_index = start_index
             break
 
     if start_chi_index == -1:
-        # Trường hợp này không nên xảy ra với tháng âm lịch hợp lệ (1-12)
         return "Không xác định"
 
     # Tính toán vị trí của ngày trong chu kỳ 12 thần sát
@@ -470,17 +466,13 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
                         auspicious_day_status=auspicious_day_status,
                         auspicious_hours=auspicious_hours,
                         twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
-        except Exception as e:
-            return dict(error=f"Error converting Solar {date} to Lunar: {e}")
+        except Exception as error:
+            return dict(error=f"Error converting Solar date {date} to Lunar date: {error}")
     elif conversion_type == "l2s":
         if day > 30:
             return dict(error="Invalid date: Lunar day must be less than or equal to 30")
         try:
-            leap_month = False
-            for k, v in kwargs.items():
-                if k == "leap_month":
-                    leap_month = bool(v)
-                    break
+            leap_month = bool(kwargs.get("leap_month", False))
             is_leap = 1 if leap_month else 0
             s_date = lunar_to_sonar(day, month, year, is_leap)
             remaining_days = get_remaining_days(join_date(s_date[0], s_date[1], s_date[2]))
@@ -499,7 +491,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
                         auspicious_day_status=auspicious_day_status,
                         auspicious_hours=auspicious_hours,
                         twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
-        except Exception as e:
-            return dict(error=f"Error converting Lunar {date} {kwargs} to Solar: {e}")
+        except Exception as error:
+            return dict(error=f"Error converting Lunar date {date} {kwargs} to Solar date: {error}")
     else:
         return dict(error="Failed to convert date")

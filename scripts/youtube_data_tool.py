@@ -42,7 +42,7 @@ def youtube_search_tool(query: str, **kwargs) -> dict:
     description: Tool for searching YouTube videos, channels, and playlists
     fields:
       query:
-        name: Query String
+        name: Query
         description: The search query string.
         example: Cuộc đời và sự nghiệp của Hồ Chí Minh
         required: true
@@ -86,4 +86,4 @@ def youtube_search_tool(query: str, **kwargs) -> dict:
         response = youtube_search(query, results=results, search_type=",".join(search_type), page_token=page_token)
         return response
     except Exception as error:
-        return dict(error=f"An unexpected error occurred: {error}")
+        return dict(error=f"An unexpected error occurred during processing: {error}")

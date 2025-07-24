@@ -132,11 +132,11 @@ async def get_captcha(ss: aiohttp.ClientSession, url: str) -> tuple[BytesIO, Non
             content = await response.read()
             return BytesIO(content), None
     except asyncio.TimeoutError as error:
-        return None, f'TimeoutError during retrieve CAPTCHA image. Detail: {error}'
+        return None, f'TimeoutError during retrieve CAPTCHA image: {error}'
     except aiohttp.ClientError as error:
-        return None, f'ClientError during retrieve CAPTCHA image. Detail: {error}'
+        return None, f'ClientError during retrieve CAPTCHA image: {error}'
     except Exception as error:
-        return None, f'An unexpected error during retrieve CAPTCHA image. Detail: {error}'
+        return None, f'An unexpected error during retrieve CAPTCHA image: {error}'
 
 
 @pyscript_compile
@@ -165,15 +165,15 @@ async def solve_captcha(image: ImageFile, retry_count: int = 1) -> tuple[str, No
             return None, f'CAPTCHA solving was not successful for reason: {reason}'
     except google.api_core.exceptions.ResourceExhausted as error:
         if retry_count < RETRY_LIMIT:
-            print(f'Quota exceeded. Retrying in 30 seconds... (Attempt {retry_count}/{RETRY_LIMIT}). Detail: {error}')
+            print(f'Quota exceeded. Retrying in 30 seconds... (Attempt {retry_count}/{RETRY_LIMIT}): {error}')
             await asyncio.sleep(30)
             return await solve_captcha(image, retry_count + 1)
         else:
-            return None, f'Quota exhausted and retry limit ({retry_count}/{RETRY_LIMIT}) reached. Detail: {error}'
+            return None, f'Quota exhausted and retry limit ({retry_count}/{RETRY_LIMIT}) reached: {error}'
     except AttributeError as error:
-        return None, f'Possibly incorrect field in the response. Check for proper API handling. Detail: {error}'
+        return None, f'Possibly incorrect field in the response. Check for proper API handling: {error}'
     except Exception as error:
-        return None, f'An unexpected error occurred during CAPTCHA solving. Detail: {error}'
+        return None, f'An unexpected error occurred during CAPTCHA solving: {error}'
 
 
 @pyscript_compile
@@ -190,13 +190,13 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
                 image, error = await get_captcha(ss, CAPTCHA_URL)
 
                 if not image:
-                    return dict(error='Unable to retrieve CAPTCHA image', detail=error)
+                    return dict(error=f'Unable to retrieve CAPTCHA image: {error}')
 
                 image_filtered = process_captcha(image)
                 captcha, error = await solve_captcha(image_filtered)
 
                 if not captcha:
-                    return dict(error='CAPTCHA solving was not successful', detail=error)
+                    return dict(error=f'CAPTCHA solving was not successful: {error}')
 
                 captcha = re.sub(r'[^a-zA-Z0-9]', '', captcha).lower()
 
@@ -213,8 +213,7 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
                             await asyncio.sleep(15)
                             return await check_license_plate(license_plate, vehicle_type, retry_count + 1)
                         else:
-                            return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached. Exiting...',
-                                        detail='')
+                            return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached')
 
                     async with ss.get(url=url, timeout=30) as response_3rd:
                         response_3rd.raise_for_status()
@@ -228,11 +227,11 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
 
         except Exception as error:
             if retry_count < RETRY_LIMIT:
-                print(f'Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT}). Detail: {error}')
+                print(f'Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT}): {error}')
                 await asyncio.sleep(15)
                 return await check_license_plate(license_plate, vehicle_type, retry_count + 1)
             else:
-                return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached. Exiting...', detail=error)
+                return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached: {error}')
 
 
 @service(supports_response='only')
@@ -280,10 +279,10 @@ async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int, bypass
         else:
             pattern = r'^\d{2}[A-Z1-9]{2}\d{5}$'
         if not (license_plate and re.match(pattern, license_plate)):
-            return dict(error='The license plate number is invalid', detail='')
+            return dict(error='The license plate number is invalid')
 
         if vehicle_type not in [1, 2, 3]:
-            return dict(error='The type of vehicle is invalid', detail='')
+            return dict(error='The type of vehicle is invalid')
 
         if bool(bypass_caching):
             await cached.delete(f'{license_plate}-{vehicle_type}')
@@ -294,4 +293,4 @@ async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int, bypass
             return json.loads(response)
         return await check_license_plate(license_plate, vehicle_type)
     except Exception as error:
-        return dict(error=f'An unexpected error occurred during processing', detail=error)
+        return dict(error=f'An unexpected error occurred during processing: {error}')

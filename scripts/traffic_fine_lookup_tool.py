@@ -7,13 +7,13 @@ from io import BytesIO
 
 import aiohttp
 import google.api_core.exceptions
+import google.genai
 import redis.asyncio as redis
 from PIL import Image
 from PIL.ImageFile import ImageFile
 from PIL.ImageFilter import EDGE_ENHANCE
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
-from google.genai import Client
 
 TTL = 3
 RETRY_LIMIT = 3
@@ -66,7 +66,7 @@ GEMINI_MODEL = 'gemini-2.5-flash'
 if not GEMINI_API_KEY:
     raise ValueError("You need to configure your Gemini API key")
 
-client = Client(api_key=GEMINI_API_KEY)
+client = google.genai.Client(api_key=GEMINI_API_KEY)
 
 cached = redis.Redis(host='localhost', port=6379, decode_responses=True)
 

@@ -55,7 +55,8 @@ blueprint:
 
             The license plate number is a series of consecutive digits without spaces.
 
-            Example: 29A99999
+            If a license plate includes misreading caused by user mispronunciation,
+            it should be corrected to the most likely accurate license plate number.
         vehicle_type_prompt:
           name: Vehicle Type Prompt
           description:

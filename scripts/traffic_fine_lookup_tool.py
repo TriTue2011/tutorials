@@ -4,7 +4,6 @@ import re
 import ssl
 from datetime import timedelta
 from io import BytesIO
-from typing import Union
 
 import aiohttp
 import redis.asyncio as redis
@@ -13,8 +12,8 @@ from PIL.ImageFile import ImageFile
 from PIL.ImageFilter import EDGE_ENHANCE
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
+from google.api_core import exceptions
 from google.genai import Client
-from google.api_core.exceptions import ResourceExhausted
 
 TTL = 3
 RETRY_LIMIT = 3
@@ -126,27 +125,22 @@ def extract_violations_from_html(content: str, url: str) -> dict:
 
 
 @pyscript_compile
-async def get_captcha(ss: aiohttp.ClientSession, url: str) -> Union[BytesIO, None]:
+async def get_captcha(ss: aiohttp.ClientSession, url: str) -> tuple[BytesIO, None] | tuple[None, str]:
     try:
         async with ss.get(url, timeout=30) as response:
-            if response.status == 200:
-                content = await response.read()
-                return BytesIO(content)
-            else:
-                return None
-    except asyncio.TimeoutError as e:
-        print(f'TimeoutError. Error details: {e}')
-        return None
-    except aiohttp.ClientError as e:
-        print(f'ClientError. Error details: {e}')
-        return None
-    except Exception as e:
-        print(f'Unknown error. Error details: {e}')
-        return None
+            response.raise_for_status()
+            content = await response.read()
+            return BytesIO(content), None
+    except asyncio.TimeoutError as error:
+        return None, f'TimeoutError during retrieve CAPTCHA image. Detail: {error}'
+    except aiohttp.ClientError as error:
+        return None, f'ClientError during retrieve CAPTCHA image. Detail: {error}'
+    except Exception as error:
+        return None, f'An unexpected error during retrieve CAPTCHA image. Detail: {error}'
 
 
 @pyscript_compile
-def process_captcha(image: Union[str, BytesIO]) -> ImageFile:
+def process_captcha(image: str | BytesIO) -> ImageFile:
     image_pil = Image.open(image)
     threshold_value = 64
     image_threshold = image_pil.point(lambda p: p > threshold_value and 255)
@@ -155,7 +149,7 @@ def process_captcha(image: Union[str, BytesIO]) -> ImageFile:
 
 
 @pyscript_compile
-async def solve_captcha(image: ImageFile, retry_count: int = 1) -> Union[str, None]:
+async def solve_captcha(image: ImageFile, retry_count: int = 1) -> tuple[str, None] | tuple[None, str]:
     prompt = 'Extract the text from this image.'
     loop = asyncio.get_event_loop()
     try:
@@ -165,27 +159,21 @@ async def solve_captcha(image: ImageFile, retry_count: int = 1) -> Union[str, No
         )
         if response.candidates and response.candidates[0].content.parts:
             generated_text = response.candidates[0].content.parts[0].text.strip()
-            return generated_text
+            return generated_text, None
         else:
             reason = response.candidates[0].finish_reason if response.candidates else 'Unknown'
-            print(f'Error: CAPTCHA solving was not successful for reason: {reason}')
-            return None
-    except ResourceExhausted as e:
+            return None, f'CAPTCHA solving was not successful for reason: {reason}'
+    except exceptions.ResourceExhausted as error:
         if retry_count < RETRY_LIMIT:
-            print(f'Error: Quota exceeded. Retrying in 30 seconds... '
-                  f'(Attempt {retry_count}/{RETRY_LIMIT}). Error details: {e}')
+            print(f'Quota exceeded. Retrying in 30 seconds... (Attempt {retry_count}/{RETRY_LIMIT}). Detail: {error}')
             await asyncio.sleep(30)
             return await solve_captcha(image, retry_count + 1)
         else:
-            print(f'Error: Quota exhausted and retry limit ({retry_count}/{RETRY_LIMIT}) reached. '
-                  f'Exiting. Error details: {e}')
-            return None
-    except AttributeError as e:
-        print(f'Error: Possibly incorrect field in the response. Check for proper API handling. Error details: {e}')
-        return None
-    except Exception as e:
-        print(f"An unexpected error occurred during CAPTCHA solving: {e}")
-        return None
+            return None, f'Quota exhausted and retry limit ({retry_count}/{RETRY_LIMIT}) reached. Detail: {error}'
+    except AttributeError as error:
+        return None, f'Possibly incorrect field in the response. Check for proper API handling. Detail: {error}'
+    except Exception as error:
+        return None, f'An unexpected error occurred during CAPTCHA solving. Detail: {error}'
 
 
 @pyscript_compile
@@ -199,17 +187,16 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
         try:
             async with ss.get(GET_URL, headers=GET_HEADERS, timeout=30) as response_1st:
                 response_1st.raise_for_status()
+                image, error = await get_captcha(ss, CAPTCHA_URL)
 
-                captcha = None
-                image = await get_captcha(ss, CAPTCHA_URL)
-                if image:
-                    image_filtered = process_captcha(image)
-                    captcha = await solve_captcha(image_filtered)
-                else:
-                    print('Error: Cannot get captcha image')
+                if not image:
+                    return dict(error='Unable to retrieve CAPTCHA image', detail=error)
+
+                image_filtered = process_captcha(image)
+                captcha, error = await solve_captcha(image_filtered)
 
                 if not captcha:
-                    return dict(error='CAPTCHA solving was not successful')
+                    return dict(error='CAPTCHA solving was not successful', detail=error)
 
                 captcha = re.sub(r'[^a-zA-Z0-9]', '', captcha).lower()
 
@@ -222,10 +209,12 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
 
                     if not url:
                         if retry_count < RETRY_LIMIT:
+                            print(f'Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT})')
                             await asyncio.sleep(15)
                             return await check_license_plate(license_plate, vehicle_type, retry_count + 1)
                         else:
-                            return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached. Exiting.')
+                            return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached. Exiting...',
+                                        detail='')
 
                     async with ss.get(url=url, timeout=30) as response_3rd:
                         response_3rd.raise_for_status()
@@ -237,12 +226,13 @@ async def check_license_plate(license_plate: str, vehicle_type: int, retry_count
                             await cached.expire(f'{license_plate}-{vehicle_type}', timedelta(hours=TTL))
                         return response
 
-        except Exception as e:
+        except Exception as error:
             if retry_count < RETRY_LIMIT:
+                print(f'Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT}). Detail: {error}')
                 await asyncio.sleep(15)
                 return await check_license_plate(license_plate, vehicle_type, retry_count + 1)
             else:
-                return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached. Exiting. {e}')
+                return dict(error=f'Retry limit ({retry_count}/{RETRY_LIMIT}) reached. Exiting...', detail=error)
 
 
 @service(supports_response='only')
@@ -286,10 +276,10 @@ async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int, bypass
         vehicle_type = int(vehicle_type)
 
         if not (license_plate and re.match(r'^\d{2}[A-Z]\d{4,6}$', license_plate)):
-            return dict(error='The license plate number is invalid')
+            return dict(error='The license plate number is invalid', detail='')
 
         if vehicle_type not in [1, 2, 3]:
-            return dict(error='The type of vehicle is invalid')
+            return dict(error='The type of vehicle is invalid', detail='')
 
         if bool(bypass_caching):
             await cached.delete(f'{license_plate}-{vehicle_type}')
@@ -299,5 +289,5 @@ async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int, bypass
         if response:
             return json.loads(response)
         return await check_license_plate(license_plate, vehicle_type)
-    except Exception as e:
-        return dict(error=f'An unexpected error occurred: {e}')
+    except Exception as error:
+        return dict(error=f'An unexpected error occurred during processing', detail=error)

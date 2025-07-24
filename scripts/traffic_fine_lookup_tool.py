@@ -272,10 +272,14 @@ async def traffic_fine_lookup_tool(license_plate: str, vehicle_type: int, bypass
           boolean: {}
     """
     try:
-        license_plate = license_plate.upper()
+        license_plate = str(license_plate).upper()
         vehicle_type = int(vehicle_type)
 
-        if not (license_plate and re.match(r'^\d{2}[A-Z]{1,2}\d{4,6}$', license_plate)):
+        if vehicle_type == 1:
+            pattern = r'^\d{2}[A-Z]{1,2}\d{5}$'
+        else:
+            pattern = r'^\d{2}[A-Z1-9]{2}\d{5}$'
+        if not (license_plate and re.match(pattern, license_plate)):
             return dict(error='The license plate number is invalid', detail='')
 
         if vehicle_type not in [1, 2, 3]:

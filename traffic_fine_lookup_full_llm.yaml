@@ -53,6 +53,8 @@ blueprint:
 
             Provide the vehicle's license plate number to check for any traffic fines.
 
+            The license plate number is a series of consecutive digits without spaces.
+
             Example: 29A99999
         vehicle_type_prompt:
           name: Vehicle Type Prompt

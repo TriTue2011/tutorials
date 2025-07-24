@@ -6,13 +6,13 @@ from datetime import timedelta
 from io import BytesIO
 
 import aiohttp
+import google.api_core.exceptions
 import redis.asyncio as redis
 from PIL import Image
 from PIL.ImageFile import ImageFile
 from PIL.ImageFilter import EDGE_ENHANCE
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
-from google.api_core import exceptions
 from google.genai import Client
 
 TTL = 3
@@ -163,7 +163,7 @@ async def solve_captcha(image: ImageFile, retry_count: int = 1) -> tuple[str, No
         else:
             reason = response.candidates[0].finish_reason if response.candidates else 'Unknown'
             return None, f'CAPTCHA solving was not successful for reason: {reason}'
-    except exceptions.ResourceExhausted as error:
+    except google.api_core.exceptions.ResourceExhausted as error:
         if retry_count < RETRY_LIMIT:
             print(f'Quota exceeded. Retrying in 30 seconds... (Attempt {retry_count}/{RETRY_LIMIT}). Detail: {error}')
             await asyncio.sleep(30)

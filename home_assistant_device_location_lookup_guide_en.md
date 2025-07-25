@@ -57,7 +57,7 @@ template:
       - trigger: event
         event_type: event_template_reloaded
     action:
-      - service: shell_command.get_entity_alias
+      - action: shell_command.get_entity_alias
         data: {}
         response_variable: response
     sensor:

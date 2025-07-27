@@ -164,15 +164,15 @@ sequence:
         response_variable: response
   - variables:
       devices: >-
-        {% set devices = namespace(entities=[]) -%}
+        {% set device = namespace(entities=[]) -%}
         {% for entity in fan_entities.split(';') -%}
         {% if (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
-        {% set devices.entities = devices.entities + (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | map(attribute='entity_id') | list) -%}
+        {% set device.entities = device.entities + (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | map(attribute='entity_id') | list) -%}
         {% else -%}
-        {% set device.entities = devices.entities + (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | list) -%}
+        {% set device.entities = device.entities + (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | list) -%}
         {% endif -%}
         {% endfor -%}
-        {{ devices.entities }}
+        {{ device.entities }}
   - if:
       - condition: template
         value_template: "{{ (percentage | int) > 0 }}"

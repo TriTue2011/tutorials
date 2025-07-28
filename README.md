@@ -1,6 +1,6 @@
 # Các thủ thuật và hướng dẫn cho Home Assistant
 
-## MỚI RA MẮT - Bản thiết kế ùung để gửi thông báo về điện thoại khi xe của bạn bị phạt nguội
+## MỚI RA MẮT - Bản thiết kế dùng để gửi thông báo về điện thoại khi xe của bạn bị phạt nguội
 
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tra cứu vi phạm giao thông
 

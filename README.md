@@ -1,5 +1,7 @@
 # Các thủ thuật và hướng dẫn cho Home Assistant
 
+## MỚI RA MẮT - Bản thiết kế ùung để gửi thông báo về điện thoại khi xe của bạn bị phạt nguội
+
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tra cứu vi phạm giao thông
 
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tìm kiếm và phát video nội dung bất kỳ trên YouTube lên TV
@@ -24,4 +26,4 @@
 
 ## Hướng dẫn cài đặt iOS Themes và tự động đổi theme ngẫu nhiên
 
-### **Nếu bạn thích những tính năng này, hãy theo dõi để đón chờ thêm những tính năng mới hay ho hơn nữa nhé**
+### **Nếu bạn thích những tính năng này, có thể cho mình thêm một sao cũng như theo dõi để đón chờ thêm những tính năng mới độc đáo hơn nữa nhé**

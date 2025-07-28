@@ -14,7 +14,7 @@
 
 ## Bản thiết kế dùng cho Voice Assist để tìm vị trí các thiết bị di động đang ở phòng nào và làm cho chúng đổ chuông, dùng khi không nhớ điện thoại để đâu trong nhà
 
-## Bản thiết kế dùng cho Voice Assist để tra cứu chuyển đổi về ngày Dương lịch hoặc Âm lịch bất kỳ, bao gồm thông tin về ngày giờ hoàng đạo
+## Bản thiết kế dùng cho Voice Assist để tra cứu chuyển đổi về ngày Dương lịch hoặc Âm lịch bất kỳ, bao gồm thông tin về ngày giờ hoàng đạo. Công cụ chuyển đổi lịch hoạt động 100% offline tốc độ phản hồi cực nhanh
 
 ## Bản thiết kế dùng cho Voice Assist để tra cứu các sự kiện trong lịch, ví dụ như ngày sinh nhật, ngày giỗ chạp, lịch công việc
 

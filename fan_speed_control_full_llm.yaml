@@ -140,27 +140,25 @@ sequence:
     if:
       - condition: template
         value_template: >-
-          {% set validation = namespace(existed=false) -%}
+          {% set validation = namespace(not_exist=false) -%}
           {% for entity in fan_entities.split(';') -%}
-          {% if (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
-          {% set validation.existed = true -%}
-          {% endif -%}
-          {% if (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | list) -%}
-          {% set validation.existed = true -%}
+          {% if not ((states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) and
+          (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
+          {% set validation.not_exist = true -%}
           {% endif -%}
           {% endfor -%}
           {% if ((percentage | int) > 100 or (percentage | int) < 0) -%}
-          {% set validation.existed = false -%}
+          {% set validation.not_exist = true -%}
           {% endif -%}
-          {{ not validation.existed }}
+          {{ validation.not_exist }}
     then:
       - alias: Set variable for error message
         variables:
           response:
             error:
-              Unable to control the fan because the fan name is either incorrect or does not exist.
+              Unable to control the fan because the fan name is either incorrect or does not exist or the percentage is invalid.
       - alias: Stop the script
-        stop: Unable to control the fan because the fan name is either incorrect or does not exist.
+        stop: Unable to control the fan because the fan name is either incorrect or does not exist or the percentage is invalid.
         response_variable: response
   - variables:
       devices: >-

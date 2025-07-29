@@ -117,19 +117,15 @@ sequence:
     if:
       - condition: template
         value_template: >-
-          {% set validation = namespace(existed=false) -%}
+          {% set validation = namespace(not_exist=false) -%}
           {% for entity in entities.split(';') -%}
-          {% if (integration_entities('bermuda') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) -%}
-          {% set validation.existed = true -%}
-          {% endif -%}
-          {% if (integration_entities('mobile_app') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) -%}
-          {% set validation.existed = true -%}
-          {% endif -%}
-          {% if (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', entity.strip()) | list) -%}
-          {% set validation.existed = true -%}
+          {% if not ((integration_entities('bermuda') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) and
+          (integration_entities('mobile_app') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) and
+          (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
+          {% set validation.not_exist = true -%}
           {% endif -%}
           {% endfor -%}
-          {{ not validation.existed }}
+          {{ validation.not_exist }}
     then:
       - alias: Set variable for error message
         variables:

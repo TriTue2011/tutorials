@@ -133,16 +133,14 @@ sequence:
     if:
       - condition: template
         value_template: >-
-          {% set validation = namespace(existed=false) -%}
+          {% set validation = namespace(not_exist=false) -%}
           {% for entity in entities.split(';') -%}
-          {% if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list) -%}
-          {% set validation.existed = true -%}
-          {% endif -%}
-          {% if (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | list) -%}
-          {% set validation.existed = true -%}
+          {% if not ((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list) and
+          (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
+          {% set validation.not_exist = true -%}
           {% endif -%}
           {% endfor -%}
-          {{ not validation.existed }}
+          {{ validation.not_exist }}
     then:
       - alias: Set variable for error message
         variables:

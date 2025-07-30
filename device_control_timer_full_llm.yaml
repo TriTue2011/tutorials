@@ -1,0 +1,163 @@
+blueprint:
+  name: Voice - Device Control Timer Tool
+  author: VuLQ
+  description: >-
+    # Tool for controlling on/off devices with adjustable delay timing using LLM
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * A template sensor stored all information about entity aliases.
+
+    * Device Control Tool
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script.
+    The descriptions guide the LLM to provide the correct input.
+
+    ### Note
+
+    * Provide a concise and precise description for the script.
+    This will be utilized by the LLM to understand it should
+    use this script for controlling devices on/off with a specified delay.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    entity_aliases_settings:
+      name: Settings for Entity Aliases
+      icon: mdi:format-list-bulleted
+      description: You can use these settings to configure a template sensor that stores all information about entity aliases.
+      input:
+        entity_aliases:
+          name: Entity Aliases
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  integration: template
+              multiple: false
+          default:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        entities_prompt:
+          name: Entities Prompt
+          description:
+            The prompt which will be used for the LLM can provide the name of fans for controlling.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided!
+
+            Provide at least one device's name to control.
+
+            When requesting multiple devices, make sure to separate each device's name with a semicolon.
+        control_prompt:
+          name: Control Prompt
+          description:
+            The prompt which will be used for the LLM can provide the action.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided!
+
+            Specify the action that you want to set.
+
+            It can only be one of the two following values:
+            'true' for turn on, 'false' for turn off.
+        timer_prompt:
+          name: Timer Prompt
+          description:
+            The prompt which will be used for the LLM can provide the delay of action.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided!
+
+            Specify the delay time that you want to set in 'HH:MM:SS' format.
+
+            Example: Waits 90 minutes becomes '01:30:00'
+mode: parallel
+max_exceeded: silent
+fields:
+  entities:
+    name: Entities
+    description: !input entities_prompt
+    selector:
+        text:
+    required: true
+  control:
+    name: Control
+    description: !input control_prompt
+    selector:
+      boolean:
+    required: true
+  timer:
+    name: Timer
+    description: !input timer_prompt
+    selector:
+      time:
+    required: true
+sequence:
+  - variables:
+      entity_aliases: !input entity_aliases
+      entities: "{{ entities | default }}"
+      control: "{{ control | default(false) }}"
+      timer: "{{ timer | default('00:00:00') | as_timedelta | default('00:00:00', true) }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: >-
+          {% set validation = namespace(not_exist=false) -%}
+          {% for entity in entities.split(';') -%}
+          {% if not ((states | selectattr('attributes.friendly_name', '==', entity.strip()) | list) or
+          (state_attr(entity_aliases, 'entities') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
+          {% set validation.not_exist = true -%}
+          {% endif -%}
+          {% endfor -%}
+          {{ validation.not_exist }}
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error:
+              Unable to control the device because the device name is either incorrect or does not exist.
+      - alias: Stop the script
+        stop: Unable to control the device because the device name is either incorrect or does not exist.
+        response_variable: response
+  - variables:
+      devices: >-
+        {% set device = namespace(entities=[]) -%}
+        {% for entity in entities.split(';') -%}
+        {% if (states | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
+        {% set device.entities = device.entities + (states | selectattr('attributes.friendly_name', '==', entity.strip()) | map(attribute='entity_id') | list) -%}
+        {% else -%}
+        {% set device.entities = device.entities + (state_attr(entity_aliases, 'entities') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | list) -%}
+        {% endif -%}
+        {% endfor -%}
+        {{ device.entities }}
+  - action: script.turn_on
+    target:
+      entity_id: script.device_control_tool
+    data:
+      variables:
+        devices: "{{ devices | join(', ') }}"
+        control: "{{ control }}"
+        timer: "{{ timer }}"

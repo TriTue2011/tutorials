@@ -1,10 +1,12 @@
 # Các thủ thuật hay cho Home Assistant
 
+## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để hẹn giờ bật tắt thiết bị
+
 ## MỚI RA MẮT - Bản thiết kế dùng để gửi thông báo về điện thoại khi xe của bạn bị dính phạt nguội
 
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tra cứu phạt nguội của một phương tiện bất kỳ
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tìm kiếm nội dung bất kỳ trên YouTube và phát các video đó lên TV
+## Bản thiết kế dùng cho Voice Assist để tìm kiếm nội dung bất kỳ trên YouTube và phát các video đó lên TV
 
 ## Bản thiết kế dùng cho Voice Assist để điều khiển tăng giảm tốc độ quạt
 

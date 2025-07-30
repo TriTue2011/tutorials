@@ -1,0 +1,59 @@
+blueprint:
+  name: Device Control Tool
+  author: VuLQ
+  description: >-
+    # Tool for controlling on/off devices with adjustable delay timing
+
+    ## Blueprint Setup
+
+    ### Note
+
+    * This blueprint is a dependency for the Voice - Device Control Timer Tool
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    custom_settings:
+      name: Custom Settings
+      icon: mdi:tools
+      description: You can use these settings to configure the maximum simultaneous number of timers to run at a time.
+      input:
+        simultaneous:
+          name: Simultaneous Timers
+          selector:
+            number:
+              min: 10
+              max: 30
+          default: 20
+mode: parallel
+max: !input simultaneous
+max_exceeded: silent
+fields:
+  devices:
+    name: Devices
+    description: Provide the names of the devices to control, separated by commas.
+    selector:
+        text:
+    required: true
+  control:
+    name: Control
+    description: "Action to control: use 'true' to turn on and 'false' to turn off."
+    selector:
+      boolean:
+    required: true
+  timer:
+    name: Timer
+    description: The time delay to wait before executing an action.
+    selector:
+      time:
+    required: true
+sequence:
+  - variables:
+      devices: "{{ devices | default }}"
+      control: "{{ control | default(false) }}"
+      timer: "{{ timer | default('00:00:00') }}"
+  - delay: "{{ timer }}"
+  - action: homeassistant.turn_{{ 'on' if control else 'off' }}
+    target:
+      entity_id: "{{ devices }}"

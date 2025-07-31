@@ -343,8 +343,7 @@ def get_twenty_eight_lunar_mansions(jd: int) -> dict:
     day_diff = jd - jd_ref
 
     # Áp dụng công thức: (chỉ số gốc + chênh lệch ngày) % 28
-    # Thêm 28 vào phép tính để đảm bảo kết quả luôn dương khi tính cho các ngày trước mốc
-    current_mansion_index = (mansion_ref_index + day_diff + 28) % 28
+    current_mansion_index = (mansion_ref_index + day_diff) % 28
 
     return TWENTY_EIGHT_LUNAR_MANSIONS[current_mansion_index]
 

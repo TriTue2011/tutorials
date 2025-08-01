@@ -1,0 +1,105 @@
+blueprint:
+  name: Voice - Advanced Google Search Tool
+  author: VuLQ
+  description: >-
+    # Tool for searching Google information using LLM
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * This blueprint is exclusively designed for Google Generative AI.
+
+    * A Conversation Agent with Google Search tool enabled.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script.
+    The descriptions guide the LLM to provide the correct input.
+
+    ### Note
+
+    * Provide a concise and precise description for the script.
+    This description will enable the LLM to recognize that
+    the script is designed to search for information from Google.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    agent_settings:
+      name: Settings for Conversation Agent
+      icon: mdi:robot-outline
+      description:
+        These settings enable you to configure the conversation agent used for searching Google information.
+      input:
+        agent_id:
+          name: Conversation Agent
+          selector:
+            entity:
+              filter:
+                domain: conversation
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        query_string_prompt:
+          name: Query String Prompt
+          description:
+            The prompt which will be used for the LLM can provide the search string for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided!
+
+            Provide the search string to gather information from Google.
+
+            If a query includes misreading caused by user mispronunciation,
+            it should be corrected to the most likely accurate search string,
+            and the user should be asked for confirmation before proceeding with the query.
+
+            After getting the result, analyze it thoroughly,
+            summarize the key points, and then provide a response.
+mode: parallel
+max_exceeded: silent
+fields:
+  query_string:
+    name: Query String
+    description: !input query_string_prompt
+    selector:
+        text:
+    required: true
+sequence:
+  - variables:
+      query_string: "{{ query_string | default }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: "{{ not query_string }}"
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error:
+              Unable to search for information because the query string is empty.
+      - alias: Stop the script
+        stop: Unable to search for information because the query string is empty.
+        response_variable: response
+  - action: conversation.process
+    response_variable: response
+    data:
+      agent_id: !input agent_id
+      text: >-
+        Search on Google to gather detailed information about:
+
+        {{ query_string }}
+  - stop: ""
+    response_variable: response

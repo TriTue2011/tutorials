@@ -1,5 +1,7 @@
 # Các thủ thuật hay cho Home Assistant
 
+## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tìm kiếm thông tin trên Google
+
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để hẹn giờ bật tắt thiết bị
 
 ## MỚI RA MẮT - Bản thiết kế dùng để gửi thông báo về điện thoại khi xe của bạn bị dính phạt nguội

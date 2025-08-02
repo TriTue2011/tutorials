@@ -19,11 +19,17 @@ blueprint:
     ```
 
     #File configuration.yaml
-
     pyscript:
       allow_all_imports: true
       hass_is_global: true
       youtube_api_key: !secret youtube_api_key
+
+    ```
+
+    ```
+
+    #File secrets.yaml
+    youtube_api_key: XXXXXX
 
     ```
 

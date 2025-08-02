@@ -8,9 +8,9 @@ blueprint:
 
     ### Required
 
-    * This blueprint is exclusively designed for Google Generative AI.
+    * This blueprint is exclusively designed for Google Generative AI only.
 
-    * A Conversation Agent with Google Search tool enabled.
+    * A Conversation Agent with Google Search tool enabled, create it if it doesn't already exist.
 
     ### Optional
 

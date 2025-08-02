@@ -10,7 +10,33 @@ blueprint:
 
     * A smart fan integrated into Home Assistant.
 
-    * A template sensor stored all information about entity aliases.
+    * A template sensor stores all information about entity aliases needs to be configured in configuration.yaml.
+
+    ```
+
+    shell_command:
+      get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
+
+    template:
+      - trigger:
+          - platform: homeassistant
+            event: start
+          - trigger: event
+            event_type: event_template_reloaded
+        action:
+          - action: shell_command.get_entity_alias
+            data: {}
+            response_variable: response
+        sensor:
+          - name: "Assist: Entity IDs and Aliases"
+            unique_id: entity_ids_and_aliases
+            icon: mdi:format-list-bulleted
+            device_class: timestamp
+            state: "{{ now().isoformat() }}"
+            attributes:
+              entities: "{{ response.stdout }}"
+
+    ```
 
     ### Optional
 

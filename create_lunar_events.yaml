@@ -8,11 +8,11 @@ blueprint:
 
     ### Required
 
-    * Pyscript integration must be installed from HACS.
+    * Pyscript integration needs to be installed from HACS.
 
-    * Date Conversion Tool script must be installed.
+    * The date_conversion_tool.py script needs to be copied into the pyscript folder.
 
-    * A Local Calendar or a Google Calendar entity.
+    * A Local Calendar or a Google Calendar entity to save events.
 
     ### Note
 

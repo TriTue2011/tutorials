@@ -144,7 +144,7 @@ template:
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fget_youtube_video_info_full_llm.yaml)
 
-- Xem chi tiết tại: [github.com/luuquangvu/tutorials/blob/main/get_youtube_video_info_full_llm.yaml](https://github.com/luuquangvu/tutorials/blob/main/get_youtube_video_info_full_llm.yaml)
+- Xem chi tiết tại: [github.com/luuquangvu/tutorials](/get_youtube_video_info_full_llm.yaml)
 
 - Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. Chỉ định Template Sensor đã tạo ở bước trên. **Giữ tên kịch bản mặc định không thay đổi.**
 
@@ -156,7 +156,7 @@ template:
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
-- Xem chi tiết tại: [github.com/luuquangvu/tutorials/blob/main/play_youtube_video_full_llm.yaml](https://github.com/luuquangvu/tutorials/blob/main/play_youtube_video_full_llm.yaml)
+- Xem chi tiết tại: [github.com/luuquangvu/tutorials](/play_youtube_video_full_llm.yaml)
 
 - Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. Chỉ định một Smart TV sẽ phát video lên khi gọi Assist. **Giữ tên kịch bản mặc định không thay đổi.**
 

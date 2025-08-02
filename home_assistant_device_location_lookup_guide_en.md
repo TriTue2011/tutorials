@@ -80,7 +80,7 @@ template:
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
 
-* See the detail at: [github.com/luuquangvu/tutorials/blob/main/device_location_lookup_full_llm.yaml](https://github.com/luuquangvu/tutorials/blob/main/device_location_lookup_full_llm.yaml)
+* See the detail at: [github.com/luuquangvu/tutorials](/device_location_lookup_full_llm.yaml)
 
 * Once the Blueprint has been added, proceed to create a new script based on this Blueprint. Include the Template Sensor that was created in the previous step. Ensuring the default name remains unchanged.
 
@@ -90,7 +90,7 @@ template:
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
 
-* See the detail at: [github.com/luuquangvu/tutorials/blob/main/device_ringing_full_llm.yaml](https://github.com/luuquangvu/tutorials/blob/main/device_ringing_full_llm.yaml)
+* See the detail at: [github.com/luuquangvu/tutorials](/device_ringing_full_llm.yaml)
 
 * Once the Blueprint has been added, proceed to create a new script based on this Blueprint. Ensuring the default name remains unchanged.
 

@@ -19,6 +19,8 @@ blueprint:
 
     ```
 
+    #File configuration.yaml
+
     pyscript:
       allow_all_imports: true
       hass_is_global: true
@@ -35,6 +37,8 @@ blueprint:
     * Sensor Biển Số sẽ lưu thông tin phạt nguội của xe.
 
     ```
+
+    #File configuration.yaml
 
     template:
       - trigger:

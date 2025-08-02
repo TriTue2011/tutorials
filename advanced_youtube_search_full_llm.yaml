@@ -51,6 +51,8 @@ blueprint:
 
     * Make sure to expose the script to Assist after the script has been saved.
 
+    * Do not alter the default script name.
+
   domain: script
   homeassistant:
     min_version: 2024.10.0

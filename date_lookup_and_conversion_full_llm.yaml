@@ -25,6 +25,8 @@ blueprint:
 
     * Make sure to expose the script to Assist after the script has been saved.
 
+    * Do not alter the default script name.
+
     * Add additional aliases: 'Auspicious Dates and Hours Lookup Tool' and 'Day of the Week Lookup Tool' for this script.
 
   domain: script

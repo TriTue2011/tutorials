@@ -109,7 +109,7 @@ blueprint:
 
     * Chỉ định các điện thoại sẽ nhận thông báo khi có thông tin phạt nguội.
 
-    * Lưu script với tên bất kỳ.
+    * Lưu lại script.
 
   domain: automation
   homeassistant:

@@ -122,7 +122,7 @@ max: 10
 
 ## Đặt thẻ iOS Themes ra ngoài giao diện (tùy chọn)
 
-- Yêu cầu có cài đặt Mushroom ([piitaya/lovelace-mushroom: Build a beautiful Home Assistant dashboard easily](https://github.com/piitaya/lovelace-mushroom))
+- Yêu cầu có cài đặt Mushroom ([github.com/piitaya/lovelace-mushroom](https://github.com/piitaya/lovelace-mushroom))
 
 - Thêm thẻ vào giao diện
 

@@ -8,7 +8,7 @@ blueprint:
 
     ### Note
 
-    * This blueprint is a dependency for the Voice - Device Control Timer Tool
+    * This blueprint is a dependency for the Voice - Device Control Timer Tool (device_control_timer_full_llm.yaml)
 
   domain: script
   homeassistant:

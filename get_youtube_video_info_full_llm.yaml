@@ -52,7 +52,8 @@ blueprint:
 
     ### Note
 
-    * The 'Voice - Play YouTube Video Tool' blueprint needs to be installed to play YouTube videos on a smart TV.
+    * The Voice - Play YouTube Video Tool (play_youtube_video_full_llm.yaml) blueprint
+    needs to be installed to play YouTube videos on a smart TV.
 
     * Provide a concise and precise description for the script.
     This description will enable the LLM to recognize that the script is designed to

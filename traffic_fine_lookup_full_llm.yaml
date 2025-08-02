@@ -12,6 +12,8 @@ blueprint:
 
     * Traffic Fine Lookup Tool (traffic_fine_lookup_tool.py) script needs to be installed in the pyscript folder.
 
+    * Redis needs to be installed, as it's required for data caching.
+
     * A Gemini API key needs to be configured in configuration.yaml, as it's required for solving CAPTCHAs.
 
     ```

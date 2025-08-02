@@ -7,11 +7,13 @@ blueprint:
 
     ## Yêu cầu
 
-    * Đã cài đặt tích hợp Pyscript từ HACS.
+    * Cài đặt tích hợp Pyscript từ HACS.
 
-    * Traffic Fine Lookup Tool (traffic_fine_lookup_tool.py) đã được cài đặt vào trong thư mục pyscript.
+    * Traffic Fine Lookup Tool (traffic_fine_lookup_tool.py) được cài đặt vào trong thư mục pyscript.
 
-    * Đã cấu hình 1 khóa Gemini API trong configuration.yaml sử dụng cho việc giải mã CAPTCHA.
+    * Cài đặt Redis để sử dụng làm bộ nhớ đệm, tăng tốc độ truy xuất dữ liệu.
+
+    * Cấu hình 1 khóa Gemini API trong configuration.yaml sử dụng cho việc giải mã CAPTCHA.
 
     ```
 

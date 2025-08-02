@@ -8,11 +8,22 @@ blueprint:
 
     ### Required
 
-    * Pyscript integration must be installed from HACS.
+    * Pyscript integration needs to be installed from HACS.
 
-    * YouTube Search Tool script must be installed.
+    * The youtube_data_tool.py script needs to be copied into the pyscript folder.
 
-    * A YouTube API key.
+    * The requirements.txt file needs to be copied into the pyscript folder.
+
+    * A YouTube API key needs to be configured in configuration.yaml.
+
+    ```
+
+    pyscript:
+      allow_all_imports: true
+      hass_is_global: true
+      youtube_api_key: !secret youtube_api_key
+
+    ```
 
     ### Optional
 

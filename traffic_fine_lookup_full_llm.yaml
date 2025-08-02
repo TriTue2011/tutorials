@@ -10,7 +10,9 @@ blueprint:
 
     * Pyscript integration needs to be installed from HACS.
 
-    * Traffic Fine Lookup Tool (traffic_fine_lookup_tool.py) script needs to be installed in the pyscript folder.
+    * The traffic_fine_lookup_tool.py script needs to be copied into the pyscript folder.
+
+    * The requirements.txt file needs to be copied into the pyscript folder.
 
     * Redis needs to be installed, as it's required for data caching.
 

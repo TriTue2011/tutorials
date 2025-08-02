@@ -35,8 +35,10 @@ blueprint:
             entity:
               filter:
                 - domain: calendar
-                  supported_features:
-                    - calendar.CalendarEntityFeature.CREATE_EVENT
+                  # An option to select only the calendar entity can create events,
+                  # but it is currently deactivated due to a parsing error bug in the HA frontend.
+                  # supported_features:
+                  #   - calendar.CalendarEntityFeature.CREATE_EVENT
               multiple: false
           default:
 mode: single

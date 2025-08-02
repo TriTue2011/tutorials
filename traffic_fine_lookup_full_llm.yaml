@@ -21,6 +21,7 @@ blueprint:
     ```
 
     #File configuration.yaml
+
     pyscript:
       allow_all_imports: true
       hass_is_global: true
@@ -31,6 +32,7 @@ blueprint:
     ```
 
     #File secrets.yaml
+
     gemini_api_key: XXXXXX
 
     ```

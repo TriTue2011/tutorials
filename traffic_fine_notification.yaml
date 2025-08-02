@@ -3,7 +3,97 @@ blueprint:
   description: >-
     # Nhận thông báo khi có thông tin phạt nguội
 
-    * Dữ liệu được tra cứu từ Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
+    * Dữ liệu được tra cứu trực tiếp từ Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
+
+    ## Yêu cầu
+
+    * Đã cài đặt tích hợp Pyscript từ HACS.
+
+    * Traffic Fine Lookup Tool (traffic_fine_lookup_tool.py) đã được cài đặt vào trong thư mục pyscript.
+
+    * Đã cấu hình 1 khóa Gemini API trong configuration.yaml sử dụng cho việc giải mã CAPTCHA.
+
+    ```
+
+    pyscript:
+      allow_all_imports: true
+      hass_is_global: true
+      gemini_api_key: !secret gemini_api_key
+
+    ```
+
+    ## Hướng dẫn cài đặt
+
+    ### Thêm Template Sensor cho từng xe theo mẫu bên dưới vào trong configuration.yaml của HA
+
+    * Trong đó Sensor Time to Check để khai báo thời gian ngẫu nhiên thực hiện tra cứu, tối thiểu ngày 2 lần.
+
+    * Sensor Biển Số sẽ lưu thông tin phạt nguội của xe.
+
+    ```
+
+    template:
+      - trigger:
+          - trigger: time_pattern
+            hours: /12
+          - trigger: event
+            event_type: event_template_reloaded
+        sensor:
+          - name: Time to Check 30G12345
+            unique_id: time_to_check_30g12345
+            icon: mdi:clock-digital
+            device_class: timestamp
+            state: "{{ (now() + timedelta(minutes=range(1,181) | random)).isoformat() }}"
+      - trigger:
+          - trigger: time
+            at: sensor.time_to_check_30g12345
+        action:
+          - action: pyscript.traffic_fine_lookup_tool
+            data:
+              license_plate: 30G12345
+              vehicle_type: "1"
+            response_variable: response
+        sensor:
+          - name: 30G12345
+            unique_id: 30g12345
+            icon: mdi:car
+            state: "{{ response.message if response.get('status') else response.get('error') }}"
+            attributes:
+              data: "{{ response }}"
+
+    ```
+
+    * Thay biển số bằng biển số xe của bạn, lưu ý phân biệt chữ hoa chữ thường.
+
+    * vehicle_type:
+
+      * "1": Ô tô
+
+      * "2": Xe máy
+
+      * "3": Xe máy điện
+
+    * icon (tùy chọn):
+
+      * "mdi:car": Ô tô
+
+      * "mdi:motorbike": Xe máy
+
+      * "mdi:motorbike-electric": Xe máy điện
+
+    * Lưu lại cấu hình.
+
+    * Developer Tools -> YAML -> Reload Template Entities.
+
+    * Dữ liệu phạt nguội có thể không có luôn mà sẽ có sau khi đến thời gian tra cứu.
+
+    ### Tạo script từ blueprint này
+
+    * Chỉ định Biển Số của các xe mới được thêm từ bước trên, thêm được đồng thời nhiều xe.
+
+    * Chỉ định các điện thoại sẽ nhận thông báo khi có thông tin phạt nguội.
+
+    * Lưu script với tên bất kỳ.
 
   domain: automation
   homeassistant:

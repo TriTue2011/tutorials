@@ -8,11 +8,20 @@ blueprint:
 
     ### Required
 
-    * Pyscript integration must be installed from HACS.
+    * Pyscript integration needs to be installed from HACS.
 
-    * Traffic Fine Lookup Tool script must be installed.
+    * Traffic Fine Lookup Tool (traffic_fine_lookup_tool.py) script needs to be installed in the pyscript folder.
 
-    * A Gemini API key.
+    * A Gemini API key needs to be configured in configuration.yaml, as it's required for solving CAPTCHAs.
+
+    ```
+
+    pyscript:
+      allow_all_imports: true
+      hass_is_global: true
+      gemini_api_key: !secret gemini_api_key
+
+    ```
 
     ### Optional
 
@@ -23,7 +32,7 @@ blueprint:
 
     * Provide a concise and precise description for the script.
     This description will enable the LLM to recognize that
-    the script is designed to lookup traffic fines from
+    the script is designed to directly lookup traffic fines from
     Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
 
     * Make sure to expose the script to Assist after the script has been saved.

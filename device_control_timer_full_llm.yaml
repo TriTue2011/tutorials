@@ -72,6 +72,19 @@ blueprint:
                   integration: template
               multiple: false
           default:
+    controller_settings:
+      name: Settings for Controller
+      icon: mdi:controller
+      description: You can use these settings to select the Device Control Tool.
+      input:
+        controller:
+          name: Controller
+          selector:
+            entity:
+              filter:
+                - domain: script
+              multiple: false
+          default:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -185,7 +198,7 @@ sequence:
         {{ device.entities }}
   - action: script.turn_on
     target:
-      entity_id: script.device_control_tool
+      entity_id: !input controller
     data:
       variables:
         devices: "{{ devices | join(', ') }}"

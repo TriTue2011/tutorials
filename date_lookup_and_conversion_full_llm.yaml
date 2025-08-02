@@ -25,6 +25,8 @@ blueprint:
 
     * Make sure to expose the script to Assist after the script has been saved.
 
+    * Add additional aliases: 'Auspicious Dates and Hours Lookup Tool' and 'Day of the Week Lookup Tool' for this script.
+
   domain: script
   homeassistant:
     min_version: 2024.10.0

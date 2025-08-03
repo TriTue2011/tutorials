@@ -60,15 +60,17 @@ POST_HEADERS = {
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"'
 }
-GEMINI_API_KEY = pyscript.config.get('gemini_api_key')
 GEMINI_MODEL = 'gemini-2.5-flash'
+GEMINI_API_KEY = pyscript.config.get('gemini_api_key')
+REDIS_HOST = pyscript.config.get('redis_host')
+REDIS_PORT = pyscript.config.get('redis_port')
 
 if not GEMINI_API_KEY:
     raise ValueError("You need to configure your Gemini API key")
 
 client = google.genai.Client(api_key=GEMINI_API_KEY)
 
-cached = redis.Redis(host='localhost', port=6379, decode_responses=True)
+cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 
 @pyscript_compile

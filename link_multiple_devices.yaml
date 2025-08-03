@@ -1,15 +1,15 @@
 blueprint:
   name: Link On/Off State of Multiple Devices
   description: >-
-    # Link On/Off State of Multiple Devices v1.0.2
+    # Link On/Off State of Multiple Devices
 
-    * Select multiple entities to link their on/off state.  If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.
+    * Select multiple entities to link their on/off state. If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.
 
     * You can select any entity, but only entities supported by the `homeassistant.turn_on` or `homeassistant.turn_off` action calls will work.
 
     ## Requirements
 
-    * All selected entities MUST suport `homeassistant.turn_on` and `homeassistant.turn_off` or errors will be logged and the blueprint will not work.
+    * All selected entities must support `homeassistant.turn_on` and `homeassistant.turn_off`; otherwise, errors will be logged, and the blueprint will not work.
 
     * Requires Home Assistant 2024.10.0 or newer.
 

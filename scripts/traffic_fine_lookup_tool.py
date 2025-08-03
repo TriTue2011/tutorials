@@ -15,7 +15,7 @@ from PIL.ImageFilter import EDGE_ENHANCE
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
 
-TTL = 3
+TTL = 24
 RETRY_LIMIT = 3
 GET_URL = 'https://www.csgt.vn/'
 POST_URL = 'https://www.csgt.vn/?mod=contact&task=tracuu_post&ajax'

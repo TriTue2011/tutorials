@@ -33,7 +33,7 @@ blueprint:
 
     #File secrets.yaml
 
-    gemini_api_key: XXXXXX
+    gemini_api_key: XXXXXX      # Retrieve the key from the Google Cloud Console.
 
     ```
 

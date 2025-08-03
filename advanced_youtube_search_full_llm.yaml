@@ -31,7 +31,7 @@ blueprint:
 
     #File secrets.yaml
 
-    youtube_api_key: XXXXXX
+    youtube_api_key: XXXXXX     # Retrieve the key from the Google Cloud Console.
 
     ```
 

@@ -32,7 +32,7 @@ blueprint:
 
     #File secrets.yaml
 
-    gemini_api_key: XXXXXX
+    gemini_api_key: XXXXXX      # Retrieve the key from the Google Cloud Console.
 
     ```
 
@@ -55,23 +55,23 @@ blueprint:
           - trigger: event
             event_type: event_template_reloaded
         sensor:
-          - name: Time to Check 30G12345
-            unique_id: time_to_check_30g12345
+          - name: Time to Check 30G12345      # Biển số xe
+            unique_id: time_to_check_30g12345     # Biển số xe
             icon: mdi:clock-digital
             device_class: timestamp
             state: "{{ (now() + timedelta(minutes=range(1,181) | random)).isoformat() }}"
       - trigger:
           - trigger: time
-            at: sensor.time_to_check_30g12345
+            at: sensor.time_to_check_30g12345     # Biển số xe
         action:
           - action: pyscript.traffic_fine_lookup_tool
             data:
-              license_plate: 30G12345
-              vehicle_type: "1"
+              license_plate: 30G12345     # Biển số xe
+              vehicle_type: "1"     # Kiểu phương tiện
             response_variable: response
         sensor:
-          - name: 30G12345
-            unique_id: 30g12345
+          - name: 30G12345      # Biển số xe
+            unique_id: 30g12345     # Biển số xe
             icon: mdi:car
             state: "{{ response.message if response.get('status') else response.get('error') }}"
             attributes:

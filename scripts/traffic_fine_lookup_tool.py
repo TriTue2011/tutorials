@@ -68,6 +68,9 @@ REDIS_PORT = pyscript.config.get('redis_port')
 if not GEMINI_API_KEY:
     raise ValueError("You need to configure your Gemini API key")
 
+if not all([REDIS_HOST, REDIS_PORT]):
+    raise ValueError("You need to configure your Redis host and port")
+
 client = google.genai.Client(api_key=GEMINI_API_KEY)
 
 cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)

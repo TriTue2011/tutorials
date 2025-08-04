@@ -4,6 +4,9 @@ YOUTUBE_API_KEY = pyscript.config.get("youtube_api_key")
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
+if not YOUTUBE_API_KEY:
+    raise ValueError("You need to configure your YouTube API key")
+
 
 @pyscript_executor
 def youtube_search(query: str, results: int = 5, search_type: str = "video,channel,playlist",
@@ -20,8 +23,6 @@ def youtube_search(query: str, results: int = 5, search_type: str = "video,chann
     Returns:
         A dictionary containing the search results from the YouTube API.
     """
-    if not YOUTUBE_API_KEY:
-        raise ValueError("You need to configure your YouTube API key")
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=YOUTUBE_API_KEY)
     search_response = youtube.search().list(
         q=query,

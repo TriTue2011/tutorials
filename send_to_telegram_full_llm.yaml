@@ -1,0 +1,174 @@
+blueprint:
+  name: Voice - Send to Telegram
+  author: VuLQ
+  description: >-
+    # Tool for sending content to Telegram using LLM
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * Telegram bot integration needs to be installed and configured.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script.
+    The descriptions guide the LLM to provide the correct input.
+
+    ### Note
+
+    * Provide a concise and precise description for the script.
+    This will be utilized by the LLM to understand it should
+    use this script for sending user requested content to Telegram.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+    * Do not alter the default script name.
+
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    telegram_settings:
+      name: Settings for Telegram
+      icon: mdi:application-cog
+      description: You can use these settings to configure Telegram for sending the message.
+      input:
+        entry_id:
+          name: Entry ID
+          description: The Telegram bot to send the message.
+          selector:
+            config_entry:
+              integration: telegram_bot
+        chat_id:
+          name: Chat ID
+          description: The target to send the message to.
+          selector:
+            text:
+        thread_id:
+          name: Thread ID
+          description: The thread (topic) to send the message to.
+          selector:
+            text:
+          default:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to finetune the prompts for your specific
+        LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        summary_prompt:
+          name: Summary Prompt
+          description:
+            The prompt which will be used for the LLM can provide the message summary.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided!
+
+            Provide a brief overview, like the name of a restaurant, hotel, or type of cuisine.
+
+            When sending multiple addresses, such as a list of places,
+            make sure each place is sent through a separate script call.
+        detail_prompt:
+          name: Detail Prompt
+          description:
+            The prompt which will be used for the LLM can provide the message detail.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is optional.
+
+            Provide specific details about the content that the user wants to send,
+            such as detailed information about the location or a complete description.
+
+            When sending multiple addresses, such as a list of places,
+            make sure each place is sent through a separate script call.
+        location_prompt:
+          name: Location Prompt
+          description:
+            The prompt which will be used for the LLM can provide the location for the place.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is optional.
+
+            Provide the location of the place where it is located.
+            It should be the name of a city, district, or large area.
+mode: parallel
+max: 20
+max_exceeded: silent
+fields:
+  summary:
+    name: Summary
+    description: !input summary_prompt
+    selector:
+        text:
+    required: true
+  detail:
+    name: Detail
+    description: !input detail_prompt
+    selector:
+      text:
+  location:
+    name: Location
+    description: !input location_prompt
+    selector:
+      text:
+sequence:
+  - variables:
+      thread_id: !input thread_id
+      summary: "{{ summary | default }}"
+      detail: "{{ detail | default }}"
+      location: "{{ location | default }}"
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: "{{ not summary }}"
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error: Unable to send the messsage to Telegram because the summary is empty.
+      - alias: Stop the script
+        stop: Unable to send the messsage to Telegram because the summary is empty.
+        response_variable: response
+  - variables:
+      message: >-
+        *{{ summary }}*
+
+
+        {{ detail }}
+
+
+        {% if location -%}
+        {% set place = ((summary ~ ' ' ~ location) | title).split() | join('+') -%}
+        {% set url = 'https://www.google.com/maps/search/' + place + '/' -%}
+        [Mở trong Google Maps]({{ url }})
+        {% endif -%}
+  - if:
+      - condition: template
+        value_template: "{{ thread_id }}"
+    then:
+      - action: telegram_bot.send_message
+        data:
+          config_entry_id: !input entry_id
+          message: "{{ message }}"
+          target: !input chat_id
+          parse_mode: markdown
+          message_thread_id: "{{ thread_id}}"
+    else:
+      - action: telegram_bot.send_message
+        data:
+          config_entry_id: !input entry_id
+          message: "{{ message }}"
+          target: !input chat_id
+          parse_mode: markdown

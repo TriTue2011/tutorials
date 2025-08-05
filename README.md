@@ -1,12 +1,14 @@
 # Các thủ thuật hay cho Home Assistant
 
+## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để gửi thông báo lên Telegram. Nếu là đó một địa điểm thì sẽ bao gồm liên kết mở trong Google Maps [*(Chi tiết)*](/send_to_telegram_full_llm.yaml)
+
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tìm kiếm mọi thông tin có trên Google [*(Chi tiết)*](/advanced_google_search_full_llm.yaml)
 
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để hẹn giờ bật tắt các thiết bị [*(Chi tiết)*](/device_control_timer_full_llm.yaml)
 
-## MỚI RA MẮT - Bản thiết kế dùng để gửi thông báo về điện thoại khi xe của bạn bị dính phạt nguội [*(Chi tiết)*](/traffic_fine_notification.yaml)
+## Bản thiết kế dùng để gửi thông báo về điện thoại khi xe của bạn bị dính phạt nguội [*(Chi tiết)*](/traffic_fine_notification.yaml)
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tra cứu phạt nguội của một biển số xe bất kỳ [*(Chi tiết)*](/traffic_fine_lookup_full_llm.yaml)
+## Bản thiết kế dùng cho Voice Assist để tra cứu phạt nguội của một biển số xe bất kỳ [*(Chi tiết)*](/traffic_fine_lookup_full_llm.yaml)
 
 ## Hướng dẫn cách tạo một bản chỉ dẫn chuẩn cho Voice Assist [*(Chi tiết)*](/home_assistant_voice_instructions.md)
 

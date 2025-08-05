@@ -22,6 +22,7 @@ blueprint:
       name: Custom Settings
       icon: mdi:tools
       description: You can use these settings to configure the maximum simultaneous number of timers to run at a time.
+      collapsed: true
       input:
         simultaneous:
           name: Simultaneous Timers

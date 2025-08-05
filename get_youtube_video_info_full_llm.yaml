@@ -85,6 +85,7 @@ blueprint:
       icon: mdi:video-high-definition
       description: >-
         These settings let you choose whether to ignore short videos in the results or include them (Default: Ignored).
+      collapsed: true
       input:
         short_videos:
           name: Short Videos

@@ -61,6 +61,7 @@ blueprint:
       name: Settings for Results
       icon: mdi:youtube
       description: These settings allow you to define the maximum number of results that will return for each request.
+      collapsed: true
       input:
         results:
           name: Number Of Results

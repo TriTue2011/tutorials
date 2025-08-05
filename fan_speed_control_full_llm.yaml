@@ -75,6 +75,7 @@ blueprint:
       name: Settings for Speed Steps
       icon: mdi:fan-auto
       description: These settings allow you to define the minimum number of speed steps for each request. They only apply to fans with 100 speed levels.
+      collapsed: true
       input:
         speed_steps:
           name: Speed Steps

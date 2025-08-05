@@ -80,7 +80,6 @@ blueprint:
                 - domain: sensor
                   integration: template
               multiple: false
-          default:
     short_videos_settings:
       name: Settings for Short Videos
       icon: mdi:video-high-definition

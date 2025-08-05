@@ -71,7 +71,6 @@ blueprint:
                 - domain: sensor
                   integration: template
               multiple: false
-          default:
     speed_steps_settings:
       name: Settings for Speed Steps
       icon: mdi:fan-auto

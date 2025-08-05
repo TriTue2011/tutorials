@@ -40,7 +40,6 @@ blueprint:
                   # supported_features:
                   #   - calendar.CalendarEntityFeature.CREATE_EVENT
               multiple: false
-          default:
 mode: single
 max_exceeded: silent
 fields:

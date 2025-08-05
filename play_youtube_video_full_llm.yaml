@@ -44,7 +44,6 @@ blueprint:
                 - domain: media_player
                   device_class: tv
               multiple: false
-          default:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot

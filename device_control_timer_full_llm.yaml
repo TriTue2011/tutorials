@@ -71,7 +71,6 @@ blueprint:
                 - domain: sensor
                   integration: template
               multiple: false
-          default:
     controller_settings:
       name: Settings for Controller
       icon: mdi:controller
@@ -84,7 +83,6 @@ blueprint:
               filter:
                 - domain: script
               multiple: false
-          default:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot

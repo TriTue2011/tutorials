@@ -103,7 +103,7 @@ blueprint:
 
             Provide the location of the place where it is located.
             It should be the name of a city, district, or large area.
-mode: parallel
+mode: queued
 max: 20
 max_exceeded: silent
 fields:

@@ -72,8 +72,8 @@ blueprint:
 
             Provide a brief overview, like the name of a restaurant, hotel, or type of cuisine.
 
-            When sending multiple addresses, such as a list of places,
-            make sure each place is sent through a separate script call.
+            When sending multiple geographic addresses, such as a list of restaurant locations,
+            make sure each address is sent individually through a separate tool call.
         detail_prompt:
           name: Detail Prompt
           description:
@@ -88,8 +88,8 @@ blueprint:
             Provide specific details about the content that the user wants to send,
             such as detailed information about the location or a complete description.
 
-            When sending multiple addresses, such as a list of places,
-            make sure each place is sent through a separate script call.
+            When sending multiple geographic addresses, such as a list of restaurant locations,
+            make sure each address is sent individually through a separate tool call.
         location_prompt:
           name: Location Prompt
           description:
@@ -101,8 +101,8 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide the location of the place where it is located.
-            It should be the name of a city, district, or large area.
+            Provide the location if the requested content is a place,
+            specifying only the name of a city, district, or large region.
 mode: queued
 max: 20
 max_exceeded: silent

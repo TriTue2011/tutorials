@@ -99,7 +99,7 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is optional.
+            This argument is mandatory and must always be provided!
 
             Provide the location, specifying only the ward and province names.
 mode: queued
@@ -110,7 +110,7 @@ fields:
     name: Summary
     description: !input summary_prompt
     selector:
-        text:
+      text:
     required: true
   detail:
     name: Detail
@@ -122,6 +122,7 @@ fields:
     description: !input location_prompt
     selector:
       text:
+    required: true
 sequence:
   - variables:
       thread_id: !input thread_id
@@ -131,14 +132,14 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: "{{ not summary }}"
+        value_template: "{{ not (summary and location) }}"
     then:
       - alias: Set variable for error message
         variables:
           response:
-            error: Unable to send the messsage to Telegram because the summary is empty.
+            error: Unable to send the message to Telegram because either the summary or the location is empty.
       - alias: Stop the script
-        stop: Unable to send the messsage to Telegram because the summary is empty.
+        stop: Unable to send the message to Telegram because either the summary or the location is empty.
         response_variable: response
   - variables:
       message: >-

@@ -149,7 +149,7 @@ sequence:
 
 
         {% if location -%}
-        {% set place = ((summary ~ ' ' ~ location) | title).split() | join('+') -%}
+        {% set place = (summary ~ ' ' ~ location).split() | join('+') -%}
         {% set url = 'https://www.google.com/maps/search/' + place + '/' -%}
         [Mở trong Google Maps]({{ url }})
         {% endif -%}

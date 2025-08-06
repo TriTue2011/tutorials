@@ -169,7 +169,7 @@ sequence:
           config_entry_id: !input entry_id
           message: "{{ message }}"
           target: !input chat_id
-          parse_mode: markdown
+          parse_mode: markdownv2
           message_thread_id: "{{ thread_id}}"
     else:
       - action: telegram_bot.send_message
@@ -177,4 +177,4 @@ sequence:
           config_entry_id: !input entry_id
           message: "{{ message }}"
           target: !input chat_id
-          parse_mode: markdown
+          parse_mode: markdownv2

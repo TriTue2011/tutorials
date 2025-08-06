@@ -70,10 +70,10 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide a brief overview, such as the name of a thing or the title of a location.
+            Provide a brief overview, such as the name of a person, object, or location title.
 
-            When sending multiple things or locations,
-            make sure each one is sent separately through a separate tool call.
+            When sending multiple items or locations,
+            make sure each one must be sent separately through a separate tool call.
         detail_prompt:
           name: Detail Prompt
           description:
@@ -86,10 +86,10 @@ blueprint:
             This argument is optional.
 
             Provide clear and specific details about the content that you want to send,
-            such as comprehensive information about the subject or a detailed description.
+            such as comprehensive information or a detailed description of the subject.
 
-            When sending multiple things or locations,
-            make sure each one is sent separately through a separate tool call.
+            When sending multiple items or locations,
+            make sure each one must be sent separately through a separate tool call.
         location_prompt:
           name: Location Prompt
           description:
@@ -102,6 +102,8 @@ blueprint:
             This argument is mandatory and must always be provided!
 
             Provide the location, specifying only the ward and province names.
+
+            If a location is not available, set it to Google.
 mode: queued
 max: 20
 max_exceeded: silent
@@ -149,10 +151,14 @@ sequence:
         {{ detail }}
 
 
-        {% if location -%}
+        {% if location == 'Google' -%}
+        {% set query = summary.split() | join('+') -%}
+        {% set url = 'https://www.google.com/search?q=' + query -%}
+        [Google]({{ url }})
+        {% else -%}
         {% set place = (summary ~ ' ' ~ location).split() | join('+') -%}
         {% set url = 'https://www.google.com/maps/search/' + place + '/' -%}
-        [Mở trong Google Maps]({{ url }})
+        [Google Maps]({{ url }})
         {% endif -%}
   - if:
       - condition: template

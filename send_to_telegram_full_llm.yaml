@@ -101,7 +101,7 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide the location, specifying only the name of a city, district, or large region.
+            Provide the location, specifying only the ward and province names.
 mode: queued
 max: 20
 max_exceeded: silent

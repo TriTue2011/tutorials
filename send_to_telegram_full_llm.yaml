@@ -103,7 +103,7 @@ blueprint:
 
             Provide the location, specifying only the ward and province names.
 
-            If a location is not available, set it to Google.
+            If the content does not have a location, set default to Google.
 mode: queued
 max: 20
 max_exceeded: silent
@@ -169,7 +169,7 @@ sequence:
           config_entry_id: !input entry_id
           message: "{{ message }}"
           target: !input chat_id
-          parse_mode: markdownv2
+          parse_mode: markdown
           message_thread_id: "{{ thread_id}}"
     else:
       - action: telegram_bot.send_message
@@ -177,4 +177,4 @@ sequence:
           config_entry_id: !input entry_id
           message: "{{ message }}"
           target: !input chat_id
-          parse_mode: markdownv2
+          parse_mode: markdown

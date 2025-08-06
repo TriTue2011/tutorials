@@ -70,10 +70,10 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided!
 
-            Provide a brief overview, like the name of a restaurant, hotel, or type of cuisine.
+            Provide a brief overview, such as the name of a location or object.
 
-            When sending multiple geographic addresses, such as a list of restaurant locations,
-            make sure each address is sent individually through a separate tool call.
+            When sending multiple places or addresses,
+            make sure each address is sent separately through a separate tool call.
         detail_prompt:
           name: Detail Prompt
           description:
@@ -85,11 +85,11 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide specific details about the content that the user wants to send,
-            such as detailed information about the location or a complete description.
+            Provide clear and specific details about the content that you want to send,
+            such as detailed information about the location or a thorough description.
 
-            When sending multiple geographic addresses, such as a list of restaurant locations,
-            make sure each address is sent individually through a separate tool call.
+            When sending multiple places or addresses,
+            make sure each address is sent separately through a separate tool call.
         location_prompt:
           name: Location Prompt
           description:
@@ -101,7 +101,7 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide the location if the requested content is a place,
+            Provide the location if the requested content is a place or address,
             specifying only the name of a city, district, or large region.
 mode: queued
 max: 20

@@ -1,6 +1,6 @@
 # Các thủ thuật hay cho Home Assistant
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để gửi thông báo lên Telegram. Nếu là đó một địa điểm thì sẽ bao gồm liên kết mở trong Google Maps [*(Chi tiết)*](/send_to_telegram_full_llm.yaml)
+## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để gửi thông báo lên Telegram. Nếu là đó một địa điểm thì sẽ bao gồm liên kết mở trong Google Maps, nếu đó là một nội dung khác thì sẽ bao gồm liên kết để tìm kiếm trong Google [*(Chi tiết)*](/send_to_telegram_full_llm.yaml)
 
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist để tìm kiếm mọi thông tin có trên Google [*(Chi tiết)*](/advanced_google_search_full_llm.yaml)
 

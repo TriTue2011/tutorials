@@ -50,14 +50,15 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            It can only be one of the two following values:
-            's2l' to convert Solar date to Lunar date,
-            'l2s' to convert Lunar date to Solar date.
+            It must be one of the following two values:
+            's2l' to convert a Solar date to a Lunar date,
+            or 'l2s' to convert a Lunar date to a Solar date.
 
-            After obtaining the result, ensure that your response clearly specifies the day
-            of the week, the Solar date, the Lunar date, and the number of remaining days (if different than zero).
+            After obtaining the result, ensure your response clearly specifies the day of the week,
+            the Solar date, the Lunar date, and the number of remaining days (if greater than zero)
+            or the number of days passed (if less than zero)
         date_prompt:
           name: Date Prompt
           description:
@@ -67,19 +68,19 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide the date for the requested conversion. Use the format YYYY-MM-DD.
+            Provide the date for the requested conversion using the format YYYY-MM-DD.
 
-            Always include the relevant date: today's for today's request,
-            tomorrow's for tomorrow's request.
+            Always include the relevant date:
+            today's date for today's request, tomorrow's date for tomorrow's request.
 
-            If the request does not specify a year, it means the current year.
+            If the request does not specify a year, assume the current year.
 
             Some specific Lunar calendar terms in Vietnamese:
-            'Ngày Rằm' means the 15th day of the requested month in the Lunar calendar.
-            'Tết Nguyên Đán' means January 1st in the Lunar calendar.
-            'Tết Trung Thu' means August 15th in the Lunar calendar.
+            'Ngày Rằm' refers to the 15th day of the requested month in the Lunar calendar.
+            'Tết Nguyên Đán' refers to the 1st day of the 1st month in the Lunar calendar (Lunar New Year).
+            'Tết Trung Thu' refers to the 15th day of the 8th month in the Lunar calendar (Mid-Autumn Festival).
         leap_month_prompt:
           name: Leap Month Prompt
           description:
@@ -89,10 +90,12 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            Use this argument only to convert Lunar dates to Solar dates.
+            This argument is optional.
 
-            It can only be one of the two following values:
-            'true' for a leap month, 'false' for a normal month.
+            Use this argument only when converting Lunar dates to Solar dates.
+
+            It must be one of the following two values:
+            'true' for a leap month, or 'false' for a regular month.
 mode: parallel
 max_exceeded: silent
 fields:

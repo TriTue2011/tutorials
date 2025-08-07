@@ -61,9 +61,9 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide the Media ID of the video you want to play.
+            Specify the Media ID of the video you want to play.
 mode: parallel
 max_exceeded: silent
 fields:

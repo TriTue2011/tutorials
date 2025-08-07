@@ -57,7 +57,7 @@ blueprint:
 
     * Provide a concise and precise description for the script.
     This description will enable the LLM to recognize that the script is designed to
-    retrieve the latest video information from a YouTube channel or multiple channels.
+    obtain the latest video information from a YouTube channel or multiple channels.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
@@ -109,21 +109,21 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide at least one YouTube channel's name to query video info.
+            Provide at least one YouTube channel name to query video information.
 
             When requesting multiple YouTube channels,
-            make sure to separate each channel's name with a semicolon.
+            separate each channel name with a semicolon.
 
-            If a query does not specify a particular channel,
+            If the query does not specify a particular channel,
             provide all relevant channels based on the context.
 
-            If a query includes misreading caused by user mispronunciation,
-            it should be corrected to the most likely accurate channel name.
+            If the query contains errors caused by user mispronunciation,
+            correct it to the most likely accurate channel name.
 
-            After obtaining the result, ask to play the video on the TV.
-            Add an ordinal number to each video to make selection easier.
+            After obtaining the results, prompt the user to select a video to play on the TV.
+            Add an ordinal number to each video to simplify selection.
             Do not include the Media ID in your response.
         period_length_prompt:
           name: Period Length Prompt
@@ -135,11 +135,12 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is optional. This will be the number of days
-            since the date of the videos published until now.
+            This argument is optional.
 
-            Default is 3 (days). The minimum is 1 (day). The maximum is 30 (days).
-            Today means 1 (day). This week means 7 (days). This month means 30 (days).
+            It specifies the number of days since the videos were published.
+
+            The default is 3 days. The minimum is 1 day, and the maximum is 30 days.
+            "Today" means 1 day, "This week" means 7 days, and "This month" means 30 days.
 mode: parallel
 max_exceeded: silent
 fields:

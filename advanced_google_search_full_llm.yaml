@@ -60,16 +60,16 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide the search string to gather information from Google.
+            Provide the search string to obtain information from Google.
 
-            If a query includes misreading caused by user mispronunciation,
-            it should be corrected to the most likely accurate search string,
-            and the user should be asked for confirmation before proceeding with the query.
+            If the query contains errors caused by user mispronunciation,
+            correct it to the most likely accurate search string
+            and ask the user for confirmation before proceeding.
 
-            After getting the result, analyze it thoroughly,
-            summarize the key points, and then provide a response.
+            After obtaining the results, analyze them thoroughly,
+            summarize the key points, and then deliver a response.
 mode: parallel
 max_exceeded: silent
 fields:

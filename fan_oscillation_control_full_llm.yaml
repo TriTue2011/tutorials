@@ -88,11 +88,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide at least one fan's name to control.
+            Specify at least one fan's name to control.
 
-            When requesting multiple fans, make sure to separate each fan's name with a semicolon.
+            To control multiple fans, separate each fan name with a semicolon.
         oscillating_prompt:
           name: Oscillating Prompt
           description:
@@ -102,12 +102,12 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            The oscillation state of the fan that you want to set.
+            Define the oscillation state for the fan you want to set.
 
-            It can only be one of the two following values:
-            'true' for turns oscillation on, 'false' for turns oscillation off.
+            It must be one of the following two values:
+            'true' turns oscillation on, or 'false' turns oscillation off.
 mode: parallel
 max_exceeded: silent
 fields:

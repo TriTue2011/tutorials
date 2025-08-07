@@ -68,11 +68,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide a brief overview, such as the name of a person, object, or location title.
+            Include a brief overview, such as the name of a person, object, or location title.
 
-            When sending multiple items or locations,
+            When submitting multiple items or locations,
             make sure each one must be sent separately through a separate tool call.
         detail_prompt:
           name: Detail Prompt
@@ -85,10 +85,10 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide clear and specific details about the content that you want to send,
+            Provide clear and specific details about the content,
             such as comprehensive information or a detailed description of the subject.
 
-            When sending multiple items or locations,
+            When submitting multiple items or locations,
             make sure each one must be sent separately through a separate tool call.
         location_prompt:
           name: Location Prompt
@@ -99,11 +99,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide the location, specifying only the ward and province names.
+            Specify the location using only the ward and province names.
 
-            If the content does not have a location, set default to Google.
+            If the content does not have a location, set the default to Google.
 mode: queued
 max: 20
 max_exceeded: silent

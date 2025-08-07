@@ -102,11 +102,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide at least one fan's name to control.
+            Specify at least one fan's name to control.
 
-            When requesting multiple fans, make sure to separate each fan's name with a semicolon.
+            To control multiple fans, separate each fan name with a semicolon.
         speed_adjustment_prompt:
           name: Speed Adjustment Prompt
           description:
@@ -116,12 +116,12 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            The speed adjustment of the fan that you want to set.
+            Use this argument to increase or decrease the fan's speed.
 
-            It can only be one of the two following values:
-            'true' for increasing the speed, 'false' for decreasing the speed.
+            It must be one of the following two values:
+            'true' increase the speed, or 'false' decrease the speed.
 
-            Only use one of the 'speed_adjustment' parameter or the 'percentage' parameter.
+            Only use either the speed adjustment parameter or the percentage parameter, not both.
         percentage_prompt:
           name: Percentage Prompt
           description:
@@ -131,11 +131,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            The speed percentage of the fan that you want to set.
+            Use this argument to set the fan's speed to a specific percentage.
 
-            The number should be in the range 1-100.
+            Accepted range: 1-100
 
-            Only use one of the 'speed_adjustment' parameter or the 'percentage' parameter.
+            Only use either the percentage parameter or the speed adjustment parameter, not both.
 mode: parallel
 max_exceeded: silent
 fields:

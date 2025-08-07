@@ -100,11 +100,11 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide at least one device's name to control.
+            Specify at least one device name to control.
 
-            When requesting multiple devices, make sure to separate each device's name with a semicolon.
+            When controlling multiple devices, separate each device name with a semicolon.
         control_prompt:
           name: Control Prompt
           description:
@@ -114,12 +114,10 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Specify the action that you want to set.
-
-            It can only be one of the two following values:
-            'true' for turn on, 'false' for turn off.
+            Specify the desired action using one of the following two values:
+            'true' to turn on the device, or 'false' to turn off the device.
         timer_prompt:
           name: Timer Prompt
           description:
@@ -129,12 +127,14 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Specify the delay time that you want to set in 'HH:MM:SS' format.
+            Specify the delay time using the format HH:MM:SS.
 
-            Delay time is relative, and if a query specifies a particular time,
-            it should be calculated based on the current time up to that specified time.
+            The delay is relative to the current time.
+
+            If a query specifies a particular target time,
+            calculate the delay from the current time to that specified time
 mode: parallel
 max_exceeded: silent
 fields:

@@ -88,22 +88,22 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
-            Provide the search string to query list of videos.
+            Provide the search string to obtain a list of videos.
 
-            If a query includes misreading caused by user mispronunciation,
-            it should be corrected to the most likely accurate search string,
-            and the user should be asked for confirmation before proceeding with the query.
+            If the query contains errors caused by user mispronunciation,
+            correct it to the most likely accurate search string
+            and ask the user for confirmation before proceeding.
 
-            After obtaining the result, ask to play the video on the TV.
-            Add an ordinal number to each video to make selection easier.
-            Do not include the Media ID in your response.
+            After obtaining the results, prompt the user to select a video to play on the TV.
+            Add an ordinal number to each video to simplify selection.
+            Do not include the Media ID in the response.
         page_token_prompt:
           name: Page Token Prompt
           description:
             The prompt which will be used for the LLM can provide
-            the page token to get additional videos that could be retrieved.
+            the page token to get additional videos that could be obtained.
           selector:
             text:
               multiline: true
@@ -111,9 +111,9 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide the page token to retrieve additional videos.
+            Provide the page token to obtain additional videos.
 
-            Use it when the initial query results are unsatisfying, and the user wants to find more videos.
+            Use it when the initial query results are unsatisfying and the user wants to find more videos.
 mode: parallel
 max_exceeded: silent
 fields:

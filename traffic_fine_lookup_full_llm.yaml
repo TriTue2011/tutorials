@@ -76,14 +76,14 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
             Provide the vehicle's license plate number to check for any traffic fines.
 
-            A license plate number is a series of consecutive alphanumeric characters without any spaces.
+            A license plate number consists of a continuous sequence of alphanumeric characters with no spaces.
 
-            If a license plate includes misreading caused by user mispronunciation,
-            it should be corrected to the most likely accurate license plate number.
+            If a license plate contains errors caused by user mispronunciation,
+            correct it to the most likely accurate license plate number.
         vehicle_type_prompt:
           name: Vehicle Type Prompt
           description:
@@ -93,12 +93,12 @@ blueprint:
               multiline: true
               multiple: false
           default: >-
-            This argument is mandatory and must always be provided!
+            This argument is mandatory and must always be provided.
 
             Provide the type of vehicle to check for any traffic fines.
 
-            It can only be one of the following three values:
-            '1' for a car, '2' for a motorbike, and '3' for an electric bicycle.
+            It must be one of the following three values:
+            '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.
 mode: parallel
 max_exceeded: silent
 fields:

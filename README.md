@@ -15,7 +15,7 @@
 
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist tìm kiếm thông tin trên Google
 
-* **Bản thiết kế này cho phép bạn tìm kiếm mọi thông tin có trên Google bằng cách ra lệnh bằng giọng nói.**
+* **Bản thiết kế này cho phép bạn tìm kiếm mọi thông tin mới nhất trên Google bằng cách ra lệnh bằng giọng nói.**
   * Ví dụ bằng giọng nói:
     * Điểm chuẩn Đại học Bách khoa Hà Nội năm nay là bao nhiêu?
 
@@ -38,7 +38,7 @@
 
 ## Bản thiết kế dùng để gửi thông báo về điện thoại khi xe bị phạt nguội
 
-* **Bản thiết kế này cho phép bạn theo dõi trạng thái phạt nguội của các xe được chỉ định.**
+* **Bản thiết kế này cho phép bạn theo dõi trạng thái phạt nguội của các xe do bạn chỉ định.**
 * **Thông báo sẽ được gửi về điện thoại ngay khi có thông tin phạt nguội trên hệ thống của Cục Cảnh sát giao thông.**
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)

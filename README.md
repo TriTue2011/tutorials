@@ -1,4 +1,4 @@
-# Các thủ thuật hay cho Home Assistant
+# Các bản thiết kế và hướng dẫn độc quyền dành cho Home Assistant
 
 ## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist gửi thông báo lên Telegram
 

@@ -14,21 +14,17 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script.
-    This will be utilized by the LLM to understand it should use this
-    script for date conversion from Solar date to Lunar date and vice versa.
+    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for date conversion from Solar date to Lunar date and vice versa.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
 
     * Add additional aliases: 'Auspicious Dates and Hours Lookup Tool' and 'Day of the Week Lookup Tool' for this script.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -36,15 +32,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         conversion_type_prompt:
           name: Conversion Type Prompt
-          description:
-            The prompt which will be used for the LLM can provide the type for the conversion.
+          description: The prompt which will be used for the LLM can provide the type for the conversion.
           selector:
             text:
               multiline: true
@@ -52,17 +45,12 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided.
 
-            It must be one of the following two values:
-            's2l' to convert a Solar date to a Lunar date,
-            or 'l2s' to convert a Lunar date to a Solar date.
+            It must be one of the following two values: 's2l' to convert a Solar date to a Lunar date, or 'l2s' to convert a Lunar date to a Solar date.
 
-            After obtaining the result, ensure your response clearly specifies the day of the week,
-            the Solar date, the Lunar date, and the number of remaining days (if greater than zero)
-            or the number of days passed (if less than zero)
+            After obtaining the result, ensure the response clearly specifies the day of the week, the Solar date, the Lunar date, and the number of remaining days (if greater than zero) or the number of days passed (if less than zero).
         date_prompt:
           name: Date Prompt
-          description:
-            The prompt which will be used for the LLM can provide the input date for the conversion.
+          description: The prompt which will be used for the LLM can provide the input date for the conversion.
           selector:
             text:
               multiline: true
@@ -72,8 +60,7 @@ blueprint:
 
             Provide the date for the requested conversion using the format YYYY-MM-DD.
 
-            Always include the relevant date:
-            today's date for today's request, tomorrow's date for tomorrow's request.
+            Always include the relevant date: today's date for today's request, tomorrow's date for tomorrow's request.
 
             If the request does not specify a year, assume the current year.
 
@@ -83,8 +70,7 @@ blueprint:
             'Tết Trung Thu' refers to the 15th day of the 8th month in the Lunar calendar (Mid-Autumn Festival).
         leap_month_prompt:
           name: Leap Month Prompt
-          description:
-            The prompt which will be used for the LLM can provide the leap month for the conversion.
+          description: The prompt which will be used for the LLM can provide the leap month for the conversion.
           selector:
             text:
               multiline: true
@@ -94,8 +80,7 @@ blueprint:
 
             Use this argument only when converting Lunar dates to Solar dates.
 
-            It must be one of the following two values:
-            'true' for a leap month, or 'false' for a regular month.
+            It must be one of the following two values: 'true' for a leap month, or 'false' for a regular month.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -132,10 +117,9 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to provide date conversion because the conversion type is incorrect.
+            error: Unable to perform the date conversion because the conversion type is invalid.
       - alias: Stop the script
-        stop: Unable to provide date conversion because the conversion type is incorrect.
+        stop: Unable to perform the date conversion because the conversion type is invalid.
         response_variable: response
   - action: pyscript.date_conversion_tool
     response_variable: response

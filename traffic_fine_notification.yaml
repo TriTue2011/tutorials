@@ -112,7 +112,6 @@ blueprint:
     * Chỉ định các điện thoại sẽ nhận thông báo khi có thông tin phạt nguội.
 
     * Lưu lại script.
-
   domain: automation
   homeassistant:
     min_version: 2024.10.0
@@ -134,14 +133,11 @@ blueprint:
           filter:
           - integration: mobile_app
           multiple: true
-
 mode: queued
 max_exceeded: silent
-
 triggers:
   - trigger: state
     entity_id: !input vehicles
-
 conditions:
   - condition: template
     value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown'] }}"
@@ -149,7 +145,6 @@ conditions:
     value_template: "{{ trigger.to_state.state not in ['unavailable', 'unknown'] }}"
   - condition: template
     value_template: "{{ not trigger.to_state.attributes.data.get('error') }}"
-
 actions:
   - alias: Send a notification to each device
     repeat:

@@ -13,7 +13,6 @@ blueprint:
     * This blueprint is a dependency for the Voice - Device Control Timer Tool (device_control_timer_full_llm.yaml)
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -43,7 +42,7 @@ fields:
     required: true
   control:
     name: Control
-    description: "Action to control: use 'true' to turn on and 'false' to turn off."
+    description: "Action to control: use 'true' to turn on the device, or 'false' to turn off the device."
     selector:
       boolean:
     required: true

@@ -300,5 +300,3 @@ badges:
         entity_id: script.create_a_news_summary
     color: primary
 ```
-
-- **Nếu bạn thích tính năng này, hãy theo dõi để đón chờ thêm những tính năng mới hay ho hơn nữa nhé.**

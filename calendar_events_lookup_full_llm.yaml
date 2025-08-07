@@ -12,19 +12,15 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script.
-    This script will be utilized by the LLM to understand that
-    it should obtain events from the specified calendars.
+    * Provide a concise and precise description for the script. This script will be utilized by the LLM to understand that it should obtain events from the specified calendars.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -45,16 +41,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         time_period_type_prompt:
           name: Time Period Type Prompt
-          description:
-            The prompt which will be used for the LLM can provide
-            the type for the period (days or hours).
+          description: The prompt which will be used for the LLM can provide the type for the period (days or hours).
           selector:
             text:
               multiline: true
@@ -62,16 +54,12 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided.
 
-            Use 'daily' for requests covering full days or periods longer than one day.
-            Use 'hourly' for requests covering part of a day or a specific start hour.
+            Use 'daily' for requests covering full days or periods longer than one day. Use 'hourly' for requests covering part of a day or a specific start time.
 
-            After obtaining the result, ensure the response includes
-            only the event's day of the week and start date.
-            The event's end date or time is exclusive and should not be included.
+            After obtaining the result, ensure the response includes only the event's day of the week and start date. The event's end date or time is exclusive and should not be included.
         time_period_length_prompt:
           name: Time Period Length Prompt
-          description:
-            The prompt which will be used for the LLM can provide the length of the period.
+          description: The prompt which will be used for the LLM can provide the length of the period.
           selector:
             text:
               multiline: true
@@ -79,17 +67,12 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided.
 
-            The length of the period.
-            This will be measured in days if 'time_period_type' is 'daily',
-            and in hours if 'time_period_type' is 'hourly'.
+            The length of the period. This will be measured in days if 'time_period_type' is 'daily', and in hours if 'time_period_type' is 'hourly'.
 
-            Examples: 1 (day) for today's events, 2 (days) for weekend events,
-            7 (days) for the next few days, 30 (days) for in the month,
-            6 (hours) for morning, afternoon, or evening events.
+            Examples: 1 (day) for today's events, 2 (days) for weekend events, 7 (days) for the next few days, 30 (days) for in the month, 6 (hours) for morning, afternoon, or evening events.
         date_prompt:
           name: Date Prompt
-          description:
-            The prompt which will be used for the LLM can provide the start date for the events period.
+          description: The prompt which will be used for the LLM can provide the start date for the events period.
           selector:
             text:
               multiline: true
@@ -99,16 +82,12 @@ blueprint:
 
             Provide the date for the requested period starts using the format YYYY-MM-DD.
 
-            Always include a date with each request. If the request does not specify a date,
-            you should provide today's date. Examples of dates that can be used
-            include today, this week, this month, etc.
+            Always include a date with each request. If the request does not specify a date, you should provide today's date. Examples of dates that can be used include today, this week, this month, etc.
 
-            When the requested period is for the night, do not use today's date but
-            always use the next day, unless the current time is still before 05:00:00.
+            When the requested period is for the night, do not use today's date but always use the next day, unless the current time is still before 05:00:00.
         time_prompt:
           name: Time Prompt
-          description:
-            The prompt which will be used for the LLM can provide the start time for the events period.
+          description: The prompt which will be used for the LLM can provide the start time for the events period.
           selector:
             text:
               multiline: true
@@ -118,10 +97,7 @@ blueprint:
 
             Provide the start time using the format HH:MM:SS.
 
-            Always provide time. For a full day, use 00:00:00.
-            For the current hour, use the start of the hour.
-            Night starts at 00:00:00, morning starts at 06:00:00,
-            afternoon starts at 12:00:00 and evening starts at 18:00:00.
+            Always provide time. For a full day, use 00:00:00. For the current hour, use the start of the hour. Night starts at 00:00:00, morning starts at 06:00:00, afternoon starts at 12:00:00 and evening starts at 18:00:00.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -175,8 +151,7 @@ sequence:
       - alias: Set variable for eror message
         variables:
           response:
-            error:
-              Unable to provide calendar events as the start date is either empty or in the past.
+            error: Unable to provide calendar events as the start date is either empty or in the past.
       - alias: Stop the script
         stop: Unable to provide calendar events as the start date is either empty or in the past.
         response_variable: response

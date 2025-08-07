@@ -41,19 +41,15 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script.
-    This will be utilized by the LLM to understand it should
-    use this script for controlling devices on/off with a specified delay.
+    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling devices on/off with a specified delay.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -86,15 +82,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         entities_prompt:
           name: Entities Prompt
-          description:
-            The prompt which will be used for the LLM can provide the name of fans for controlling.
+          description: The prompt which will be used for the LLM can provide the name of fans for controlling.
           selector:
             text:
               multiline: true
@@ -107,8 +100,7 @@ blueprint:
             When controlling multiple devices, separate each device name with a semicolon.
         control_prompt:
           name: Control Prompt
-          description:
-            The prompt which will be used for the LLM can provide the action.
+          description: The prompt which will be used for the LLM can provide the action.
           selector:
             text:
               multiline: true
@@ -116,12 +108,10 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided.
 
-            Specify the desired action using one of the following two values:
-            'true' to turn on the device, or 'false' to turn off the device.
+            Specify the desired action using one of the following two values: 'true' to turn on the device, or 'false' to turn off the device.
         timer_prompt:
           name: Timer Prompt
-          description:
-            The prompt which will be used for the LLM can provide the delay of action.
+          description: The prompt which will be used for the LLM can provide the delay of action.
           selector:
             text:
               multiline: true
@@ -133,8 +123,7 @@ blueprint:
 
             The delay is relative to the current time.
 
-            If a query specifies a particular target time,
-            calculate the delay from the current time to that specified time
+            If a query specifies a particular target time, calculate the delay from the current time to that specified time
 mode: parallel
 max_exceeded: silent
 fields:
@@ -178,10 +167,9 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to control the device because the device name is either incorrect or does not exist.
+            error: Unable to control the device because the device name is invalid.
       - alias: Stop the script
-        stop: Unable to control the device because the device name is either incorrect or does not exist.
+        stop: Unable to control the device because the device name is invalid.
         response_variable: response
   - variables:
       devices: >-

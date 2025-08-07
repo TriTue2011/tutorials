@@ -14,19 +14,15 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script.
-    This will be utilized by the LLM to understand it should
-    use this script for playing YouTube videos on a smart TV.
+    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for playing YouTube videos on a smart TV.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -47,15 +43,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         media_id_prompt:
           name: Media ID Prompt
-          description:
-            The prompt which will be used for the LLM can provide the Media ID for the query.
+          description: The prompt which will be used for the LLM can provide the Media ID for the query.
           selector:
             text:
               multiline: true
@@ -84,8 +77,7 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to play the video because the media id is empty.
+            error: Unable to play the video because the media id is empty.
       - alias: Stop the script
         stop: Unable to play the video because the media id is empty.
         response_variable: response

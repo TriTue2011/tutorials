@@ -6,21 +6,15 @@ blueprint:
 
     ## Features
 
-    * The Voice Assist will tell you if the device is at home or not,
-    and the specific room where the device is located if possible.
+    * The Voice Assist will tell you if the device is at home or not, and the specific room where the device is located if possible.
 
-    * It can determine any BLE Device added by Bermuda BLE Trilateration integration:
-    Android, iOS, some smartwatches, beacon tiles, ...
+    * It can determine any BLE Device added by Bermuda BLE Trilateration integration: Android, iOS, some smartwatches, beacon tiles, ...
 
     * It can determine any Mobile Device with the Home Assistant Companion App installed.
 
-    * If the device has the Home Assistant Companion App installed, it can also ring
-    to locate more easily, even in Do Not Disturb mode.
+    * If the device has the Home Assistant Companion App installed, it can also ring to locate more easily, even in Do Not Disturb mode.
 
-    * LLM has extremely limited knowledge about your device's location.
-    It cannot know your device's actual GPS location but may have general information
-    such as whether you are at home or in specific areas like the living room or kitchen.
-    And it only accesses this information when you request it to locate your device.
+    * LLM has extremely limited knowledge about your device's location. It cannot know your device's actual GPS location but may have general information such as whether you are at home or in specific areas like the living room or kitchen. And it only accesses this information when you request it to locate your device.
 
     ## Blueprint Setup
 
@@ -34,11 +28,7 @@ blueprint:
 
     * Only add one device tracker per physical device.
 
-    * If you expose your phone or tablet to Voice Assist using Bermuda Device Tracker,
-    make sure to rename Bermuda Device the same as Mobile Device or Mobile Device name
-    must be part of Bermuda Device name. Because this script identifies the relationship
-    between them to find the notification action. This allows you to locate your
-    phone in a specific room and make it ring.
+    * If you expose your phone or tablet to Voice Assist using Bermuda Device Tracker, make sure to rename Bermuda Device the same as Mobile Device or Mobile Device name must be part of Bermuda Device name. Because this script identifies the relationship between them to find the notification action. This allows you to locate your phone in a specific room and make it ring.
 
     * Consider adding entity aliases to make them easier to remember if needed.
 
@@ -73,20 +63,15 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script.
-    This description will enable the LLM to recognize that the
-    script is designed to determine if the device is at home
-    or not, and the specific room where the device is located.
+    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to determine if the device is at home or not, and the specific room where the device is located.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -107,15 +92,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         entities_prompt:
           name: Entities Prompt
-          description:
-            The prompt which will be used for the LLM can provide the device's name for the query.
+          description: The prompt which will be used for the LLM can provide the device's name for the query.
           selector:
             text:
               multiline: true
@@ -129,8 +111,7 @@ blueprint:
 
             If the query does not specify a device, provide all relevant devices based on the context.
 
-            After obtaining the result, if the device supports ringing,
-            prompt the user to activate its ringing function.
+            After obtaining the result, if the device supports ringing, prompt the user to activate its ringing function.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -161,10 +142,9 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to provide device location because the device name is either incorrect or does not exist.
+            error: Unable to find the device location because the device name is invalid.
       - alias: Stop the script
-        stop: Unable to provide device location because the device name is either incorrect or does not exist.
+        stop: Unable to find the device location because the device name is invalid.
         response_variable: response
   - variables:
       response:

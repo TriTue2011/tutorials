@@ -41,20 +41,15 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script.
-    This description will enable the LLM to recognize that
-    the script is designed to directly lookup traffic fines from
-    Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
+    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to directly lookup traffic fines from Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -62,15 +57,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         license_plate_prompt:
           name: License Plate Prompt
-          description:
-            The prompt which will be used for the LLM can provide the license plate number of vehicle for the query.
+          description: The prompt which will be used for the LLM can provide the license plate number of vehicle for the query.
           selector:
             text:
               multiline: true
@@ -82,12 +74,10 @@ blueprint:
 
             A license plate number consists of a continuous sequence of alphanumeric characters with no spaces.
 
-            If a license plate contains errors caused by user mispronunciation,
-            correct it to the most likely accurate license plate number.
+            If a license plate contains errors caused by user mispronunciation, correct it to the most likely accurate license plate number.
         vehicle_type_prompt:
           name: Vehicle Type Prompt
-          description:
-            The prompt which will be used for the LLM can provide the type of vehicle for the query.
+          description: The prompt which will be used for the LLM can provide the type of vehicle for the query.
           selector:
             text:
               multiline: true
@@ -97,8 +87,7 @@ blueprint:
 
             Provide the type of vehicle to check for any traffic fines.
 
-            It must be one of the following three values:
-            '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.
+            It must be one of the following three values: '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -134,10 +123,9 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to check traffic fines as either the license plate number or the vehicle type is empty.
+            error: Unable to check traffic fines because either the license plate number or the vehicle type is empty.
       - alias: Stop the script
-        stop: Unable to check traffic fines as either the license plate number or the vehicle type is empty.
+        stop: Unable to check traffic fines because either the license plate number or the vehicle type is empty.
         response_variable: response
   - action: pyscript.traffic_fine_lookup_tool
     response_variable: response

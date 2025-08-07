@@ -19,7 +19,6 @@ blueprint:
     * Support Local Calendar and Google Calendar Integration entries only.
 
     * Google Calendar must have Read/Write access.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -82,8 +81,7 @@ fields:
     description: Select the number of years the event will repeat.
   leap_month:
     name: Leap Month
-    description:
-      When the event is in the leap month. The script will force Repeat to 1 which means no repeat.
+    description: When the event is in the leap month. The script will force Repeat to 1 which means no repeat.
     selector:
       boolean:
 sequence:
@@ -106,7 +104,7 @@ sequence:
           }}
     then:
       - alias: Stop the script
-        stop: Unable to add event because the Lunar date of the event is empty.
+        stop: Unable to add the event because either the Lunar date or event summary is empty or the calendar entity is invalid.
         error: true
   - alias: Verify the leap month
     if:

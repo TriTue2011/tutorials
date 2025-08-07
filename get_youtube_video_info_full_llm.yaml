@@ -47,17 +47,13 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * The Voice - Play YouTube Video Tool (play_youtube_video_full_llm.yaml) blueprint
-    needs to be installed to play YouTube videos on a smart TV.
+    * The Voice - Play YouTube Video Tool (play_youtube_video_full_llm.yaml) blueprint needs to be installed to play YouTube videos on a smart TV.
 
-    * Provide a concise and precise description for the script.
-    This description will enable the LLM to recognize that the script is designed to
-    obtain the latest video information from a YouTube channel or multiple channels.
+    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to obtain the latest video information from a YouTube channel or multiple channels.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
@@ -83,8 +79,7 @@ blueprint:
     short_videos_settings:
       name: Settings for Short Videos
       icon: mdi:video-high-definition
-      description: >-
-        These settings let you choose whether to ignore short videos in the results or include them (Default: Ignored).
+      description: "These settings let you choose whether to ignore short videos in the results or include them (Default: Ignored)."
       collapsed: true
       input:
         short_videos:
@@ -95,15 +90,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         entities_prompt:
           name: Entities Prompt
-          description:
-            The prompt which will be used for the LLM can provide the YouTube channel name for the query.
+          description: The prompt which will be used for the LLM can provide the YouTube channel name for the query.
           selector:
             text:
               multiline: true
@@ -113,23 +105,16 @@ blueprint:
 
             Provide at least one YouTube channel name to query video information.
 
-            When requesting multiple YouTube channels,
-            separate each channel name with a semicolon.
+            When requesting multiple YouTube channels, separate each channel name with a semicolon.
 
-            If the query does not specify a particular channel,
-            provide all relevant channels based on the context.
+            If the query does not specify a particular channel, provide all relevant channels based on the context.
 
-            If the query contains errors caused by user mispronunciation,
-            correct it to the most likely accurate channel name.
+            If the query contains errors caused by user mispronunciation, correct it to the most likely accurate channel name.
 
-            After obtaining the results, prompt the user to select a video to play on the TV.
-            Add an ordinal number to each video to simplify selection.
-            Do not include the Media ID in your response.
+            After obtaining the results, prompt the user to select a video to play on the TV. Add an ordinal number to each video to simplify selection. Do not include the Media ID in your response.
         period_length_prompt:
           name: Period Length Prompt
-          description:
-            The prompt which will be used for the LLM can provide the length
-            of the period for the query.
+          description: The prompt which will be used for the LLM can provide the length of the period for the query.
           selector:
             text:
               multiline: true
@@ -139,8 +124,7 @@ blueprint:
 
             It specifies the number of days since the videos were published.
 
-            The default is 3 days. The minimum is 1 day, and the maximum is 30 days.
-            "Today" means 1 day, "This week" means 7 days, and "This month" means 30 days.
+            The default is 3 days. The minimum is 1 day, and the maximum is 30 days. "Today" means 1 day, "This week" means 7 days, and "This month" means 30 days.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -180,10 +164,9 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to provide video info because the channel name is either incorrect or does not exist.
+            error: Unable to find the video information because the channel name is invalid.
       - alias: Stop the script
-        stop: Unable to provide video info because the channel name is either incorrect or does not exist.
+        stop: Unable to find the video information because the channel name is invalid.
         response_variable: response
   - variables:
       response:

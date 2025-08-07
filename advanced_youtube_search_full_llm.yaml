@@ -37,22 +37,17 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * The Voice - Play YouTube Video Tool (play_youtube_video_full_llm.yaml) blueprint
-    needs to be installed to play YouTube videos on a smart TV.
+    * The Voice - Play YouTube Video Tool (play_youtube_video_full_llm.yaml) blueprint needs to be installed to play YouTube videos on a smart TV.
 
-    * Provide a concise and precise description for the script.
-    This description will enable the LLM to recognize that
-    the script is designed to search videos from YouTube.
+    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to search videos from YouTube.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -74,15 +69,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         query_string_prompt:
           name: Query String Prompt
-          description:
-            The prompt which will be used for the LLM can provide the search string for the query.
+          description: The prompt which will be used for the LLM can provide the search string for the query.
           selector:
             text:
               multiline: true
@@ -92,18 +84,12 @@ blueprint:
 
             Provide the search string to obtain a list of videos.
 
-            If the query contains errors caused by user mispronunciation,
-            correct it to the most likely accurate search string
-            and ask the user for confirmation before proceeding.
+            If the query contains errors caused by user mispronunciation, correct it to the most likely accurate search string and ask the user for confirmation before proceeding.
 
-            After obtaining the results, prompt the user to select a video to play on the TV.
-            Add an ordinal number to each video to simplify selection.
-            Do not include the Media ID in the response.
+            After obtaining the results, prompt the user to select a video to play on the TV. Add an ordinal number to each video to simplify selection. Do not include the Media ID in the response.
         page_token_prompt:
           name: Page Token Prompt
-          description:
-            The prompt which will be used for the LLM can provide
-            the page token to get additional videos that could be obtained.
+          description: The prompt which will be used for the LLM can provide the page token to get additional videos that could be obtained.
           selector:
             text:
               multiline: true
@@ -141,8 +127,7 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to search for videos because the query string is empty.
+            error: Unable to search for videos because the query string is empty.
       - alias: Stop the script
         stop: Unable to search for videos because the query string is empty.
         response_variable: response

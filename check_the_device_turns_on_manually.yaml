@@ -3,7 +3,6 @@ blueprint:
   author: VuLQ
   description: >-
     # Verify whether the device activated manually or via automation/application
-
   domain: automation
   homeassistant:
     min_version: 2024.10.0
@@ -24,10 +23,8 @@ blueprint:
         entity:
           filter:
             - domain: input_boolean
-
 mode: queued
 max_exceeded: silent
-
 triggers:
   - trigger: state
     entity_id: !input linked_entity
@@ -37,9 +34,7 @@ triggers:
     to:
       - 'off'
       - 'on'
-
 conditions: []
-
 actions:
   - if:
       - condition: template

@@ -6,8 +6,7 @@ blueprint:
 
     ## Features
 
-    * This script is designed to send notifications to devices with the Home Assistant Companion App installed,
-    specifically for the purpose of determining the device's location.
+    * This script is designed to send notifications to devices with the Home Assistant Companion App installed, specifically for the purpose of determining the device's location.
 
     ## Blueprint Setup
 
@@ -23,19 +22,15 @@ blueprint:
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script.
-    The descriptions guide the LLM to provide the correct input.
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script.
-    This description will enable the LLM to recognize that the
-    script is designed to ring the mobile device.
+    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to ring the mobile device.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
-
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -43,15 +38,12 @@ blueprint:
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
-      description:
-        You can use these settings to finetune the prompts for your specific
-        LLM (model). In most cases the defaults should be fine.
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
       collapsed: true
       input:
         ring_id_prompt:
           name: Ring ID Prompt
-          description:
-            The prompt which will be used for the LLM can provide the Ring ID for the query.
+          description: The prompt which will be used for the LLM can provide the Ring ID for the query.
           selector:
             text:
               multiline: true
@@ -80,10 +72,9 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error:
-              Unable to ring the device because the ring id is incorrect.
+            error: Unable to ring the device because the ring id is invalid.
       - alias: Stop the script
-        stop: Unable to ring the device because the ring id is incorrect.
+        stop: Unable to ring the device because the ring id is invalid.
         response_variable: response
   - repeat:
       count: 5

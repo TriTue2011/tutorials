@@ -4,21 +4,15 @@
 
 ## Features
 
-* The Voice Assist will tell you if the device is at home or not,
-and the specific room where the device is located if possible.
+* The Voice Assist will tell you if the device is at home or not, and the specific room where the device is located if possible.
 
-* It can determine any BLE Device added by Bermuda BLE Trilateration integration:
-Android, iOS, some smartwatches, beacon tiles, ...
+* It can determine any BLE Device added by Bermuda BLE Trilateration integration: Android, iOS, some smartwatches, beacon tiles, ...
 
 * It can determine any Mobile Device with the Home Assistant Companion App installed.
 
-* If the device has the Home Assistant Companion App installed, it can also ring
-to locate more easily, even in Do Not Disturb mode.
+* If the device has the Home Assistant Companion App installed, it can also ring to locate more easily, even in Do Not Disturb mode.
 
-* LLM has extremely limited knowledge about your device's location.
-It cannot know your device's actual GPS location but may have general information
-such as whether you are at home or in specific areas like the living room or kitchen.
-And it only accesses this information when you request it to locate your device.
+* LLM has extremely limited knowledge about your device's location. It cannot know your device's actual GPS location but may have general information such as whether you are at home or in specific areas like the living room or kitchen. And it only accesses this information when you request it to locate your device.
 
 ## Limitations
 
@@ -107,5 +101,3 @@ template:
 * Where is my wallet?
 
 * Where is my dog?
-
-#### If you appreciate this guide, stay tuned for more exciting updates

@@ -1,13 +1,26 @@
 # Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist gửi thông báo lên Telegram
+## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo
 
-* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một cuộc trò chuyện hay một chủ đề cụ thể trên Telegram bằng cách ra lệnh bằng giọng nói.**
+* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**
   * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
   * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
   * Ví dụ bằng giọng nói:
-    * Tìm các quán ăn ngon khu vực Mỹ Đình và gửi chúng lên Teleram
-    * Gửi địa chỉ Công viên Yên sở lên Telegram
+    * Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
+    * Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
+## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist gửi thông báo lên Telegram
+
+* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Telegram bằng cách ra lệnh bằng giọng nói.**
+  * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
+  * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
+  * Ví dụ bằng giọng nói:
+    * Tìm các quán ăn ngon khu vực Mỹ Đình và gửi chúng lên Telegram
+    * Gửi địa chỉ Công viên Yên Sở lên Telegram
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_telegram_full_llm.yaml)
 
@@ -23,7 +36,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist hẹn giờ bật tắt các thiết bị
+## Bản thiết kế dùng cho Voice Assist hẹn giờ bật tắt các thiết bị
 
 * **Bản thiết kế này cho phép bạn hẹn giờ bật tắt một hay nhiều thiết bị sau một khoảng thời gian được chỉ định bằng cách ra lệnh bằng giọng nói.**
   * Ví dụ bằng giọng nói:
@@ -126,7 +139,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## Bản thiết kế dùng cho Voice Assist tra cứu chuyển đổi lịch
+## MỚI CẬP NHẬT - Bản thiết kế dùng cho Voice Assist tra cứu chuyển đổi lịch
 
 * **Bản thiết kế này cho phép bạn tra cứu chuyển đổi lịch bằng cách ra lệnh bằng giọng nói.**
 * **Chuyển đổi ngày Dương lịch bất kỳ sang Âm lịch và ngược lại.**
@@ -136,12 +149,14 @@
   * Tiết khí.
   * Giờ tốt.
   * Ngày tốt xấu tính theo phương pháp lục diệu.
-  * Ngày tốt xấu tính theo nhị thập bát tú.
+  * Ngày tốt xấu tính theo phương pháp thập nhị trực.
+  * Ngày tốt xấu tính theo phương pháp nhị thập bát tú.
 * **Công cụ chuyển đổi lịch này hoạt động 100% offline tốc độ phản hồi cực nhanh.**
   * Ví dụ bằng giọng nói:
     * Chủ nhật tuần này là bao nhiêu âm?
     * Rằm trung thu vào thứ mấy?
     * Còn bao nhiêu ngày nữa đến Tết?
+    * Mai ngày tốt xấu thế nào?
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 

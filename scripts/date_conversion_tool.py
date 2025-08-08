@@ -250,175 +250,175 @@ AUSPICIOUS_DAY_STATUS = [
 # ==============================================================================
 
 # Danh sách 28 sao (Tú) theo đúng thứ tự
-# Tên: Tên sao
+# Tên: Tên Sao
 # Đánh giá: Mức độ tốt/xấu (Tốt, Xấu, Bình thường)
 # Nên: Việc nên làm
 # Kỵ: Việc cần tránh
 TWENTY_EIGHT_MANSIONS = [
     {
-        "Tên": "Giác Mộc Giao",
+        "Tên Sao": "Giác Mộc Giao",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, khai trương, cầu danh, xuất hành, an táng, xây dựng.",
         "Kỵ": "Động thổ, đào giếng, chặt cây."
     },
     {
-        "Tên": "Cang Kim Long",
+        "Tên Sao": "Cang Kim Long",
         "Đánh giá": "Xấu",
         "Nên": "Giải quyết các mâu thuẫn, tranh chấp.",
         "Kỵ": "Cưới hỏi, xây dựng, an táng, nhậm chức, khởi công."
     },
     {
-        "Tên": "Đê Thổ Lạc",
+        "Tên Sao": "Đê Thổ Lạc",
         "Đánh giá": "Xấu",
         "Nên": "Cắt tóc, sửa chữa nhỏ.",
         "Kỵ": "Cưới hỏi, an táng, xuất hành."
     },
     {
-        "Tên": "Phòng Nhật Thố",
+        "Tên Sao": "Phòng Nhật Thố",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, xây dựng, xuất hành, an táng, tu sửa mồ mả.",
         "Kỵ": "Kiện cáo, cãi vã, mổ xẻ."
     },
     {
-        "Tên": "Tâm Nguyệt Hồ",
+        "Tên Sao": "Tâm Nguyệt Hồ",
         "Đánh giá": "Xấu",
         "Nên": "Cúng tế.",
         "Kỵ": "Mọi việc lớn, đặc biệt là cưới hỏi, động thổ, xây dựng."
     },
     {
-        "Tên": "Vĩ Hỏa Hổ",
+        "Tên Sao": "Vĩ Hỏa Hổ",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, an táng, làm nhà, xuất hành, nhập trạch.",
         "Kỵ": "Kiện tụng, cãi vã."
     },
     {
-        "Tên": "Cơ Thủy Báo",
+        "Tên Sao": "Cơ Thủy Báo",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, chăn nuôi, trồng trọt, khai trương.",
         "Kỵ": "Xuất hành xa, kiện tụng."
     },
     {
-        "Tên": "Đẩu Mộc Giải",
+        "Tên Sao": "Đẩu Mộc Giải",
         "Đánh giá": "Tốt",
         "Nên": "Khởi công, xây dựng, kinh doanh, cưới hỏi, an táng.",
         "Kỵ": "Kiện tụng, dời nhà."
     },
     {
-        "Tên": "Ngưu Kim Ngưu",
+        "Tên Sao": "Ngưu Kim Ngưu",
         "Đánh giá": "Tốt",
         "Nên": "An táng, cưới hỏi, làm chuồng trại, sửa chữa nhà cửa.",
         "Kỵ": "Khai trương, xuất hành."
     },
     {
-        "Tên": "Nữ Thổ Bức",
+        "Tên Sao": "Nữ Thổ Bức",
         "Đánh giá": "Xấu",
         "Nên": "Sửa chữa nhỏ, đào giếng.",
         "Kỵ": "Cưới hỏi, an táng, xuất hành, ký hợp đồng."
     },
     {
-        "Tên": "Hư Nhật Thử",
+        "Tên Sao": "Hư Nhật Thử",
         "Đánh giá": "Xấu",
         "Nên": "An táng, đào giếng.",
         "Kỵ": "Cưới hỏi, xây nhà, khai trương."
     },
     {
-        "Tên": "Nguy Nguyệt Yến",
+        "Tên Sao": "Nguy Nguyệt Yến",
         "Đánh giá": "Xấu",
         "Nên": "Phá dỡ nhà cũ.",
         "Kỵ": "Mọi việc, đặc biệt là cưới hỏi, động thổ, xuất hành."
     },
     {
-        "Tên": "Thất Hỏa Trư",
+        "Tên Sao": "Thất Hỏa Trư",
         "Đánh giá": "Tốt",
         "Nên": "Xây cất, sửa chữa nhà, khai trương, cưới hỏi.",
         "Kỵ": "Mai táng."
     },
     {
-        "Tên": "Bích Thủy Du",
+        "Tên Sao": "Bích Thủy Du",
         "Đánh giá": "Tốt",
         "Nên": "Mọi việc, đặc biệt là cưới hỏi, an táng, xuất hành, khai trương.",
         "Kỵ": "Động thổ."
     },
     {
-        "Tên": "Khuê Mộc Lang",
+        "Tên Sao": "Khuê Mộc Lang",
         "Đánh giá": "Xấu",
         "Nên": "Sửa chữa, tu bổ nhỏ.",
         "Kỵ": "Cưới hỏi, khai trương, an táng, động thổ."
     },
     {
-        "Tên": "Lâu Kim Cẩu",
+        "Tên Sao": "Lâu Kim Cẩu",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, an táng, xây dựng, khai trương, kinh doanh.",
         "Kỵ": "Dựng cửa, xây tường."
     },
     {
-        "Tên": "Vị Thổ Trĩ",
+        "Tên Sao": "Vị Thổ Trĩ",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, an táng, xây dựng, xuất hành, cầu tài.",
         "Kỵ": "May mặc."
     },
     {
-        "Tên": "Mão Nhật Kê",
+        "Tên Sao": "Mão Nhật Kê",
         "Đánh giá": "Xấu",
         "Nên": "Mai táng.",
         "Kỵ": "Cưới hỏi, khai trương, động thổ, xây dựng."
     },
     {
-        "Tên": "Tất Nguyệt Ô",
+        "Tên Sao": "Tất Nguyệt Ô",
         "Đánh giá": "Tốt",
         "Nên": "Mọi việc, đặc biệt là cưới hỏi, xây dựng, an táng, xuất hành.",
         "Kỵ": "Mua bán, sửa chữa đồ vật."
     },
     {
-        "Tên": "Chủy Hỏa Hầu",
+        "Tên Sao": "Chủy Hỏa Hầu",
         "Đánh giá": "Xấu",
         "Nên": "Làm việc liên quan đến hung tinh.",
         "Kỵ": "Cưới hỏi, động thổ, xây dựng, an táng, xuất hành."
     },
     {
-        "Tên": "Sâm Thủy Viên",
+        "Tên Sao": "Sâm Thủy Viên",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, khai trương, an táng, xây dựng, xuất hành.",
         "Kỵ": "Dựng cột, làm nhà mới."
     },
     {
-        "Tên": "Tỉnh Mộc Khỉ",
+        "Tên Sao": "Tỉnh Mộc Khỉ",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, khai trương, an táng.",
         "Kỵ": "Xây nhà, dời nhà."
     },
     {
-        "Tên": "Quỷ Kim Dương",
+        "Tên Sao": "Quỷ Kim Dương",
         "Đánh giá": "Rất xấu",
         "Nên": "Tế lễ, sửa chữa nhỏ.",
         "Kỵ": "Mọi việc, đặc biệt là cưới hỏi, an táng, nhập trạch, động thổ."
     },
     {
-        "Tên": "Liễu Thổ Chương",
+        "Tên Sao": "Liễu Thổ Chương",
         "Đánh giá": "Xấu",
         "Nên": "May mặc, tu sửa.",
         "Kỵ": "Cưới hỏi, xây dựng, xuất hành."
     },
     {
-        "Tên": "Tinh Nhật Mã",
+        "Tên Sao": "Tinh Nhật Mã",
         "Đánh giá": "Tốt",
         "Nên": "Cưới hỏi, an táng, làm nhà, xuất hành.",
         "Kỵ": "Mở cửa, đào giếng."
     },
     {
-        "Tên": "Trương Nguyệt Lộc",
+        "Tên Sao": "Trương Nguyệt Lộc",
         "Đánh giá": "Tốt",
         "Nên": "Mọi việc, đặc biệt là cưới hỏi, khai trương, xây dựng.",
         "Kỵ": "An táng."
     },
     {
-        "Tên": "Dực Hỏa Xà",
+        "Tên Sao": "Dực Hỏa Xà",
         "Đánh giá": "Xấu",
         "Nên": "May mặc.",
         "Kỵ": "Cưới hỏi, an táng, xây nhà, động thổ."
     },
     {
-        "Tên": "Chẩn Thủy Dẫn",
+        "Tên Sao": "Chẩn Thủy Dẫn",
         "Đánh giá": "Tốt",
         "Nên": "An táng, xuất hành, dời nhà, đầu tư.",
         "Kỵ": "Cưới hỏi, động thổ, xây dựng."
@@ -435,73 +435,73 @@ TWENTY_EIGHT_MANSIONS = [
 # Kỵ: Các việc cần tránh
 TWELVE_DAY_OFFICERS = [
     {
-        "Tên": "Trực Kiến",
+        "Tên Trực": "Trực Kiến",
         "Đánh giá": "Bình thường",
         "Nên": "Thành lập, khai trương, ký kết hợp đồng, nhập học, cưới hỏi, động thổ, xây dựng nhà cửa.",
         "Kỵ": "Mua sắm, hạ thủy thuyền, đào giếng."
     },
     {
-        "Tên": "Trực Trừ",
+        "Tên Trực": "Trực Trừ",
         "Đánh giá": "Bình thường",
         "Nên": "Cúng bái, cầu phúc, giải hạn, chữa bệnh, cắt tóc, dâng sao giải hạn, bán hàng.",
         "Kỵ": "Cưới hỏi, đi xa, ký kết thỏa thuận quan trọng."
     },
     {
-        "Tên": "Trực Mãn",
+        "Tên Trực": "Trực Mãn",
         "Đánh giá": "Bình thường",
         "Nên": "Cúng tế, cầu phúc, lễ tổ tiên, khai trương, mua bán, xây dựng nhỏ.",
         "Kỵ": "Cưới hỏi, nhậm chức, kiện tụng, bắt đầu công việc quan trọng mang tính lâu dài."
     },
     {
-        "Tên": "Trực Bình",
+        "Tên Trực": "Trực Bình",
         "Đánh giá": "Bình thường",
         "Nên": "Các công việc hàng ngày, động thổ, an táng, chăn nuôi, mua bán nhỏ.",
         "Kỵ": "Cầu phúc, tế tự, cưới hỏi, khai trương, kiện tụng."
     },
     {
-        "Tên": "Trực Định",
+        "Tên Trực": "Trực Định",
         "Đánh giá": "Bình thường",
         "Nên": "Buôn bán, giao thương, lập kho, nhập học, sửa sang nhà cửa, làm chuồng trại.",
         "Kỵ": "Đi xa, kiện tụng, xuất hành xa, giao thiệp quan trọng."
     },
     {
-        "Tên": "Trực Chấp",
+        "Tên Trực": "Trực Chấp",
         "Đánh giá": "Xấu",
         "Nên": "Cất giữ của cải, làm kho, tu sửa nhà cửa.",
         "Kỵ": "Khai trương, giao dịch, cầu tài, cưới hỏi, xuất hành, dời nhà."
     },
     {
-        "Tên": "Trực Phá",
+        "Tên Trực": "Trực Phá",
         "Đánh giá": "Rất xấu",
         "Nên": "Phá dỡ nhà cũ, công trình cũ, giải quyết mâu thuẫn.",
         "Kỵ": "Mọi việc lớn, cưới hỏi, khai trương, động thổ, xây dựng, hội họp."
     },
     {
-        "Tên": "Trực Nguy",
+        "Tên Trực": "Trực Nguy",
         "Đánh giá": "Xấu",
         "Nên": "Cúng bái, tế tự, sửa chữa nhỏ.",
         "Kỵ": "Mọi việc lớn, xuất hành, đi thuyền, leo núi, cưới hỏi, an táng."
     },
     {
-        "Tên": "Trực Thành",
+        "Tên Trực": "Trực Thành",
         "Đánh giá": "Rất tốt",
         "Nên": "Mọi việc, cưới hỏi, dọn về nhà mới, động thổ, khai trương, nhập học.",
         "Kỵ": "Cãi vã, kiện tụng, tranh chấp."
     },
     {
-        "Tên": "Trực Thu",
+        "Tên Trực": "Trực Thu",
         "Đánh giá": "Tốt",
         "Nên": "Mở cửa hàng, lập kho, mua bán, cúng tế, cầu phúc, động thổ, tu sửa nhà cửa.",
         "Kỵ": "Cho vay mượn, kiện tụng, đi xa, hạ thủy thuyền, chạy thử xe."
     },
     {
-        "Tên": "Trực Khai",
+        "Tên Trực": "Trực Khai",
         "Đánh giá": "Rất tốt",
         "Nên": "Mọi việc, khai trương, mở cửa hàng, giao dịch, cưới hỏi, động thổ.",
         "Kỵ": "An táng, chôn cất, làm ma chay."
     },
     {
-        "Tên": "Trực Bế",
+        "Tên Trực": "Trực Bế",
         "Đánh giá": "Rất xấu",
         "Nên": "Lấp vá, đắp đập, tu sửa tường, đào huyệt, lấp mộ.",
         "Kỵ": "Khai trương, nhậm chức, xuất hành, cưới hỏi, chữa bệnh."

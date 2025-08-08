@@ -50,7 +50,7 @@ blueprint:
                   value: "0"
                 - label: Group
                   value: "1"
-            default: "0"
+          default: "0"
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot

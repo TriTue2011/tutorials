@@ -1,14 +1,14 @@
 blueprint:
-  name: Voice - Send to Telegram Tool
+  name: Voice - Send to Zalo Tool
   author: VuLQ
   description: >-
-    # Tool for sending content to Telegram using LLM
+    # Tool for sending content to Zalo using LLM
 
     ## Blueprint Setup
 
     ### Required
 
-    * Telegram bot integration needs to be installed and configured.
+    * Zalo Bot integration needs to be installed and configured from HACS.
 
     ### Optional
 
@@ -16,7 +16,7 @@ blueprint:
 
     ### Note
 
-    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for sending user requested content to Telegram.
+    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for sending user requested content to Zalo.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
@@ -26,27 +26,31 @@ blueprint:
     min_version: 2024.10.0
   input:
     telegram_settings:
-      name: Settings for Telegram
+      name: Settings for Zalo
       icon: mdi:application-cog
-      description: You can use these settings to configure Telegram for sending the message.
+      description: You can use these settings to configure Zalo for sending the message.
       input:
-        entry_id:
-          name: Entry ID
-          description: The Telegram bot to send the message.
-          selector:
-            config_entry:
-              integration: telegram_bot
-        chat_id:
-          name: Chat ID
-          description: The target to send the message to.
+        account:
+          name: Account
+          description: The account (phone number) to send the message.
           selector:
             text:
         thread_id:
           name: Thread ID
-          description: The thread (topic) to send the message to.
+          description: The thread to send the message to.
           selector:
             text:
-          default:
+        receiver:
+          name: Type of Receiver
+          description: The type of receiver to send the message to.
+          selector:
+            select:
+              options:
+                - label: User
+                  value: "0"
+                - label: Group
+                  value: "1"
+            default: "0"
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -115,7 +119,7 @@ fields:
     required: true
 sequence:
   - variables:
-      thread_id: !input thread_id
+      receiver: !input receiver
       summary: "{{ summary | default }}"
       detail: "{{ detail | default }}"
       location: "{{ location | default }}"
@@ -127,13 +131,13 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: Unable to send the message to Telegram because either the summary or the location is empty.
+            error: Unable to send the message to Zalo because either the summary or the location is empty.
       - alias: Stop the script
-        stop: Unable to send the message to Telegram because either the summary or the location is empty.
+        stop: Unable to send the message to Zalo because either the summary or the location is empty.
         response_variable: response
   - variables:
       message: >-
-        *{{ summary }}*
+        {{ summary }}
 
 
         {{ detail }}
@@ -142,27 +146,15 @@ sequence:
         {% if location == 'Google' -%}
         {% set query = summary.split() | join('+') -%}
         {% set url = 'https://www.google.com/search?q=' + query -%}
-        [Google Search]({{ url }})
+        Google Search ({{ url }})
         {% else -%}
         {% set place = (summary ~ ' ' ~ location).split() | join('+') -%}
         {% set url = 'https://www.google.com/maps/search/' + place + '/' -%}
-        [Google Maps]({{ url }})
+        Google Maps ({{ url }})
         {% endif -%}
-  - if:
-      - condition: template
-        value_template: "{{ thread_id }}"
-    then:
-      - action: telegram_bot.send_message
-        data:
-          config_entry_id: !input entry_id
-          message: "{{ message }}"
-          target: !input chat_id
-          parse_mode: markdown
-          message_thread_id: "{{ thread_id}}"
-    else:
-      - action: telegram_bot.send_message
-        data:
-          config_entry_id: !input entry_id
-          message: "{{ message }}"
-          target: !input chat_id
-          parse_mode: markdown
+  - action: zalo_bot.send_message
+    data:
+      account_selection: !input account
+      thread_id: !input thread_id
+      type: "{{ receiver | default(0) }}"
+      message: "{{ message }}"

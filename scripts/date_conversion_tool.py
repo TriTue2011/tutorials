@@ -251,55 +251,261 @@ AUSPICIOUS_DAY_STATUS = [
 
 # Danh sách 28 sao (Tú) theo đúng thứ tự
 # Tên: Tên sao
-# Kiết Hung: Đánh giá tốt/xấu (Cát: Tốt, Hung: Xấu, Bình: Trung bình)
+# Đánh giá: Mức độ tốt/xấu (Tốt, Xấu, Bình thường)
 # Nên: Việc nên làm
 # Kỵ: Việc cần tránh
 TWENTY_EIGHT_LUNAR_MANSIONS = [
-    {"Tên": "Giác Mộc Giao", "Kiết Hung": "Cát",
-     "Nên": "Tạo tác mọi việc đều tốt, đặc biệt là cưới gả, xây cất, chôn cất.", "Kỵ": "Tránh đi thuyền."},
-    {"Tên": "Cang Kim Long", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Chôn cất, cưới gả, xây cất."},
-    {"Tên": "Đê Thổ Lạc", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
-     "Kỵ": "Xây cất, cưới gả, xuất hành xa, sinh con."},
-    {"Tên": "Phòng Nhật Thố", "Kiết Hung": "Cát", "Nên": "Cưới gả, làm nhà, chôn cất, may mặc.",
-     "Kỵ": "Không có việc gì đặc biệt kỵ."},
-    {"Tên": "Tâm Nguyệt Hồ", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Xây cất, cưới gả, kiện tụng."},
-    {"Tên": "Vĩ Hỏa Hổ", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, mở cửa, đào ao.", "Kỵ": "May mặc, chôn cất."},
-    {"Tên": "Cơ Thủy Báo", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, kinh doanh, đi xa.",
-     "Kỵ": "Chôn cất, đóng thuyền."},
-    {"Tên": "Đẩu Mộc Giải", "Kiết Hung": "Cát", "Nên": "Xây cất, mở cửa, cưới gả, nhập học.",
-     "Kỵ": "Chôn cất, đi thuyền."},
-    {"Tên": "Ngưu Kim Ngưu", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
-     "Kỵ": "Cưới gả, đi xa, xây cất, an táng."},
-    {"Tên": "Nữ Thổ Bức", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
-     "Kỵ": "Cưới gả, xây cất, chôn cất, kiện tụng."},
-    {"Tên": "Hư Nhật Thử", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, an táng."},
-    {"Tên": "Nguy Nguyệt Yến", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
-     "Kỵ": "Xây cất, cưới gả, đi xa, an táng."},
-    {"Tên": "Thất Hỏa Trư", "Kiết Hung": "Cát", "Nên": "Xây cất, cưới gả, kinh doanh.", "Kỵ": "Đi xa, chôn cất."},
-    {"Tên": "Bích Thủy Du", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, an táng, kinh doanh.",
-     "Kỵ": "Không có việc gì đặc biệt kỵ."},
-    {"Tên": "Khuê Mộc Lang", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Xây cất, khai trương."},
-    {"Tên": "Lâu Kim Cẩu", "Kiết Hung": "Cát", "Nên": "Cưới gả, đi xa, may mặc, kinh doanh.",
-     "Kỵ": "Xây cất, chôn cất."},
-    {"Tên": "Vị Thổ Trĩ", "Kiết Hung": "Cát", "Nên": "Xây cất, cưới gả, an táng, kinh doanh.",
-     "Kỵ": "Không có việc gì đặc biệt kỵ."},
-    {"Tên": "Mão Nhật Kê", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
-     "Kỵ": "Cưới gả, xây cất, chôn cất, đi thuyền."},
-    {"Tên": "Tất Nguyệt Ô", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, an táng, kinh doanh.",
-     "Kỵ": "Không có việc gì đặc biệt kỵ."},
-    {"Tên": "Chủy Hỏa Hầu", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Xây cất, chôn cất, đi xa."},
-    {"Tên": "Sâm Thủy Viên", "Kiết Hung": "Cát", "Nên": "Cưới gả, kinh doanh, xây cất, làm vườn.",
-     "Kỵ": "Chôn cất, may mặc."},
-    {"Tên": "Tỉnh Mộc Hãn", "Kiết Hung": "Cát", "Nên": "Xây cất, cưới gả, an táng.", "Kỵ": "Đi thuyền."},
-    {"Tên": "Quỷ Kim Dương", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, chôn cất."},
-    {"Tên": "Liễu Thổ Chương", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.",
-     "Kỵ": "Cưới gả, xây cất, chôn cất, khai trương."},
-    {"Tên": "Tinh Nhật Mã", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, chôn cất."},
-    {"Tên": "Trương Nguyệt Lộc", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, khai trương, làm ruộng.",
-     "Kỵ": "May mặc, chôn cất."},
-    {"Tên": "Dực Hỏa Xà", "Kiết Hung": "Hung", "Nên": "Không có việc gì hợp.", "Kỵ": "Cưới gả, xây cất, chôn cất."},
-    {"Tên": "Chẩn Thủy Dẫn", "Kiết Hung": "Cát", "Nên": "Cưới gả, xây cất, nhập học, kinh doanh.",
-     "Kỵ": "May mặc, chôn cất."}
+    {
+        "Tên": "Giác Mộc Giao",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, khai trương, cầu danh, xuất hành, an táng, xây dựng.",
+        "Kỵ": "Động thổ, đào giếng, chặt cây."
+    },
+    {
+        "Tên": "Cang Kim Long",
+        "Đánh giá": "Xấu",
+        "Nên": "Giải quyết các mâu thuẫn, tranh chấp.",
+        "Kỵ": "Cưới hỏi, xây dựng, an táng, nhậm chức, khởi công."
+    },
+    {
+        "Tên": "Đê Thổ Lạc",
+        "Đánh giá": "Xấu",
+        "Nên": "Cắt tóc, sửa chữa nhỏ.",
+        "Kỵ": "Cưới hỏi, an táng, xuất hành."
+    },
+    {
+        "Tên": "Phòng Nhật Thố",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, xây dựng, xuất hành, an táng, tu sửa mồ mả.",
+        "Kỵ": "Kiện cáo, cãi vã, mổ xẻ."
+    },
+    {
+        "Tên": "Tâm Nguyệt Hồ",
+        "Đánh giá": "Xấu",
+        "Nên": "Cúng tế.",
+        "Kỵ": "Mọi việc lớn, đặc biệt là cưới hỏi, động thổ, xây dựng."
+    },
+    {
+        "Tên": "Vĩ Hỏa Hổ",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, an táng, làm nhà, xuất hành, nhập trạch.",
+        "Kỵ": "Kiện tụng, cãi vã."
+    },
+    {
+        "Tên": "Cơ Thủy Báo",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, chăn nuôi, trồng trọt, khai trương.",
+        "Kỵ": "Xuất hành xa, kiện tụng."
+    },
+    {
+        "Tên": "Đẩu Mộc Giải",
+        "Đánh giá": "Tốt",
+        "Nên": "Khởi công, xây dựng, kinh doanh, cưới hỏi, an táng.",
+        "Kỵ": "Kiện tụng, dời nhà."
+    },
+    {
+        "Tên": "Ngưu Kim Ngưu",
+        "Đánh giá": "Tốt",
+        "Nên": "An táng, cưới hỏi, làm chuồng trại, sửa chữa nhà cửa.",
+        "Kỵ": "Khai trương, xuất hành."
+    },
+    {
+        "Tên": "Nữ Thổ Bức",
+        "Đánh giá": "Xấu",
+        "Nên": "Sửa chữa nhỏ, đào giếng.",
+        "Kỵ": "Cưới hỏi, an táng, xuất hành, ký hợp đồng."
+    },
+    {
+        "Tên": "Hư Nhật Thử",
+        "Đánh giá": "Xấu",
+        "Nên": "An táng, đào giếng.",
+        "Kỵ": "Cưới hỏi, xây nhà, khai trương."
+    },
+    {
+        "Tên": "Nguy Nguyệt Yến",
+        "Đánh giá": "Xấu",
+        "Nên": "Phá dỡ nhà cũ.",
+        "Kỵ": "Mọi việc, đặc biệt là cưới hỏi, động thổ, xuất hành."
+    },
+    {
+        "Tên": "Thất Hỏa Trư",
+        "Đánh giá": "Tốt",
+        "Nên": "Xây cất, sửa chữa nhà, khai trương, cưới hỏi.",
+        "Kỵ": "Mai táng."
+    },
+    {
+        "Tên": "Bích Thủy Du",
+        "Đánh giá": "Tốt",
+        "Nên": "Mọi việc, đặc biệt là cưới hỏi, an táng, xuất hành, khai trương.",
+        "Kỵ": "Động thổ."
+    },
+    {
+        "Tên": "Khuê Mộc Lang",
+        "Đánh giá": "Xấu",
+        "Nên": "Sửa chữa, tu bổ nhỏ.",
+        "Kỵ": "Cưới hỏi, khai trương, an táng, động thổ."
+    },
+    {
+        "Tên": "Lâu Kim Cẩu",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, an táng, xây dựng, khai trương, kinh doanh.",
+        "Kỵ": "Dựng cửa, xây tường."
+    },
+    {
+        "Tên": "Vị Thổ Trĩ",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, an táng, xây dựng, xuất hành, cầu tài.",
+        "Kỵ": "May mặc."
+    },
+    {
+        "Tên": "Mão Nhật Kê",
+        "Đánh giá": "Xấu",
+        "Nên": "Mai táng.",
+        "Kỵ": "Cưới hỏi, khai trương, động thổ, xây dựng."
+    },
+    {
+        "Tên": "Tất Nguyệt Ô",
+        "Đánh giá": "Tốt",
+        "Nên": "Mọi việc, đặc biệt là cưới hỏi, xây dựng, an táng, xuất hành.",
+        "Kỵ": "Mua bán, sửa chữa đồ vật."
+    },
+    {
+        "Tên": "Chủy Hỏa Hầu",
+        "Đánh giá": "Xấu",
+        "Nên": "Làm việc liên quan đến hung tinh.",
+        "Kỵ": "Cưới hỏi, động thổ, xây dựng, an táng, xuất hành."
+    },
+    {
+        "Tên": "Sâm Thủy Viên",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, khai trương, an táng, xây dựng, xuất hành.",
+        "Kỵ": "Dựng cột, làm nhà mới."
+    },
+    {
+        "Tên": "Tỉnh Mộc Khỉ",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, khai trương, an táng.",
+        "Kỵ": "Xây nhà, dời nhà."
+    },
+    {
+        "Tên": "Quỷ Kim Dương",
+        "Đánh giá": "Rất xấu",
+        "Nên": "Tế lễ, sửa chữa nhỏ.",
+        "Kỵ": "Mọi việc, đặc biệt là cưới hỏi, an táng, nhập trạch, động thổ."
+    },
+    {
+        "Tên": "Liễu Thổ Chương",
+        "Đánh giá": "Xấu",
+        "Nên": "May mặc, tu sửa.",
+        "Kỵ": "Cưới hỏi, xây dựng, xuất hành."
+    },
+    {
+        "Tên": "Tinh Nhật Mã",
+        "Đánh giá": "Tốt",
+        "Nên": "Cưới hỏi, an táng, làm nhà, xuất hành.",
+        "Kỵ": "Mở cửa, đào giếng."
+    },
+    {
+        "Tên": "Trương Nguyệt Lộc",
+        "Đánh giá": "Tốt",
+        "Nên": "Mọi việc, đặc biệt là cưới hỏi, khai trương, xây dựng.",
+        "Kỵ": "An táng."
+    },
+    {
+        "Tên": "Dực Hỏa Xà",
+        "Đánh giá": "Xấu",
+        "Nên": "May mặc.",
+        "Kỵ": "Cưới hỏi, an táng, xây nhà, động thổ."
+    },
+    {
+        "Tên": "Chẩn Thủy Dẫn",
+        "Đánh giá": "Tốt",
+        "Nên": "An táng, xuất hành, dời nhà, đầu tư.",
+        "Kỵ": "Cưới hỏi, động thổ, xây dựng."
+    }
+]
+
+# ==============================================================================
+# DỮ LIỆU THẬP NHỊ TRỰC (12 TRỰC)
+# ==============================================================================
+
+# Tên: Tên của Trực
+# Đánh giá: Mức độ tốt/xấu (Tốt, Xấu, Bình thường)
+# Nên: Các việc nên làm
+# Kỵ: Các việc cần tránh
+DAY_DUTY_CYCLE = [
+    {
+        "Tên": "Trực Kiến",
+        "Đánh giá": "Bình thường",
+        "Nên": "Thành lập, khai trương, ký kết hợp đồng, nhập học, cưới hỏi, động thổ, xây dựng nhà cửa.",
+        "Kỵ": "Mua sắm, hạ thủy thuyền, đào giếng."
+    },
+    {
+        "Tên": "Trực Trừ",
+        "Đánh giá": "Bình thường",
+        "Nên": "Cúng bái, cầu phúc, giải hạn, chữa bệnh, cắt tóc, dâng sao giải hạn, bán hàng.",
+        "Kỵ": "Cưới hỏi, đi xa, ký kết thỏa thuận quan trọng."
+    },
+    {
+        "Tên": "Trực Mãn",
+        "Đánh giá": "Bình thường",
+        "Nên": "Cúng tế, cầu phúc, lễ tổ tiên, khai trương, mua bán, xây dựng nhỏ.",
+        "Kỵ": "Cưới hỏi, nhậm chức, kiện tụng, bắt đầu công việc quan trọng mang tính lâu dài."
+    },
+    {
+        "Tên": "Trực Bình",
+        "Đánh giá": "Bình thường",
+        "Nên": "Các công việc hàng ngày, động thổ, an táng, chăn nuôi, mua bán nhỏ.",
+        "Kỵ": "Cầu phúc, tế tự, cưới hỏi, khai trương, kiện tụng."
+    },
+    {
+        "Tên": "Trực Định",
+        "Đánh giá": "Bình thường",
+        "Nên": "Buôn bán, giao thương, lập kho, nhập học, sửa sang nhà cửa, làm chuồng trại.",
+        "Kỵ": "Đi xa, kiện tụng, xuất hành xa, giao thiệp quan trọng."
+    },
+    {
+        "Tên": "Trực Chấp",
+        "Đánh giá": "Xấu",
+        "Nên": "Cất giữ của cải, làm kho, tu sửa nhà cửa.",
+        "Kỵ": "Khai trương, giao dịch, cầu tài, cưới hỏi, xuất hành, dời nhà."
+    },
+    {
+        "Tên": "Trực Phá",
+        "Đánh giá": "Rất xấu",
+        "Nên": "Phá dỡ nhà cũ, công trình cũ, giải quyết mâu thuẫn.",
+        "Kỵ": "Mọi việc lớn, cưới hỏi, khai trương, động thổ, xây dựng, hội họp."
+    },
+    {
+        "Tên": "Trực Nguy",
+        "Đánh giá": "Xấu",
+        "Nên": "Cúng bái, tế tự, sửa chữa nhỏ.",
+        "Kỵ": "Mọi việc lớn, xuất hành, đi thuyền, leo núi, cưới hỏi, an táng."
+    },
+    {
+        "Tên": "Trực Thành",
+        "Đánh giá": "Rất tốt",
+        "Nên": "Mọi việc, cưới hỏi, dọn về nhà mới, động thổ, khai trương, nhập học.",
+        "Kỵ": "Cãi vã, kiện tụng, tranh chấp."
+    },
+    {
+        "Tên": "Trực Thu",
+        "Đánh giá": "Tốt",
+        "Nên": "Mở cửa hàng, lập kho, mua bán, cúng tế, cầu phúc, động thổ, tu sửa nhà cửa.",
+        "Kỵ": "Cho vay mượn, kiện tụng, đi xa, hạ thủy thuyền, chạy thử xe."
+    },
+    {
+        "Tên": "Trực Khai",
+        "Đánh giá": "Rất tốt",
+        "Nên": "Mọi việc, khai trương, mở cửa hàng, giao dịch, cưới hỏi, động thổ.",
+        "Kỵ": "An táng, chôn cất, làm ma chay."
+    },
+    {
+        "Tên": "Trực Bế",
+        "Đánh giá": "Rất xấu",
+        "Nên": "Lấp vá, đắp đập, tu sửa tường, đào huyệt, lấp mộ.",
+        "Kỵ": "Khai trương, nhậm chức, xuất hành, cưới hỏi, chữa bệnh."
+    }
 ]
 
 
@@ -329,6 +535,46 @@ def get_day_of_week(day: int, month: int, year: int) -> int:
 
 
 @pyscript_compile
+def get_day_duty_cycle(jd: int) -> dict:
+    """
+    Tính toán Trực của ngày dựa trên Tiết Khí (Solar Term).
+    - jd: Julian Day number
+    """
+    st_index = get_solar_term(jd, 7)
+    month_chi_list = [
+        3,  # 0: Xuân Phân -> Tháng Mão
+        4,  # 1: Thanh Minh -> Tháng Thìn
+        4,  # 2: Cốc Vũ -> Tháng Thìn
+        5,  # 3: Lập Hạ -> Tháng Tỵ
+        5,  # 4: Tiểu Mãn -> Tháng Tỵ
+        6,  # 5: Mang Chủng -> Tháng Ngọ
+        6,  # 6: Hạ Chí -> Tháng Ngọ
+        7,  # 7: Tiểu Thử -> Tháng Mùi
+        7,  # 8: Đại Thử -> Tháng Mùi
+        8,  # 9: Lập Thu -> Tháng Thân
+        8,  # 10: Xử Thử -> Tháng Thân
+        9,  # 11: Bạch Lộ -> Tháng Dậu
+        9,  # 12: Thu Phân -> Tháng Dậu
+        10,  # 13: Hàn Lộ -> Tháng Tuất
+        10,  # 14: Sương Giáng -> Tháng Tuất
+        11,  # 15: Lập Đông -> Tháng Hợi
+        11,  # 16: Tiểu Tuyết -> Tháng Hợi
+        0,  # 17: Đại Tuyết -> Tháng Tý
+        0,  # 18: Đông Chí -> Tháng Tý
+        1,  # 19: Tiểu Hàn -> Tháng Sửu
+        1,  # 20: Đại Hàn -> Tháng Sửu
+        2,  # 21: Lập Xuân -> Tháng Dần
+        2,  # 22: Vũ Thủy -> Tháng Dần
+        3  # 23: Kinh Trập -> Tháng Mão
+    ]
+    month_chi_index = month_chi_list[st_index]
+    day_chi_index = (jd + 1) % 12
+    duty_index = (day_chi_index - month_chi_index) % 12
+
+    return DAY_DUTY_CYCLE[duty_index]
+
+
+@pyscript_compile
 def get_twenty_eight_lunar_mansions(jd: int) -> dict:
     """
     Tính toán và trả về thông tin sao (tú) trong Nhị Thập Bát Tú của một ngày.
@@ -337,12 +583,11 @@ def get_twenty_eight_lunar_mansions(jd: int) -> dict:
     # JD của ngày 01/01/2000 là 2451545.
     # Vị trí của sao Vị trong mảng TWENTY_EIGHT_LUNAR_MANSIONS là 16.
     jd_ref = 2451545
-    mansion_ref_index = 16  # Chỉ số của sao Vị
+    mansion_ref_index = 16
 
     # Tính khoảng cách từ ngày tham chiếu đến ngày cần xem
     day_diff = jd - jd_ref
 
-    # Áp dụng công thức: (chỉ số gốc + chênh lệch ngày) % 28
     current_mansion_index = (mansion_ref_index + day_diff) % 28
 
     return TWENTY_EIGHT_LUNAR_MANSIONS[current_mansion_index]
@@ -365,8 +610,7 @@ def get_auspicious_day_status(lunar_month: int, jd: int) -> str:
     if start_chi_index == -1:
         return "Không xác định"
 
-    # Tính toán vị trí của ngày trong chu kỳ 12 thần sát
-    offset = (chi_of_day_index - start_chi_index + 12) % 12
+    offset = (chi_of_day_index - start_chi_index) % 12
 
     if AUSPICIOUS_DAY_STATUS[offset] == "T":
         return "Ngày Hoàng Đạo"
@@ -453,8 +697,9 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             cc_day = CAN[(l_date[4] + 9) % 10] + " " + CHI[(l_date[4] + 1) % 12]
             cc_month = CAN[(l_date[2] * 12 + l_date[1] + 3) % 10] + " " + CHI[(l_date[1] + 1) % 12]
             cc_year = CAN[(l_date[2] + 6) % 10] + " " + CHI[(l_date[2] + 8) % 12]
-            auspicious_day_status = get_auspicious_day_status(l_date[1], l_date[4])
             auspicious_hours = get_auspicious_hours(l_date[4])
+            auspicious_day_status = get_auspicious_day_status(l_date[1], l_date[4])
+            day_duty_cycle = get_day_duty_cycle(l_date[4])
             twenty_eight_lunar_mansions = get_twenty_eight_lunar_mansions(l_date[4])
             return dict(date=join_date(l_date[0], l_date[1], l_date[2]),
                         remaining_days=remaining_days,
@@ -462,9 +707,10 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
                         full_cc_date=f"{DAYS[get_day_of_week(day, month, year)]} ngày {cc_day} tháng {cc_month} năm {cc_year}",
                         leap_month=True if l_date[3] == 1 else False,
                         solar_term=SOLAR_TERM[get_solar_term(l_date[4] + 1, 7)],
-                        auspicious_day_status=auspicious_day_status,
                         auspicious_hours=auspicious_hours,
-                        twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
+                        auspicious_day_status=auspicious_day_status,
+                        auspicious_day_calculated_by_12_duties=day_duty_cycle,
+                        auspicious_day_calculated_by_twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
         except Exception as error:
             return dict(error=f"Error converting Solar date {date} to Lunar date: {error}")
     elif conversion_type == "l2s":
@@ -479,17 +725,19 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             cc_day = CAN[(day_numer + 9) % 10] + " " + CHI[(day_numer + 1) % 12]
             cc_month = CAN[(year * 12 + month + 3) % 10] + " " + CHI[(month + 1) % 12]
             cc_year = CAN[(year + 6) % 10] + " " + CHI[(year + 8) % 12]
-            auspicious_day_status = get_auspicious_day_status(month, day_numer)
             auspicious_hours = get_auspicious_hours(day_numer)
+            auspicious_day_status = get_auspicious_day_status(month, day_numer)
+            day_duty_cycle = get_day_duty_cycle(day_numer)
             twenty_eight_lunar_mansions = get_twenty_eight_lunar_mansions(day_numer)
             return dict(date=join_date(s_date[0], s_date[1], s_date[2]),
                         remaining_days=remaining_days,
                         full_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {s_date[0]} tháng {s_date[1]} năm {s_date[2]}",
                         full_cc_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {cc_day} tháng {cc_month} năm {cc_year}",
                         solar_term=SOLAR_TERM[get_solar_term(day_numer + 1, 7)],
-                        auspicious_day_status=auspicious_day_status,
                         auspicious_hours=auspicious_hours,
-                        twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
+                        auspicious_day_status=auspicious_day_status,
+                        auspicious_day_calculated_by_12_duties=day_duty_cycle,
+                        auspicious_day_calculated_by_twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
         except Exception as error:
             return dict(error=f"Error converting Lunar date {date} {kwargs} to Solar date: {error}")
     else:

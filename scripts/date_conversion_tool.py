@@ -254,7 +254,7 @@ AUSPICIOUS_DAY_STATUS = [
 # Đánh giá: Mức độ tốt/xấu (Tốt, Xấu, Bình thường)
 # Nên: Việc nên làm
 # Kỵ: Việc cần tránh
-TWENTY_EIGHT_LUNAR_MANSIONS = [
+TWENTY_EIGHT_MANSIONS = [
     {
         "Tên": "Giác Mộc Giao",
         "Đánh giá": "Tốt",
@@ -433,7 +433,7 @@ TWENTY_EIGHT_LUNAR_MANSIONS = [
 # Đánh giá: Mức độ tốt/xấu (Tốt, Xấu, Bình thường)
 # Nên: Các việc nên làm
 # Kỵ: Các việc cần tránh
-DAY_DUTY_CYCLE = [
+TWELVE_DAY_OFFICERS = [
     {
         "Tên": "Trực Kiến",
         "Đánh giá": "Bình thường",
@@ -535,7 +535,7 @@ def get_day_of_week(day: int, month: int, year: int) -> int:
 
 
 @pyscript_compile
-def get_day_duty_cycle(jd: int) -> dict:
+def get_twelve_day_officers(jd: int) -> dict:
     """
     Tính toán Trực của ngày dựa trên Tiết Khí (Solar Term).
     - jd: Julian Day number
@@ -571,17 +571,17 @@ def get_day_duty_cycle(jd: int) -> dict:
     day_chi_index = (jd + 1) % 12
     duty_index = (day_chi_index - month_chi_index) % 12
 
-    return DAY_DUTY_CYCLE[duty_index]
+    return TWELVE_DAY_OFFICERS[duty_index]
 
 
 @pyscript_compile
-def get_twenty_eight_lunar_mansions(jd: int) -> dict:
+def get_twenty_eight_mansions(jd: int) -> dict:
     """
     Tính toán và trả về thông tin sao (tú) trong Nhị Thập Bát Tú của một ngày.
     - jd: Julian Day number
     """
     # JD của ngày 01/01/2000 là 2451545.
-    # Vị trí của sao Vị trong mảng TWENTY_EIGHT_LUNAR_MANSIONS là 16.
+    # Vị trí của sao Vị trong mảng TWENTY_EIGHT_MANSIONS là 16.
     jd_ref = 2451545
     mansion_ref_index = 16
 
@@ -590,7 +590,7 @@ def get_twenty_eight_lunar_mansions(jd: int) -> dict:
 
     current_mansion_index = (mansion_ref_index + day_diff) % 28
 
-    return TWENTY_EIGHT_LUNAR_MANSIONS[current_mansion_index]
+    return TWENTY_EIGHT_MANSIONS[current_mansion_index]
 
 
 @pyscript_compile
@@ -699,8 +699,8 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             cc_year = CAN[(l_date[2] + 6) % 10] + " " + CHI[(l_date[2] + 8) % 12]
             auspicious_hours = get_auspicious_hours(l_date[4])
             auspicious_day_status = get_auspicious_day_status(l_date[1], l_date[4])
-            day_duty_cycle = get_day_duty_cycle(l_date[4])
-            twenty_eight_lunar_mansions = get_twenty_eight_lunar_mansions(l_date[4])
+            twelve_day_officers = get_twelve_day_officers(l_date[4])
+            twenty_eight_mansions = get_twenty_eight_mansions(l_date[4])
             return dict(date=join_date(l_date[0], l_date[1], l_date[2]),
                         remaining_days=remaining_days,
                         full_date=f"{DAYS[get_day_of_week(day, month, year)]} ngày {l_date[0]} tháng {n_month} năm {cc_year}",
@@ -709,8 +709,8 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
                         solar_term=SOLAR_TERM[get_solar_term(l_date[4] + 1, 7)],
                         auspicious_hours=auspicious_hours,
                         auspicious_day_status=auspicious_day_status,
-                        auspicious_day_calculated_by_12_duties=day_duty_cycle,
-                        auspicious_day_calculated_by_twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
+                        auspicious_day_calculated_by_twelve_day_officers=twelve_day_officers,
+                        auspicious_day_calculated_by_twenty_eight_mansions=twenty_eight_mansions)
         except Exception as error:
             return dict(error=f"Error converting Solar date {date} to Lunar date: {error}")
     elif conversion_type == "l2s":
@@ -727,8 +727,8 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             cc_year = CAN[(year + 6) % 10] + " " + CHI[(year + 8) % 12]
             auspicious_hours = get_auspicious_hours(day_numer)
             auspicious_day_status = get_auspicious_day_status(month, day_numer)
-            day_duty_cycle = get_day_duty_cycle(day_numer)
-            twenty_eight_lunar_mansions = get_twenty_eight_lunar_mansions(day_numer)
+            twelve_day_officers = get_twelve_day_officers(day_numer)
+            twenty_eight_mansions = get_twenty_eight_mansions(day_numer)
             return dict(date=join_date(s_date[0], s_date[1], s_date[2]),
                         remaining_days=remaining_days,
                         full_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {s_date[0]} tháng {s_date[1]} năm {s_date[2]}",
@@ -736,8 +736,8 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
                         solar_term=SOLAR_TERM[get_solar_term(day_numer + 1, 7)],
                         auspicious_hours=auspicious_hours,
                         auspicious_day_status=auspicious_day_status,
-                        auspicious_day_calculated_by_12_duties=day_duty_cycle,
-                        auspicious_day_calculated_by_twenty_eight_lunar_mansions=twenty_eight_lunar_mansions)
+                        auspicious_day_calculated_by_twelve_day_officers=twelve_day_officers,
+                        auspicious_day_calculated_by_twenty_eight_mansions=twenty_eight_mansions)
         except Exception as error:
             return dict(error=f"Error converting Lunar date {date} {kwargs} to Solar date: {error}")
     else:

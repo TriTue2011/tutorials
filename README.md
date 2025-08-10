@@ -69,7 +69,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## Hướng dẫn cách tạo một bản chỉ dẫn chuẩn cho Voice Assist
+## MỚI CẬP NHẬT - Hướng dẫn cách tạo một bản chỉ dẫn hệ thống cho Voice Assist
 
 * [**Hướng dẫn chi tiết**](/home_assistant_voice_instructions.md)
 

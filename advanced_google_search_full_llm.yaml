@@ -12,6 +12,16 @@ blueprint:
 
     * A Conversation Agent with Google Search tool enabled, create it if it doesn't already exist.
 
+    * Increase the agent's maximum token limit to enable it to gather comprehensive information, for instance, up to 16384 tokens.
+
+    * Agent Instructions:
+
+    ```
+
+    You are a voice assistant. Always respond in the same language as the question. If in Vietnamese, reply in Vietnamese; if in English, reply in English. Current date and time: {{ now().isoformat(timespec='seconds') }}
+
+    ```
+
     ### Optional
 
     * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.

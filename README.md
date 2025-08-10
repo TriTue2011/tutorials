@@ -101,7 +101,7 @@
 
 * **Bản thiết kế này cho phép bạn điều khiển xoay một hay nhiều quạt bằng cách ra lệnh bằng giọng nói.**
   * Ví dụ bằng giọng nói:
-    * Cho xoay quạt phòng khách và bếp
+    * Cho quay quạt phòng khách và bếp
     * Ngừng xoay quạt phòng ngủ
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
@@ -129,7 +129,7 @@
   * Tìm kiếm và thông báo thiết bị đang ở phòng nào, và làm cho chúng đổ chuông.
   * Sử dụng khi không nhớ để thiết bị ở đâu trong nhà.
   * Ví dụ bằng giọng nói:
-    * Tìm xem iPhone đang nằm đâu?
+    * Tìm xem mấy cái điện thoại đang nằm đâu?
     * Tìm cái iPad và đổ chuông nó
 * [**Hướng dẫn chi tiết**](/home_assistant_device_location_lookup_guide_en.md)
 
@@ -144,7 +144,7 @@
 * **Bản thiết kế này cho phép bạn tra cứu chuyển đổi lịch bằng cách ra lệnh bằng giọng nói.**
 * **Chuyển đổi ngày Dương lịch bất kỳ sang Âm lịch và ngược lại.**
 * **Các thông tin bao gồm:**
-  * Thứ ngày tháng năm chuyển đổi.
+  * Chi tiết ngày chuyển đổi, ngày theo Can Chi.
   * Số ngày còn lại hoặc đã qua.
   * Tiết khí.
   * Giờ tốt.
@@ -165,7 +165,7 @@
 ## Bản thiết kế dùng cho Voice Assist tra cứu các sự kiện có trong lịch
 
 * **Bản thiết kế này cho phép bạn tra cứu tất cả các sự kiện có trong lịch bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ: ngày sinh nhật, ngày giỗ chạp, lịch công việc, ...
+  * Ví dụ: Ngày sinh nhật, ngày giỗ chạp, lịch công việc, ...
   * Ví dụ bằng giọng nói:
     * Tuần này có lịch gì không?
     * Tháng này có sự kiện gì không?
@@ -177,7 +177,7 @@
 ## Bản thiết kế dùng để tạo các sự kiện ngày Âm lịch vào trong lịch
 
 * **Bản thiết kế này cho phép bạn thêm mới các sự kiện tính theo Âm lịch vào trong lịch.**
-  * Ví dụ: giỗ chạp, ngày cưới hỏi, ...
+  * Ví dụ: Ngày giỗ chạp, ngày cưới hỏi, ...
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
 

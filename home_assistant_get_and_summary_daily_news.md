@@ -196,7 +196,6 @@ sequence:
 
 
         {{ contents }}
-      entity_id: ai_task.google_ai_task_no_assist_free_tier
     response_variable: response
   - action: variable.update_sensor
     metadata: {}

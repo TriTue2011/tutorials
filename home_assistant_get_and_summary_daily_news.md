@@ -175,9 +175,7 @@ max: 10
 
 ### Thêm kịch bản tóm tắt tin tức 24h qua sử dụng AI
 
-- Kịch bản này hoạt động với Google Generative AI.
-
-- Nếu sử dụng OpenAI Conversation cần chỉnh sửa lại, sử dụng conversation.process
+- Yêu cầu phiên bản Home Assistant >= 2025.8.0.
 
 ```yaml
 sequence:
@@ -188,24 +186,24 @@ sequence:
         {'entries': state_attr('sensor.vna_news_last_24_hours', 'entries')} }
         -%} {{ merge_response(sources) | sort(reverse=true,
         attribute='published') | map(attribute='title') | list }}
-  - action: google_generative_ai_conversation.generate_content
+  - action: ai_task.generate_data
     metadata: {}
     data:
-      prompt: >-
+      task_name: Tóm tắt các tin tức diễn ra trong 24h qua
+      instructions: >-
         Sau đây là danh sách các tin tức trong 24h qua. Hãy phân tích và đưa ra
         bản tóm tắt:
 
+
         {{ contents }}
-    response_variable: result
-  - variables:
-      summary: >-
-        {{ result.text if (result is defined and result.get('text')) else 'n/a' }}
+      entity_id: ai_task.google_ai_task_no_assist_free_tier
+    response_variable: response
   - action: variable.update_sensor
     metadata: {}
     data:
       replace_attributes: true
       attributes:
-        summary: "{{ summary }}"
+        summary: "{{ response.data }}"
       value: "{{ now().isoformat() }}"
     target:
       entity_id: sensor.news_summary_last_24_hours

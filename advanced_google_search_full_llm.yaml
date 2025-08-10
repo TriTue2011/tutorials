@@ -12,7 +12,7 @@ blueprint:
 
     * A Conversation Agent with Google Search tool enabled, create it if it doesn't already exist.
 
-    * Increase the agent's maximum token limit to enable it to gather comprehensive information, for instance, up to 16384 tokens.
+    * Increase the agent's maximum token limit to enable it to gather comprehensive information, with a minimum requirement of 16384 tokens.
 
     * Agent Instructions:
 

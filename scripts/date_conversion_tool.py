@@ -454,84 +454,84 @@ TWENTY_EIGHT_MANSIONS = [
 
 TWELVE_DAY_OFFICERS = [
     {
-        "Tên Trực": "Kiến",
+        "Tên Trực": "Trực Kiến",
         "Ý nghĩa": "Khởi đầu/kiến lập; hợp việc vừa phải hơn là khai mở lớn.",
         "Đánh giá": "Trung bình",
         "Nên làm": "Xuất hành, thăm hỏi, gặp gỡ, ký kết nhỏ, cầu tài vừa",
         "Nên tránh": "Động thổ, xây cất lớn, an táng, mở kho quy mô lớn"
     },
     {
-        "Tên Trực": "Trừ",
+        "Tên Trực": "Trực Trừ",
         "Ý nghĩa": "Trừ bỏ/tẩy uế; thuận loại bỏ điều xấu và làm sạch.",
         "Đánh giá": "Tốt",
         "Nên làm": "Giải hạn, dọn dẹp, tẩy uế, chữa bệnh, cắt tóc, bỏ điều cũ, xuất hành",
         "Nên tránh": "Khai trương lớn, khởi công trọng đại, chi xuất tiền lớn"
     },
     {
-        "Tên Trực": "Mãn",
+        "Tên Trực": "Trực Mãn",
         "Ý nghĩa": "Viên mãn/đầy đủ; hợp thu nạp và tổng kết hơn là khởi tạo.",
         "Đánh giá": "Trung bình",
         "Nên làm": "Tế lễ, sắp xếp/nhập kho, tổng kết, nhận hàng",
         "Nên tránh": "Cưới hỏi, khởi công, mở hàng/khai trương"
     },
     {
-        "Tên Trực": "Bình",
+        "Tên Trực": "Trực Bình",
         "Ý nghĩa": "Cân bằng/yên ổn; hợp việc thường nhật, kém hợp việc lớn.",
         "Đánh giá": "Trung bình",
         "Nên làm": "Giao dịch nhỏ, gặp gỡ, học hành, khám định kỳ",
         "Nên tránh": "Khởi sự lớn, động thổ, công trình hạ tầng nặng"
     },
     {
-        "Tên Trực": "Định",
+        "Tên Trực": "Trực Định",
         "Ý nghĩa": "Ổn định/an định; tốt để chốt việc và an vị.",
         "Đánh giá": "Tốt",
         "Nên làm": "Ký kết/khế ước, chốt kế hoạch, an vị, nhập trạch, cưới hỏi",
         "Nên tránh": "Tranh tụng, thưa kiện, xuất hành xa"
     },
     {
-        "Tên Trực": "Chấp",
+        "Tên Trực": "Trực Chấp",
         "Ý nghĩa": "Giữ gìn/duy trì; thiên về duy trì bền vững, không hợp khai mở lớn.",
         "Đánh giá": "Trung bình",
         "Nên làm": "Tu sửa, xây bền vững, trồng cây lâu năm, tuyển dụng/nhận người",
         "Nên tránh": "Dời nhà, mở cửa buôn bán, xuất/nhập kho lớn, an sàng, chi tiền lớn"
     },
     {
-        "Tên Trực": "Phá",
+        "Tên Trực": "Trực Phá",
         "Ý nghĩa": "Phá bỏ/kết liễu; hợp dỡ bỏ cái cũ.",
         "Đánh giá": "Xấu",
         "Nên làm": "Phá dỡ, thanh lý, kết thúc việc cũ, trị bệnh (phá bệnh)",
         "Nên tránh": "Khởi công, khai trương, cưới hỏi, nhập trạch, ký hợp đồng mới"
     },
     {
-        "Tên Trực": "Nguy",
+        "Tên Trực": "Trực Nguy",
         "Ý nghĩa": "Nguy nan/cẩn trọng; tốt khi làm việc đòi hỏi tỉ mỉ.",
         "Đánh giá": "Trung bình",
         "Nên làm": "Lễ bái, cầu an, các việc cần kiểm soát an toàn, đo đạc/thi công chi tiết",
         "Nên tránh": "Khai trương, động thổ, cưới hỏi, đi xa mạo hiểm, việc mạo hiểm sông/biển"
     },
     {
-        "Tên Trực": "Thành",
+        "Tên Trực": "Trực Thành",
         "Ý nghĩa": "Thành tựu/hoàn tất; rất thuận việc lớn và mừng.",
         "Đánh giá": "Tốt",
         "Nên làm": "Khánh thành, ký kết, khai trương, cưới hỏi, nhập trạch, nhậm chức",
         "Nên tránh": "Kiện tụng, cố ý phá dỡ"
     },
     {
-        "Tên Trực": "Thu",
+        "Tên Trực": "Trực Thu",
         "Ý nghĩa": "Thu nạp/thu hoạch; hợp gom góp cất giữ hơn là mở rộng.",
         "Đánh giá": "Trung bình",
         "Nên làm": "Thu hoạch, thu nợ, nhập kho, cất giữ",
         "Nên tránh": "Khai trương, khởi công, mở rộng mới"
     },
     {
-        "Tên Trực": "Khai",
+        "Tên Trực": "Trực Khai",
         "Ý nghĩa": "Khai mở/mở mang; đại cát cho các việc mở đầu.",
         "Đánh giá": "Tốt",
         "Nên làm": "Khai trương, khởi công nhẹ, xuất hành, đăng ký/ứng cử, nhận chức",
         "Nên tránh": "An táng; kiêng động thổ nặng, lợp mái, đào giếng"
     },
     {
-        "Tên Trực": "Bế",
+        "Tên Trực": "Trực Bế",
         "Ý nghĩa": "Đóng lại/kết thúc; kỵ khởi sự.",
         "Đánh giá": "Xấu",
         "Nên làm": "Kết thúc, đóng kho, lấp hố/đắp đập, vá sửa chỗ hư",

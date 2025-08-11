@@ -150,9 +150,9 @@ def process_captcha(image: str | BytesIO) -> Image.Image:
     img = ImageOps.autocontrast(img, cutoff=2)
     threshold = 160
     img = img.point(lambda p: p > threshold and 255)
-    width, height = img.size
-    img = img.resize((width * 6, height * 6), Image.Resampling.BICUBIC)
     img = img.convert("RGBA")
+    width, height = img.size
+    img = img.resize((width * 6, height * 6), Image.Resampling.LANCZOS)
     width, height = img.size
     for x in range(width):
         for y in range(height):

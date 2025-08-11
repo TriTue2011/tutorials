@@ -168,7 +168,7 @@ def process_captcha(image: str | BytesIO) -> Image.Image:
 
 @pyscript_compile
 async def solve_captcha(image: Image.Image, retry_count: int = 1) -> tuple[str, None] | tuple[None, str]:
-    prompt = 'Extract exactly six consecutive lowercase letters or digits from this image, no spaces, output only them.'
+    prompt = 'Extract exactly six consecutive lowercase letters (a-z) and digits (0-9) from this image, no spaces, and output only these characters.'
     loop = asyncio.get_event_loop()
     try:
         response = await loop.run_in_executor(

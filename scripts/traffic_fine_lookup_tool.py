@@ -147,7 +147,7 @@ async def get_captcha(ss: aiohttp.ClientSession, url: str) -> tuple[BytesIO, Non
 def process_captcha(image: str | BytesIO) -> Image.Image:
     img = Image.open(image)
     img = img.convert("L")
-    ImageOps.autocontrast(img, cutoff=2)
+    img = ImageOps.autocontrast(img, cutoff=2)
     threshold = 160
     img = img.point(lambda p: p > threshold and 255)
     width, height = img.size

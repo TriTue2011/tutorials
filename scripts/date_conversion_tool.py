@@ -237,7 +237,7 @@ AUSPICIOUS_DAY_START_CHI = {
     (6, 12): 10  # Tháng 6, 12 (Mùi, Sửu)  -> Bắt đầu từ Tuất (index 10)
 }
 # Các sao trong chu kỳ Hoàng Đạo / Hắc Đạo
-# T: Hoàng Đạo (Tốt), X: Hắc Đạo (Xấu), B: Bình Thường (Không tốt không xấu)
+# T: Hoàng Đạo (Tốt), X: Hắc Đạo (Xấu), B: Trung bình (Không tốt không xấu)
 # Thanh Long (T), Minh Đường (T), Thiên Hình (B), Chu Tước (X), Kim Quỹ (B), Kim Đường (T),
 # Bạch Hổ (X), Ngọc Đường (T), Thiên Lao (B), Nguyên Vũ (X), Tư Mệnh (B), Câu Trận (X)
 AUSPICIOUS_DAY_STATUS = [
@@ -249,179 +249,202 @@ AUSPICIOUS_DAY_STATUS = [
 # DỮ LIỆU NHỊ THẬP BÁT TÚ
 # ==============================================================================
 
-# Danh sách 28 sao (Tú) theo đúng thứ tự
-# Tên: Tên Sao
-# Đánh giá: Mức độ tốt/xấu (Tốt, Xấu, Bình thường)
-# Nên: Việc nên làm
-# Kỵ: Việc cần tránh
 TWENTY_EIGHT_MANSIONS = [
     {
         "Tên Sao": "Giác Mộc Giao",
+        "Ý nghĩa": "Kiết tú; khí sinh trưởng, thuận mở đầu và khởi dựng nhẹ",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, khai trương, cầu danh, xuất hành, an táng, xây dựng.",
-        "Kỵ": "Động thổ, đào giếng, chặt cây."
+        "Nên làm": "Cưới hỏi, khởi công nhẹ, dựng cột/cổng, dựng khung nhà, mở hàng nhỏ, xuất hành, ký kết vừa, cắt may",
+        "Nên tránh": "An táng/cải táng, xây/sửa mộ phần"
     },
     {
         "Tên Sao": "Cang Kim Long",
+        "Ý nghĩa": "Hung tú; dễ sinh tranh chấp, trắc trở đại sự",
         "Đánh giá": "Xấu",
-        "Nên": "Giải quyết các mâu thuẫn, tranh chấp.",
-        "Kỵ": "Cưới hỏi, xây dựng, an táng, nhậm chức, khởi công."
+        "Nên làm": "Gieo trồng, sắp xếp kho, việc vặt trong nhà, mua bán nhỏ",
+        "Nên tránh": "Xây dựng/động thổ, cưới hỏi, an táng, khai trương lớn, ký kết quan trọng, xuất hành xa"
     },
     {
         "Tên Sao": "Đê Thổ Lạc",
+        "Ý nghĩa": "Hung tú; khí nặng, bất lợi cho việc lớn",
         "Đánh giá": "Xấu",
-        "Nên": "Cắt tóc, sửa chữa nhỏ.",
-        "Kỵ": "Cưới hỏi, an táng, xuất hành."
+        "Nên làm": "Nông tác, dọn dẹp, tu bổ nhỏ, giao dịch nhỏ",
+        "Nên tránh": "Khởi công lớn, dựng nhà, hôn lễ, an táng, khai trương lớn, nhập trạch"
     },
     {
         "Tên Sao": "Phòng Nhật Thố",
+        "Ý nghĩa": "Kiết tú; thuận lễ nghi và tạo tác chính danh",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, xây dựng, xuất hành, an táng, tu sửa mồ mả.",
-        "Kỵ": "Kiện cáo, cãi vã, mổ xẻ."
+        "Nên làm": "Tế lễ, cưới hỏi, thượng lương/dựng mái, dời chỗ ở, nhập trạch, mở hàng, cắt may",
+        "Nên tránh": "Kiện tụng lớn, mua đất quy mô"
     },
     {
         "Tên Sao": "Tâm Nguyệt Hồ",
+        "Ý nghĩa": "Hung tú; dễ thị phi, hao tổn",
         "Đánh giá": "Xấu",
-        "Nên": "Cúng tế.",
-        "Kỵ": "Mọi việc lớn, đặc biệt là cưới hỏi, động thổ, xây dựng."
+        "Nên làm": "Lễ bái giải hạn, sửa sang nhỏ, đi việc ngắn ngày, chữa bệnh",
+        "Nên tránh": "Khởi công lớn, cưới hỏi, kiện tụng, khai trương lớn"
     },
     {
         "Tên Sao": "Vĩ Hỏa Hổ",
+        "Ý nghĩa": "Kiết tú; cát lợi cầu tài, mưu sự tiến",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, an táng, làm nhà, xuất hành, nhập trạch.",
-        "Kỵ": "Kiện tụng, cãi vã."
+        "Nên làm": "Cưới hỏi, sửa chữa nâng cấp nhà cửa, lát sân/ngõ, khai thông mương rãnh nhẹ, ký kết làm ăn",
+        "Nên tránh": "May đo lễ phục cầu kỳ, phá dỡ lớn vô cớ"
     },
     {
         "Tên Sao": "Cơ Thủy Báo",
+        "Ý nghĩa": "Kiết tú; hợp kiến tạo và thủy lợi",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, chăn nuôi, trồng trọt, khai trương.",
-        "Kỵ": "Xuất hành xa, kiện tụng."
+        "Nên làm": "Xây dựng, đào ao/giếng, nạo vét mương rãnh, mở cửa, khai thông đường nước, thu tài",
+        "Nên tránh": "Hôn lễ trọng thể, cắt may lễ phục"
     },
     {
         "Tên Sao": "Đẩu Mộc Giải",
+        "Ý nghĩa": "Kiết tú; hòa thuận, việc thường dễ thành",
         "Đánh giá": "Tốt",
-        "Nên": "Khởi công, xây dựng, kinh doanh, cưới hỏi, an táng.",
-        "Kỵ": "Kiện tụng, dời nhà."
+        "Nên làm": "Xây/sửa nhà, mở cửa, khai thông nước, cắt may, lập khế ước nhỏ, mở hàng",
+        "Nên tránh": "An táng lớn, phá dỡ ồ ạt"
     },
     {
         "Tên Sao": "Ngưu Kim Ngưu",
-        "Đánh giá": "Tốt",
-        "Nên": "An táng, cưới hỏi, làm chuồng trại, sửa chữa nhà cửa.",
-        "Kỵ": "Khai trương, xuất hành."
+        "Ý nghĩa": "Hung tú; trì trệ, bất lợi khai mở",
+        "Đánh giá": "Xấu",
+        "Nên làm": "Chăn nuôi, bảo trì thiết bị, dọn dẹp kho, kiểm tra an toàn",
+        "Nên tránh": "Cưới hỏi, xây dựng, mở cửa/xả nước, nhập trạch, mua bán lớn"
     },
     {
         "Tên Sao": "Nữ Thổ Bức",
+        "Ý nghĩa": "Hung tú; dễ vướng thị phi/kiện tụng",
         "Đánh giá": "Xấu",
-        "Nên": "Sửa chữa nhỏ, đào giếng.",
-        "Kỵ": "Cưới hỏi, an táng, xuất hành, ký hợp đồng."
+        "Nên làm": "Học nghề/kỹ nghệ, bảo trì nhỏ, chuẩn bị giấy tờ",
+        "Nên tránh": "Tang sự, tranh tụng, cắt may, mở cửa/xả nước, khởi công"
     },
     {
         "Tên Sao": "Hư Nhật Thử",
+        "Ý nghĩa": "Hung tú; hư hao tản mát, kỵ khai mở",
         "Đánh giá": "Xấu",
-        "Nên": "An táng, đào giếng.",
-        "Kỵ": "Cưới hỏi, xây nhà, khai trương."
+        "Nên làm": "Tĩnh tu, sắp xếp nội bộ, bảo dưỡng nhỏ, thu hồi nợ khó",
+        "Nên tránh": "Mở hàng, xuất hành, ký kết, cưới hỏi, động thổ, an táng, mở cửa/xả nước"
     },
     {
         "Tên Sao": "Nguy Nguyệt Yến",
+        "Ý nghĩa": "Hung tú; tiềm ẩn rủi ro, cần thận trọng",
         "Đánh giá": "Xấu",
-        "Nên": "Phá dỡ nhà cũ.",
-        "Kỵ": "Mọi việc, đặc biệt là cưới hỏi, động thổ, xuất hành."
+        "Nên làm": "Kiểm định/nghiệm thu an toàn, tô trát nhỏ, công vụ cần kiểm soát rủi ro",
+        "Nên tránh": "Khởi công xây cất, an táng, hôn lễ, mở cửa/xả nước, làm việc trên cao/ra biển xa"
     },
     {
         "Tên Sao": "Thất Hỏa Trư",
+        "Ý nghĩa": "Kiết tú; vượng gia trạch, cát cho cư trú",
         "Đánh giá": "Tốt",
-        "Nên": "Xây cất, sửa chữa nhà, khai trương, cưới hỏi.",
-        "Kỵ": "Mai táng."
+        "Nên làm": "Cưới hỏi, dời ở, xây dựng/chống thấm, tế lễ, đào giếng, đặt bếp, nhập trạch",
+        "Nên tránh": "Làm tang lớn"
     },
     {
-        "Tên Sao": "Bích Thủy Du",
+        "Tên Sao": "Bích Thủy Dư",
+        "Ý nghĩa": "Kiết tú; bền ổn, lợi kiến tạo và tàng trữ",
         "Đánh giá": "Tốt",
-        "Nên": "Mọi việc, đặc biệt là cưới hỏi, an táng, xuất hành, khai trương.",
-        "Kỵ": "Động thổ."
+        "Nên làm": "Cưới hỏi, xây dựng, an táng/cải táng, đắp bờ kè, dựng tường rào, lập kho",
+        "Nên tránh": "Phá dỡ không cần thiết"
     },
     {
         "Tên Sao": "Khuê Mộc Lang",
+        "Ý nghĩa": "Hung tú; kỵ khai mở lớn, chỉ hợp chỉnh trang",
         "Đánh giá": "Xấu",
-        "Nên": "Sửa chữa, tu bổ nhỏ.",
-        "Kỵ": "Cưới hỏi, khai trương, an táng, động thổ."
+        "Nên làm": "Cắt may, sửa cửa/sơn sửa, thay biển hiệu nhỏ, xuất hành gần",
+        "Nên tránh": "Khai trương mở lớn, đầu tư mạo hiểm, ký hợp đồng dài hạn"
     },
     {
         "Tên Sao": "Lâu Kim Cẩu",
+        "Ý nghĩa": "Kiết tú; ổn cho gia sự và sửa sang",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, an táng, xây dựng, khai trương, kinh doanh.",
-        "Kỵ": "Dựng cửa, xây tường."
+        "Nên làm": "Cưới hỏi, sửa nhà, lát sân/ngõ, làm cổng rào, dựng chuồng trại",
+        "Nên tránh": "Phá dỡ lớn, chuyển kho quy mô lớn cùng ngày"
     },
     {
         "Tên Sao": "Vị Thổ Trĩ",
+        "Ý nghĩa": "Kiết tú; thuận lễ nghi và công vụ",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, an táng, xây dựng, xuất hành, cầu tài.",
-        "Kỵ": "May mặc."
+        "Nên làm": "Cưới hỏi, xin phép/khai báo, tuyển dụng, khởi công công trình công cộng, mở cửa hàng",
+        "Nên tránh": "Đầu cơ tư lợi, cắt may lễ phục, an táng"
     },
     {
         "Tên Sao": "Mão Nhật Kê",
+        "Ý nghĩa": "Hung tú; dễ rối rắm, hư hỏng",
         "Đánh giá": "Xấu",
-        "Nên": "Mai táng.",
-        "Kỵ": "Cưới hỏi, khai trương, động thổ, xây dựng."
+        "Nên làm": "Tu sửa nhỏ, dọn dẹp, kiểm kê, giảng dạy/học tập",
+        "Nên tránh": "Động thổ, đóng giường ghế, làm mui thuyền, khai thông hào rãnh, cưới hỏi, khai trương"
     },
     {
         "Tên Sao": "Tất Nguyệt Ô",
+        "Ý nghĩa": "Kiết tú; đại cát, vạn sự hanh thông",
         "Đánh giá": "Tốt",
-        "Nên": "Mọi việc, đặc biệt là cưới hỏi, xây dựng, an táng, xuất hành.",
-        "Kỵ": "Mua bán, sửa chữa đồ vật."
+        "Nên làm": "Khởi công, xây nhà, cưới hỏi, an táng, trổ/dựng cửa, đào giếng/kênh mương, khai trương, xuất hành, nhập học, cất nóc, nhập trạch",
+        "Nên tránh": "Đi thuyền"
     },
     {
         "Tên Sao": "Chủy Hỏa Hầu",
+        "Ý nghĩa": "Hung tú; dễ phát sinh tai ương",
         "Đánh giá": "Xấu",
-        "Nên": "Làm việc liên quan đến hung tinh.",
-        "Kỵ": "Cưới hỏi, động thổ, xây dựng, an táng, xuất hành."
+        "Nên làm": "Kiểm tra an toàn, thu hồi/đình chỉ việc rủi ro",
+        "Nên tránh": "Xây dựng, an táng, cưới hỏi, mở hàng, xuất hành, ký kết mới"
     },
     {
         "Tên Sao": "Sâm Thủy Viên",
+        "Ý nghĩa": "Kiết tú; thuận hành, hợp sửa chữa vừa phải",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, khai trương, an táng, xây dựng, xuất hành.",
-        "Kỵ": "Dựng cột, làm nhà mới."
+        "Nên làm": "Đi công vụ xa, dựng cửa, sửa chữa nhẹ, thay lợp mái nhỏ, mua sắm dụng cụ",
+        "Nên tránh": "Cưới hỏi, an táng, khởi công lớn, vay vốn lớn"
     },
     {
-        "Tên Sao": "Tỉnh Mộc Khỉ",
+        "Tên Sao": "Tỉnh Mộc Hãn",
+        "Ý nghĩa": "Kiết tú; cát với nông canh và kiến tạo",
         "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, khai trương, an táng.",
-        "Kỵ": "Xây nhà, dời nhà."
+        "Nên làm": "Tế lễ, gieo trồng, động thổ/kiến tạo, dựng cột trụ, trồng cây lâu năm, mở nguồn nước",
+        "Nên tránh": "Cắt may lễ phục"
     },
     {
         "Tên Sao": "Quỷ Kim Dương",
-        "Đánh giá": "Rất xấu",
-        "Nên": "Tế lễ, sửa chữa nhỏ.",
-        "Kỵ": "Mọi việc, đặc biệt là cưới hỏi, an táng, nhập trạch, động thổ."
+        "Ý nghĩa": "Hung tú; chỉ hợp việc âm, kỵ hỷ sự",
+        "Đánh giá": "Xấu",
+        "Nên làm": "An táng/cải táng, tu sửa mộ phần, tảo mộ",
+        "Nên tránh": "Cưới hỏi, xây dựng, xuất hành, khai trương, ký kết"
     },
     {
         "Tên Sao": "Liễu Thổ Chương",
+        "Ý nghĩa": "Hung tú; dễ suy hao, dính kiện tụng",
         "Đánh giá": "Xấu",
-        "Nên": "May mặc, tu sửa.",
-        "Kỵ": "Cưới hỏi, xây dựng, xuất hành."
+        "Nên làm": "Dọn dẹp, thanh lý đồ cũ, kiểm tra an ninh an toàn",
+        "Nên tránh": "An táng, xây dựng, mở cửa/xả nước, khai trương, khởi công, đi xa"
     },
     {
         "Tên Sao": "Tinh Nhật Mã",
-        "Đánh giá": "Tốt",
-        "Nên": "Cưới hỏi, an táng, làm nhà, xuất hành.",
-        "Kỵ": "Mở cửa, đào giếng."
+        "Ý nghĩa": "Hung tú; động khí mạnh, dễ quá đà",
+        "Đánh giá": "Xấu",
+        "Nên làm": "Trồng trọt, tuyển dụng, tổ chức hoạt động vừa, sửa chữa vệ sinh",
+        "Nên tránh": "Tang sự, mở nước lớn, phá dỡ nhiều hạng mục cùng lúc"
     },
     {
         "Tên Sao": "Trương Nguyệt Lộc",
+        "Ý nghĩa": "Kiết tú; vui mừng, khai xướng rực rỡ",
         "Đánh giá": "Tốt",
-        "Nên": "Mọi việc, đặc biệt là cưới hỏi, khai trương, xây dựng.",
-        "Kỵ": "An táng."
+        "Nên làm": "Cưới hỏi, khai trương/mở chợ, tế lễ, khởi công, ký kết, mở rộng kinh doanh",
+        "Nên tránh": "Kiện tụng, phá bỏ công trình đang dùng tốt"
     },
     {
         "Tên Sao": "Dực Hỏa Xà",
+        "Ý nghĩa": "Hung tú; nóng nảy, bất lợi đại sự",
         "Đánh giá": "Xấu",
-        "Nên": "May mặc.",
-        "Kỵ": "Cưới hỏi, an táng, xây nhà, động thổ."
+        "Nên làm": "Gieo trồng, thay cây, sửa vườn, kiểm định an toàn điện/nhiệt",
+        "Nên tránh": "Hôn lễ, an táng, xây dựng cao, xuất hành xa, khai trương"
     },
     {
         "Tên Sao": "Chẩn Thủy Dẫn",
+        "Ý nghĩa": "Kiết tú; thuận văn thư điền thổ, mưu sự ổn định",
         "Đánh giá": "Tốt",
-        "Nên": "An táng, xuất hành, dời nhà, đầu tư.",
-        "Kỵ": "Cưới hỏi, động thổ, xây dựng."
+        "Nên làm": "Mua đất, ký nhận chức, tuyển dụng/nhập học, xây dựng, cưới hỏi, cắt may, lập kho",
+        "Nên tránh": "Chuyển nhà gấp, thay đổi lớn đột ngột"
     }
 ]
 
@@ -429,82 +452,90 @@ TWENTY_EIGHT_MANSIONS = [
 # DỮ LIỆU THẬP NHỊ TRỰC (12 TRỰC)
 # ==============================================================================
 
-# Tên: Tên của Trực
-# Đánh giá: Mức độ tốt/xấu (Tốt, Xấu, Bình thường)
-# Nên: Các việc nên làm
-# Kỵ: Các việc cần tránh
 TWELVE_DAY_OFFICERS = [
     {
-        "Tên Trực": "Trực Kiến",
-        "Đánh giá": "Bình thường",
-        "Nên": "Thành lập, khai trương, ký kết hợp đồng, nhập học, cưới hỏi, động thổ, xây dựng nhà cửa.",
-        "Kỵ": "Mua sắm, hạ thủy thuyền, đào giếng."
+        "Tên Trực": "Kiến",
+        "Ý nghĩa": "Khởi đầu/kiến lập; hợp việc vừa phải hơn là khai mở lớn.",
+        "Đánh giá": "Trung bình",
+        "Nên làm": "Xuất hành, thăm hỏi, gặp gỡ, ký kết nhỏ, cầu tài vừa",
+        "Nên tránh": "Động thổ, xây cất lớn, an táng, mở kho quy mô lớn"
     },
     {
-        "Tên Trực": "Trực Trừ",
-        "Đánh giá": "Bình thường",
-        "Nên": "Cúng bái, cầu phúc, giải hạn, chữa bệnh, cắt tóc, dâng sao giải hạn, bán hàng.",
-        "Kỵ": "Cưới hỏi, đi xa, ký kết thỏa thuận quan trọng."
-    },
-    {
-        "Tên Trực": "Trực Mãn",
-        "Đánh giá": "Bình thường",
-        "Nên": "Cúng tế, cầu phúc, lễ tổ tiên, khai trương, mua bán, xây dựng nhỏ.",
-        "Kỵ": "Cưới hỏi, nhậm chức, kiện tụng, bắt đầu công việc quan trọng mang tính lâu dài."
-    },
-    {
-        "Tên Trực": "Trực Bình",
-        "Đánh giá": "Bình thường",
-        "Nên": "Các công việc hàng ngày, động thổ, an táng, chăn nuôi, mua bán nhỏ.",
-        "Kỵ": "Cầu phúc, tế tự, cưới hỏi, khai trương, kiện tụng."
-    },
-    {
-        "Tên Trực": "Trực Định",
-        "Đánh giá": "Bình thường",
-        "Nên": "Buôn bán, giao thương, lập kho, nhập học, sửa sang nhà cửa, làm chuồng trại.",
-        "Kỵ": "Đi xa, kiện tụng, xuất hành xa, giao thiệp quan trọng."
-    },
-    {
-        "Tên Trực": "Trực Chấp",
-        "Đánh giá": "Xấu",
-        "Nên": "Cất giữ của cải, làm kho, tu sửa nhà cửa.",
-        "Kỵ": "Khai trương, giao dịch, cầu tài, cưới hỏi, xuất hành, dời nhà."
-    },
-    {
-        "Tên Trực": "Trực Phá",
-        "Đánh giá": "Rất xấu",
-        "Nên": "Phá dỡ nhà cũ, công trình cũ, giải quyết mâu thuẫn.",
-        "Kỵ": "Mọi việc lớn, cưới hỏi, khai trương, động thổ, xây dựng, hội họp."
-    },
-    {
-        "Tên Trực": "Trực Nguy",
-        "Đánh giá": "Xấu",
-        "Nên": "Cúng bái, tế tự, sửa chữa nhỏ.",
-        "Kỵ": "Mọi việc lớn, xuất hành, đi thuyền, leo núi, cưới hỏi, an táng."
-    },
-    {
-        "Tên Trực": "Trực Thành",
-        "Đánh giá": "Rất tốt",
-        "Nên": "Mọi việc, cưới hỏi, dọn về nhà mới, động thổ, khai trương, nhập học.",
-        "Kỵ": "Cãi vã, kiện tụng, tranh chấp."
-    },
-    {
-        "Tên Trực": "Trực Thu",
+        "Tên Trực": "Trừ",
+        "Ý nghĩa": "Trừ bỏ/tẩy uế; thuận loại bỏ điều xấu và làm sạch.",
         "Đánh giá": "Tốt",
-        "Nên": "Mở cửa hàng, lập kho, mua bán, cúng tế, cầu phúc, động thổ, tu sửa nhà cửa.",
-        "Kỵ": "Cho vay mượn, kiện tụng, đi xa, hạ thủy thuyền, chạy thử xe."
+        "Nên làm": "Giải hạn, dọn dẹp, tẩy uế, chữa bệnh, cắt tóc, bỏ điều cũ, xuất hành",
+        "Nên tránh": "Khai trương lớn, khởi công trọng đại, chi xuất tiền lớn"
     },
     {
-        "Tên Trực": "Trực Khai",
-        "Đánh giá": "Rất tốt",
-        "Nên": "Mọi việc, khai trương, mở cửa hàng, giao dịch, cưới hỏi, động thổ.",
-        "Kỵ": "An táng, chôn cất, làm ma chay."
+        "Tên Trực": "Mãn",
+        "Ý nghĩa": "Viên mãn/đầy đủ; hợp thu nạp và tổng kết hơn là khởi tạo.",
+        "Đánh giá": "Trung bình",
+        "Nên làm": "Tế lễ, sắp xếp/nhập kho, tổng kết, nhận hàng",
+        "Nên tránh": "Cưới hỏi, khởi công, mở hàng/khai trương"
     },
     {
-        "Tên Trực": "Trực Bế",
-        "Đánh giá": "Rất xấu",
-        "Nên": "Lấp vá, đắp đập, tu sửa tường, đào huyệt, lấp mộ.",
-        "Kỵ": "Khai trương, nhậm chức, xuất hành, cưới hỏi, chữa bệnh."
+        "Tên Trực": "Bình",
+        "Ý nghĩa": "Cân bằng/yên ổn; hợp việc thường nhật, kém hợp việc lớn.",
+        "Đánh giá": "Trung bình",
+        "Nên làm": "Giao dịch nhỏ, gặp gỡ, học hành, khám định kỳ",
+        "Nên tránh": "Khởi sự lớn, động thổ, công trình hạ tầng nặng"
+    },
+    {
+        "Tên Trực": "Định",
+        "Ý nghĩa": "Ổn định/an định; tốt để chốt việc và an vị.",
+        "Đánh giá": "Tốt",
+        "Nên làm": "Ký kết/khế ước, chốt kế hoạch, an vị, nhập trạch, cưới hỏi",
+        "Nên tránh": "Tranh tụng, thưa kiện, xuất hành xa"
+    },
+    {
+        "Tên Trực": "Chấp",
+        "Ý nghĩa": "Giữ gìn/duy trì; thiên về duy trì bền vững, không hợp khai mở lớn.",
+        "Đánh giá": "Trung bình",
+        "Nên làm": "Tu sửa, xây bền vững, trồng cây lâu năm, tuyển dụng/nhận người",
+        "Nên tránh": "Dời nhà, mở cửa buôn bán, xuất/nhập kho lớn, an sàng, chi tiền lớn"
+    },
+    {
+        "Tên Trực": "Phá",
+        "Ý nghĩa": "Phá bỏ/kết liễu; hợp dỡ bỏ cái cũ.",
+        "Đánh giá": "Xấu",
+        "Nên làm": "Phá dỡ, thanh lý, kết thúc việc cũ, trị bệnh (phá bệnh)",
+        "Nên tránh": "Khởi công, khai trương, cưới hỏi, nhập trạch, ký hợp đồng mới"
+    },
+    {
+        "Tên Trực": "Nguy",
+        "Ý nghĩa": "Nguy nan/cẩn trọng; tốt khi làm việc đòi hỏi tỉ mỉ.",
+        "Đánh giá": "Trung bình",
+        "Nên làm": "Lễ bái, cầu an, các việc cần kiểm soát an toàn, đo đạc/thi công chi tiết",
+        "Nên tránh": "Khai trương, động thổ, cưới hỏi, đi xa mạo hiểm, việc mạo hiểm sông/biển"
+    },
+    {
+        "Tên Trực": "Thành",
+        "Ý nghĩa": "Thành tựu/hoàn tất; rất thuận việc lớn và mừng.",
+        "Đánh giá": "Tốt",
+        "Nên làm": "Khánh thành, ký kết, khai trương, cưới hỏi, nhập trạch, nhậm chức",
+        "Nên tránh": "Kiện tụng, cố ý phá dỡ"
+    },
+    {
+        "Tên Trực": "Thu",
+        "Ý nghĩa": "Thu nạp/thu hoạch; hợp gom góp cất giữ hơn là mở rộng.",
+        "Đánh giá": "Trung bình",
+        "Nên làm": "Thu hoạch, thu nợ, nhập kho, cất giữ",
+        "Nên tránh": "Khai trương, khởi công, mở rộng mới"
+    },
+    {
+        "Tên Trực": "Khai",
+        "Ý nghĩa": "Khai mở/mở mang; đại cát cho các việc mở đầu.",
+        "Đánh giá": "Tốt",
+        "Nên làm": "Khai trương, khởi công nhẹ, xuất hành, đăng ký/ứng cử, nhận chức",
+        "Nên tránh": "An táng; kiêng động thổ nặng, lợp mái, đào giếng"
+    },
+    {
+        "Tên Trực": "Bế",
+        "Ý nghĩa": "Đóng lại/kết thúc; kỵ khởi sự.",
+        "Đánh giá": "Xấu",
+        "Nên làm": "Kết thúc, đóng kho, lấp hố/đắp đập, vá sửa chỗ hư",
+        "Nên tránh": "Mở hàng, khởi công, cưới hỏi, xuất hành, nhậm chức"
     }
 ]
 

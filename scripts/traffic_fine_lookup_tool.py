@@ -10,8 +10,7 @@ import google.api_core.exceptions
 import google.genai
 import redis.asyncio as redis
 from PIL import Image
-from PIL.ImageFile import ImageFile
-from PIL.ImageFilter import EDGE_ENHANCE
+from PIL import ImageOps
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
 
@@ -145,17 +144,31 @@ async def get_captcha(ss: aiohttp.ClientSession, url: str) -> tuple[BytesIO, Non
 
 
 @pyscript_compile
-def process_captcha(image: str | BytesIO) -> ImageFile:
-    image_pil = Image.open(image)
-    threshold_value = 64
-    image_threshold = image_pil.point(lambda p: p > threshold_value and 255)
-    image_painted = image_threshold.filter(EDGE_ENHANCE)
-    return image_painted
+def process_captcha(image: str | BytesIO) -> Image.Image:
+    img = Image.open(image)
+    img = img.convert("L")
+    ImageOps.autocontrast(img, cutoff=2)
+    threshold = 160
+    img = img.point(lambda p: p > threshold and 255)
+    width, height = img.size
+    img = img.resize((width * 6, height * 6), Image.Resampling.BICUBIC)
+    img = img.convert("RGBA")
+    width, height = img.size
+    for x in range(width):
+        for y in range(height):
+            r, g, b, a = img.getpixel((x, y))
+            if (r, g, b) == (255, 255, 255):
+                img.putpixel((x, y), (r, g, b, 0))
+    bbox = img.getbbox()
+    if bbox:
+        img = img.crop(bbox)
+    img = img.convert("L")
+    return img
 
 
 @pyscript_compile
-async def solve_captcha(image: ImageFile, retry_count: int = 1) -> tuple[str, None] | tuple[None, str]:
-    prompt = 'Extract the text from this image.'
+async def solve_captcha(image: Image.Image, retry_count: int = 1) -> tuple[str, None] | tuple[None, str]:
+    prompt = 'Extract exactly six consecutive lowercase letters or digits from this image, no spaces, output only them.'
     loop = asyncio.get_event_loop()
     try:
         response = await loop.run_in_executor(

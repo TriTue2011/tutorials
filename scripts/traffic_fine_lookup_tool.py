@@ -149,20 +149,23 @@ def process_captcha(image: str | BytesIO) -> Image.Image:
     img = img.convert("L")
     img = ImageOps.autocontrast(img, cutoff=2)
     threshold = 160
-    img = img.point(lambda p: p > threshold and 255)
+    table = [0] * threshold + [255] * (256 - threshold)
+    img = img.point(table)
     img = img.convert("RGBA")
-    width, height = img.size
-    img = img.resize((width * 6, height * 6), Image.Resampling.BICUBIC)
-    width, height = img.size
-    for x in range(width):
-        for y in range(height):
+    img = img.resize((img.width * 5, img.height * 5), Image.Resampling.BICUBIC)
+    for x in range(img.width):
+        for y in range(img.height):
             (r, g, b, a) = img.getpixel((x, y))
             if (r, g, b) == (255, 255, 255):
                 img.putpixel((x, y), (r, g, b, 0))
     bbox = img.getbbox()
     if bbox:
         (left, upper, right, lower) = bbox
-        img = img.crop((left - 10, upper - 10, right + 10, lower + 10))
+        left = max(0, left - 15)
+        upper = max(0, upper - 15)
+        right = min(img.width, right + 15)
+        lower = min(img.height, lower + 15)
+        img = img.crop((left, upper, right, lower))
     img = img.convert("L")
     return img
 

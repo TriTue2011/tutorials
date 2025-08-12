@@ -152,16 +152,17 @@ def process_captcha(image: str | BytesIO) -> Image.Image:
     img = img.point(lambda p: p > threshold and 255)
     img = img.convert("RGBA")
     width, height = img.size
-    img = img.resize((width * 6, height * 6), Image.Resampling.LANCZOS)
+    img = img.resize((width * 6, height * 6), Image.Resampling.BICUBIC)
     width, height = img.size
     for x in range(width):
         for y in range(height):
-            r, g, b, a = img.getpixel((x, y))
+            (r, g, b, a) = img.getpixel((x, y))
             if (r, g, b) == (255, 255, 255):
                 img.putpixel((x, y), (r, g, b, 0))
     bbox = img.getbbox()
     if bbox:
-        img = img.crop(bbox)
+        (left, upper, right, lower) = bbox
+        img = img.crop((left - 10, upper - 10, right + 10, lower + 10))
     img = img.convert("L")
     return img
 

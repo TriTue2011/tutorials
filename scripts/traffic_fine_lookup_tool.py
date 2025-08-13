@@ -144,15 +144,14 @@ async def get_captcha(ss: aiohttp.ClientSession, url: str) -> tuple[BytesIO, Non
 
 
 @pyscript_compile
-def process_captcha(image: str | BytesIO) -> Image.Image:
+def process_captcha(image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35) -> Image.Image:
     img = Image.open(image)
     img = img.convert("L")
     img = ImageOps.autocontrast(img, cutoff=2)
-    threshold = 160
     table = [0] * threshold + [255] * (256 - threshold)
     img = img.point(table)
+    img = img.resize((img.width * factor, img.height * factor), resample=Image.Resampling.BOX)
     img = img.convert("RGBA")
-    img = img.resize((img.width * 5, img.height * 5), Image.Resampling.BICUBIC)
     for x in range(img.width):
         for y in range(img.height):
             (r, g, b, a) = img.getpixel((x, y))
@@ -161,10 +160,10 @@ def process_captcha(image: str | BytesIO) -> Image.Image:
     bbox = img.getbbox()
     if bbox:
         (left, upper, right, lower) = bbox
-        left = max(0, left - 15)
-        upper = max(0, upper - 15)
-        right = min(img.width, right + 15)
-        lower = min(img.height, lower + 15)
+        left = max(0, left - padding)
+        upper = max(0, upper - padding)
+        right = min(img.width, right + padding)
+        lower = min(img.height, lower + padding)
         img = img.crop((left, upper, right, lower))
     img = img.convert("L")
     return img

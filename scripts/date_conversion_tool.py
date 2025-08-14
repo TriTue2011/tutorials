@@ -671,7 +671,7 @@ def get_auspicious_hours(jd: int) -> str:
 
 
 @pyscript_compile
-def get_remaining_days(date: str) -> int:
+def get_number_of_days(date: str) -> int:
     start_date = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
     end_date = datetime.datetime.strptime(date, "%Y-%m-%d")
     return (end_date - start_date).days
@@ -723,13 +723,13 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
     if conversion_type == "s2l":
         try:
             l_date = solar_to_lunar(day, month, year)
-            days = get_remaining_days(date)
+            days = get_number_of_days(date)
             if days > 0:
-                remaining_days = f"{days} ngày nữa"
+                number_of_days = f"{days} ngày nữa"
             elif days < 0:
-                remaining_days = f"{abs(days)} ngày trước"
+                number_of_days = f"{abs(days)} ngày trước"
             else:
-                remaining_days = "hôm nay"
+                number_of_days = "hôm nay"
             n_month = MONTHS[l_date[1] - 1] + (" nhuận" if l_date[3] == 1 else "")
             cc_day = CAN[(l_date[4] + 9) % 10] + " " + CHI[(l_date[4] + 1) % 12]
             cc_month = CAN[(l_date[2] * 12 + l_date[1] + 3) % 10] + " " + CHI[(l_date[1] + 1) % 12]
@@ -739,7 +739,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             twelve_day_officers = get_twelve_day_officers(l_date[4])
             twenty_eight_mansions = get_twenty_eight_mansions(l_date[4])
             return dict(date=join_date(l_date[0], l_date[1], l_date[2]),
-                        remaining_days=remaining_days,
+                        number_of_days=number_of_days,
                         full_date=f"{DAYS[get_day_of_week(day, month, year)]} ngày {l_date[0]} tháng {n_month} năm {cc_year}",
                         full_cc_date=f"{DAYS[get_day_of_week(day, month, year)]} ngày {cc_day} tháng {cc_month} năm {cc_year}",
                         leap_month=True if l_date[3] == 1 else False,
@@ -757,13 +757,13 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             leap_month = bool(kwargs.get("leap_month", False))
             is_leap = 1 if leap_month else 0
             s_date = lunar_to_sonar(day, month, year, is_leap)
-            days = get_remaining_days(join_date(s_date[0], s_date[1], s_date[2]))
+            days = get_number_of_days(join_date(s_date[0], s_date[1], s_date[2]))
             if days > 0:
-                remaining_days = f"{days} ngày nữa"
+                number_of_days = f"{days} ngày nữa"
             elif days < 0:
-                remaining_days = f"{abs(days)} ngày trước"
+                number_of_days = f"{abs(days)} ngày trước"
             else:
-                remaining_days = "hôm nay"
+                number_of_days = "hôm nay"
             day_numer = jd_from_date(s_date[0], s_date[1], s_date[2])
             cc_day = CAN[(day_numer + 9) % 10] + " " + CHI[(day_numer + 1) % 12]
             cc_month = CAN[(year * 12 + month + 3) % 10] + " " + CHI[(month + 1) % 12]
@@ -773,7 +773,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             twelve_day_officers = get_twelve_day_officers(day_numer)
             twenty_eight_mansions = get_twenty_eight_mansions(day_numer)
             return dict(date=join_date(s_date[0], s_date[1], s_date[2]),
-                        remaining_days=remaining_days,
+                        number_of_days=number_of_days,
                         full_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {s_date[0]} tháng {s_date[1]} năm {s_date[2]}",
                         full_cc_date=f"{DAYS[get_day_of_week(s_date[0], s_date[1], s_date[2])]} ngày {cc_day} tháng {cc_month} năm {cc_year}",
                         solar_term=SOLAR_TERM[get_solar_term(day_numer + 1, 7)],

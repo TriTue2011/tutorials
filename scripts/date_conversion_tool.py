@@ -723,7 +723,13 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
     if conversion_type == "s2l":
         try:
             l_date = solar_to_lunar(day, month, year)
-            remaining_days = get_remaining_days(date)
+            days = get_remaining_days(date)
+            if days > 0:
+                remaining_days = f"{days} ngày nữa"
+            elif days < 0:
+                remaining_days = f"{abs(days)} ngày trước"
+            else:
+                remaining_days = "hôm nay"
             n_month = MONTHS[l_date[1] - 1] + (" nhuận" if l_date[3] == 1 else "")
             cc_day = CAN[(l_date[4] + 9) % 10] + " " + CHI[(l_date[4] + 1) % 12]
             cc_month = CAN[(l_date[2] * 12 + l_date[1] + 3) % 10] + " " + CHI[(l_date[1] + 1) % 12]
@@ -751,7 +757,13 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
             leap_month = bool(kwargs.get("leap_month", False))
             is_leap = 1 if leap_month else 0
             s_date = lunar_to_sonar(day, month, year, is_leap)
-            remaining_days = get_remaining_days(join_date(s_date[0], s_date[1], s_date[2]))
+            days = get_remaining_days(join_date(s_date[0], s_date[1], s_date[2]))
+            if days > 0:
+                remaining_days = f"{days} ngày nữa"
+            elif days < 0:
+                remaining_days = f"{abs(days)} ngày trước"
+            else:
+                remaining_days = "hôm nay"
             day_numer = jd_from_date(s_date[0], s_date[1], s_date[2])
             cc_day = CAN[(day_numer + 9) % 10] + " " + CHI[(day_numer + 1) % 12]
             cc_month = CAN[(year * 12 + month + 3) % 10] + " " + CHI[(month + 1) % 12]

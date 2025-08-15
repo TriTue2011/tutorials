@@ -874,19 +874,20 @@ TWELVE_DAY_OFFICERS = [
 ]
 
 FIELD_MAPPING = {
-    "ten_truc": "Tên Trực",
-    "ten_sao": "Tên Sao",
-    "y_nghia": "Ý nghĩa",
-    "danh_gia": "Đánh giá",
-    "nen_lam": "Nên làm",
-    "nen_tranh": "Nên tránh",
     "weekday_vi": "Thứ (tiếng Việt)",
+    "relative_to": "Ngày Dương lịch mốc để so sánh (luôn là ngày hiện tại)",
     "full_solar_date_vi": "Ngày Dương lịch đầy đủ",
     "full_lunar_date_vi": "Ngày Âm lịch đầy đủ",
     "can_chi.calendar": "Lịch dùng để tính Can Chi (solar|lunar)",
     "can_chi.full_can_chi_date_vi": "Ngày Can Chi đầy đủ",
     "auspicious_day.day_type": "Loại ngày (hoang_dao|hac_dao|neutral)",
     "auspicious_day.name": "Tên loại ngày (Hoàng Đạo|Hắc Đạo|trung bình)",
+    "ten_truc": "Tên Trực",
+    "ten_sao": "Tên Sao",
+    "y_nghia": "Ý nghĩa",
+    "danh_gia": "Đánh giá",
+    "nen_lam": "Nên làm",
+    "nen_tranh": "Nên tránh",
 }
 
 

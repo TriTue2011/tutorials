@@ -14,7 +14,7 @@ from PIL import ImageOps
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
 
-TTL = 30
+TTL = 30  # Cache retention period (1–30 days)
 RETRY_LIMIT = 3
 GET_URL = "https://www.csgt.vn/"
 POST_URL = "https://www.csgt.vn/?mod=contact&task=tracuu_post&ajax"
@@ -70,9 +70,16 @@ if not GEMINI_API_KEY:
 if not all([REDIS_HOST, REDIS_PORT]):
     raise ValueError("You need to configure your Redis host and port")
 
+if TTL < 1 or TTL > 30:
+    raise ValueError("TTL must be between 1 and 30")
+
 client = google.genai.Client(api_key=GEMINI_API_KEY)
 
 cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+
+cache_max_age = TTL * 24 * 60 * 60
+
+cache_min_age = cache_max_age - 3600
 
 
 @pyscript_compile
@@ -145,7 +152,7 @@ def extract_violations_from_html(content: str, url: str) -> dict:
 
 @pyscript_compile
 async def get_captcha(
-    ss: aiohttp.ClientSession, url: str
+        ss: aiohttp.ClientSession, url: str
 ) -> tuple[BytesIO, None] | tuple[None, str]:
     try:
         async with ss.get(url, timeout=30) as response:
@@ -162,7 +169,7 @@ async def get_captcha(
 
 @pyscript_compile
 def process_captcha(
-    image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
+        image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
     img = Image.open(image)
     img = img.convert("L")
@@ -192,7 +199,7 @@ def process_captcha(
 
 @pyscript_compile
 async def solve_captcha(
-    image: Image.Image, retry_count: int = 1
+        image: Image.Image, retry_count: int = 1
 ) -> tuple[str, None] | tuple[None, str]:
     prompt = "Extract exactly six consecutive lowercase letters (a-z) and digits (0-9) from this image, no spaces, and output only these characters."
     loop = asyncio.get_event_loop()
@@ -236,7 +243,7 @@ async def solve_captcha(
 
 @pyscript_compile
 async def check_license_plate(
-    license_plate: str, vehicle_type: int, retry_count: int = 1
+        license_plate: str, vehicle_type: int, retry_count: int = 1
 ) -> dict:
     ssl_context = ssl.create_default_context()
     ssl_context.set_ciphers(
@@ -245,7 +252,7 @@ async def check_license_plate(
     ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
 
     async with aiohttp.ClientSession(
-        connector=aiohttp.TCPConnector(ssl=ssl_context)
+            connector=aiohttp.TCPConnector(ssl=ssl_context)
     ) as ss:
         try:
             async with ss.get(GET_URL, headers=GET_HEADERS, timeout=30) as response_1st:
@@ -266,7 +273,7 @@ async def check_license_plate(
                 data = f"BienKS={license_plate}&Xe={vehicle_type}&captcha={captcha}&ipClient=9.9.9.91&cUrl=1"
 
                 async with ss.post(
-                    url=POST_URL, headers=POST_HEADERS, data=data, timeout=30
+                        url=POST_URL, headers=POST_HEADERS, data=data, timeout=30
                 ) as response_2nd:
                     response_2nd.raise_for_status()
                     response_2nd_json = await response_2nd.json(
@@ -298,7 +305,7 @@ async def check_license_plate(
                                 f"{license_plate}-{vehicle_type}", json.dumps(response)
                             )
                             await cached.expire(
-                                f"{license_plate}-{vehicle_type}", timedelta(days=TTL)
+                                f"{license_plate}-{vehicle_type}", timedelta(seconds=cache_max_age)
                             )
                         return response
 
@@ -319,7 +326,7 @@ async def check_license_plate(
 
 @service(supports_response="only")
 async def traffic_fine_lookup_tool(
-    license_plate: str, vehicle_type: int, bypass_caching: bool = False
+        license_plate: str, vehicle_type: int, bypass_caching: bool = False
 ) -> dict:
     """
     yaml
@@ -375,7 +382,9 @@ async def traffic_fine_lookup_tool(
 
         response = await cached.get(f"{license_plate}-{vehicle_type}")
         if response:
-            task.create(check_license_plate, license_plate, vehicle_type)
+            ttl = await cached.ttl(f"{license_plate}-{vehicle_type}")
+            if ttl < cache_min_age:
+                task.create(check_license_plate, license_plate, vehicle_type)
             return json.loads(response)
         return await check_license_plate(license_plate, vehicle_type)
     except Exception as error:

@@ -375,7 +375,7 @@ async def traffic_fine_lookup_tool(
 
         response = await cached.get(f"{license_plate}-{vehicle_type}")
         if response:
-            asyncio.create_task(check_license_plate(license_plate, vehicle_type))
+            task.create(check_license_plate, license_plate, vehicle_type)
             return json.loads(response)
         return await check_license_plate(license_plate, vehicle_type)
     except Exception as error:

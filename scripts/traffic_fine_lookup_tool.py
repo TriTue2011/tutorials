@@ -79,7 +79,7 @@ cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 cache_max_age = TTL * 24 * 60 * 60
 
-cache_min_age = cache_max_age - 3600
+cache_min_age = cache_max_age - (2 * 60 * 60)  # Only update cache when existing data is older than 2 hours
 
 
 @pyscript_compile

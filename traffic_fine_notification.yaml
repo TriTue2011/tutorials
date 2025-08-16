@@ -53,7 +53,7 @@ blueprint:
     template:
       - trigger:
           - trigger: time_pattern
-            hours: /12
+            hours: /6
           - trigger: event
             event_type: event_template_reloaded
         sensor:
@@ -61,7 +61,7 @@ blueprint:
             unique_id: time_to_check_30g12345     # Biển số xe
             icon: mdi:clock-digital
             device_class: timestamp
-            state: "{{ (now() + timedelta(minutes=range(1,181) | random)).isoformat() }}"
+            state: "{{ (now() + timedelta(minutes=range(1,121) | random)).isoformat() }}"
       - trigger:
           - trigger: time
             at: sensor.time_to_check_30g12345     # Biển số xe

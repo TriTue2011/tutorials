@@ -14,7 +14,7 @@ from PIL import ImageOps
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
 
-TTL = 24
+TTL = 30
 RETRY_LIMIT = 3
 GET_URL = "https://www.csgt.vn/"
 POST_URL = "https://www.csgt.vn/?mod=contact&task=tracuu_post&ajax"
@@ -298,7 +298,7 @@ async def check_license_plate(
                                 f"{license_plate}-{vehicle_type}", json.dumps(response)
                             )
                             await cached.expire(
-                                f"{license_plate}-{vehicle_type}", timedelta(hours=TTL)
+                                f"{license_plate}-{vehicle_type}", timedelta(days=TTL)
                             )
                         return response
 
@@ -350,7 +350,7 @@ async def traffic_fine_lookup_tool(
         default: "1"
       bypass_caching:
         name: Bypass Caching
-        description: Bypass the cache to retrieve the latest data from csgt.vn.
+        description: Bypass the cache to retrieve the latest data from csgt.vn. Limit usage to avoid unnecessary load.
         example: false
         selector:
           boolean: {}
@@ -375,6 +375,7 @@ async def traffic_fine_lookup_tool(
 
         response = await cached.get(f"{license_plate}-{vehicle_type}")
         if response:
+            asyncio.create_task(check_license_plate(license_plate, vehicle_type))
             return json.loads(response)
         return await check_license_plate(license_plate, vehicle_type)
     except Exception as error:

@@ -4,6 +4,7 @@ import re
 import ssl
 from datetime import timedelta
 from io import BytesIO
+from typing import Any
 
 import aiohttp
 import google.api_core.exceptions
@@ -93,7 +94,7 @@ cache_min_age = cache_max_age - (
 
 
 @pyscript_compile
-def extract_violations_from_html(content: str, url: str) -> dict:
+def extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     soup = BeautifulSoup(content, "html.parser")
     violations = []
     body_print = soup.find("div", id="bodyPrint123")
@@ -254,7 +255,7 @@ async def solve_captcha(
 @pyscript_compile
 async def check_license_plate(
     license_plate: str, vehicle_type: int, retry_count: int = 1
-) -> dict:
+) -> dict[str, Any]:
     async with aiohttp.ClientSession(
         connector=aiohttp.TCPConnector(ssl=ssl_context)
     ) as ss:
@@ -332,7 +333,7 @@ async def check_license_plate(
 @service(supports_response="only")
 async def traffic_fine_lookup_tool(
     license_plate: str, vehicle_type: int, bypass_caching: bool = False
-) -> dict:
+) -> dict[str, Any]:
     """
     yaml
     name: Traffic Fine Lookup Tool

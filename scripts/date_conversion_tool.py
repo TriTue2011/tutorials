@@ -8,6 +8,7 @@ from the book "Astronomical Algorithms" by Jean Meeus, 1998
 
 import datetime
 import math
+from typing import Any
 
 
 @pyscript_compile
@@ -917,7 +918,7 @@ def get_day_of_week(day: int, month: int, year: int) -> int:
 
 
 @pyscript_compile
-def get_twelve_day_officers(jd: int) -> dict:
+def get_twelve_day_officers(jd: int) -> dict[str, Any]:
     """
     Tính toán Trực của ngày dựa trên Tiết Khí (Solar Term).
     - jd: Julian Day number
@@ -957,7 +958,7 @@ def get_twelve_day_officers(jd: int) -> dict:
 
 
 @pyscript_compile
-def get_twenty_eight_mansions(jd: int) -> dict:
+def get_twenty_eight_mansions(jd: int) -> dict[str, Any]:
     """
     Tính toán và trả về thông tin sao (tú) trong Nhị Thập Bát Tú của một ngày.
     - jd: Julian Day number
@@ -976,7 +977,7 @@ def get_twenty_eight_mansions(jd: int) -> dict:
 
 
 @pyscript_compile
-def get_auspicious_day(lunar_month: int, jd: int) -> dict:
+def get_auspicious_day(lunar_month: int, jd: int) -> dict[str, Any]:
     """
     Xác định ngày là Hoàng Đạo hay Hắc Đạo dựa trên quy tắc Lục Diệu.
     - lunar_month: tháng âm lịch (1-12)
@@ -1034,7 +1035,7 @@ def get_number_of_days(date: str) -> int:
 
 
 @service(supports_response="only")
-def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict:
+def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str, Any]:
     """
     yaml
     name: Date Conversion Tool

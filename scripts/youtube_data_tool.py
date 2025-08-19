@@ -1,3 +1,5 @@
+from typing import Any
+
 from googleapiclient.discovery import build
 
 YOUTUBE_API_KEY = pyscript.config.get("youtube_api_key")
@@ -14,7 +16,7 @@ def youtube_search(
     results: int = 5,
     search_type: str = "video,channel,playlist",
     page_token: str = "",
-) -> dict:
+) -> dict[str, Any]:
     """
     Performs a search on YouTube.
 
@@ -46,7 +48,7 @@ def youtube_search(
 
 
 @service(supports_response="only")
-def youtube_search_tool(query: str, **kwargs) -> dict:
+def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
     """
     yaml
     name: YouTube Search Tool

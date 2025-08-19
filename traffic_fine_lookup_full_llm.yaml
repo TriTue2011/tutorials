@@ -103,11 +103,11 @@ fields:
     selector:
         select:
           options:
-            - label: Ô tô
+            - label: Car
               value: "1"
-            - label: Xe máy
+            - label: Motorbike
               value: "2"
-            - label: Xe đạp điện
+            - label: Electric Bicycle
               value: "3"
     required: true
     default: "1"

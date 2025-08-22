@@ -95,20 +95,20 @@ fields:
     name: License Plate
     description: !input license_plate_prompt
     selector:
-        text:
+      text:
     required: true
   vehicle_type:
     name: Vehicle Type
     description: !input vehicle_type_prompt
     selector:
-        select:
-          options:
-            - label: Car
-              value: "1"
-            - label: Motorbike
-              value: "2"
-            - label: Electric Bicycle
-              value: "3"
+      select:
+        options:
+          - label: Car
+            value: "1"
+          - label: Motorbike
+            value: "2"
+          - label: Electric Bicycle
+            value: "3"
     required: true
     default: "1"
 sequence:

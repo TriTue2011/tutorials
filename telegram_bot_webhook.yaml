@@ -1,0 +1,307 @@
+blueprint:
+  name: Telegram Bot Webhook
+  author: VuLQ
+  description: >-
+    # Telegram Bot Webhook
+
+    ## Integrating a Telegram bot with Home Assistant allows for seamless two-way communication between the user and the smart home system.
+  domain: automation
+  homeassistant:
+    min_version: 2025.8.0
+  input:
+    webhook_id:
+      name: Webhook ID
+      description: Enter the desired Webhook ID, or use "pyscript.set_telegram_webhook" to automatically create one.
+      selector:
+        text:
+    chat_ids:
+      name: Chat IDs
+      description: Specified Chat IDs allow communication with the Telegram bot.
+      selector:
+        text:
+          multiple: true
+    user_ids:
+      name: User IDs
+      description: Specified user IDs within group chat IDs allow communication with the Telegram bot. By default, if left empty, all users in the selected group chat IDs are allowed.
+      selector:
+        text:
+          multiple: true
+      default:
+mode: queued
+max_exceeded: silent
+variables:
+  webhook_id: !input webhook_id
+  chat_ids: !input chat_ids
+  user_ids: !input user_ids
+alias: Telegram bot webhook
+description: ""
+triggers:
+  - trigger: webhook
+    allowed_methods:
+      - POST
+    local_only: false
+    webhook_id: !input webhook_id
+conditions:
+  - condition: template
+    value_template: >-
+      {{ trigger.json is defined and trigger.json.message is defined }}
+  - condition: template
+    value_template: >-
+      {{ (trigger.json.message.chat.id | string) in chat_ids }}
+  - condition: template
+    value_template: >-
+      {% if user_ids is not none -%}
+      {{ (trigger.json.message.from.id | string) in user_ids }}
+      {% else -%}
+      {{ true }}
+      {% endif -%}
+actions:
+  - variables:
+      chat_id: >-
+        {{ ('id' ~ trigger.json.message.chat.id ~ '_' ~
+        trigger.json.message.from.id) | slugify }}
+  - action: pyscript.conversation_id_fetcher
+    metadata: {}
+    data:
+      chat_id: "{{ chat_id }}"
+    response_variable: chat
+  - variables:
+      conversation_id: >-
+        {{ chat.conversation_id if (chat.conversation_id | default('', true) |
+        length > 0) else chat_id }}
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.message.text is defined }}"
+        sequence:
+          - variables:
+              input:
+                prompt: >-
+                  {% if trigger.json.message.reply_to_message is defined %} {%
+                  if trigger.json.message.reply_to_message.text is defined %} {{
+                  trigger.json.message.reply_to_message.text }} {% endif %} {%
+                  if trigger.json.message.reply_to_message.caption is defined %}
+                  {{ trigger.json.message.reply_to_message.caption }} {% endif
+                  %} {% endif %}
+
+                  {{ trigger.json.message.text }}
+        alias: Process text
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.message.photo is defined }}"
+        sequence:
+          - action: pyscript.telegram_media_handle_tool
+            data:
+              file_id: "{{ trigger.json.message.photo[-1].file_id }}"
+            response_variable: file
+          - variables:
+              input:
+                prompt: >-
+                  {% if trigger.json.message.reply_to_message is defined %} {%
+                  if trigger.json.message.reply_to_message.text is defined %} {{
+                  trigger.json.message.reply_to_message.text }} {% endif %} {%
+                  if trigger.json.message.reply_to_message.caption is defined %}
+                  {{ trigger.json.message.reply_to_message.caption }} {% endif
+                  %} {% endif %}
+
+                  {% if trigger.json.message.caption is defined %} {{
+                  trigger.json.message.caption }} {% endif %}
+
+                  (Phân tích nội dung trong tệp, xác định chính xác yêu cầu của
+                  người dùng, sau đó thực hiện theo yêu cầu và đưa ra phản hồi
+                  rõ ràng, đầy đủ)
+                file_path: "{{ file.file_path if file.file_path is defined }}"
+                mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+              supported: "{{ file.supported if file.supported is defined }}"
+        alias: Process photo
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.message.video is defined }}"
+        sequence:
+          - action: pyscript.telegram_media_handle_tool
+            data:
+              file_id: "{{ trigger.json.message.video.file_id }}"
+            response_variable: file
+          - variables:
+              input:
+                prompt: >-
+                  {% if trigger.json.message.reply_to_message is defined %} {%
+                  if trigger.json.message.reply_to_message.text is defined %} {{
+                  trigger.json.message.reply_to_message.text }} {% endif %} {%
+                  if trigger.json.message.reply_to_message.caption is defined %}
+                  {{ trigger.json.message.reply_to_message.caption }} {% endif
+                  %} {% endif %}
+
+                  {% if trigger.json.message.caption is defined %} {{
+                  trigger.json.message.caption }} {% endif %}
+
+                  (Phân tích nội dung trong tệp, xác định chính xác yêu cầu của
+                  người dùng, sau đó thực hiện theo yêu cầu và đưa ra phản hồi
+                  rõ ràng, đầy đủ)
+                file_path: "{{ file.file_path if file.file_path is defined }}"
+                mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+              supported: "{{ file.supported if file.supported is defined }}"
+        alias: Process video
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.message.video_note is defined }}"
+        sequence:
+          - action: pyscript.telegram_media_handle_tool
+            data:
+              file_id: "{{ trigger.json.message.video_note.file_id }}"
+            response_variable: file
+          - variables:
+              input:
+                prompt: >-
+                  {% if trigger.json.message.reply_to_message is defined %} {%
+                  if trigger.json.message.reply_to_message.text is defined %} {{
+                  trigger.json.message.reply_to_message.text }} {% endif %} {%
+                  if trigger.json.message.reply_to_message.caption is defined %}
+                  {{ trigger.json.message.reply_to_message.caption }} {% endif
+                  %} {% endif %}
+
+                  {% if trigger.json.message.caption is defined %} {{
+                  trigger.json.message.caption }} {% endif %}
+
+                  (Phân tích nội dung trong tệp, xác định chính xác yêu cầu của
+                  người dùng, sau đó thực hiện theo yêu cầu và đưa ra phản hồi
+                  rõ ràng, đầy đủ)
+                file_path: "{{ file.file_path if file.file_path is defined }}"
+                mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+              supported: "{{ file.supported if file.supported is defined }}"
+        alias: Process video note
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.message.voice is defined }}"
+        sequence:
+          - action: pyscript.telegram_media_handle_tool
+            data:
+              file_id: "{{ trigger.json.message.voice.file_id }}"
+            response_variable: file
+          - variables:
+              input:
+                prompt: >-
+                  {% if trigger.json.message.reply_to_message is defined %} {%
+                  if trigger.json.message.reply_to_message.text is defined %} {{
+                  trigger.json.message.reply_to_message.text }} {% endif %} {%
+                  if trigger.json.message.reply_to_message.caption is defined %}
+                  {{ trigger.json.message.reply_to_message.caption }} {% endif
+                  %} {% endif %}
+
+                  {% if trigger.json.message.caption is defined %} {{
+                  trigger.json.message.caption }} {% endif %}
+
+                  (Phân tích nội dung trong tệp, xác định chính xác yêu cầu của
+                  người dùng, sau đó thực hiện theo yêu cầu và đưa ra phản hồi
+                  rõ ràng, đầy đủ)
+                file_path: "{{ file.file_path if file.file_path is defined }}"
+                mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+              supported: "{{ file.supported if file.supported is defined }}"
+        alias: Process voice
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.message.audio is defined }}"
+        sequence:
+          - action: pyscript.telegram_media_handle_tool
+            data:
+              file_id: "{{ trigger.json.message.audio.file_id }}"
+            response_variable: file
+          - variables:
+              input:
+                prompt: >-
+                  {% if trigger.json.message.reply_to_message is defined %} {%
+                  if trigger.json.message.reply_to_message.text is defined %} {{
+                  trigger.json.message.reply_to_message.text }} {% endif %} {%
+                  if trigger.json.message.reply_to_message.caption is defined %}
+                  {{ trigger.json.message.reply_to_message.caption }} {% endif
+                  %} {% endif %}
+
+                  {% if trigger.json.message.caption is defined %} {{
+                  trigger.json.message.caption }} {% endif %}
+
+                  (Phân tích nội dung trong tệp, xác định chính xác yêu cầu của
+                  người dùng, sau đó thực hiện theo yêu cầu và đưa ra phản hồi
+                  rõ ràng, đầy đủ)
+                file_path: "{{ file.file_path if file.file_path is defined }}"
+                mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+              supported: "{{ file.supported if file.supported is defined }}"
+        alias: Process audio
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.json.message.document is defined }}"
+        sequence:
+          - action: pyscript.telegram_media_handle_tool
+            data:
+              file_id: "{{ trigger.json.message.document.file_id }}"
+            response_variable: file
+          - variables:
+              input:
+                prompt: >-
+                  {% if trigger.json.message.reply_to_message is defined %} {%
+                  if trigger.json.message.reply_to_message.text is defined %} {{
+                  trigger.json.message.reply_to_message.text }} {% endif %} {%
+                  if trigger.json.message.reply_to_message.caption is defined %}
+                  {{ trigger.json.message.reply_to_message.caption }} {% endif
+                  %} {% endif %}
+
+                  {% if trigger.json.message.caption is defined %} {{
+                  trigger.json.message.caption }} {% endif %}
+
+                  (Phân tích nội dung trong tệp, xác định chính xác yêu cầu của
+                  người dùng, sau đó thực hiện theo yêu cầu và đưa ra phản hồi
+                  rõ ràng, đầy đủ)
+                file_path: "{{ file.file_path if file.file_path is defined }}"
+                mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+              supported: "{{ file.supported if file.supported is defined }}"
+        alias: Process document
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ supported is defined and not bool(supported) }}"
+        sequence:
+          - action: pyscript.telegram_message_handle_tool
+            metadata: {}
+            data:
+              chat_id: "{{ trigger.json.message.chat.id }}"
+              message: >-
+                Trình xử lý hiện tại không hỗ trợ loại tệp này, vì vậy tệp chỉ
+                được lưu trữ mà không qua bất kỳ phân tích nào thêm.
+              reply_to_message_id: "{{ trigger.json.message.message_id }}"
+            response_variable: telegram_response
+      - conditions:
+          - condition: template
+            value_template: "{{ input is defined }}"
+        sequence:
+          - action: conversation.process
+            metadata: {}
+            data:
+              agent_id: conversation.google_ai_conversation_free
+              conversation_id: "{{ conversation_id }}"
+              text: "{{ input }}"
+            response_variable: result
+          - variables:
+              response: >-
+                {{ result.response.speech.plain.speech if (result is defined and
+                result.response is defined and result.response.response_type ==
+                'action_done' and result.response.speech.plain.speech | length >
+                0) else 'Something went wrong' }}
+          - action: pyscript.conversation_id_setter
+            metadata: {}
+            data:
+              conversation_id: "{{ result.conversation_id }}"
+              chat_id: "{{ chat_id }}"
+          - action: pyscript.telegram_message_handle_tool
+            metadata: {}
+            data:
+              chat_id: "{{ trigger.json.message.chat.id }}"
+              message: "{{ response }}"
+              reply_to_message_id: "{{ trigger.json.message.message_id }}"
+            response_variable: telegram_response
+    default:
+      - action: pyscript.telegram_message_handle_tool
+        metadata: {}
+        data:
+          chat_id: "{{ trigger.json.message.chat.id }}"
+          message: Trình xử lý hiện tại không hỗ trợ loại tin nhắn này.
+          reply_to_message_id: "{{ trigger.json.message.message_id }}"
+        response_variable: telegram_response

@@ -1,0 +1,122 @@
+blueprint:
+  name: Voice - File Content Analyzer
+  author: VuLQ
+  description: >-
+    # Tool designed to analyze and extract all types of information from media and document files
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * An AI Task entity configured under System - General settings. Create it if it doesn't already exist.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+
+    ### Note
+
+    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to extract data from a media or document file.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+    * Do not alter the default script name.
+  domain: script
+  homeassistant:
+    min_version: 2025.8.0
+  input:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        instructions_prompt:
+          name: Instructions Prompt
+          description: The prompt which will be used for the LLM can provide the request for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided.
+
+            The tool can analyze content and extract any type of information from an image, video, audio, or document, including text, numbers, objects, speech, and visual features.
+
+            Always clearly specify exactly what data should be extracted.
+        file_path_prompt:
+          name: File Path Prompt
+          description: The prompt which will be used for the LLM can provide the file path for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided.
+
+            Always specify the path of the file.
+        mime_type_prompt:
+          name: MIME Type Prompt
+          description: The prompt which will be used for the LLM can provide the MIME type of file for the query.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: >-
+            This argument is mandatory and must always be provided.
+
+            Always specify the MIME type of the file.
+mode: parallel
+max_exceeded: silent
+fields:
+  instructions:
+    name: Instructions
+    description: !input instructions_prompt
+    selector:
+      text:
+        multiline: true
+    required: true
+  file_path:
+    name: File Path
+    description: !input file_path_prompt
+    selector:
+      text:
+    required: true
+  mime_type:
+    name: MIME Type
+    description: !input mime_type_prompt
+    selector:
+      text:
+    required: true
+sequence:
+  - variables:
+      instructions: "{{ instructions | default }}"
+      file_path: "{{ file_path | default }}"
+      mime_type: "{{ mime_type | default }}"
+  - if:
+      - alias: Check if variables were set correctly
+        condition: template
+        value_template: "{{ not (instructions and file_path and mime_type) }}"
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error: >-
+              Unable to extract data because one or more required arguments are missing: instructions, file path, or MIME type.
+      - alias: Stop the script
+        stop: >-
+          Unable to extract data because one or more required arguments are missing: instructions, file path, or MIME type.
+        response_variable: response
+  - action: ai_task.generate_data
+    data:
+      task_name: Analyze content from a file
+      instructions: "{{ instructions }}"
+      attachments:
+        media_content_id: media-source://media_source{{ file_path }}
+        media_content_type: "{{ mime_type }}"
+    response_variable: result
+  - variables:
+      response:
+        data: "{{ result.data }}"
+  - stop: ""
+    response_variable: response

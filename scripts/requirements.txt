@@ -8,3 +8,9 @@ pillow
 beautifulsoup4
 google-genai
 google-api-core
+typing-extensions
+
+# Telegram Media Handle Tool
+aiofiles
+aiohttp
+redis

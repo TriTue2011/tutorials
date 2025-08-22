@@ -97,7 +97,7 @@ def _build_ssl_ctx() -> ssl.SSLContext:
 
 
 @pyscript_compile
-def _build_gemini_client_sync() -> Any:
+def _build_gemini_client() -> Any:
     import google.genai as genai
 
     return genai.Client(api_key=GEMINI_API_KEY)
@@ -114,7 +114,7 @@ async def _ensure_ssl_ctx() -> None:
 async def _ensure_gemini_client() -> None:
     global GEMINI_CLIENT
     if GEMINI_CLIENT is None:
-        GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client_sync)
+        GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
 
 
 @pyscript_compile
@@ -239,13 +239,13 @@ async def _solve_captcha(
     prompt = "Extract exactly six consecutive lowercase letters (a-z) and digits (0-9) from this image, no spaces, and output only these characters."
     await _ensure_gemini_client()
 
-    def _generate_captcha_sync(_prompt: str, _image: Image.Image) -> Any:
+    def _solve_captcha_sync(_prompt: str, _image: Image.Image) -> Any:
         return GEMINI_CLIENT.models.generate_content(
             model=GEMINI_MODEL, contents=[_prompt, _image]
         )
 
     try:
-        response = await asyncio.to_thread(_generate_captcha_sync, prompt, image)
+        response = await asyncio.to_thread(_solve_captcha_sync, prompt, image)
         if (
             response.candidates
             and response.candidates[0].content

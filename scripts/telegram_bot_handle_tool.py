@@ -301,7 +301,7 @@ async def get_telegram_webhook() -> dict[str, Any]:
 
 
 @service(supports_response="only")
-async def set_telegram_webhook(webhook_id: str | None) -> dict[str, Any]:
+async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
     name: Configure Telegram Bot Webhook URL

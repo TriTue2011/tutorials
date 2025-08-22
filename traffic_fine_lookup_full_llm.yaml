@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Traffic Fine Lookup Tool
+  name: Voice - Check Traffic Fine
   author: VuLQ
   description: >-
     # Tool for checking traffic fines using LLM
@@ -10,9 +10,9 @@ blueprint:
 
     * Pyscript integration needs to be installed from HACS.
 
-    * The traffic_fine_lookup_tool.py script needs to be copied into the pyscript folder.
+    * The `traffic_fine_lookup_tool.py` script needs to be copied into the pyscript folder.
 
-    * The requirements.txt file needs to be copied into the pyscript folder.
+    * The `requirements.txt` file needs to be copied into the pyscript folder.
 
     * Redis needs to be installed and configured, as it's required for data caching.
 

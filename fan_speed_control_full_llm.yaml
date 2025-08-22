@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Fan Speed Control Tool
+  name: Voice - Set Fan Speed
   author: VuLQ
   description: >-
     # Tool for Controlling Fan Speed using LLM

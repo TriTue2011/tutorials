@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Device Ringing Tool
+  name: Voice - Ring Device
   author: VuLQ
   description: >-
     # Device Ringing Tool using LLM

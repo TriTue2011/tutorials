@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Advanced Google Search Tool
+  name: Voice - Perform Google Search
   author: VuLQ
   description: >-
     # Tool for searching Google information using LLM
@@ -18,7 +18,9 @@ blueprint:
 
     ```
 
-    You are a voice assistant. Always respond in the same language as the question. If in Vietnamese, reply in Vietnamese; if in English, reply in English. Current date and time: {{ now().isoformat(timespec='seconds') }}
+    You are a voice assistant.
+    Always respond in the same language as the question. If in Vietnamese, reply in Vietnamese; if in English, reply in English.
+    Current date and time: {{ now().isoformat(timespec='seconds') }}
 
     ```
 
@@ -35,7 +37,7 @@ blueprint:
     * Do not alter the default script name.
   domain: script
   homeassistant:
-    min_version: 2024.10.0
+    min_version: 2025.4.0
   input:
     agent_settings:
       name: Settings for Conversation Agent

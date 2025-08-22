@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Play YouTube Video Tool
+  name: Voice - Play YouTube Video
   author: VuLQ
   description: >-
     # Tool plays YouTube videos on a smart TV using LLM

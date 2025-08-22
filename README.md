@@ -1,6 +1,6 @@
 # Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo
+## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo
 
 * **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**
   * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
@@ -13,7 +13,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist gửi thông báo lên Telegram
+## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Telegram
 
 * **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Telegram bằng cách ra lệnh bằng giọng nói.**
   * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
@@ -26,7 +26,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## MỚI RA MẮT - Bản thiết kế dùng cho Voice Assist tìm kiếm thông tin trên Google
+## Bản thiết kế dùng cho Voice Assist tìm kiếm thông tin trên Google
 
 * **Bản thiết kế này cho phép bạn tìm kiếm mọi thông tin mới nhất trên Google bằng cách ra lệnh bằng giọng nói.**
   * Ví dụ bằng giọng nói:

@@ -91,7 +91,7 @@ def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
           text: {}
     """
     if not query:
-        return {"error": "Missing required argument: query"}
+        return {"error": "Missing a required argument: query"}
     try:
         results = int(kwargs.get("results", 5))
         search_type = list(kwargs.get("search_type", ["video"]))

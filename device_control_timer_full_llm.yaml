@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Device Control Timer Tool
+  name: Voice - Set Device Timer
   author: VuLQ
   description: >-
     # Tool for controlling on/off devices with adjustable delay timing using LLM
@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * The Device Control Tool (device_control_tool.yaml) blueprint needs to be installed.
+    * The `device_control_tool.yaml` blueprint needs to be installed.
 
     * A template sensor stores all information about entity aliases needs to be configured in configuration.yaml.
 

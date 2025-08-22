@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Device Location Lookup Tool
+  name: Voice - Get Device Location
   author: VuLQ
   description: >-
     # Device Location Lookup Tool using LLM

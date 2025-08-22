@@ -1,5 +1,5 @@
 blueprint:
-  name: Device Control Tool
+  name: Device Timer
   author: VuLQ
   description: >-
     # Tool for controlling on/off devices with adjustable delay timing
@@ -10,7 +10,7 @@ blueprint:
 
     * The devices must support `homeassistant.turn_on` and `homeassistant.turn_off`; otherwise, errors will be logged, and the blueprint will not work.
 
-    * This blueprint is a dependency for the Voice - Device Control Timer Tool (device_control_timer_full_llm.yaml)
+    * This blueprint is a dependency for the `device_control_timer_full_llm.yaml`.
 
     * Do not alter the default script name.
   domain: script

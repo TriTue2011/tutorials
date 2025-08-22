@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Send to Telegram Tool
+  name: Voice - Send to Telegram
   author: VuLQ
   description: >-
     # Tool for sending content to Telegram using LLM

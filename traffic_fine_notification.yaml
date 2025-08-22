@@ -9,9 +9,9 @@ blueprint:
 
     * Cần cài đặt tích hợp Pyscript từ HACS.
 
-    * Cần sao chép tập lệnh traffic_fine_lookup_tool.py vào thư mục pyscript.
+    * Cần sao chép tập lệnh `traffic_fine_lookup_tool.py` vào thư mục pyscript.
 
-    * Cần sao chép tập tin requirements.txt vào thư mục pyscript.
+    * Cần sao chép tập tin `requirements.txt` vào thư mục pyscript.
 
     * Cần cài đặt và cấu hình Redis để sử dụng làm bộ nhớ đệm, tăng tốc độ truy xuất dữ liệu.
 
@@ -101,7 +101,7 @@ blueprint:
 
     * Lưu lại cấu hình.
 
-    * Developer Tools -> YAML -> Reload Template Entities.
+    * Developer Tools - YAML - Reload Template Entities.
 
     * Dữ liệu phạt nguội có thể không có luôn mà sẽ có sau khi đến thời gian tra cứu.
 

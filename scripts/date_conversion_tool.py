@@ -1019,7 +1019,11 @@ def get_auspicious_hours(jd: int) -> list:
             end_hour = (i * 2 + 1) % 24
             start_hour = f"{start_hour:02d}:00"
             end_hour = f"{end_hour:02d}:00"
-            result = {"name": hour_name, "start_hour": start_hour, "end_hour": end_hour}
+            result: dict[str, Any] = {
+                "name": hour_name,
+                "start_hour": start_hour,
+                "end_hour": end_hour,
+            }
             if start_hour == "23:00":
                 result["cross_midnight"] = True
             auspicious_hours.append(result)
@@ -1068,7 +1072,9 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str,
           boolean: {}
     """
     if not all([conversion_type, date]):
-        return {"error": "Missing one of required arguments: conversion_type, date"}
+        return {
+            "error": "Missing one or more required arguments: conversion_type, date"
+        }
 
     if conversion_type not in ["s2l", "l2s"]:
         return {"error": "Wrong Conversion Type: conversion_type must be s2l or l2s"}

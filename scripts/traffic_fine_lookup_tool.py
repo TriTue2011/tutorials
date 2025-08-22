@@ -4,16 +4,15 @@ import re
 import ssl
 from datetime import timedelta
 from io import BytesIO
-from typing import Any
 
 import aiohttp
 import google.api_core.exceptions
-import google.genai
 import redis.asyncio as redis
 from PIL import Image
 from PIL import ImageOps
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
+from typing_extensions import Any, Buffer, cast
 
 TTL = 30  # Cache retention period (1–30 days)
 RETRY_LIMIT = 3
@@ -74,17 +73,9 @@ if not all([REDIS_HOST, REDIS_PORT]):
 if TTL < 1 or TTL > 30:
     raise ValueError("TTL must be between 1 and 30")
 
-client = google.genai.Client(api_key=GEMINI_API_KEY)
+SSL_CTX: ssl.SSLContext | None = None
 
-cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
-
-ssl_context = ssl.create_default_context()
-
-ssl_context.set_ciphers(
-    "@SECLEVEL=0:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
-)
-
-ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+GEMINI_CLIENT: Any = None
 
 cache_max_age = TTL * 24 * 60 * 60
 
@@ -92,9 +83,42 @@ cache_min_age = cache_max_age - (
     2 * 60 * 60
 )  # Only update cache when existing data is older than 2 hours
 
+cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+
 
 @pyscript_compile
-def extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
+def _build_ssl_ctx() -> ssl.SSLContext:
+    ctx = ssl.create_default_context()
+    ctx.set_ciphers(
+        "@SECLEVEL=0:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
+    )
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    return ctx
+
+
+@pyscript_compile
+def _build_gemini_client_sync() -> Any:
+    import google.genai as genai
+
+    return genai.Client(api_key=GEMINI_API_KEY)
+
+
+@pyscript_compile
+async def _ensure_ssl_ctx() -> None:
+    global SSL_CTX
+    if SSL_CTX is None:
+        SSL_CTX = await asyncio.to_thread(_build_ssl_ctx)
+
+
+@pyscript_compile
+async def _ensure_gemini_client() -> None:
+    global GEMINI_CLIENT
+    if GEMINI_CLIENT is None:
+        GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client_sync)
+
+
+@pyscript_compile
+def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     soup = BeautifulSoup(content, "html.parser")
     violations = []
     body_print = soup.find("div", id="bodyPrint123")
@@ -108,10 +132,10 @@ def extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
         }
 
     sections = body_print.find_all(recursive=False)
-    current_violation = None
+    current_violation = {}
     for element in sections:
         if "form-group" in element.get("class", AttributeValueList()):
-            if current_violation is None:
+            if not current_violation:
                 current_violation = {
                     "Biển kiểm soát": "",
                     "Màu biển": "",
@@ -140,7 +164,7 @@ def extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
         elif element.name == "hr":
             if current_violation:
                 violations.append(current_violation)
-                current_violation = None
+                current_violation = {}
 
     if current_violation:
         violations.append(current_violation)
@@ -162,14 +186,14 @@ def extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
 
 
 @pyscript_compile
-async def get_captcha(
+async def _get_captcha(
     ss: aiohttp.ClientSession, url: str
 ) -> tuple[BytesIO, None] | tuple[None, str]:
     try:
-        async with ss.get(url, timeout=30) as response:
+        async with ss.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
             response.raise_for_status()
             content = await response.read()
-            return BytesIO(content), None
+            return BytesIO(cast(Buffer, content)), None
     except asyncio.TimeoutError as error:
         return None, f"TimeoutError during retrieve CAPTCHA image: {error}"
     except aiohttp.ClientError as error:
@@ -179,7 +203,7 @@ async def get_captcha(
 
 
 @pyscript_compile
-def process_captcha(
+def _process_captcha(
     image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
     img = Image.open(image)
@@ -209,19 +233,25 @@ def process_captcha(
 
 
 @pyscript_compile
-async def solve_captcha(
+async def _solve_captcha(
     image: Image.Image, retry_count: int = 1
 ) -> tuple[str, None] | tuple[None, str]:
     prompt = "Extract exactly six consecutive lowercase letters (a-z) and digits (0-9) from this image, no spaces, and output only these characters."
-    loop = asyncio.get_event_loop()
-    try:
-        response = await loop.run_in_executor(
-            None,
-            lambda: client.models.generate_content(
-                model=GEMINI_MODEL, contents=[prompt, image]
-            ),
+    await _ensure_gemini_client()
+
+    def _generate_captcha_sync(_prompt: str, _image: Image.Image) -> Any:
+        return GEMINI_CLIENT.models.generate_content(
+            model=GEMINI_MODEL, contents=[_prompt, _image]
         )
-        if response.candidates and response.candidates[0].content.parts:
+
+    try:
+        response = await asyncio.to_thread(_generate_captcha_sync, prompt, image)
+        if (
+            response.candidates
+            and response.candidates[0].content
+            and response.candidates[0].content.parts
+            and response.candidates[0].content.parts[0].text
+        ):
             generated_text = response.candidates[0].content.parts[0].text.strip()
             return generated_text, None
         else:
@@ -237,7 +267,7 @@ async def solve_captcha(
                 f"Quota exceeded. Retrying in 30 seconds... (Attempt {retry_count}/{RETRY_LIMIT}): {error}"
             )
             await asyncio.sleep(30)
-            return await solve_captcha(image, retry_count + 1)
+            return await _solve_captcha(image, retry_count + 1)
         else:
             return (
                 None,
@@ -253,22 +283,23 @@ async def solve_captcha(
 
 
 @pyscript_compile
-async def check_license_plate(
+async def _check_license_plate(
     license_plate: str, vehicle_type: int, retry_count: int = 1
 ) -> dict[str, Any]:
-    async with aiohttp.ClientSession(
-        connector=aiohttp.TCPConnector(ssl=ssl_context)
-    ) as ss:
+    await _ensure_ssl_ctx()
+    async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=SSL_CTX)) as ss:
         try:
-            async with ss.get(GET_URL, headers=GET_HEADERS, timeout=30) as response_1st:
+            async with ss.get(
+                GET_URL, headers=GET_HEADERS, timeout=aiohttp.ClientTimeout(total=45)
+            ) as response_1st:
                 response_1st.raise_for_status()
-                image, error = await get_captcha(ss, CAPTCHA_URL)
+                image, error = await _get_captcha(ss, CAPTCHA_URL)
 
                 if not image:
                     return {"error": f"Unable to retrieve CAPTCHA image: {error}"}
 
-                image_filtered = process_captcha(image)
-                captcha, error = await solve_captcha(image_filtered)
+                image_filtered = _process_captcha(image)
+                captcha, error = await _solve_captcha(image_filtered)
 
                 if not captcha:
                     return {"error": f"CAPTCHA solving was not successful: {error}"}
@@ -278,7 +309,10 @@ async def check_license_plate(
                 data = f"BienKS={license_plate}&Xe={vehicle_type}&captcha={captcha}&ipClient=9.9.9.91&cUrl=1"
 
                 async with ss.post(
-                    url=POST_URL, headers=POST_HEADERS, data=data, timeout=30
+                    url=POST_URL,
+                    headers=POST_HEADERS,
+                    data=data,
+                    timeout=aiohttp.ClientTimeout(total=45),
                 ) as response_2nd:
                     response_2nd.raise_for_status()
                     response_2nd_json = await response_2nd.json(
@@ -292,7 +326,7 @@ async def check_license_plate(
                                 f"Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT})"
                             )
                             await asyncio.sleep(15)
-                            return await check_license_plate(
+                            return await _check_license_plate(
                                 license_plate, vehicle_type, retry_count + 1
                             )
                         else:
@@ -300,10 +334,12 @@ async def check_license_plate(
                                 "error": f"Retry limit ({retry_count}/{RETRY_LIMIT}) reached"
                             }
 
-                    async with ss.get(url=url, timeout=30) as response_3rd:
+                    async with ss.get(
+                        url=url, timeout=aiohttp.ClientTimeout(total=45)
+                    ) as response_3rd:
                         response_3rd.raise_for_status()
                         text_content = await response_3rd.text()
-                        response = extract_violations_from_html(text_content, url)
+                        response = _extract_violations_from_html(text_content, url)
 
                         if response and response.get("status") == "success":
                             await cached.set(
@@ -321,13 +357,20 @@ async def check_license_plate(
                     f"Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT}): {error}"
                 )
                 await asyncio.sleep(15)
-                return await check_license_plate(
+                return await _check_license_plate(
                     license_plate, vehicle_type, retry_count + 1
                 )
             else:
                 return {
                     "error": f"Retry limit ({retry_count}/{RETRY_LIMIT}) reached: {error}"
                 }
+
+
+@time_trigger
+async def build_cached_ctx():
+    """Run once at HA startup / Pyscript reload."""
+    await _ensure_ssl_ctx()
+    await _ensure_gemini_client()
 
 
 @service(supports_response="only")
@@ -384,14 +427,14 @@ async def traffic_fine_lookup_tool(
 
         if bool(bypass_caching):
             await cached.delete(f"{license_plate}-{vehicle_type}")
-            return await check_license_plate(license_plate, vehicle_type)
+            return await _check_license_plate(license_plate, vehicle_type)
 
         response = await cached.get(f"{license_plate}-{vehicle_type}")
         if response:  # Optimistic caching mechanism.
             ttl = await cached.ttl(f"{license_plate}-{vehicle_type}")
             if ttl < cache_min_age:
-                task.create(check_license_plate, license_plate, vehicle_type)
+                task.create(_check_license_plate, license_plate, vehicle_type)
             return json.loads(response)
-        return await check_license_plate(license_plate, vehicle_type)
+        return await _check_license_plate(license_plate, vehicle_type)
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

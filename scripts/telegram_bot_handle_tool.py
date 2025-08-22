@@ -205,15 +205,11 @@ async def telegram_media_handle_tool(file_id: str) -> dict[str, Any]:
             "text/",
             "application/pdf",
             "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.template"
+            "application/vnd.openxmlformats-officedocument.wordprocessingml",
             "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.template"
+            "application/vnd.openxmlformats-officedocument.spreadsheetml",
             "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
-            "application/vnd.openxmlformats-officedocument.presentationml.template",
+            "application/vnd.openxmlformats-officedocument.presentationml",
         )
         if mime_type and mime_type.startswith(support_file_types):
             response["supported"] = True

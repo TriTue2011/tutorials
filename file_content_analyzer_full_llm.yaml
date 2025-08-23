@@ -33,6 +33,7 @@ blueprint:
       input:
         agent_id:
           name: AI Task Entity
+          description: If left empty, the system will use the default settings under System - General.
           selector:
             entity:
               filter:

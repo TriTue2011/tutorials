@@ -10,7 +10,7 @@ blueprint:
 
     * Create a Telegram bot if it does not already exist.
 
-    * If this bot is also added to Telegram bot integration, it must be set up in broadcast mode.
+    * If the bot is also added to Telegram bot integration, it must be set up in broadcast mode.
 
     * Pyscript integration needs to be installed from HACS.
 

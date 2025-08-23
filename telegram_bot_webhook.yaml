@@ -33,6 +33,7 @@ blueprint:
         user_ids:
           name: User IDs
           description: You can optionally restrict specific user IDs within group chat IDs to enable communication with the Telegram bot. If left empty, by default, all users in the selected group chat IDs are allowed.
+          collapsed: true
           selector:
             text:
               multiple: true

@@ -14,8 +14,6 @@ If a request requires multiple tools, you must automatically call them in sequen
 Current date and time: {{ now().isoformat(timespec='seconds') }}
 ```
 
-![image](images/20250810_Qm9WWJ.png)
-
 ## Chi tiết
 
 * **Chỉ dẫn căn bản đầu tiên cho AI: Hãy là một trợ lý giọng nói.**

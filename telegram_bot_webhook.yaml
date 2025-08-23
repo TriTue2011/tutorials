@@ -9,28 +9,48 @@ blueprint:
   homeassistant:
     min_version: 2025.8.0
   input:
-    webhook_id:
-      name: Webhook ID
-      description: Enter the desired Webhook ID, or use "pyscript.set_telegram_webhook" to automatically create one.
-      selector:
-        text:
-    chat_ids:
-      name: Chat IDs
-      description: Specified Chat IDs allow communication with the Telegram bot.
-      selector:
-        text:
-          multiple: true
-    user_ids:
-      name: User IDs
-      description: Specified user IDs within group chat IDs allow communication with the Telegram bot. By default, if left empty, all users in the selected group chat IDs are allowed.
-      selector:
-        text:
-          multiple: true
-      default:
+    Webhook_settings:
+      name: Settings for Webhook
+      icon: mdi:webhook
+      description: These settings allow you to set up the Webhook ID for receiving Telegram messages.
+      input:
+        webhook_id:
+          name: Webhook ID
+          description: Enter the desired Webhook ID, or use `pyscript.set_telegram_webhook` to automatically create one.
+          selector:
+            text:
+    telegram_settings:
+      name: Settings for Telegram
+      icon: mdi:send-circle
+      description: These settings allow you to configure the Telegram Chat IDs and optionally restrict specific user IDs within group chat IDs.
+      input:
+        chat_ids:
+          name: Chat IDs
+          description: Specified chat IDs enable communication with the Telegram bot.
+          selector:
+            text:
+              multiple: true
+        user_ids:
+          name: User IDs
+          description: You can optionally restrict specific user IDs within group chat IDs to enable communication with the Telegram bot. If left empty, by default, all users in the selected group chat IDs are allowed.
+          selector:
+            text:
+              multiple: true
+          default:
+    agent_settings:
+      name: Settings for Conversation Agent
+      icon: mdi:robot-outline
+      description: These settings allow you to customize the conversation agent responsible for managing messages.
+      input:
+        agent_id:
+          name: Conversation Agent
+          selector:
+            entity:
+              filter:
+                domain: conversation
 mode: queued
 max_exceeded: silent
 variables:
-  webhook_id: !input webhook_id
   chat_ids: !input chat_ids
   user_ids: !input user_ids
 alias: Telegram bot webhook
@@ -50,8 +70,12 @@ conditions:
       {{ (trigger.json.message.chat.id | string) in chat_ids }}
   - condition: template
     value_template: >-
-      {% if user_ids is not none -%}
-      {{ (trigger.json.message.from.id | string) in user_ids }}
+      {% if user_ids is list -%}
+        {% if (trigger.json.message.from.id | string) in user_ids -%}
+        {{ true }}
+        {% else -%}
+        {{ false }}
+        {% endif -%}
       {% else -%}
       {{ true }}
       {% endif -%}
@@ -275,7 +299,7 @@ actions:
           - action: conversation.process
             metadata: {}
             data:
-              agent_id: conversation.google_ai_conversation_free
+              agent_id: !input agent_id
               conversation_id: "{{ conversation_id }}"
               text: "{{ input }}"
             response_variable: result

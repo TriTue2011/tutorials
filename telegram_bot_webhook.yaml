@@ -10,7 +10,7 @@ blueprint:
 
     * Create a Telegram bot if it does not already exist.
 
-    * If the bot is also added to Telegram bot integration, it must be set up in broadcast mode.
+    * If the bot is also added to Telegram bot integration, it must be set up in broadcast mode to avoid conflict.
 
     * Pyscript integration needs to be installed from HACS.
 
@@ -39,7 +39,7 @@ blueprint:
 
     #File secrets.yaml
 
-    telegram_bot_token: XXXXXX      # Retrieve the key from the Telegram BotFather.
+    telegram_bot_token: XXXXXX      # Retrieve the token from the Telegram BotFather.
 
     ```
 

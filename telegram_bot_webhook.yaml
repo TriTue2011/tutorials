@@ -22,7 +22,7 @@ blueprint:
     telegram_settings:
       name: Settings for Telegram
       icon: mdi:send-circle
-      description: These settings allow you to configure the Telegram Chat IDs and optionally restrict specific user IDs within group chat IDs.
+      description: These settings allow you to set up the Telegram Chat IDs and optionally restrict specific user IDs within group chat IDs.
       input:
         chat_ids:
           name: Chat IDs
@@ -40,7 +40,7 @@ blueprint:
     agent_settings:
       name: Settings for Conversation Agent
       icon: mdi:robot-outline
-      description: These settings allow you to customize the conversation agent responsible for managing messages.
+      description: These settings allow you to set up the conversation agent responsible for managing messages.
       input:
         agent_id:
           name: Conversation Agent

@@ -25,6 +25,17 @@ blueprint:
   homeassistant:
     min_version: 2025.8.0
   input:
+    agent_settings:
+      name: Settings for AI Task
+      icon: mdi:robot-outline
+      description: These settings allow you to set up the AI Task responsible for handling the analyzer task.
+      input:
+        agent_id:
+          name: AI Task Entity
+          selector:
+            entity:
+              filter:
+                domain: ai_task
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -114,6 +125,7 @@ sequence:
       attachments:
         media_content_id: media-source://media_source{{ file_path }}
         media_content_type: "{{ mime_type }}"
+      entity_id: !input agent_id
     response_variable: result
   - variables:
       response:

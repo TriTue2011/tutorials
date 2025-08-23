@@ -2,9 +2,58 @@ blueprint:
   name: Telegram Bot Webhook
   author: VuLQ
   description: >-
-    # Telegram Bot Webhook
+    # A Telegram bot enabling seamless two-way communication with Home Assistant.
 
-    ## Integrating a Telegram bot with Home Assistant allows for seamless two-way communication between the user and the smart home system.
+    ## Blueprint Setup
+
+    ### Required
+
+    * Create a Telegram bot if it does not already exist.
+
+    * If this bot is also added to Telegram bot integration, it must be set up in broadcast mode.
+
+    * Pyscript integration needs to be installed from HACS.
+
+    * The `telegram_bot_handle_tool.py` script needs to be copied into the pyscript folder.
+
+    * The `requirements.txt` file needs to be copied into the pyscript folder.
+
+    * A Telegram bot token needs to be configured in configuration.yaml.
+
+    * Redis needs to be installed and configured.
+
+    ```
+
+    #File configuration.yaml
+
+    pyscript:
+      allow_all_imports: true
+      hass_is_global: true
+      telegram_bot_token: !secret telegram_bot_token
+      redis_host: localhost     # If you're using the HA Addon, it should be the addon's hostname: xxxxxxxx-redis
+      redis_port: 6379      # Default: 6379
+
+    ```
+
+    ```
+
+    #File secrets.yaml
+
+    telegram_bot_token: XXXXXX      # Retrieve the key from the Telegram BotFather.
+
+    ```
+
+    ### Optional
+
+    * Use `pyscript.set_telegram_webhook` to easily configure a Telegram Webhook ID automatically.
+
+    * Use `pyscript.get_telegram_webhook` to check the current Telegram Webhook ID.
+
+    * Use `pyscript.delete_telegram_webhook` to delete the Telegram Webhook ID when you are no longer using it.
+
+    ### Note
+
+    * The `file_content_analyzer_full_llm.yaml` blueprint must be installed to analyze and extract various types of information from media and document files.
   domain: automation
   homeassistant:
     min_version: 2025.8.0

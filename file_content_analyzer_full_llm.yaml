@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * An AI Task entity configured under System - General settings. Create it if it doesn't already exist.
+    * An AI Task entity is created and set up under System - General settings.
 
     ### Optional
 

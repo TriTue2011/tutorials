@@ -10,7 +10,7 @@ blueprint:
 
     * A smart fan integrated into Home Assistant.
 
-    * A template sensor stores all information about entity aliases needs to be configured in configuration.yaml.
+    * A template sensor stores all information about entity aliases needs to be configured in `configuration.yaml`.
 
     ```
 

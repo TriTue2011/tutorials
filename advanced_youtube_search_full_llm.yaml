@@ -14,7 +14,7 @@ blueprint:
 
     * The `requirements.txt` file needs to be copied into the pyscript folder.
 
-    * A YouTube API key needs to be configured in configuration.yaml.
+    * A YouTube API key needs to be configured in `configuration.yaml`.
 
     ```
 

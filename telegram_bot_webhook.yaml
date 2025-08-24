@@ -18,7 +18,7 @@ blueprint:
 
     * The `requirements.txt` file needs to be copied into the pyscript folder.
 
-    * A Telegram bot token needs to be configured in configuration.yaml.
+    * A Telegram bot token needs to be configured in `configuration.yaml`.
 
     * Redis needs to be installed and configured.
 
@@ -30,7 +30,7 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       telegram_bot_token: !secret telegram_bot_token
-      redis_host: localhost     # If you're using the HA Addon, it should be the addon's hostname: xxxxxxxx-redis
+      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
       redis_port: 6379      # Default: 6379
 
     ```

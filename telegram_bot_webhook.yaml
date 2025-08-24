@@ -188,7 +188,7 @@ actions:
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
 
-                  (Use the *File Content Analyzer* tool to analyze the content of the file, accurately identify the user's request, then execute the request and provide a clear and complete response.)
+                  (Always use the *File Content Analyzer* to analyze file content and identify the user's request. Use additional tools if needed without asking for confirmation, then provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -214,7 +214,7 @@ actions:
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
 
-                  (Use the *File Content Analyzer* tool to analyze the content of the file, accurately identify the user's request, then execute the request and provide a clear and complete response.)
+                  (Always use the *File Content Analyzer* to analyze file content and identify the user's request. Use additional tools if needed without asking for confirmation, then provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -240,7 +240,7 @@ actions:
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
 
-                  (Use the *File Content Analyzer* tool to analyze the content of the file, accurately identify the user's request, then execute the request and provide a clear and complete response.)
+                  (Always use the *File Content Analyzer* to analyze file content and identify the user's request. Use additional tools if needed without asking for confirmation, then provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -266,7 +266,7 @@ actions:
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
 
-                  (Use the *File Content Analyzer* tool to analyze the content of the file, accurately identify the user's request, then execute the request and provide a clear and complete response.)
+                  (Always use the *File Content Analyzer* to analyze file content and identify the user's request. Use additional tools if needed without asking for confirmation, then provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -292,7 +292,7 @@ actions:
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
 
-                  (Use the *File Content Analyzer* tool to analyze the content of the file, accurately identify the user's request, then execute the request and provide a clear and complete response.)
+                  (Always use the *File Content Analyzer* to analyze file content and identify the user's request. Use additional tools if needed without asking for confirmation, then provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -318,7 +318,7 @@ actions:
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
 
-                  (Use the *File Content Analyzer* tool to analyze the content of the file, accurately identify the user's request, then execute the request and provide a clear and complete response.)
+                  (Always use the *File Content Analyzer* to analyze file content and identify the user's request. Use additional tools if needed without asking for confirmation, then provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"

@@ -82,7 +82,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## MỚI CẬP NHẬT - Hướng dẫn cách tạo một bản chỉ dẫn hệ thống cho Voice Assist
+## Hướng dẫn cách tạo một bản chỉ dẫn hệ thống cho Voice Assist
 
 * [**Hướng dẫn chi tiết**](/home_assistant_voice_instructions.md)
 
@@ -152,7 +152,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## MỚI CẬP NHẬT - Bản thiết kế dùng cho Voice Assist tra cứu chuyển đổi lịch
+## Bản thiết kế dùng cho Voice Assist tra cứu chuyển đổi lịch
 
 * **Bản thiết kế này cho phép bạn tra cứu chuyển đổi lịch bằng cách ra lệnh bằng giọng nói.**
 * **Chuyển đổi ngày Dương lịch bất kỳ sang Âm lịch và ngược lại.**

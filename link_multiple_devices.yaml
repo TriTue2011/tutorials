@@ -31,6 +31,7 @@ blueprint:
 mode: restart
 max_exceeded: silent
 variables:
+  version: 20250824
   linked_entities: !input linked_entities
 triggers:
   - trigger: state

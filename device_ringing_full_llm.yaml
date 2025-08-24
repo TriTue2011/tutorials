@@ -63,6 +63,7 @@ fields:
     required: true
 sequence:
   - variables:
+      version: 20250824
       ring_id: "{{ ring_id | default }}"
   - alias: Check if variables were set correctly
     if:

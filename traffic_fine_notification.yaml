@@ -135,6 +135,8 @@ blueprint:
           multiple: true
 mode: queued
 max_exceeded: silent
+variables:
+  version: 20250824
 triggers:
   - trigger: state
     entity_id: !input vehicles

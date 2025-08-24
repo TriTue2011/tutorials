@@ -116,6 +116,7 @@ fields:
     required: true
 sequence:
   - variables:
+      version: 20250824
       entity_aliases: !input entity_aliases
       fan_entities: "{{ fan_entities | default }}"
       oscillating: "{{ oscillating | default(false) }}"

@@ -1,5 +1,18 @@
 # Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
 
+## Bản thiết kế tương tác 2 chiều với Telegram
+
+* **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Telegram.**
+  * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Telegram.
+  * Bạn có thể gửi ảnh, video, âm thanh, hoặc tệp tài liệu từ Telegram và yêu cầu bot phân tích nội dung.
+  * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftelegram_bot_webhook.yaml)
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
 ## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo
 
 * **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**

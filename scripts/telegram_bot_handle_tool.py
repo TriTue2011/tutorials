@@ -9,7 +9,7 @@ import aiofiles
 import aiohttp
 import redis.asyncio as redis
 
-TTL = 5  # Cache retention period (minutes)
+TTL = 15  # Cache retention period (minutes)
 DIRECTORY = "/media/telegram"
 TOKEN = pyscript.config.get("telegram_bot_token")
 REDIS_HOST = pyscript.config.get("redis_host")

@@ -113,6 +113,7 @@ fields:
     default: "1"
 sequence:
   - variables:
+      version: 20250824
       license_plate: "{{ license_plate | default }}"
       vehicle_type: "{{ vehicle_type | default }}"
   - alias: Check if variables were set correctly

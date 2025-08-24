@@ -54,6 +54,7 @@ fields:
     required: true
 sequence:
   - variables:
+      version: 20250824
       devices: "{{ devices | default }}"
       control: "{{ control | default(false) }}"
       timer: "{{ timer | default('00:00:00') }}"

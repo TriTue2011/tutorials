@@ -86,6 +86,7 @@ fields:
       boolean:
 sequence:
   - variables:
+      version: 20250824
       lunar_date: "{{ lunar_date | as_datetime(default='') }}"
       start_date: "{{ as_datetime(lunar_date).date() if lunar_date else 'n/a' }}"
       days: "{{ days | default(1) | abs }}"

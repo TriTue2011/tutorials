@@ -106,6 +106,7 @@ fields:
       boolean:
 sequence:
   - variables:
+      version: 20250824
       conversion_type: "{{ conversion_type | default }}"
       date: "{{ (date | as_datetime(default=now())).date() }}"
       leap_month: "{{ leap_month | default(false) }}"

@@ -10,7 +10,7 @@ blueprint:
 
     * Create a Telegram bot if it does not already exist.
 
-    * If the bot is also added to Telegram bot integration, it must be set up in broadcast mode to avoid conflict.
+    * If the bot is also added to Telegram bot integration, it must be set up in broadcast mode to prevent any conflicts.
 
     * Pyscript integration needs to be installed from HACS.
 
@@ -43,6 +43,10 @@ blueprint:
 
     ```
 
+    ### Note
+
+    * The `file_content_analyzer_full_llm.yaml` blueprint must be installed to analyze and extract various types of information from media and document files.
+
     ### Optional
 
     * Use `pyscript.set_telegram_webhook` to easily configure a Telegram Webhook ID automatically.
@@ -50,10 +54,6 @@ blueprint:
     * Use `pyscript.get_telegram_webhook` to check the current Telegram Webhook ID.
 
     * Use `pyscript.delete_telegram_webhook` to delete the Telegram Webhook ID when you are no longer using it.
-
-    ### Note
-
-    * The `file_content_analyzer_full_llm.yaml` blueprint must be installed to analyze and extract various types of information from media and document files.
   domain: automation
   homeassistant:
     min_version: 2025.8.0
@@ -65,7 +65,7 @@ blueprint:
       input:
         webhook_id:
           name: Webhook ID
-          description: Enter the desired Webhook ID, or use `pyscript.set_telegram_webhook` to automatically create one.
+          description: Enter the preferred Webhook ID, or use `pyscript.set_telegram_webhook` to generate one automatically.
           selector:
             text:
     telegram_settings:

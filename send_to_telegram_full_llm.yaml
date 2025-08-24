@@ -150,19 +150,22 @@ sequence:
         {% endif -%}
   - if:
       - condition: template
-        value_template: "{{ thread_id }}"
+        value_template: "{{ not thread_id }}"
     then:
-      - action: telegram_bot.send_message
-        data:
-          config_entry_id: !input entry_id
-          message: "{{ message }}"
-          target: !input chat_id
-          parse_mode: markdown
-          message_thread_id: "{{ thread_id}}"
+      - variables:
+          data:
+            config_entry_id: !input entry_id
+            message: "{{ message }}"
+            target: !input chat_id
+            parse_mode: markdown
+          
     else:
-      - action: telegram_bot.send_message
-        data:
-          config_entry_id: !input entry_id
-          message: "{{ message }}"
-          target: !input chat_id
-          parse_mode: markdown
+      - variables:
+          data:
+            config_entry_id: !input entry_id
+            message: "{{ message }}"
+            target: !input chat_id
+            parse_mode: markdown
+            message_thread_id: "{{ thread_id}}"
+  - action: telegram_bot.send_message
+    data: "{{ data }}"

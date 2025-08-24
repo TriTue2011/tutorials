@@ -30,7 +30,7 @@ cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 async def _ensure_session() -> aiohttp.ClientSession:
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30))
+        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
     return _session
 
 

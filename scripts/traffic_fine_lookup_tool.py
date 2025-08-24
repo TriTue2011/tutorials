@@ -190,7 +190,7 @@ async def _get_captcha(
     ss: aiohttp.ClientSession, url: str
 ) -> tuple[BytesIO, None] | tuple[None, str]:
     try:
-        async with ss.get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+        async with ss.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
             response.raise_for_status()
             content = await response.read()
             return BytesIO(cast(Buffer, content)), None
@@ -290,7 +290,7 @@ async def _check_license_plate(
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=SSL_CTX)) as ss:
         try:
             async with ss.get(
-                GET_URL, headers=GET_HEADERS, timeout=aiohttp.ClientTimeout(total=45)
+                GET_URL, headers=GET_HEADERS, timeout=aiohttp.ClientTimeout(total=60)
             ) as response_1st:
                 response_1st.raise_for_status()
                 image, error = await _get_captcha(ss, CAPTCHA_URL)
@@ -312,7 +312,7 @@ async def _check_license_plate(
                     url=POST_URL,
                     headers=POST_HEADERS,
                     data=data,
-                    timeout=aiohttp.ClientTimeout(total=45),
+                    timeout=aiohttp.ClientTimeout(total=60),
                 ) as response_2nd:
                     response_2nd.raise_for_status()
                     response_2nd_json = await response_2nd.json(
@@ -323,9 +323,9 @@ async def _check_license_plate(
                     if not url:
                         if retry_count < RETRY_LIMIT:
                             print(
-                                f"Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT})"
+                                f"Retrying in 30 seconds... (Attempt {retry_count}/{RETRY_LIMIT})"
                             )
-                            await asyncio.sleep(15)
+                            await asyncio.sleep(30)
                             return await _check_license_plate(
                                 license_plate, vehicle_type, retry_count + 1
                             )
@@ -335,7 +335,7 @@ async def _check_license_plate(
                             }
 
                     async with ss.get(
-                        url=url, timeout=aiohttp.ClientTimeout(total=45)
+                        url=url, timeout=aiohttp.ClientTimeout(total=60)
                     ) as response_3rd:
                         response_3rd.raise_for_status()
                         text_content = await response_3rd.text()
@@ -354,9 +354,9 @@ async def _check_license_plate(
         except Exception as error:
             if retry_count < RETRY_LIMIT:
                 print(
-                    f"Retrying in 15 seconds... (Attempt {retry_count}/{RETRY_LIMIT}): {error}"
+                    f"Retrying in 30 seconds... (Attempt {retry_count}/{RETRY_LIMIT}): {error}"
                 )
-                await asyncio.sleep(15)
+                await asyncio.sleep(30)
                 return await _check_license_plate(
                     license_plate, vehicle_type, retry_count + 1
                 )

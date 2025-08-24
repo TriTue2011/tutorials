@@ -100,7 +100,7 @@ blueprint:
                 domain: conversation
         language:
           name: Language
-          description: The language code used to communicate with a conversation agent follows the IETF language tag standard.
+          description: The language code used to communicate with a conversation agent follows the IETF language tag standard, such as en-US.
           selector:
             text:
           default: vi-VN

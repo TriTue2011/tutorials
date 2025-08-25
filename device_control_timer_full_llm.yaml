@@ -147,7 +147,7 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250824
+      version: 20250825
       entity_aliases: !input entity_aliases
       entities: "{{ entities | default }}"
       control: "{{ control | default(false) }}"

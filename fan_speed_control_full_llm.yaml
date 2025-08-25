@@ -150,7 +150,7 @@ fields:
         step: 1
 sequence:
   - variables:
-      version: 20250824
+      version: 20250825
       entity_aliases: !input entity_aliases
       speed_steps: !input speed_steps
       fan_entities: "{{ fan_entities | default }}"

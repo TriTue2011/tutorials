@@ -104,7 +104,7 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250824
+      version: 20250825
       instructions: "{{ instructions | default }}"
       file_path: "{{ file_path | default }}"
       mime_type: "{{ mime_type | default }}"

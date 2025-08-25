@@ -132,7 +132,7 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250824
+      version: 20250825
       start_date: "{{ start_date | as_datetime(default='') }}"
       start_time: "{{ start_time | default('00:00:00') | as_timedelta | default('00:00:00', true) }}"
       start: >-

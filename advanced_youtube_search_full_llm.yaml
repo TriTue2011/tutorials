@@ -116,7 +116,7 @@ fields:
         text:
 sequence:
   - variables:
-      version: 20250824
+      version: 20250825
       results: !input results
       query_string: "{{ query_string | default }}"
       page_token: "{{ page_token | default }}"

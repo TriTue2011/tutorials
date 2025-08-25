@@ -144,7 +144,7 @@ fields:
     default: 3
 sequence:
   - variables:
-      version: 20250824
+      version: 20250825
       entity_aliases: !input entity_aliases
       short_videos: "{{ short_videos | default(false) }}"
       entities: "{{ entities | default }}"

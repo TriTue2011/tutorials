@@ -183,11 +183,11 @@ actions:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
-                  If the prompt is empty, treat instructions within the file itself (via transcription/OCR) as the request and execute it.
+                  If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
 
-                  If no actionable instruction is found, return a concise summary of the content.
+                  Only when no instruction or question exists in the file, return a concise summary of its content.
 
-                  Use any other tools as needed without asking for confirmation, and provide a clear, complete response.
+                  Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
 
                   Always respond in the user's language: {{ language }}.
                 prompt: >-
@@ -217,11 +217,11 @@ actions:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
-                  If the prompt is empty, treat instructions within the file itself (via transcription/OCR) as the request and execute it.
+                  If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
 
-                  If no actionable instruction is found, return a concise summary of the content.
+                  Only when no instruction or question exists in the file, return a concise summary of its content.
 
-                  Use any other tools as needed without asking for confirmation, and provide a clear, complete response.
+                  Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
 
                   Always respond in the user's language: {{ language }}.
                 prompt: >-
@@ -251,11 +251,11 @@ actions:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
-                  If the prompt is empty, treat instructions within the file itself (via transcription/OCR) as the request and execute it.
+                  If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
 
-                  If no actionable instruction is found, return a concise summary of the content.
+                  Only when no instruction or question exists in the file, return a concise summary of its content.
 
-                  Use any other tools as needed without asking for confirmation, and provide a clear, complete response.
+                  Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
 
                   Always respond in the user's language: {{ language }}.
                 prompt: >-
@@ -285,11 +285,11 @@ actions:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
-                  If the prompt is empty, treat instructions within the file itself (via transcription/OCR) as the request and execute it.
+                  If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
 
-                  If no actionable instruction is found, return a concise summary of the content.
+                  Only when no instruction or question exists in the file, return a concise summary of its content.
 
-                  Use any other tools as needed without asking for confirmation, and provide a clear, complete response.
+                  Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
 
                   Always respond in the user's language: {{ language }}.
                 prompt: >-
@@ -319,11 +319,11 @@ actions:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
-                  If the prompt is empty, treat instructions within the file itself (via transcription/OCR) as the request and execute it.
+                  If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
 
-                  If no actionable instruction is found, return a concise summary of the content.
+                  Only when no instruction or question exists in the file, return a concise summary of its content.
 
-                  Use any other tools as needed without asking for confirmation, and provide a clear, complete response.
+                  Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
 
                   Always respond in the user's language: {{ language }}.
                 prompt: >-
@@ -353,11 +353,11 @@ actions:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
-                  If the prompt is empty, treat instructions within the file itself (via transcription/OCR) as the request and execute it.
+                  If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
 
-                  If no actionable instruction is found, return a concise summary of the content.
+                  Only when no instruction or question exists in the file, return a concise summary of its content.
 
-                  Use any other tools as needed without asking for confirmation, and provide a clear, complete response.
+                  Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
 
                   Always respond in the user's language: {{ language }}.
                 prompt: >-

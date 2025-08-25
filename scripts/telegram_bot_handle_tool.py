@@ -95,7 +95,10 @@ async def _set_webhook_info(
     session: aiohttp.ClientSession, base_url: str, webhook_id: str
 ) -> dict[str, Any]:
     url = f"https://api.telegram.org/bot{TOKEN}/setWebhook"
-    params = {"url": f"{base_url}/api/webhook/{webhook_id}"}
+    params = {
+        "url": f"{base_url}/api/webhook/{webhook_id}",
+        "drop_pending_updates": True,
+    }
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
         return await resp.json()
@@ -104,7 +107,8 @@ async def _set_webhook_info(
 @pyscript_compile
 async def _delete_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://api.telegram.org/bot{TOKEN}/deleteWebhook"
-    async with session.get(url) as resp:
+    params = {"drop_pending_updates": True}
+    async with session.post(url, json=params) as resp:
         resp.raise_for_status()
         return await resp.json()
 

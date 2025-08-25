@@ -42,7 +42,7 @@
 
 ### Tạo sensor cho kênh YouTube
 
-- Sau khi có ID của kênh YouTube, thêm sensor như sau vào tập tin cấu hình configuration.yaml của Home Assistant.
+- Sau khi có ID của kênh YouTube, thêm sensor như sau vào tập tin cấu hình `configuration.yaml` của Home Assistant.
 
 ```yaml
 sensor:
@@ -102,7 +102,7 @@ sensor:
 
 ### Tạo một shell_command để lấy thông tin về alias
 
-- Thêm vào tập tin cấu hình configuration.yaml của Home Assistant.
+- Thêm vào tập tin cấu hình `configuration.yaml` của Home Assistant.
 
 ```yaml
 shell_command:
@@ -111,7 +111,7 @@ shell_command:
 
 ### Tạo một sensor để lưu thông tin về alias
 
-- Thêm vào tập tin cấu hình configuration.yaml của Home Assistant.
+- Thêm vào tập tin cấu hình `configuration.yaml` của Home Assistant.
 
 ```yaml
 template:

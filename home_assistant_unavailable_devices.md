@@ -10,7 +10,7 @@
 
 ![image](images/20250426_oj1S9U.png)
 
-### Tạo một template binary_sensor, thêm vào trong cấu hình configuration.yaml
+### Tạo một template binary_sensor, thêm vào trong cấu hình `configuration.yaml`
 
 ``` yaml
 template:

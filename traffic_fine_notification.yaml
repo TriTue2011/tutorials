@@ -15,7 +15,7 @@ blueprint:
 
     * Cần cài đặt và cấu hình Redis để sử dụng làm bộ nhớ đệm, tăng tốc độ truy xuất dữ liệu.
 
-    * Cần cấu hình 1 khóa Gemini API trong configuration.yaml sử dụng cho việc giải mã CAPTCHA.
+    * Cần cấu hình 1 khóa Gemini API trong `configuration.yaml` sử dụng cho việc giải mã CAPTCHA.
 
     ```
 
@@ -25,7 +25,7 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       gemini_api_key: !secret gemini_api_key
-      redis_host: localhost     # If you're using the HA Addon, it should be the addon's hostname: xxxxxxxx-redis
+      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
       redis_port: 6379      # Default: 6379
 
     ```
@@ -40,7 +40,7 @@ blueprint:
 
     ## Hướng dẫn cài đặt
 
-    ### Thêm Template Sensor cho từng xe theo mẫu bên dưới vào trong configuration.yaml của HA
+    ### Thêm Template Sensor cho từng xe theo mẫu bên dưới vào trong `configuration.yaml` của Home Assistant
 
     * Trong đó Sensor Time to Check để khai báo thời gian ngẫu nhiên thực hiện tra cứu, tối thiểu ngày 2 lần.
 
@@ -131,7 +131,7 @@ blueprint:
       selector:
         device:
           filter:
-          - integration: mobile_app
+            - integration: mobile_app
           multiple: true
 mode: queued
 max_exceeded: silent

@@ -32,7 +32,7 @@
 
 ### Create a shell_command to get information about the Alias of the entities
 
-* Add the code below to configuration file (configuration.yaml) of Home Assistant.
+* Add the code below to configuration file `configuration.yaml` of Home Assistant.
 
 ```yaml
 shell_command:
@@ -41,7 +41,7 @@ shell_command:
 
 ### Create a template sensor to save information about Alias
 
-* Add the code below to configuration file (configuration.yaml) of Home Assistant.
+* Add the code below to configuration file `configuration.yaml` of Home Assistant.
 
 ```yaml
 template:

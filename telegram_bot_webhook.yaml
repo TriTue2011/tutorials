@@ -18,7 +18,7 @@ blueprint:
 
     * The `requirements.txt` file needs to be copied into the pyscript folder.
 
-    * A Telegram bot token needs to be configured in configuration.yaml.
+    * A Telegram bot token needs to be configured in `configuration.yaml`.
 
     * Redis needs to be installed and configured.
 
@@ -30,7 +30,7 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       telegram_bot_token: !secret telegram_bot_token
-      redis_host: localhost     # If you're using the HA Addon, it should be the addon's hostname: xxxxxxxx-redis
+      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
       redis_port: 6379      # Default: 6379
 
     ```
@@ -49,11 +49,11 @@ blueprint:
 
     ### Optional
 
-    * Use `pyscript.set_telegram_webhook` to easily configure a Telegram Webhook ID automatically.
+    * Use the `pyscript.set_telegram_webhook` action to easily configure a Telegram Webhook ID automatically.
 
-    * Use `pyscript.get_telegram_webhook` to check the current Telegram Webhook ID.
+    * Use the `pyscript.get_telegram_webhook` action to check the current Telegram Webhook ID.
 
-    * Use `pyscript.delete_telegram_webhook` to delete the Telegram Webhook ID when you are no longer using it.
+    * Use the `pyscript.delete_telegram_webhook` action to delete the Telegram Webhook ID when you are no longer using it.
   domain: automation
   homeassistant:
     min_version: 2025.8.0
@@ -65,7 +65,7 @@ blueprint:
       input:
         webhook_id:
           name: Webhook ID
-          description: Enter the preferred Webhook ID, or use `pyscript.set_telegram_webhook` to generate one automatically.
+          description: Enter the preferred Webhook ID, or use the `pyscript.set_telegram_webhook` action to generate one automatically.
           selector:
             text:
     telegram_settings:
@@ -177,6 +177,8 @@ actions:
             response_variable: file
           - variables:
               input:
+                system: >-
+                  Always use the *File Content Analyzer* to analyze file content and accurately identify the user's request. Use any other tools as needed to fulfill the request without asking for confirmation, and then provide a clear, complete response.
                 prompt: >-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -187,8 +189,6 @@ actions:
 
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
-
-                  (Analyze the content of the file, accurately identify the user's request, then perform the requested action and provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -203,6 +203,8 @@ actions:
             response_variable: file
           - variables:
               input:
+                system: >-
+                  Always use the *File Content Analyzer* to analyze file content and accurately identify the user's request. Use any other tools as needed to fulfill the request without asking for confirmation, and then provide a clear, complete response.
                 prompt: >-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -213,8 +215,6 @@ actions:
 
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
-
-                  (Analyze the content of the file, accurately identify the user's request, then perform the requested action and provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -229,6 +229,8 @@ actions:
             response_variable: file
           - variables:
               input:
+                system: >-
+                  Always use the *File Content Analyzer* to analyze file content and accurately identify the user's request. Use any other tools as needed to fulfill the request without asking for confirmation, and then provide a clear, complete response.
                 prompt: >-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -239,8 +241,6 @@ actions:
 
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
-
-                  (Analyze the content of the file, accurately identify the user's request, then perform the requested action and provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -255,6 +255,8 @@ actions:
             response_variable: file
           - variables:
               input:
+                system: >-
+                  Always use the *File Content Analyzer* to analyze file content and accurately identify the user's request. Use any other tools as needed to fulfill the request without asking for confirmation, and then provide a clear, complete response.
                 prompt: >-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -265,8 +267,6 @@ actions:
 
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
-
-                  (Analyze the content of the file, accurately identify the user's request, then perform the requested action and provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -281,6 +281,8 @@ actions:
             response_variable: file
           - variables:
               input:
+                system: >-
+                  Always use the *File Content Analyzer* to analyze file content and accurately identify the user's request. Use any other tools as needed to fulfill the request without asking for confirmation, and then provide a clear, complete response.
                 prompt: >-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -291,8 +293,6 @@ actions:
 
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
-
-                  (Analyze the content of the file, accurately identify the user's request, then perform the requested action and provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
@@ -307,6 +307,8 @@ actions:
             response_variable: file
           - variables:
               input:
+                system: >-
+                  Always use the *File Content Analyzer* to analyze file content and accurately identify the user's request. Use any other tools as needed to fulfill the request without asking for confirmation, and then provide a clear, complete response.
                 prompt: >-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -317,8 +319,6 @@ actions:
 
                   {% if trigger.json.message.caption is defined %} {{
                   trigger.json.message.caption }} {% endif %}
-
-                  (Analyze the content of the file, accurately identify the user's request, then perform the requested action and provide a clear and complete response.)
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"

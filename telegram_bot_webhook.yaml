@@ -10,6 +10,8 @@ blueprint:
 
     * Create a Telegram bot if it does not already exist.
 
+    * The bot needs to disable Privacy mode before being added to a group chat or set as a group chat admin to access messages.
+
     * If the bot is also added to Telegram bot integration, it must be set up in broadcast mode to prevent any conflicts.
 
     * Pyscript integration needs to be installed from HACS.

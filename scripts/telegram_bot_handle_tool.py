@@ -310,13 +310,13 @@ def generate_webhook_id() -> dict[str, Any]:
         response["sample_internal_url"] = f"{internal_url}/api/webhook/{webhook_id}"
     else:
         response["sample_internal_url"] = (
-            "The internal Home Assistant URL is not found. Please check under System - Network settings."
+            "The internal Home Assistant URL is not found."
         )
     if external_url:
         response["sample_external_url"] = f"{external_url}/api/webhook/{webhook_id}"
     else:
         response["sample_external_url"] = (
-            "The external Home Assistant URL is not found. Please check under System - Network settings."
+            "The external Home Assistant URL is not found."
         )
     return response
 
@@ -353,9 +353,7 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
             webhook_id = secrets.token_urlsafe()
         external_url = _external_url()
         if not external_url:
-            return {
-                "error": "The external Home Assistant URL is not found. Please check under System - Network settings."
-            }
+            return {"error": "The external Home Assistant URL is not found."}
         session = await _ensure_session()
         response = await _set_webhook_info(session, external_url, webhook_id)
         if isinstance(response, dict) and response.get("ok"):

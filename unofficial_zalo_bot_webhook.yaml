@@ -197,21 +197,20 @@ actions:
               - condition: template
                 value_template: "{{ not conversation_id }}"
             then:
-              - variables:
-                  data:
-                    agent_id: !input agent_id
-                    text: "{{ input }}"
-                    language: "{{ language }}"
+              - action: conversation.process
+                data:
+                  agent_id: !input agent_id
+                  text: "{{ input }}"
+                  language: "{{ language }}"
+                response_variable: result
             else:
-              - variables:
-                  data:
-                    agent_id: !input agent_id
-                    text: "{{ input }}"
-                    conversation_id: "{{ conversation_id }}"
-                    language: "{{ language }}"
-          - action: conversation.process
-            data: "{{ data }}"
-            response_variable: result
+              - action: conversation.process
+                data:
+                  agent_id: !input agent_id
+                  text: "{{ input }}"
+                  conversation_id: "{{ conversation_id }}"
+                  language: "{{ language }}"
+                response_variable: result
           - variables:
               response: >-
                 {{ result.response.speech.plain.speech if (result is defined and

@@ -13,7 +13,7 @@
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 
-## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo
+## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo (Custom Zalo Bot)
 
 * **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**
   * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
@@ -22,7 +22,7 @@
     * Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
     * Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_full_llm.yaml)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_unofficial_bot_full_llm.yaml)
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 

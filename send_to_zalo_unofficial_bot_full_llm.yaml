@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * Zalo Bot integration needs to be installed and configured from HACS.
+    * The Zalo Bot integration must be installed through HACS and properly configured.
 
     ### Optional
 

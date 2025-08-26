@@ -1,5 +1,5 @@
 blueprint:
-  name: Unofficial Zalo Bot Webhook
+  name: Zalo Bot Webhook
   author: VuLQ
   description: >-
     # A Zalo bot enabling seamless two-way communication with Home Assistant.
@@ -8,17 +8,17 @@ blueprint:
 
     ### Required
 
-    * The Zalo Bot integration should be installed through HACS and properly configured.
+    * Create a Zalo bot if it does not already exist using Zalo Bot Creator.
 
     * The Pyscript integration needs to be installed from HACS.
 
-    * The `unofficial_zalo_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
+    * The `zalo_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
 
     * The `requirements.txt` file needs to be copied into the pyscript folder.
 
-    * Redis needs to be installed and configured.
+    * A Zalo bot token needs to be configured in `configuration.yaml`.
 
-    * Update the Webhook URL to the Zalo Bot Server after saving the script.
+    * Redis needs to be installed and configured.
 
     ```
 
@@ -27,8 +27,17 @@ blueprint:
     pyscript:
       allow_all_imports: true
       hass_is_global: true
+      zalo_bot_token: !secret zalo_bot_token
       redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
       redis_port: 6379      # Default: 6379
+
+    ```
+
+    ```
+
+    #File secrets.yaml
+
+    zalo_bot_token: XXXXXX      # Retrieve the token from the Zalo Bot Creator.
 
     ```
 
@@ -38,7 +47,11 @@ blueprint:
 
     ### Optional
 
-    * Use the `pyscript.generate_webhook_id` action to easily generate a Webhook ID.
+    * Use the `pyscript.set_zalo_webhook` action to easily configure a Zalo Webhook ID automatically.
+
+    * Use the `pyscript.get_zalo_webhook` action to check the current Zalo Webhook ID.
+
+    * Use the `pyscript.delete_zalo_webhook` action to delete the Zalo Webhook ID when you are no longer using it.
   domain: automation
   homeassistant:
     min_version: 2025.8.0
@@ -50,28 +63,23 @@ blueprint:
       input:
         webhook_id:
           name: Webhook ID
-          description: Enter the preferred Webhook ID, or use the `pyscript.generate_webhook_id` action to generate one automatically.
+          description: Enter the preferred Webhook ID, or use the `pyscript.set_zalo_webhook` action to generate one automatically.
           selector:
             text:
     zalo_settings:
       name: Settings for Zalo
-      icon: mdi:application-cog
-      description: These settings allow you to set up the Zalo bot account, thread IDs and optionally restrict specific user IDs within thread IDs.
+      icon: mdi:send-circle
+      description: These settings allow you to set up the Zalo Chat IDs and optionally restrict specific user IDs within group chat IDs.
       input:
-        account_selection:
-          name: Account Selection
-          description: Specified phone number for the Zalo bot account.
-          selector:
-            text:
-        thread_ids:
-          name: Thread IDs
-          description: Specified thread IDs enable communication with the Zalo bot.
+        chat_ids:
+          name: Chat IDs
+          description: Specified chat IDs enable communication with the Zalo bot.
           selector:
             text:
               multiple: true
         user_ids:
           name: User IDs
-          description: You can optionally restrict specific user IDs within thread IDs to enable communication with the Zalo bot. If left empty, by default, all users in the selected thread IDs are allowed.
+          description: You can optionally restrict specific user IDs within group chat IDs to enable communication with the Zalo bot. If left empty, by default, all users in the selected group chat IDs are allowed.
           selector:
             text:
               multiple: true
@@ -98,7 +106,7 @@ mode: queued
 max_exceeded: silent
 variables:
   version: 20250826
-  thread_ids: !input thread_ids
+  chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language
 alias: Zalo bot webhook
@@ -107,19 +115,19 @@ triggers:
   - trigger: webhook
     allowed_methods:
       - POST
-    local_only: true
+    local_only: false
     webhook_id: !input webhook_id
 conditions:
   - condition: template
     value_template: >-
-      {{ trigger.json is defined }}
+      {{ trigger.json is defined and trigger.json.message is defined }}
   - condition: template
     value_template: >-
-      {{ (trigger.json.threadId | string) in thread_ids }}
+      {{ (trigger.json.message.chat.id | string) in chat_ids }}
   - condition: template
     value_template: >-
       {% if user_ids is list -%}
-        {% if (trigger.json.data.uidFrom | string) in user_ids -%}
+        {% if (trigger.json.message.from.id | string) in user_ids -%}
         {{ true }}
         {% else -%}
         {{ false }}
@@ -130,7 +138,7 @@ conditions:
 actions:
   - variables:
       chat_id: >-
-        {{ ('id_' ~ trigger.json.threadId ~ '_' ~ trigger.json.data.uidFrom) | slugify }}
+        {{ ('id_' ~ trigger.json.message.chat.id ~ '_' ~ trigger.json.message.from.id) | slugify }}
   - action: pyscript.conversation_id_fetcher
     data:
       chat_id: "{{ chat_id }}"
@@ -141,24 +149,22 @@ actions:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ trigger.json.data.msgType == 'webchat' }}"
+            value_template: "{{ trigger.json.event_name == 'message.text.received' }}"
         sequence:
           - variables:
               input:
                 system: >-
                   Always respond in the user's language: {{ language }}.
                 prompt: >-
-                  {{ trigger.json.data.quote.msg if (trigger.json.data.quote is defined and trigger.json.data.quote.msg is defined) }}
-
-                  {{ trigger.json.data.content }}
+                  {{ trigger.json.message.text }}
         alias: Process text
       - conditions:
           - condition: template
-            value_template: "{{ trigger.json.data.msgType in ['chat.photo', 'chat.voice', 'chat.video.msg', 'share.file'] }}"
+            value_template: "{{ trigger.json.event_name == 'message.image.received' }}"
         sequence:
-          - action: pyscript.unofficial_zalo_media_handle_tool
+          - action: pyscript.zalo_media_handle_tool
             data:
-              url: "{{ trigger.json.data.content.href }}"
+              url: "{{ trigger.json.message.photo_url }}"
             response_variable: file
           - variables:
               input:
@@ -173,22 +179,21 @@ actions:
 
                   Always respond in the user's language: {{ language }}.
                 prompt: >-
-                  {{ trigger.json.data.content.title }}
+                  {{ trigger.json.message.caption }}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
-        alias: Process all file types
+        alias: Process photo
   - choose:
       - conditions:
           - condition: template
             value_template: "{{ supported is defined and not bool(supported) }}"
         sequence:
-          - action: zalo_bot.send_message
+          - action: pyscript.zalo_message_handle_tool
             data:
-              thread_id: "{{ trigger.json.threadId }}"
+              chat_id: "{{ trigger.json.message.chat.id }}"
               message: This file type is not supported for analysis at the moment. The file has been stored without further processing.
-              account_selection: !input account_selection
-              type: "{{ trigger.json.type }}"
+            response_variable: zalo_response
       - conditions:
           - condition: template
             value_template: "{{ input is defined }}"
@@ -221,16 +226,14 @@ actions:
             data:
               conversation_id: "{{ result.conversation_id }}"
               chat_id: "{{ chat_id }}"
-          - action: zalo_bot.send_message
+          - action: pyscript.zalo_message_handle_tool
             data:
-              thread_id: "{{ trigger.json.threadId }}"
+              chat_id: "{{ trigger.json.message.chat.id }}"
               message: "{{ response }}"
-              account_selection: !input account_selection
-              type: "{{ trigger.json.type }}"
+            response_variable: zalo_response
     default:
-      - action: zalo_bot.send_message
+      - action: pyscript.zalo_message_handle_tool
         data:
-          thread_id: "{{ trigger.json.threadId }}"
+          chat_id: "{{ trigger.json.message.chat.id }}"
           message: This type of message is not supported by the current handler.
-          account_selection: !input account_selection
-          type: "{{ trigger.json.type }}"
+        response_variable: zalo_response

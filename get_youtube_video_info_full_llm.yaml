@@ -10,7 +10,7 @@ blueprint:
 
     * Check out the guide for further details.
 
-    * Feedparser integration needs to be installed from HACS.
+    * The Feedparser integration needs to be installed from HACS.
 
     * Expose YouTube Channel entities after created to Assist.
 

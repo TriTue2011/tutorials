@@ -10,11 +10,13 @@ blueprint:
 
     * Create a Telegram bot if it does not already exist.
 
+    * The bot needs to disable Privacy mode before being added to a group chat or set as a group chat admin to access messages.
+
     * If the bot is also added to Telegram bot integration, it must be set up in broadcast mode to prevent any conflicts.
 
-    * Pyscript integration needs to be installed from HACS.
+    * The Pyscript integration needs to be installed from HACS.
 
-    * The `telegram_bot_handle_tool.py` script needs to be copied into the pyscript folder.
+    * The `telegram_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
 
     * The `requirements.txt` file needs to be copied into the pyscript folder.
 
@@ -58,7 +60,7 @@ blueprint:
   homeassistant:
     min_version: 2025.8.0
   input:
-    Webhook_settings:
+    webhook_settings:
       name: Settings for Webhook
       icon: mdi:webhook
       description: These settings allow you to set up the Webhook ID for receiving Telegram messages.
@@ -140,17 +142,14 @@ conditions:
 actions:
   - variables:
       chat_id: >-
-        {{ ('id' ~ trigger.json.message.chat.id ~ '_' ~
-        trigger.json.message.from.id) | slugify }}
+        {{ ('id_' ~ trigger.json.message.chat.id ~ '_' ~ trigger.json.message.from.id) | slugify }}
   - action: pyscript.conversation_id_fetcher
-    metadata: {}
     data:
       chat_id: "{{ chat_id }}"
     response_variable: chat
   - variables:
       conversation_id: >-
-        {{ chat.conversation_id if (chat.conversation_id | default('', true) |
-        length > 0) else chat_id }}
+        {{ chat.conversation_id if (chat.conversation_id | default('', true) | length > 0) }}
   - choose:
       - conditions:
           - condition: template
@@ -380,7 +379,6 @@ actions:
             value_template: "{{ supported is defined and not bool(supported) }}"
         sequence:
           - action: pyscript.telegram_message_handle_tool
-            metadata: {}
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"
               message: This file type is not supported for analysis at the moment. The file has been stored without further processing.
@@ -390,14 +388,24 @@ actions:
           - condition: template
             value_template: "{{ input is defined }}"
         sequence:
-          - action: conversation.process
-            metadata: {}
-            data:
-              agent_id: !input agent_id
-              conversation_id: "{{ conversation_id }}"
-              text: "{{ input }}"
-              language: "{{ language }}"
-            response_variable: result
+          - if:
+              - condition: template
+                value_template: "{{ not conversation_id }}"
+            then:
+              - action: conversation.process
+                data:
+                  agent_id: !input agent_id
+                  text: "{{ input }}"
+                  language: "{{ language }}"
+                response_variable: result
+            else:
+              - action: conversation.process
+                data:
+                  agent_id: !input agent_id
+                  text: "{{ input }}"
+                  conversation_id: "{{ conversation_id }}"
+                  language: "{{ language }}"
+                response_variable: result
           - variables:
               response: >-
                 {{ result.response.speech.plain.speech if (result is defined and
@@ -405,12 +413,10 @@ actions:
                 'action_done' and result.response.speech.plain.speech | length >
                 0) else 'Something went wrong' }}
           - action: pyscript.conversation_id_setter
-            metadata: {}
             data:
               conversation_id: "{{ result.conversation_id }}"
               chat_id: "{{ chat_id }}"
           - action: pyscript.telegram_message_handle_tool
-            metadata: {}
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"
               message: "{{ response }}"
@@ -418,7 +424,6 @@ actions:
             response_variable: telegram_response
     default:
       - action: pyscript.telegram_message_handle_tool
-        metadata: {}
         data:
           chat_id: "{{ trigger.json.message.chat.id }}"
           message: This type of message is not supported by the current handler.

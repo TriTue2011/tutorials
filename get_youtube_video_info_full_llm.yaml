@@ -10,7 +10,7 @@ blueprint:
 
     * Check out the guide for further details.
 
-    * Feedparser integration needs to be installed from HACS.
+    * The Feedparser integration needs to be installed from HACS.
 
     * Expose YouTube Channel entities after created to Assist.
 
@@ -32,7 +32,6 @@ blueprint:
             event_type: event_template_reloaded
         action:
           - action: shell_command.get_entity_alias
-            data: {}
             response_variable: response
         sensor:
           - name: "Assist: Entity IDs and Aliases"

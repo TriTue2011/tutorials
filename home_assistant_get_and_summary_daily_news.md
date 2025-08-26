@@ -160,7 +160,6 @@ actions:
         contents.entries = [entry] + contents.entries -%} {% endfor -%} {{
         contents.entries | sort(reverse=true, attribute='published') }}
   - action: variable.update_sensor
-    metadata: {}
     data:
       replace_attributes: true
       attributes:
@@ -187,7 +186,6 @@ sequence:
         -%} {{ merge_response(sources) | sort(reverse=true,
         attribute='published') | map(attribute='title') | list }}
   - action: ai_task.generate_data
-    metadata: {}
     data:
       task_name: Tóm tắt các tin tức diễn ra trong 24h qua
       instructions: >-
@@ -198,7 +196,6 @@ sequence:
         {{ contents }}
     response_variable: response
   - action: variable.update_sensor
-    metadata: {}
     data:
       replace_attributes: true
       attributes:

@@ -1,5 +1,57 @@
 # Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
 
+## Bản thiết kế tương tác 2 chiều với Zalo (Custom Zalo Bot)
+
+* **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**
+  * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Zalo.
+  * Bạn có thể gửi ảnh, video, âm thanh, hoặc tệp tài liệu từ Zalo và yêu cầu bot phân tích nội dung.
+  * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Funofficial_zalo_bot_webhook.yaml)
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
+## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo (Custom Zalo Bot)
+
+* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**
+  * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
+  * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
+  * Ví dụ bằng giọng nói:
+    * Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
+    * Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_unofficial_bot_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
+## Bản thiết kế tương tác 2 chiều với Zalo (Official Zalo Bot)
+
+* **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**
+  * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Zalo.
+  * Bạn có thể gửi ảnh từ Zalo và yêu cầu bot phân tích nội dung.
+  * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fzalo_bot_webhook.yaml)
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
+## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo (Official Zalo Bot)
+
+* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận trên Zalo bằng cách ra lệnh bằng giọng nói.**
+  * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
+  * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
+  * Ví dụ bằng giọng nói:
+    * Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
+    * Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_official_bot_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
 ## Bản thiết kế tương tác 2 chiều với Telegram
 
 * **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Telegram.**
@@ -10,19 +62,6 @@
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftelegram_bot_webhook.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
-
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
-
-## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo
-
-* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**
-  * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
-  * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
-  * Ví dụ bằng giọng nói:
-    * Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
-    * Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_full_llm.yaml)
 
 *Vui lòng đọc kỹ mô tả của bản thiết kế.*
 

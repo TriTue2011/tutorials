@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * Pyscript integration needs to be installed from HACS.
+    * The Pyscript integration needs to be installed from HACS.
 
     * The `youtube_data_tool.py` script needs to be copied into the pyscript folder.
 

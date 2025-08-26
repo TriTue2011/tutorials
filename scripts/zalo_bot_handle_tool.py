@@ -2,20 +2,20 @@ import asyncio
 import mimetypes
 import os
 import secrets
+from pathlib import Path
 from typing import Any
 
 import aiofiles
 import aiohttp
 from homeassistant.helpers import network
 
-TTL = 15  # Cache retention period (minutes)
-DIRECTORY = "/media/telegram"
-TOKEN = pyscript.config.get("telegram_bot_token")
+DIRECTORY = "/media/zalo"
+TOKEN = pyscript.config.get("zalo_bot_token")
 
 _session: aiohttp.ClientSession | None = None
 
 if not TOKEN:
-    raise ValueError("Telegram bot token is missing")
+    raise ValueError("Zalo bot token is missing")
 
 
 @pyscript_compile
@@ -38,71 +38,58 @@ async def _write_file(path: str, content: bytes) -> None:
 
 
 @pyscript_compile
-async def _get_file_path(session: aiohttp.ClientSession, file_id: str) -> str | None:
-    url = f"https://api.telegram.org/bot{TOKEN}/getFile"
-    async with session.post(url, json={"file_id": file_id}) as resp:
-        resp.raise_for_status()
-        data = await resp.json()
-    return data.get("result", {}).get("file_path")
-
-
-@pyscript_compile
-async def _download_file(
-    session: aiohttp.ClientSession, file_path: str
-) -> bytes | None:
-    url = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
+async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None:
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.read()
+        content = await resp.read()
+        content_type = resp.headers.get("Content-Type", "")
+        ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
+        file_name = Path(url).name
+        if not Path(file_name).suffix and ext:
+            file_name += ext
+        file_path = os.path.join(DIRECTORY, file_name)
+        await _write_file(file_path, content)
+        return file_path
 
 
 async def _send_text(
-    session: aiohttp.ClientSession,
-    chat_id: int | str,
-    message: str,
-    reply_to_message_id: int | None = None,
-    message_thread_id: int | None = None,
+    session: aiohttp.ClientSession, chat_id: int | str, message: str
 ) -> dict[str, Any]:
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": chat_id, "text": message[:4096]}
-    if reply_to_message_id:
-        payload["reply_to_message_id"] = reply_to_message_id
-    if message_thread_id:
-        payload["message_thread_id"] = message_thread_id
+    url = f"https://bot-api.zapps.me/bot{TOKEN}/sendMessage"
+    payload = {"chat_id": chat_id, "text": message[:2000]}
     async with session.post(url, json=payload) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(content_type=None)
 
 
 @pyscript_compile
 async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
-    url = f"https://api.telegram.org/bot{TOKEN}/getWebhookInfo"
+    url = f"https://bot-api.zapps.me/bot{TOKEN}/getWebhookInfo"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(content_type=None)
 
 
 @pyscript_compile
 async def _set_webhook_info(
     session: aiohttp.ClientSession, base_url: str, webhook_id: str
 ) -> dict[str, Any]:
-    url = f"https://api.telegram.org/bot{TOKEN}/setWebhook"
+    url = f"https://bot-api.zapps.me/bot{TOKEN}/setWebhook"
     params = {
         "url": f"{base_url}/api/webhook/{webhook_id}",
-        "drop_pending_updates": True,
+        "secret_token": secrets.token_urlsafe(),  # A required parameter but ignored by Home Assistant.
     }
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(content_type=None)
 
 
 @pyscript_compile
 async def _delete_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
-    url = f"https://api.telegram.org/bot{TOKEN}/deleteWebhook"
-    params = {"drop_pending_updates": True}
-    async with session.post(url, json=params) as resp:
+    url = f"https://bot-api.zapps.me/bot{TOKEN}/deleteWebhook"
+    async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(content_type=None)
 
 
 def _internal_url() -> str | None:
@@ -120,16 +107,11 @@ def _external_url() -> str | None:
 
 
 @service(supports_response="only")
-async def telegram_message_handle_tool(
-    chat_id: str,
-    message: str,
-    reply_to_message_id: int | None = None,
-    message_thread_id: int | None = None,
-) -> dict[str, Any]:
+async def zalo_message_handle_tool(chat_id: str, message: str) -> dict[str, Any]:
     """
     yaml
-    name: Telegram Message Handle Tool
-    description: Tool for sending messages directly to Telegram users via Telegram bot.
+    name: Zalo Message Handle Tool
+    description: Tool for sending messages directly to Zalo users via Zalo bot.
     fields:
       chat_id:
         name: Chat ID
@@ -139,18 +121,8 @@ async def telegram_message_handle_tool(
           text: {}
       message:
         name: Message
-        description: The message content to be delivered to the target Telegram chat.
+        description: The message content to be delivered to the target Zalo chat.
         required: true
-        selector:
-          text: {}
-      reply_to_message_id:
-        name: Reply To Message ID
-        description: The unique identifier of the original message you want to reply to.
-        selector:
-          text: {}
-      message_thread_id:
-        name: Message Thread ID
-        description: The unique identifier of the specific message thread (topic) where the message will be sent.
         selector:
           text: {}
     """
@@ -158,13 +130,7 @@ async def telegram_message_handle_tool(
         return {"error": "Missing one or more required arguments: chat_id, message"}
     try:
         session = await _ensure_session()
-        response = await _send_text(
-            session,
-            chat_id,
-            message,
-            reply_to_message_id=reply_to_message_id,
-            message_thread_id=message_thread_id,
-        )
+        response = await _send_text(session, chat_id, message)
         if not response:
             return {"error": "Failed to send message"}
         return response
@@ -173,37 +139,30 @@ async def telegram_message_handle_tool(
 
 
 @service(supports_response="only")
-async def telegram_media_handle_tool(file_id: str) -> dict[str, Any]:
+async def zalo_media_handle_tool(url: str) -> dict[str, Any]:
     """
     yaml
-    name: Telegram Media Handle Tool
-    description: Tool for retrieving and downloading media files directly from Telegram messages or channels.
+    name: Zalo Media Handle Tool
+    description: Tool for retrieving and downloading media files directly from Zalo messages or channels.
     fields:
-      file_id:
-        name: File ID
-        description: The unique identifier of the media file to be downloaded.
+      url:
+        name: URL
+        description: The URL of the media file to be downloaded.
         required: true
         selector:
           text: {}
     """
-    if not file_id:
-        return {"error": "Missing a required argument: file_id"}
+    if not url:
+        return {"error": "Missing a required argument: url"}
     try:
         session = await _ensure_session()
         await _ensure_dir(DIRECTORY)
 
-        online_file_path = await _get_file_path(session, file_id)
-        if not online_file_path:
-            return {"error": "Unable to retrieve the file_path from Telegram."}
+        file_path = await _download_file(session, url)
+        if not file_path:
+            return {"error": "Unable to download the file from Zalo."}
 
-        content = await _download_file(session, online_file_path)
-        if not content:
-            return {"error": "Unable to download the file from Telegram."}
-
-        file_name = os.path.basename(online_file_path)
-        file_path = os.path.join(DIRECTORY, file_name)
-        await _write_file(file_path, content)
-        mime_type, encoding = mimetypes.guess_file_type(file_name)
+        mime_type, encoding = mimetypes.guess_file_type(file_path)
         file_path = file_path.replace(
             "/media/", "/local/"
         )  # Change to public access path
@@ -231,11 +190,11 @@ async def telegram_media_handle_tool(file_id: str) -> dict[str, Any]:
 
 
 @service(supports_response="only")
-async def get_telegram_webhook() -> dict[str, Any]:
+async def get_zalo_webhook() -> dict[str, Any]:
     """
     yaml
-    name: Retrieve Telegram Bot Webhook URL
-    description: Tool for retrieving Telegram bot Webhook information.
+    name: Retrieve Zalo Bot Webhook URL
+    description: Tool for retrieving Zalo bot Webhook information.
     """
     try:
         session = await _ensure_session()
@@ -245,11 +204,11 @@ async def get_telegram_webhook() -> dict[str, Any]:
 
 
 @service(supports_response="only")
-async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
+async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
-    name: Configure Telegram Bot Webhook URL
-    description: Tool for configuring Telegram bot Webhook information.
+    name: Configure Zalo Bot Webhook URL
+    description: Tool for configuring Zalo bot Webhook information.
     fields:
       webhook_id:
         name: Webhook ID
@@ -273,11 +232,11 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
 
 
 @service(supports_response="only")
-async def delete_telegram_webhook() -> dict[str, Any]:
+async def delete_zalo_webhook() -> dict[str, Any]:
     """
     yaml
-    name: Delete Telegram Bot Webhook URL
-    description: Tool for removing Telegram bot Webhook information.
+    name: Delete Zalo Bot Webhook URL
+    description: Tool for removing Zalo bot Webhook information.
     """
     try:
         session = await _ensure_session()

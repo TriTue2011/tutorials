@@ -200,10 +200,10 @@ async def telegram_media_handle_tool(file_id: str) -> dict[str, Any]:
         if not content:
             return {"error": "Unable to download the file from Telegram."}
 
-        (mime_type, encoding) = mimetypes.guess_file_type(online_file_path)
         file_name = os.path.basename(online_file_path)
         file_path = os.path.join(DIRECTORY, file_name)
         await _write_file(file_path, content)
+        mime_type, encoding = mimetypes.guess_file_type(file_name)
         file_path = file_path.replace(
             "/media/", "/local/"
         )  # Change to public access path

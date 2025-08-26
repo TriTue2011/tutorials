@@ -8,6 +8,7 @@ from typing import Any
 import aiofiles
 import aiohttp
 import redis.asyncio as redis
+from homeassistant.helpers import network
 
 TTL = 15  # Cache retention period (minutes)
 DIRECTORY = "/media/telegram"
@@ -111,6 +112,20 @@ async def _delete_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
         return await resp.json()
+
+
+def _internal_url() -> str | None:
+    try:
+        return network.get_url(hass, allow_external=False)
+    except network.NoURLAvailableError:
+        return None
+
+
+def _external_url() -> str | None:
+    try:
+        return network.get_url(hass, allow_internal=False)
+    except network.NoURLAvailableError:
+        return None
 
 
 @service(supports_response="only")
@@ -287,7 +302,23 @@ def generate_webhook_id() -> dict[str, Any]:
     name: Generate Webhook ID
     description: Tool for generating a unique, secure, URL-safe Webhook ID.
     """
-    return {"webhook_id": secrets.token_urlsafe()}
+    webhook_id = secrets.token_urlsafe()
+    internal_url = _internal_url()
+    external_url = _external_url()
+    response = {"webhook_id": webhook_id}
+    if internal_url:
+        response["sample_internal_url"] = f"{internal_url}/api/webhook/{webhook_id}"
+    else:
+        response["sample_internal_url"] = (
+            "The internal Home Assistant URL is not found. Please check under System - Network settings."
+        )
+    if external_url:
+        response["sample_external_url"] = f"{external_url}/api/webhook/{webhook_id}"
+    else:
+        response["sample_external_url"] = (
+            "The external Home Assistant URL is not found. Please check under System - Network settings."
+        )
+    return response
 
 
 @service(supports_response="only")
@@ -320,13 +351,13 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     try:
         if not webhook_id:
             webhook_id = secrets.token_urlsafe()
-        base_url = hass.config.external_url
-        if not base_url:
+        external_url = _external_url()
+        if not external_url:
             return {
-                "error": "Public Home Assistant URL not found. Please check under System - Network settings."
+                "error": "The external Home Assistant URL is not found. Please check under System - Network settings."
             }
         session = await _ensure_session()
-        response = await _set_webhook_info(session, base_url, webhook_id)
+        response = await _set_webhook_info(session, external_url, webhook_id)
         if isinstance(response, dict) and response.get("ok"):
             response["webhook_id"] = webhook_id
         return response

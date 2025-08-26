@@ -119,7 +119,7 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
+      version: 20250826
       receiver: !input receiver
       summary: "{{ summary | default }}"
       detail: "{{ detail | default }}"

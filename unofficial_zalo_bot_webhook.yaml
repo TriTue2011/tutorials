@@ -189,7 +189,6 @@ actions:
               message: This file type is not supported for analysis at the moment. The file has been stored without further processing.
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
-            response_variable: zalo_response
       - conditions:
           - condition: template
             value_template: "{{ input is defined }}"
@@ -217,7 +216,6 @@ actions:
               message: "{{ response }}"
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
-            response_variable: zalo_response
     default:
       - action: zalo_bot.send_message
         data:
@@ -225,4 +223,3 @@ actions:
           message: This type of message is not supported by the current handler.
           account_selection: !input account_selection
           type: "{{ trigger.json.type }}"
-        response_variable: zalo_response

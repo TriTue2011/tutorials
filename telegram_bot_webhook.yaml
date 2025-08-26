@@ -16,7 +16,7 @@ blueprint:
 
     * Pyscript integration needs to be installed from HACS.
 
-    * The `telegram_bot_handle_tool.py` script needs to be copied into the pyscript folder.
+    * The `telegram_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
 
     * The `requirements.txt` file needs to be copied into the pyscript folder.
 

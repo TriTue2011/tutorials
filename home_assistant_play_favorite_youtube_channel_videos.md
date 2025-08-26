@@ -122,7 +122,6 @@ template:
         event_type: event_template_reloaded
     action:
       - action: shell_command.get_entity_alias
-        data: {}
         response_variable: response
     sensor:
       - name: "Assist: Entity IDs and Aliases"

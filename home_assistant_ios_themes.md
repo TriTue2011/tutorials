@@ -77,13 +77,9 @@ actions:
               - Sunrise
         sequence:
           - action: input_boolean.turn_off
-            metadata: {}
-            data: {}
             target:
               entity_id: input_boolean.ios_themes_dark_mode
           - action: input_select.random
-            metadata: {}
-            data: {}
             target:
               entity_id: input_select.ios_themes
       - conditions:
@@ -92,13 +88,9 @@ actions:
               - Sunset
         sequence:
           - action: input_boolean.turn_on
-            metadata: {}
-            data: {}
             target:
               entity_id: input_boolean.ios_themes_dark_mode
           - action: input_select.random
-            metadata: {}
-            data: {}
             target:
               entity_id: input_select.ios_themes
       - conditions:
@@ -107,7 +99,6 @@ actions:
               - iOS Themes
         sequence:
           - action: frontend.set_theme
-            metadata: {}
             data:
               name: >-
                 {% set which = 'dark' if

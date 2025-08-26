@@ -25,7 +25,7 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
-    telegram_settings:
+    zalo_settings:
       name: Settings for Zalo
       icon: mdi:application-cog
       description: You can use these settings to configure Zalo for sending the message.

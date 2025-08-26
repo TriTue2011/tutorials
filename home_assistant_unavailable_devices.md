@@ -79,7 +79,6 @@ actions:
         value_template: "{{ entities | count > 0 }}"
     then:
       - action: persistent_notification.create
-        metadata: {}
         data:
           notification_id: "{{ notify_tag }}"
           message: >
@@ -93,7 +92,6 @@ actions:
             {% endfor %}
     else:
       - action: persistent_notification.dismiss
-        metadata: {}
         data:
           notification_id: "{{ notify_tag }}"
 mode: queued
@@ -125,7 +123,6 @@ actions:
         value_template: "{{ entities | count > 0 }}"
     then:
       - action: notify.all_mobiles
-        metadata: {}
         data:
           title: Mất kết nối thiết bị
           message: >-
@@ -135,7 +132,6 @@ actions:
             tag: "{{ notify_tag }}"
     else:
       - action: notify.all_mobiles
-        metadata: {}
         data:
           message: clear_notification
           data:

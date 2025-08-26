@@ -130,14 +130,14 @@ conditions:
 actions:
   - variables:
       chat_id: >-
-        {{ ('id' ~ trigger.json.threadId ~ '_' ~ trigger.json.data.uidFrom) | slugify }}
+        {{ ('id_' ~ trigger.json.threadId ~ '_' ~ trigger.json.data.uidFrom) | slugify }}
   - action: pyscript.conversation_id_fetcher
     data:
       chat_id: "{{ chat_id }}"
     response_variable: chat
   - variables:
       conversation_id: >-
-        {{ chat.conversation_id if (chat.conversation_id | default('', true) | length > 0) else chat_id }}
+        {{ chat.conversation_id if (chat.conversation_id | default('', true) | length > 0) }}
   - choose:
       - conditions:
           - condition: template
@@ -193,12 +193,24 @@ actions:
           - condition: template
             value_template: "{{ input is defined }}"
         sequence:
+          - if:
+              - condition: template
+                value_template: "{{ not conversation_id }}"
+            then:
+              - variables:
+                  data:
+                    agent_id: !input agent_id
+                    text: "{{ input }}"
+                    language: "{{ language }}"
+            else:
+              - variables:
+                  data:
+                    agent_id: !input agent_id
+                    text: "{{ input }}"
+                    conversation_id: "{{ conversation_id }}"
+                    language: "{{ language }}"
           - action: conversation.process
-            data:
-              agent_id: !input agent_id
-              conversation_id: "{{ conversation_id }}"
-              text: "{{ input }}"
-              language: "{{ language }}"
+            data: "{{ data }}"
             response_variable: result
           - variables:
               response: >-

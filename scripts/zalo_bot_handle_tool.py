@@ -97,7 +97,7 @@ async def _get_updates(
     session: aiohttp.ClientSession, timeout: int = 30
 ) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/getUpdates"
-    async with session.post(url, params={"timeout": timeout}) as resp:
+    async with session.post(url, json={"timeout": timeout}) as resp:
         resp.raise_for_status()
         return await resp.json(content_type=None)
 

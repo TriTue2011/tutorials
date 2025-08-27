@@ -38,7 +38,7 @@ async def _write_file(path: str, content: bytes) -> None:
 
 
 @pyscript_compile
-async def _get_file_path(session: aiohttp.ClientSession, file_id: str) -> str | None:
+async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     url = f"https://api.telegram.org/bot{TOKEN}/getFile"
     async with session.post(url, json={"file_id": file_id}) as resp:
         resp.raise_for_status()
@@ -56,7 +56,7 @@ async def _download_file(
         return await resp.read()
 
 
-async def _send_text(
+async def _send_message(
     session: aiohttp.ClientSession,
     chat_id: int | str,
     message: str,
@@ -83,7 +83,7 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
 
 
 @pyscript_compile
-async def _set_webhook_info(
+async def _set_webhook(
     session: aiohttp.ClientSession, base_url: str, webhook_id: str
 ) -> dict[str, Any]:
     url = f"https://api.telegram.org/bot{TOKEN}/setWebhook"
@@ -97,7 +97,7 @@ async def _set_webhook_info(
 
 
 @pyscript_compile
-async def _delete_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
+async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://api.telegram.org/bot{TOKEN}/deleteWebhook"
     params = {"drop_pending_updates": True}
     async with session.post(url, json=params) as resp:
@@ -158,7 +158,7 @@ async def telegram_message_handle_tool(
         return {"error": "Missing one or more required arguments: chat_id, message"}
     try:
         session = await _ensure_session()
-        response = await _send_text(
+        response = await _send_message(
             session,
             chat_id,
             message,
@@ -192,7 +192,7 @@ async def telegram_media_handle_tool(file_id: str) -> dict[str, Any]:
         session = await _ensure_session()
         await _ensure_dir(DIRECTORY)
 
-        online_file_path = await _get_file_path(session, file_id)
+        online_file_path = await _get_file(session, file_id)
         if not online_file_path:
             return {"error": "Unable to retrieve the file_path from Telegram."}
 
@@ -264,7 +264,7 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         if not external_url:
             return {"error": "The external Home Assistant URL is not found."}
         session = await _ensure_session()
-        response = await _set_webhook_info(session, external_url, webhook_id)
+        response = await _set_webhook(session, external_url, webhook_id)
         if isinstance(response, dict) and response.get("ok"):
             response["webhook_id"] = webhook_id
         return response
@@ -281,6 +281,6 @@ async def delete_telegram_webhook() -> dict[str, Any]:
     """
     try:
         session = await _ensure_session()
-        return await _delete_webhook_info(session)
+        return await _delete_webhook(session)
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

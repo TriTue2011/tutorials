@@ -12,13 +12,11 @@ blueprint:
 
     * The `date_conversion_tool.py` script needs to be copied into the pyscript folder.
 
-    * A Local Calendar or a Google Calendar entity to save events.
+    * A calendar entity with write permissions to save events.
 
     ### Note
 
-    * Support Local Calendar and Google Calendar Integration entries only.
-
-    * Google Calendar must have Read/Write access.
+    * Google Calendar requires Read/Write access.
   domain: script
   homeassistant:
     min_version: 2024.10.0

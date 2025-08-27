@@ -27,10 +27,10 @@ blueprint:
           selector:
             entity:
               filter:
-                - supported_features:
+                - domain:
+                    - calendar
+                  supported_features:
                     - calendar.CalendarEntityFeature.CREATE_EVENT
-                  domain: calendar
-              multiple: false
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot

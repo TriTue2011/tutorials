@@ -27,9 +27,9 @@ blueprint:
           selector:
             entity:
               filter:
-                - domain: calendar
-                  supported_features:
-                    - 1
+                - supported_features:
+                    - calendar.CalendarEntityFeature.CREATE_EVENT
+                  domain: calendar
               multiple: false
     prompt_settings:
       name: Prompt settings for the LLM

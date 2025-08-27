@@ -34,11 +34,6 @@ blueprint:
             entity:
               filter:
                 - domain: calendar
-                  # An option to select only the calendar entity can create events,
-                  # but it is currently deactivated due to a parsing error bug in the Home Assistant frontend.
-                  # supported_features:
-                  #   - calendar.CalendarEntityFeature.CREATE_EVENT
-              multiple: false
 mode: single
 max_exceeded: silent
 fields:
@@ -106,6 +101,16 @@ sequence:
     then:
       - alias: Stop the script
         stop: Unable to add the event because either the Lunar date or event summary is empty or the calendar entity is invalid.
+        error: true
+  - alias: Verify whether the calendar entity has write permissions.
+    if:
+      - condition: template
+        value_template: >-
+          {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
+          {{ not (feats % 2) == 1 }}
+    then:
+      - alias: Stop the script
+        stop: The event could not be added because the calendar entity lacks write permissions.
         error: true
   - alias: Verify the leap month
     if:

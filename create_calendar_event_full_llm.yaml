@@ -28,8 +28,6 @@ blueprint:
             entity:
               filter:
                 - domain: calendar
-                  supported_features:
-                    - "1"
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -151,6 +149,7 @@ sequence:
       end_date_time: "{{ end_date_time }}"
       start_date: "{{ start_date }}"
       end_date: "{{ end_date }}"
+      calendar: !input calendar
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -163,6 +162,20 @@ sequence:
             error: The event could not be added due to invalid or misconfigured input parameters.
       - alias: Stop the script
         stop: The event could not be added due to invalid or misconfigured input parameters.
+        response_variable: response
+  - alias: Verify whether the calendar entity has write permissions.
+    if:
+      - condition: template
+        value_template: >-
+          {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
+          {{ not (feats % 2) == 1 }}
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error: The event could not be added because the calendar entity lacks write permissions.
+      - alias: Stop the script
+        stop: The event could not be added because the calendar entity lacks write permissions.
         response_variable: response
   - choose:
       - conditions:

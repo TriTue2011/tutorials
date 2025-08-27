@@ -52,7 +52,7 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
         return file_path
 
 
-async def _send_text(
+async def _send_message(
     session: aiohttp.ClientSession, chat_id: int | str, message: str
 ) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/sendMessage"
@@ -71,7 +71,7 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
 
 
 @pyscript_compile
-async def _set_webhook_info(
+async def _set_webhook(
     session: aiohttp.ClientSession, base_url: str, webhook_id: str
 ) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/setWebhook"
@@ -85,9 +85,19 @@ async def _set_webhook_info(
 
 
 @pyscript_compile
-async def _delete_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
+async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/deleteWebhook"
     async with session.get(url) as resp:
+        resp.raise_for_status()
+        return await resp.json(content_type=None)
+
+
+@pyscript_compile
+async def _get_updates(
+    session: aiohttp.ClientSession, timeout: int = 30
+) -> dict[str, Any]:
+    url = f"https://bot-api.zapps.me/bot{TOKEN}/getUpdates"
+    async with session.post(url, params={"timeout": timeout}) as resp:
         resp.raise_for_status()
         return await resp.json(content_type=None)
 
@@ -130,7 +140,7 @@ async def zalo_message_handle_tool(chat_id: str, message: str) -> dict[str, Any]
         return {"error": "Missing one or more required arguments: chat_id, message"}
     try:
         session = await _ensure_session()
-        response = await _send_text(session, chat_id, message)
+        response = await _send_message(session, chat_id, message)
         if not response:
             return {"error": "Failed to send message"}
         return response
@@ -223,7 +233,7 @@ async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         if not external_url:
             return {"error": "The external Home Assistant URL is not found."}
         session = await _ensure_session()
-        response = await _set_webhook_info(session, external_url, webhook_id)
+        response = await _set_webhook(session, external_url, webhook_id)
         if isinstance(response, dict) and response.get("ok"):
             response["webhook_id"] = webhook_id
         return response
@@ -240,6 +250,30 @@ async def delete_zalo_webhook() -> dict[str, Any]:
     """
     try:
         session = await _ensure_session()
-        return await _delete_webhook_info(session)
+        return await _delete_webhook(session)
+    except Exception as error:
+        return {"error": f"An unexpected error occurred during processing: {error}"}
+
+
+@service(supports_response="only")
+async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
+    """
+    yaml
+    name: Get Zalo Updates
+    description: Tool for getting Zalo messages updates.
+    fields:
+      timeout:
+        name: Timeout
+        description: Time to wait for a response from the Zalo.
+        selector:
+          number:
+            min: 30
+            max: 60
+            step: 1
+        default: 30
+    """
+    try:
+        session = await _ensure_session()
+        return await _get_updates(session, timeout=timeout)
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

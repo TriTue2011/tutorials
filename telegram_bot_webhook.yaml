@@ -67,7 +67,7 @@ blueprint:
       input:
         webhook_id:
           name: Webhook ID
-          description: Enter the preferred Webhook ID, or use the `pyscript.set_telegram_webhook` action to generate one automatically.
+          description: Enter the preferred Webhook ID. Use the `pyscript.set_telegram_webhook` action to generate one automatically.
           selector:
             text:
     telegram_settings:

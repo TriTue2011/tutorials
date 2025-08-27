@@ -19,6 +19,8 @@ blueprint:
     * A Zalo bot token needs to be configured in `configuration.yaml`.
 
     * Redis needs to be installed and configured.
+    
+    * Use the `pyscript.get_zalo_updates` action to retrieve chat IDs then use the `pyscript.set_zalo_webhook` action to generate a Webhook ID.
 
     ```
 
@@ -47,6 +49,8 @@ blueprint:
 
     ### Optional
 
+    * Use the `pyscript.get_zalo_updates` action to retrieve chat IDs.
+
     * Use the `pyscript.set_zalo_webhook` action to easily configure a Zalo Webhook ID automatically.
 
     * Use the `pyscript.get_zalo_webhook` action to check the current Zalo Webhook ID.
@@ -63,7 +67,7 @@ blueprint:
       input:
         webhook_id:
           name: Webhook ID
-          description: Enter the preferred Webhook ID, or use the `pyscript.set_zalo_webhook` action to generate one automatically.
+          description: Enter the preferred Webhook ID. Use the `pyscript.set_zalo_webhook` action to generate one automatically.
           selector:
             text:
     zalo_settings:
@@ -73,7 +77,7 @@ blueprint:
       input:
         chat_ids:
           name: Chat IDs
-          description: Specified chat IDs enable communication with the Zalo bot.
+          description: Specified chat IDs enable communication with the Zalo bot. Use the `pyscript.get_zalo_updates` action to retrieve chat IDs.
           selector:
             text:
               multiple: true

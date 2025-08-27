@@ -50,7 +50,7 @@ blueprint:
       input:
         webhook_id:
           name: Webhook ID
-          description: Enter the preferred Webhook ID, or use the `pyscript.generate_webhook_id` action to generate one automatically.
+          description: Enter the preferred Webhook ID. Use the `pyscript.generate_webhook_id` action to generate a random one.
           selector:
             text:
     zalo_settings:

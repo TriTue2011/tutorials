@@ -114,21 +114,6 @@ sequence:
     then:
       - variables:
           repeat: 1
-  - alias: Choose the action
-    choose:
-      - conditions:
-          - condition: template
-            value_template: "{{ calendar in integration_entities('local_calendar') }}"
-        sequence:
-          - variables:
-              create_event: calendar.create_event
-      - conditions:
-          - condition: template
-            value_template: "{{ calendar in integration_entities('google') }}"
-        sequence:
-          - variables:
-              create_event: google.create_event
-              delay_milliseconds: 200
   - repeat:
       sequence:
         - action: pyscript.date_conversion_tool
@@ -140,7 +125,7 @@ sequence:
         - variables:
             solar_date: >-
               {{ response.date if (response is defined and response.get('date')) }}
-        - action: "{{ create_event }}"
+        - action: calendar.create_event
           data:
             summary: "{{ event_summary }}"
             description: "{{ event_description }}"
@@ -155,11 +140,11 @@ sequence:
         - alias: Add a small delay when creating Google Calendar events.
           if:
             - condition: template
-              value_template: "{{ delay_milliseconds is defined }}"
+              value_template: "{{ calendar in integration_entities('google') }}"
           then:
             - delay:
                 hours: 0
                 minutes: 0
                 seconds: 0
-                milliseconds: "{{ delay_milliseconds }}"
+                milliseconds: 200
       count: "{{ repeat }}"

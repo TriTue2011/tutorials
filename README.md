@@ -6,6 +6,7 @@
 
 * **Bản thiết kế này cho phép bạn tạo các sự kiện lưu vào trong lịch bằng cách ra lệnh bằng giọng nói.**
   * Cần tạo thêm tự động để nhận thông báo khi sắp có sự kiện diễn ra
+  * Có thể kết hợp với bản thiết kế tra cứu các sự kiện có trong lịch
   * Ví dụ bằng giọng nói:
     * Tạo lịch 2h chiều mai đi cắt tóc
     * Lên lịch 9h sáng mai họp trong 3 tiếng

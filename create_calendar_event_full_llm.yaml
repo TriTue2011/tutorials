@@ -1,0 +1,203 @@
+blueprint:
+  name: Voice - Create Calendar Event
+  author: VuLQ
+  description: >-
+    # Tool help to create calendar events using LLM
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * A calendar entity with write permissions to save events.
+
+    ### Note
+
+    * Google Calendar requires Read/Write access.
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    calendar_settings:
+      name: Settings for Calendar
+      icon: mdi:calendar
+      description: You can use these settings to configure a Calendar.
+      input:
+        calendar:
+          name: Calendar
+          selector:
+            entity:
+              filter:
+                - domain: calendar
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        summary_prompt:
+          name: Summary Prompt
+          description: The prompt which will be used for the LLM can provide the short summary or subject for the event.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            This argument is mandatory and must always be provided.
+
+            It defines the short summary or subject of the event.
+        description_prompt:
+          name: Description Prompt
+          description: The prompt which will be used for the LLM can provide a more complete description of the event than the one provided by the summary.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            This argument is optional.
+
+            It provides a more complete description of the event than the summary.
+        start_date_time_prompt:
+          name: Start Time Prompt
+          description: The prompt which will be used for the LLM can provide the date and time the event should start.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Use either the start_date_time parameter or the start_date parameter, but not both.
+
+            This argument specifies the event start date and time in the format YYYY-MM-DD HH:MM:SS.
+        end_date_time_prompt:
+          name: End Time Prompt
+          description: The prompt which will be used for the LLM can provide the date and time the event should end.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Use either the end_date_time parameter or the end_date parameter, but not both.
+
+            This argument specifies the event end date and time in the format YYYY-MM-DD HH:MM:SS.
+
+            If not provided, it defaults to two hours after the start date and time.
+        start_date_prompt:
+          name: Start Date Prompt
+          description: The prompt which will be used for the LLM can provide the date the all-day event should start.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Use either the start_date parameter or the start_date_time parameter, but not both.
+
+            This argument specifies the start date of an all-day event in the format YYYY-MM-DD.
+        end_date_prompt:
+          name: End Date Prompt
+          description: The prompt which will be used for the LLM can provide the date the all-day event should end.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Use either the end_date parameter or the end_date_time parameter, but not both.
+
+            This argument specifies the end date of an all-day event in the format YYYY-MM-DD.
+
+            If not provided, it defaults to one day after the start date.
+mode: queued
+max_exceeded: silent
+fields:
+  summary:
+    selector:
+      text:
+    name: Summary
+    required: true
+    description: !input summary_prompt
+  description:
+    selector:
+      text:
+        multiline: true
+    name: Description
+    description: !input description_prompt
+  start_date_time:
+    selector:
+      datetime:
+    name: Start Date Time
+    description: !input start_date_time_prompt
+  end_date_time:
+    selector:
+      datetime:
+    name: End Date Time
+    description: !input end_date_time_prompt
+  start_date:
+    selector:
+      date:
+    name: Start Date
+    description: !input start_date_prompt
+  end_date:
+    selector:
+      date:
+    name: End Date
+    description: !input end_date_prompt
+sequence:
+  - variables:
+      version: 20250828
+      summary: "{{ summary }}"
+      description: "{{ description }}"
+      start_date_time: "{{ start_date_time }}"
+      end_date_time: "{{ end_date_time }}"
+      start_date: "{{ start_date }}"
+      end_date: "{{ end_date }}"
+      calendar: !input calendar
+  - alias: Check if variables were set correctly
+    if:
+      - condition: template
+        value_template: >-
+          {{ not summary and not ((start_date_time and end_date_time) or (start_date and end_date)) }}
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error: The event could not be added due to invalid or misconfigured input parameters.
+      - alias: Stop the script
+        stop: The event could not be added due to invalid or misconfigured input parameters.
+        response_variable: response
+  - alias: Verify whether the calendar entity has write permissions.
+    if:
+      - condition: template
+        value_template: >-
+          {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
+          {{ not (feats % 2) == 1 }}
+    then:
+      - alias: Set variable for error message
+        variables:
+          response:
+            error: The event could not be added because the calendar entity lacks write permissions.
+      - alias: Stop the script
+        stop: The event could not be added because the calendar entity lacks write permissions.
+        response_variable: response
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ (start_date_time | as_datetime) is datetime and (end_date_time | as_datetime) is datetime }}"
+        sequence:
+          - variables:
+              data:
+                summary: "{{ summary }}"
+                description: "{{ description }}"
+                start_date_time: "{{ start_date_time | as_datetime }}"
+                end_date_time: "{{ end_date_time | as_datetime }}"
+        alias: Verify if it is an event that occurs during the day.
+      - conditions:
+          - condition: template
+            value_template: "{{ (start_date | as_datetime) is datetime and (end_date | as_datetime) is datetime }}"
+        sequence:
+          - variables:
+              data:
+                summary: "{{ summary }}"
+                description: "{{ description }}"
+                start_date: "{{ (start_date | as_datetime).date() }}"
+                end_date: "{{ (end_date | as_datetime).date() }}"
+        alias: Verify if it is an all-day event.
+  - if:
+      - condition: template
+        value_template: "{{ data is defined }}"
+    then:
+      - action: calendar.create_event
+        data: "{{ data }}"
+        target:
+          entity_id: !input calendar

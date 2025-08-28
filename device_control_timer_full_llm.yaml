@@ -65,7 +65,6 @@ blueprint:
               filter:
                 - domain: sensor
                   integration: template
-              multiple: false
     controller_settings:
       name: Settings for Controller
       icon: mdi:controller
@@ -77,7 +76,6 @@ blueprint:
             entity:
               filter:
                 - domain: script
-              multiple: false
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -90,7 +88,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 
@@ -103,7 +100,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 
@@ -114,7 +110,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 

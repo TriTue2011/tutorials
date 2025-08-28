@@ -65,7 +65,6 @@ blueprint:
               filter:
                 - domain: sensor
                   integration: template
-              multiple: false
     speed_steps_settings:
       name: Settings for Speed Steps
       icon: mdi:fan-auto
@@ -92,7 +91,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 
@@ -105,7 +103,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             Use this argument to increase or decrease the fan's speed.
 
@@ -118,7 +115,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             Use this argument to set the fan's speed to a specific percentage.
 

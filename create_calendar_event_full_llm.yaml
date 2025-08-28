@@ -40,7 +40,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 
@@ -51,7 +50,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is optional.
 
@@ -62,7 +60,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             Use either the start_date_time parameter or the start_date parameter, but not both.
 
@@ -73,7 +70,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             Use either the end_date_time parameter or the end_date parameter, but not both.
 
@@ -86,7 +82,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             Use either the start_date parameter or the start_date_time parameter, but not both.
 
@@ -97,7 +92,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             Use either the end_date parameter or the end_date_time parameter, but not both.
 
@@ -116,7 +110,6 @@ fields:
   description:
     selector:
       text:
-        multiple: false
         multiline: true
     name: Description
     description: !input description_prompt
@@ -142,7 +135,7 @@ fields:
     description: !input end_date_prompt
 sequence:
   - variables:
-      version: 20250827
+      version: 20250828
       summary: "{{ summary }}"
       description: "{{ description }}"
       start_date_time: "{{ start_date_time }}"
@@ -186,8 +179,8 @@ sequence:
               data:
                 summary: "{{ summary }}"
                 description: "{{ description }}"
-                start_date_time: "{{ start_date_time }}"
-                end_date_time: "{{ end_date_time }}"
+                start_date_time: "{{ start_date_time | as_datetime }}"
+                end_date_time: "{{ end_date_time | as_datetime }}"
         alias: Verify if it is an event that occurs during the day.
       - conditions:
           - condition: template

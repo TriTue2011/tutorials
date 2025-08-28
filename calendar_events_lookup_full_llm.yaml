@@ -50,7 +50,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 
@@ -63,7 +62,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 
@@ -76,7 +74,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 
@@ -91,7 +88,6 @@ blueprint:
           selector:
             text:
               multiline: true
-              multiple: false
           default: >-
             This argument is mandatory and must always be provided.
 

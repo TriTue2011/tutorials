@@ -1,5 +1,7 @@
 # Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
 
+* *Các bản thiết kế này đều được tinh chỉnh để chạy hiệu quả nhất với Gemini 2.5 Flash. Các model khác có thể sẽ cần tinh chỉnh thêm để có thể chạy chính xác như mong muốn.*
+
 ## Bản thiết kế tương tác 2 chiều với Zalo (Custom Zalo Bot)
 
 * **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**

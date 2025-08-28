@@ -2,6 +2,20 @@
 
 * *Các bản thiết kế này đều được tinh chỉnh để chạy hiệu quả nhất với Gemini 2.5 Flash. Các model khác có thể sẽ cần tinh chỉnh thêm để có thể chạy chính xác như mong muốn.*
 
+## Bản thiết kế dùng cho Voice Assist tạo sự kiện lưu vào lịch
+
+* **Bản thiết kế này cho phép bạn tạo các sự kiện lưu vào trong lịch bằng cách ra lệnh bằng giọng nói.**
+  * Cần tạo thêm tự động để nhận thông báo khi sắp có sự kiện diễn ra
+  * Ví dụ bằng giọng nói:
+    * Tạo lịch 2h chiều mai đi cắt tóc
+    * Tạo lịch 9h sáng mai họp trong 3 tiếng
+    * Tạo lịch thứ bảy này về quê
+    * Tạo sự kiện chủ nhật tuần sau đi chơi trong 1 tuần
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
 ## Bản thiết kế tương tác 2 chiều với Zalo (Custom Zalo Bot)
 
 * **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**

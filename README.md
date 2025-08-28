@@ -8,9 +8,9 @@
   * Cần tạo thêm tự động để nhận thông báo khi sắp có sự kiện diễn ra
   * Ví dụ bằng giọng nói:
     * Tạo lịch 2h chiều mai đi cắt tóc
-    * Tạo lịch 9h sáng mai họp trong 3 tiếng
-    * Tạo lịch thứ bảy này về quê
-    * Tạo sự kiện chủ nhật tuần sau đi chơi trong 1 tuần
+    * Lên lịch 9h sáng mai họp trong 3 tiếng
+    * Thêm lịch thứ bảy này về quê
+    * Tạo sự kiện chủ nhật tuần sau đi chơi Phú Quốc trong 1 tuần
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 

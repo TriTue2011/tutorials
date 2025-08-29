@@ -280,7 +280,7 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
 async def get_telegram_webhook() -> dict[str, Any]:
     """
     yaml
-    name: Get Telegram Bot Webhook URL
+    name: Get Telegram Bot Webhook
     description: Tool for retrieving Telegram bot Webhook information.
     """
     try:
@@ -294,7 +294,7 @@ async def get_telegram_webhook() -> dict[str, Any]:
 async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
-    name: Set Telegram Bot Webhook URL
+    name: Set Telegram Bot Webhook
     description: Tool for configuring Telegram bot Webhook information.
     fields:
       webhook_id:
@@ -324,7 +324,7 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
 async def delete_telegram_webhook() -> dict[str, Any]:
     """
     yaml
-    name: Delete Telegram Bot Webhook URL
+    name: Delete Telegram Bot Webhook
     description: Tool for removing Telegram bot Webhook information.
     """
     try:

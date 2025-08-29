@@ -1,5 +1,5 @@
 blueprint:
-  name: Unofficial Zalo Bot Webhook
+  name: Custom Zalo Bot Webhook
   author: VuLQ
   description: >-
     # A Zalo bot enabling seamless two-way communication with Home Assistant.
@@ -12,7 +12,7 @@ blueprint:
 
     * The Pyscript integration needs to be installed from HACS.
 
-    * The `unofficial_zalo_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
+    * The `zalo_custom_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
 
     * The `requirements.txt` file needs to be copied into the pyscript folder.
 
@@ -97,7 +97,7 @@ blueprint:
 mode: queued
 max_exceeded: silent
 variables:
-  version: 20250826
+  version: 20250829
   thread_ids: !input thread_ids
   user_ids: !input user_ids
   language: !input language
@@ -156,7 +156,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.data.msgType in ['chat.photo', 'chat.voice', 'chat.video.msg', 'share.file'] }}"
         sequence:
-          - action: pyscript.unofficial_zalo_media_handle_tool
+          - action: pyscript.get_zalo_file_custom_bot
             data:
               url: "{{ trigger.json.data.content.href }}"
             response_variable: file

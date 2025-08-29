@@ -47,10 +47,10 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
 
 
 @service(supports_response="only")
-async def unofficial_zalo_media_handle_tool(url: str) -> dict[str, Any]:
+async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
     """
     yaml
-    name: Unofficial Zalo Media Handle Tool
+    name: Get Zalo File
     description: Tool for retrieving and downloading media files directly from Zalo messages or groups.
     fields:
       url:

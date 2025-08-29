@@ -51,6 +51,10 @@ blueprint:
 
     ### Optional
 
+    * Use the `pyscript.get_telegram_bot_info` action to retrieve Zalo bot basic information.
+
+    * Use the `pyscript.get_telegram_updates` action to retrieve chat IDs and user IDs.
+
     * Use the `pyscript.set_telegram_webhook` action to easily configure a Telegram Webhook ID automatically.
 
     * Use the `pyscript.get_telegram_webhook` action to check the current Telegram Webhook ID.
@@ -109,7 +113,7 @@ blueprint:
 mode: queued
 max_exceeded: silent
 variables:
-  version: 20250825
+  version: 20250829
   chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language
@@ -173,7 +177,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.message.photo is defined }}"
         sequence:
-          - action: pyscript.telegram_media_handle_tool
+          - action: pyscript.get_telegram_file
             data:
               file_id: "{{ trigger.json.message.photo[-1].file_id }}"
             response_variable: file
@@ -207,7 +211,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.message.video is defined }}"
         sequence:
-          - action: pyscript.telegram_media_handle_tool
+          - action: pyscript.get_telegram_file
             data:
               file_id: "{{ trigger.json.message.video.file_id }}"
             response_variable: file
@@ -241,7 +245,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.message.video_note is defined }}"
         sequence:
-          - action: pyscript.telegram_media_handle_tool
+          - action: pyscript.get_telegram_file
             data:
               file_id: "{{ trigger.json.message.video_note.file_id }}"
             response_variable: file
@@ -275,7 +279,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.message.voice is defined }}"
         sequence:
-          - action: pyscript.telegram_media_handle_tool
+          - action: pyscript.get_telegram_file
             data:
               file_id: "{{ trigger.json.message.voice.file_id }}"
             response_variable: file
@@ -309,7 +313,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.message.audio is defined }}"
         sequence:
-          - action: pyscript.telegram_media_handle_tool
+          - action: pyscript.get_telegram_file
             data:
               file_id: "{{ trigger.json.message.audio.file_id }}"
             response_variable: file
@@ -343,7 +347,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.message.document is defined }}"
         sequence:
-          - action: pyscript.telegram_media_handle_tool
+          - action: pyscript.get_telegram_file
             data:
               file_id: "{{ trigger.json.message.document.file_id }}"
             response_variable: file
@@ -378,7 +382,7 @@ actions:
           - condition: template
             value_template: "{{ supported is defined and not bool(supported) }}"
         sequence:
-          - action: pyscript.telegram_message_handle_tool
+          - action: pyscript.send_telegram_message
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"
               message: This file type is not supported for analysis at the moment. The file has been stored without further processing.
@@ -388,6 +392,20 @@ actions:
           - condition: template
             value_template: "{{ input is defined }}"
         sequence:
+          - if:
+              - condition: template
+                value_template: "{{ trigger.json.message.message_thread_id is defined }}"
+            then:
+              - action: pyscript.send_telegram_chat_action
+                data:
+                  chat_id: "{{ trigger.json.message.chat.id }}"
+                  message_thread_id: "{{ trigger.json.message.message_thread_id }}"
+                response_variable: telegram_chat_action
+            else:
+              - action: pyscript.send_telegram_chat_action
+                data:
+                  chat_id: "{{ trigger.json.message.chat.id }}"
+                response_variable: telegram_chat_action
           - if:
               - condition: template
                 value_template: "{{ not conversation_id }}"
@@ -416,14 +434,14 @@ actions:
             data:
               conversation_id: "{{ result.conversation_id }}"
               chat_id: "{{ chat_id }}"
-          - action: pyscript.telegram_message_handle_tool
+          - action: pyscript.send_telegram_message
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"
               message: "{{ response }}"
               reply_to_message_id: "{{ trigger.json.message.message_id }}"
             response_variable: telegram_response
     default:
-      - action: pyscript.telegram_message_handle_tool
+      - action: pyscript.send_telegram_message
         data:
           chat_id: "{{ trigger.json.message.chat.id }}"
           message: This type of message is not supported by the current handler.

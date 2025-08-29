@@ -56,6 +56,7 @@ async def _download_file(
         return await resp.read()
 
 
+@pyscript_compile
 async def _send_message(
     session: aiohttp.ClientSession,
     chat_id: int | str,
@@ -105,6 +106,45 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
         return await resp.json()
 
 
+@pyscript_compile
+async def _get_updates(
+    session: aiohttp.ClientSession, timeout: int = 30
+) -> dict[str, Any]:
+    url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
+    params = {"timeout": timeout}
+    async with session.post(url, json=params) as resp:
+        resp.raise_for_status()
+        return await resp.json()
+
+
+@pyscript_compile
+async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
+    url = f"https://api.telegram.org/bot{TOKEN}/getMe"
+    async with session.get(url) as resp:
+        resp.raise_for_status()
+        return await resp.json()
+
+
+@pyscript_compile
+async def _send_chat_action(
+    session: aiohttp.ClientSession,
+    chat_id: int | str,
+    message_thread_id: int | None = None,
+    action: str = "typing",
+) -> dict[str, Any]:
+    url = f"https://api.telegram.org/bot{TOKEN}/sendChatAction"
+    params = {
+        "chat_id": chat_id,
+        "action": action,
+    }
+    if message_thread_id:
+        params["message_thread_id"] = message_thread_id
+    async with session.post(url, json=params) as resp:
+        resp.raise_for_status()
+        return await resp.json()
+
+
+@pyscript_compile
 def _internal_url() -> str | None:
     try:
         return network.get_url(hass, allow_external=False)
@@ -112,15 +152,22 @@ def _internal_url() -> str | None:
         return None
 
 
+@pyscript_compile
 def _external_url() -> str | None:
     try:
-        return network.get_url(hass, allow_internal=False)
+        return network.get_url(
+            hass,
+            allow_internal=False,
+            allow_ip=False,
+            require_ssl=True,
+            require_standard_port=True,
+        )
     except network.NoURLAvailableError:
         return None
 
 
 @service(supports_response="only")
-async def telegram_message_handle_tool(
+async def send_telegram_message(
     chat_id: str,
     message: str,
     reply_to_message_id: int | None = None,
@@ -128,7 +175,7 @@ async def telegram_message_handle_tool(
 ) -> dict[str, Any]:
     """
     yaml
-    name: Telegram Message Handle Tool
+    name: Send Telegram Message
     description: Tool for sending messages directly to Telegram users via Telegram bot.
     fields:
       chat_id:
@@ -173,10 +220,10 @@ async def telegram_message_handle_tool(
 
 
 @service(supports_response="only")
-async def telegram_media_handle_tool(file_id: str) -> dict[str, Any]:
+async def get_telegram_file(file_id: str) -> dict[str, Any]:
     """
     yaml
-    name: Telegram Media Handle Tool
+    name: Get Telegram File
     description: Tool for retrieving and downloading media files directly from Telegram messages or channels.
     fields:
       file_id:
@@ -262,7 +309,9 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
             webhook_id = secrets.token_urlsafe()
         external_url = _external_url()
         if not external_url:
-            return {"error": "The external Home Assistant URL is not found."}
+            return {
+                "error": "The external Home Assistant URL is not found or incorrect."
+            }
         session = await _ensure_session()
         response = await _set_webhook(session, external_url, webhook_id)
         if isinstance(response, dict) and response.get("ok"):
@@ -282,5 +331,77 @@ async def delete_telegram_webhook() -> dict[str, Any]:
     try:
         session = await _ensure_session()
         return await _delete_webhook(session)
+    except Exception as error:
+        return {"error": f"An unexpected error occurred during processing: {error}"}
+
+
+@service(supports_response="only")
+async def get_telegram_updates(timeout: int = 30) -> dict[str, Any]:
+    """
+    yaml
+    name: Get Telegram Updates
+    description: Tool for getting Telegram messages updates.
+    fields:
+      timeout:
+        name: Timeout
+        description: Time to wait for a response from the Telegram.
+        selector:
+          number:
+            min: 30
+            max: 60
+            step: 1
+        default: 30
+    """
+    try:
+        session = await _ensure_session()
+        return await _get_updates(session, timeout=timeout)
+    except Exception as error:
+        return {"error": f"An unexpected error occurred during processing: {error}"}
+
+
+@service(supports_response="only")
+async def get_telegram_bot_info() -> dict[str, Any]:
+    """
+    yaml
+    name: Get Telegram Bot Basic Information
+    description: Tool for getting Telegram bot basic information.
+    """
+    try:
+        session = await _ensure_session()
+        return await _get_me(session)
+    except Exception as error:
+        return {"error": f"An unexpected error occurred during processing: {error}"}
+
+
+@service(supports_response="only")
+async def send_telegram_chat_action(
+    chat_id: str,
+    message_thread_id: int | None = None,
+) -> dict[str, Any]:
+    """
+    yaml
+    name: Send Telegram Chat Action
+    description: Tool for sending chat action directly to Telegram users via Telegram bot.
+    fields:
+      chat_id:
+        name: Chat ID
+        description: The unique identifier of the target chat where the chat action will be sent.
+        required: true
+        selector:
+          text: {}
+      message_thread_id:
+        name: Message Thread ID
+        description: The unique identifier of the specific message thread (topic) where the chat action will be sent.
+        selector:
+          text: {}
+    """
+    if not chat_id:
+        return {"error": "Missing a required argument: chat_id"}
+    try:
+        session = await _ensure_session()
+        response = await _send_chat_action(session, chat_id, message_thread_id)
+        if not response:
+            return {"error": "Failed to send message"}
+        return response
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

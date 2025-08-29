@@ -207,6 +207,7 @@ actions:
           - action: pyscript.send_zalo_chat_action
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"
+            response_variable: zalo_chat_action
           - if:
               - condition: template
                 value_template: "{{ not conversation_id }}"

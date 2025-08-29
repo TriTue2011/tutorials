@@ -400,10 +400,12 @@ actions:
                 data:
                   chat_id: "{{ trigger.json.message.chat.id }}"
                   message_thread_id: "{{ trigger.json.message.message_thread_id }}"
+                response_variable: telegram_chat_action
             else:
               - action: pyscript.send_telegram_chat_action
                 data:
                   chat_id: "{{ trigger.json.message.chat.id }}"
+                response_variable: telegram_chat_action
           - if:
               - condition: template
                 value_template: "{{ not conversation_id }}"

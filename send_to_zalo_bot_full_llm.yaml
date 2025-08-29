@@ -131,7 +131,7 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250826
+      version: 20250829
       summary: "{{ summary | default }}"
       detail: "{{ detail | default }}"
       location: "{{ location | default }}"
@@ -164,7 +164,7 @@ sequence:
         {% set url = 'https://www.google.com/maps/search/' + place + '/' -%}
         Google Maps ({{ url }})
         {% endif -%}
-  - action: pyscript.zalo_message_handle_tool
+  - action: pyscript.send_zalo_message
     data:
       chat_id: !input chat_id
       message: "{{ message }}"

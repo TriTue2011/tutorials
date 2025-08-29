@@ -2,7 +2,6 @@ import asyncio
 import json
 import re
 import ssl
-from datetime import timedelta
 from io import BytesIO
 
 import aiohttp
@@ -73,9 +72,11 @@ if not all([REDIS_HOST, REDIS_PORT]):
 if TTL < 1 or TTL > 30:
     raise ValueError("TTL must be between 1 and 30")
 
+GEMINI_CLIENT: Any = None
+
 SSL_CTX: ssl.SSLContext | None = None
 
-GEMINI_CLIENT: Any = None
+_client: redis.Redis | None = None
 
 cache_max_age = TTL * 24 * 60 * 60
 
@@ -83,7 +84,14 @@ cache_min_age = cache_max_age - (
     2 * 60 * 60
 )  # Only update cache when existing data is older than 2 hours
 
-cached = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+
+@pyscript_compile
+def _redis() -> redis.Redis:
+    global _client
+    if _client is not None:
+        return _client
+    _client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+    return _client
 
 
 @pyscript_compile
@@ -342,12 +350,11 @@ async def _check_license_plate(
                         response = _extract_violations_from_html(text_content, url)
 
                         if response and response.get("status") == "success":
+                            cached = _redis()
                             await cached.set(
-                                f"{license_plate}-{vehicle_type}", json.dumps(response)
-                            )
-                            await cached.expire(
                                 f"{license_plate}-{vehicle_type}",
-                                timedelta(seconds=cache_max_age),
+                                json.dumps(response),
+                                ex=cache_max_age,
                             )
                         return response
 
@@ -425,6 +432,7 @@ async def traffic_fine_lookup_tool(
         if vehicle_type not in [1, 2, 3]:
             return {"error": "The type of vehicle is invalid"}
 
+        cached = _redis()
         if bool(bypass_caching):
             await cached.delete(f"{license_plate}-{vehicle_type}")
             return await _check_license_plate(license_plate, vehicle_type)

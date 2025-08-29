@@ -49,7 +49,9 @@ blueprint:
 
     ### Optional
 
-    * Use the `pyscript.get_zalo_updates` action to retrieve chat IDs.
+    * Use the `pyscript.get_zalo_bot_info` action to retrieve Zalo bot basic information.
+
+    * Use the `pyscript.get_zalo_updates` action to retrieve chat IDs and user IDs.
 
     * Use the `pyscript.set_zalo_webhook` action to easily configure a Zalo Webhook ID automatically.
 
@@ -109,7 +111,7 @@ blueprint:
 mode: queued
 max_exceeded: silent
 variables:
-  version: 20250826
+  version: 20250829
   chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language
@@ -166,7 +168,7 @@ actions:
           - condition: template
             value_template: "{{ trigger.json.event_name == 'message.image.received' }}"
         sequence:
-          - action: pyscript.zalo_media_handle_tool
+          - action: pyscript.get_zalo_file
             data:
               url: "{{ trigger.json.message.photo_url }}"
             response_variable: file
@@ -193,7 +195,7 @@ actions:
           - condition: template
             value_template: "{{ supported is defined and not bool(supported) }}"
         sequence:
-          - action: pyscript.zalo_message_handle_tool
+          - action: pyscript.send_zalo_message
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"
               message: This file type is not supported for analysis at the moment. The file has been stored without further processing.
@@ -202,6 +204,9 @@ actions:
           - condition: template
             value_template: "{{ input is defined }}"
         sequence:
+          - action: pyscript.send_zalo_chat_action
+            data:
+              chat_id: "{{ trigger.json.message.chat.id }}"
           - if:
               - condition: template
                 value_template: "{{ not conversation_id }}"
@@ -230,13 +235,13 @@ actions:
             data:
               conversation_id: "{{ result.conversation_id }}"
               chat_id: "{{ chat_id }}"
-          - action: pyscript.zalo_message_handle_tool
+          - action: pyscript.send_zalo_message
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"
               message: "{{ response }}"
             response_variable: zalo_response
     default:
-      - action: pyscript.zalo_message_handle_tool
+      - action: pyscript.send_zalo_message
         data:
           chat_id: "{{ trigger.json.message.chat.id }}"
           message: This type of message is not supported by the current handler.

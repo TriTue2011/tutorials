@@ -52,8 +52,9 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
         return file_path
 
 
+@pyscript_compile
 async def _send_message(
-    session: aiohttp.ClientSession, chat_id: int | str, message: str
+    session: aiohttp.ClientSession, chat_id: str, message: str
 ) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/sendMessage"
     payload = {"chat_id": chat_id, "text": message[:2000]}
@@ -102,6 +103,26 @@ async def _get_updates(
         return await resp.json(content_type=None)
 
 
+@pyscript_compile
+async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
+    url = f"https://bot-api.zapps.me/bot{TOKEN}/getMe"
+    async with session.get(url) as resp:
+        resp.raise_for_status()
+        return await resp.json(content_type=None)
+
+
+@pyscript_compile
+async def _send_chat_action(
+    session: aiohttp.ClientSession, chat_id: str, action: str = "typing"
+) -> dict[str, Any]:
+    url = f"https://bot-api.zapps.me/bot{TOKEN}/sendChatAction"
+    params = {"chat_id": chat_id, "action": action}
+    async with session.post(url, json=params) as resp:
+        resp.raise_for_status()
+        return await resp.json(content_type=None)
+
+
+@pyscript_compile
 def _internal_url() -> str | None:
     try:
         return network.get_url(hass, allow_external=False)
@@ -109,18 +130,25 @@ def _internal_url() -> str | None:
         return None
 
 
+@pyscript_compile
 def _external_url() -> str | None:
     try:
-        return network.get_url(hass, allow_internal=False)
+        return network.get_url(
+            hass,
+            allow_internal=False,
+            allow_ip=False,
+            require_ssl=True,
+            require_standard_port=True,
+        )
     except network.NoURLAvailableError:
         return None
 
 
 @service(supports_response="only")
-async def zalo_message_handle_tool(chat_id: str, message: str) -> dict[str, Any]:
+async def send_zalo_message(chat_id: str, message: str) -> dict[str, Any]:
     """
     yaml
-    name: Zalo Message Handle Tool
+    name: Send Zalo Message
     description: Tool for sending messages directly to Zalo users via Zalo bot.
     fields:
       chat_id:
@@ -149,10 +177,10 @@ async def zalo_message_handle_tool(chat_id: str, message: str) -> dict[str, Any]
 
 
 @service(supports_response="only")
-async def zalo_media_handle_tool(url: str) -> dict[str, Any]:
+async def get_zalo_file(url: str) -> dict[str, Any]:
     """
     yaml
-    name: Zalo Media Handle Tool
+    name: Get Zalo File
     description: Tool for retrieving and downloading media files directly from Zalo messages or channels.
     fields:
       url:
@@ -231,7 +259,9 @@ async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
             webhook_id = secrets.token_urlsafe()
         external_url = _external_url()
         if not external_url:
-            return {"error": "The external Home Assistant URL is not found."}
+            return {
+                "error": "The external Home Assistant URL is not found or incorrect."
+            }
         session = await _ensure_session()
         response = await _set_webhook(session, external_url, webhook_id)
         if isinstance(response, dict) and response.get("ok"):
@@ -275,5 +305,45 @@ async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
     try:
         session = await _ensure_session()
         return await _get_updates(session, timeout=timeout)
+    except Exception as error:
+        return {"error": f"An unexpected error occurred during processing: {error}"}
+
+
+@service(supports_response="only")
+async def get_zalo_bot_info() -> dict[str, Any]:
+    """
+    yaml
+    name: Get Zalo Bot Basic Information
+    description: Tool for getting Zalo bot basic information.
+    """
+    try:
+        session = await _ensure_session()
+        return await _get_me(session)
+    except Exception as error:
+        return {"error": f"An unexpected error occurred during processing: {error}"}
+
+
+@service(supports_response="only")
+async def send_zalo_chat_action(chat_id: str) -> dict[str, Any]:
+    """
+    yaml
+    name: Send Zalo Chat Action
+    description: Tool for sending chat action directly to Zalo users via Zalo bot.
+    fields:
+      chat_id:
+        name: Chat ID
+        description: The unique identifier of the target chat where the message will be sent.
+        required: true
+        selector:
+          text: {}
+    """
+    if not chat_id:
+        return {"error": "Missing a required argument: chat_id"}
+    try:
+        session = await _ensure_session()
+        response = await _send_chat_action(session, chat_id)
+        if not response:
+            return {"error": "Failed to send message"}
+        return response
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

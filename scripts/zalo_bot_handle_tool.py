@@ -231,7 +231,7 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
 async def get_zalo_webhook() -> dict[str, Any]:
     """
     yaml
-    name: Retrieve Zalo Bot Webhook URL
+    name: Get Zalo Bot Webhook
     description: Tool for retrieving Zalo bot Webhook information.
     """
     try:
@@ -245,7 +245,7 @@ async def get_zalo_webhook() -> dict[str, Any]:
 async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
-    name: Configure Zalo Bot Webhook URL
+    name: Set Zalo Bot Webhook
     description: Tool for configuring Zalo bot Webhook information.
     fields:
       webhook_id:
@@ -275,7 +275,7 @@ async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
 async def delete_zalo_webhook() -> dict[str, Any]:
     """
     yaml
-    name: Delete Zalo Bot Webhook URL
+    name: Delete Zalo Bot Webhook
     description: Tool for removing Zalo bot Webhook information.
     """
     try:
@@ -313,7 +313,7 @@ async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
 async def get_zalo_bot_info() -> dict[str, Any]:
     """
     yaml
-    name: Get Zalo Bot Basic Information
+    name: Get Zalo Bot Information
     description: Tool for getting Zalo bot basic information.
     """
     try:

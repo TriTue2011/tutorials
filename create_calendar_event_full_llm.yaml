@@ -75,7 +75,7 @@ blueprint:
 
             This argument specifies the event end date and time in the format YYYY-MM-DD HH:MM:SS.
 
-            If not provided, it defaults to two hours after the start date and time.
+            If the user does not provide an end date time, set it to two hours after the start date time.
         start_date_prompt:
           name: Start Date Prompt
           description: The prompt which will be used for the LLM can provide the date the all-day event should start.
@@ -97,7 +97,7 @@ blueprint:
 
             This argument specifies the end date of an all-day event in the format YYYY-MM-DD.
 
-            If not provided, it defaults to one day after the start date.
+            If the user does not provide an end date, set it to one day after the start date.
 mode: queued
 max_exceeded: silent
 fields:

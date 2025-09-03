@@ -193,6 +193,10 @@ actions:
           - condition: template
             value_template: "{{ input is defined }}"
         sequence:
+          - action: zalo_bot.send_typing_event
+            data:
+              thread_id: "{{ trigger.json.threadId }}"
+              account_selection: !input account_selection
           - if:
               - condition: template
                 value_template: "{{ not conversation_id }}"

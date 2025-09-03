@@ -187,10 +187,12 @@ sequence:
         attribute='published') | map(attribute='title') | list }}
   - action: ai_task.generate_data
     data:
-      task_name: Tóm tắt các tin tức diễn ra trong 24h qua
+      task_name: Analyze and summarize news
       instructions: >-
-        Sau đây là danh sách các tin tức trong 24h qua. Hãy phân tích và đưa ra
-        bản tóm tắt:
+        Here is a list of news items collected within the past 24 hours. Please
+        analyze them and produce a summary in Vietnamese. The summary must be
+        concise and written in bullet points, highlighting the main events,
+        their context, and their impact:
 
 
         {{ contents }}

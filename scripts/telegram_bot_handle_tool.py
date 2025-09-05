@@ -249,6 +249,7 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         file_name = os.path.basename(online_file_path)
         file_path = os.path.join(DIRECTORY, file_name)
         await _write_file(file_path, content)
+        mimetypes.add_type("text/plain", ".yaml")
         mime_type, encoding = mimetypes.guess_file_type(file_name)
         file_path = file_path.replace(
             "/media/", "/local/"
@@ -260,12 +261,6 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
             "audio/",
             "text/",
             "application/pdf",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml",
-            "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml",
-            "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml",
         )
         if mime_type and mime_type.startswith(support_file_types):
             response["supported"] = True

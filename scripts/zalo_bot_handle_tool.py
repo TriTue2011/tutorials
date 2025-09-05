@@ -200,6 +200,7 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
         if not file_path:
             return {"error": "Unable to download the file from Zalo."}
 
+        mimetypes.add_type("text/plain", ".yaml")
         mime_type, encoding = mimetypes.guess_file_type(file_path)
         file_path = file_path.replace(
             "/media/", "/local/"
@@ -211,12 +212,6 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
             "audio/",
             "text/",
             "application/pdf",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml",
-            "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml",
-            "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml",
         )
         if mime_type and mime_type.startswith(support_file_types):
             response["supported"] = True

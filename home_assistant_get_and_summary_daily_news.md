@@ -24,7 +24,7 @@
 
 ### Tạo sensor cho kênh Youtube tin tức
 
-- Sau khi có ID của kênh YouTube tin tức, thêm sensor như sau vào tập tin cấu hình `configuration.yaml` của Home Assistant.
+- Sau khi có ID của kênh YouTube tin tức, thêm sensor như sau vào tập tin cấu hình `config/configuration.yaml` của Home Assistant.
 
 ```yaml
 sensor:

@@ -10,13 +10,13 @@ blueprint:
 
     * The Pyscript integration needs to be installed from HACS.
 
-    * The `traffic_fine_lookup_tool.py` script needs to be copied into the pyscript folder.
+    * The `traffic_fine_lookup_tool.py` script needs to be copied into the `config/pyscript` folder.
 
-    * The `requirements.txt` file needs to be copied into the pyscript folder.
+    * The `requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
     * Redis needs to be installed and configured, as it's required for data caching.
 
-    * A Gemini API key needs to be configured in `configuration.yaml`, as it's required for solving CAPTCHAs.
+    * A Gemini API key needs to be configured in `config/configuration.yaml`, as it's required for solving CAPTCHAs.
 
     ```
 

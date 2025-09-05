@@ -12,13 +12,11 @@ blueprint:
 
     * The Pyscript integration needs to be installed from HACS.
 
-    * The `zalo_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
+    * The `zalo_bot_handle_tool.py` script needs to be copied into the `config/pyscript` folder.
 
-    * The `requirements.txt` file needs to be copied into the pyscript folder.
+    * The `requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * A Zalo bot token needs to be configured in `configuration.yaml`.
-
-    * Redis needs to be installed and configured.
+    * A Zalo bot token needs to be configured in `config/configuration.yaml`.
 
     ```
 
@@ -28,8 +26,6 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       zalo_bot_token: !secret zalo_bot_token
-      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
-      redis_port: 6379      # Default: 6379
 
     ```
 

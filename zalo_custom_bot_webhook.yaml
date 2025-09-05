@@ -12,11 +12,11 @@ blueprint:
 
     * The Pyscript integration needs to be installed from HACS.
 
-    * The `zalo_custom_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
+    * The `zalo_custom_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the `config/pyscript` folder.
 
-    * The `requirements.txt` file needs to be copied into the pyscript folder.
+    * The `requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * Redis needs to be installed and configured.
+    * Redis needs to be installed and configured, as it's required for conversation caching.
 
     * Update the Webhook URL to the Zalo Bot Server after saving the script.
 

@@ -10,7 +10,7 @@ blueprint:
 
     * The Pyscript integration needs to be installed from HACS.
 
-    * The `date_conversion_tool.py` script needs to be copied into the pyscript folder.
+    * The `date_conversion_tool.py` script needs to be copied into the `config/pyscript` folder.
 
     * A calendar entity with write permissions to save events.
 

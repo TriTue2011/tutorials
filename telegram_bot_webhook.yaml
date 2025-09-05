@@ -16,13 +16,13 @@ blueprint:
 
     * The Pyscript integration needs to be installed from HACS.
 
-    * The `telegram_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the pyscript folder.
+    * The `telegram_bot_handle_tool.py` and `common_utilities.py` scripts needs to be copied into the `config/pyscript` folder.
 
-    * The `requirements.txt` file needs to be copied into the pyscript folder.
+    * The `requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * A Telegram bot token needs to be configured in `configuration.yaml`.
+    * A Telegram bot token needs to be configured in `config/configuration.yaml`.
 
-    * Redis needs to be installed and configured.
+    * Redis needs to be installed and configured, as it's required for conversation caching.
 
     ```
 

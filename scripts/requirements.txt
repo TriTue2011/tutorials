@@ -1,16 +1,14 @@
-# YouTube Search Tool
+# Common packages are included in many tools.
+aiohttp
+aiofiles
+redis
+
+# youtube_data_tool
 google-api-python-client
 
-# Traffic Fine Lookup Tool
-aiohttp
-redis
+# traffic_fine_lookup_tool
 pillow
 beautifulsoup4
 google-genai
 google-api-core
 typing-extensions
-
-# Telegram / Zalo Bot Handle Tool
-aiofiles
-aiohttp
-redis

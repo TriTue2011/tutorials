@@ -142,7 +142,7 @@ sequence:
   - variables:
       version: 20250825
       entity_aliases: !input entity_aliases
-      short_videos: "{{ short_videos | default(false) }}"
+      short_videos: !input short_videos
       entities: "{{ entities | default }}"
       period_length: "{{ period_length | default(3) | abs }}"
   - alias: Check if variables were set correctly
@@ -152,7 +152,7 @@ sequence:
           {% set validation = namespace(not_exist=false) -%}
           {% for entity in entities.split(';') -%}
           {% if not ((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list) or
-          (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
+          (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
           {% set validation.not_exist = true -%}
           {% endif -%}
           {% endfor -%}
@@ -171,7 +171,7 @@ sequence:
           {% for entity in entities.split(';') -%}
           {% set entity_id = (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first)
           if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list)
-          else (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | first) -%}
+          else (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'sensor\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | first) -%}
           {% for entry in state_attr(entity_id, 'entries') if (strptime(entry.published, '%Y-%m-%dT%H:%M:%S%z') > (now() - timedelta(days=period_length))) -%}
           {% if entry.link is not search('\/shorts\/') -%}
           - channel: {{ entry.author | lower }}

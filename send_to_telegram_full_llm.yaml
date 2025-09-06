@@ -164,6 +164,6 @@ sequence:
             message: "{{ message }}"
             target: !input chat_id
             parse_mode: markdown
-            message_thread_id: "{{ thread_id}}"
+            message_thread_id: "{{ thread_id }}"
   - action: telegram_bot.send_message
     data: "{{ data }}"

@@ -252,8 +252,8 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         mimetypes.add_type("text/plain", ".yaml")
         mime_type, encoding = mimetypes.guess_file_type(file_name)
         file_path = file_path.replace(
-            "/media/", "/local/"
-        )  # Change to public access path
+            "/media/", "local/"
+        )  # Modify the media source to use a relative URI
         response: dict[str, Any] = {"file_path": file_path, "mime_type": mime_type}
         support_file_types = (
             "image/",

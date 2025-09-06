@@ -117,7 +117,6 @@ fields:
 sequence:
   - variables:
       version: 20250826
-      receiver: !input receiver
       summary: "{{ summary | default }}"
       detail: "{{ detail | default }}"
       location: "{{ location | default }}"
@@ -154,5 +153,5 @@ sequence:
     data:
       account_selection: !input account
       thread_id: !input thread_id
-      type: "{{ receiver | default(0) }}"
+      type: !input receiver
       message: "{{ message }}"

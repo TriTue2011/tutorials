@@ -131,7 +131,7 @@ sequence:
           {% for entity in entities.split(';') -%}
           {% if not ((integration_entities('bermuda') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) or
           (integration_entities('mobile_app') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) or
-          (state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
+          (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
           {% set validation.not_exist = true -%}
           {% endif -%}
           {% endfor -%}
@@ -158,7 +158,7 @@ sequence:
           {% set device.is_mobile = true -%}
           {% set device.notify_id = device.entity_id.split('device_tracker.')[1] -%}
           {% else -%}
-          {% set device.entity_id = state_attr(entity_aliases, 'entities') | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', device.friendly_name) | map(attribute='entity_id') | first -%}
+          {% set device.entity_id = state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'device_tracker\.') | selectattr('aliases', 'contains', device.friendly_name) | map(attribute='entity_id') | first -%}
           {% endif -%}
           {% if not device.is_mobile -%}
           {% set parts = device.entity_id.split('device_tracker.')[1].split('_') -%}

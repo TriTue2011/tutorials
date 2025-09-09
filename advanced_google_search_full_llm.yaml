@@ -77,9 +77,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is optional.
+            This argument is mandatory and must always be provided.
 
-            The output language for the conversation agent response. Use IETF tags like vi‑VN, en‑US.
+            Use an IETF BCP 47 language tag (e.g., vi-VN, en-US). The value must match the user's language.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -94,23 +94,23 @@ fields:
     description: !input language_prompt
     selector:
       text:
-    default: vi-VN
+    required: true
 sequence:
   - variables:
       version: 20250909
-      query_string: "{{ query_string | default }}"
-      language: "{{ language | default('vi-VN') }}"
+      query_string: "{{ (query_string | default('') | string | trim) }}"
+      language: "{{ (language | default('') | string | trim) }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: "{{ not query_string }}"
+        value_template: "{{ not query_string or not language }}"
     then:
       - alias: Set variable for error message
         variables:
           response:
-            error: Unable to search for information because the query string is empty.
+            error: Unable to search for information because the query string or language is empty.
       - alias: Stop the script
-        stop: Unable to search for information because the query string is empty.
+        stop: Unable to search for information because the query string or language is empty.
         response_variable: response
   - action: conversation.process
     response_variable: response

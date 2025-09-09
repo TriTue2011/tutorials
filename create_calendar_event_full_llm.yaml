@@ -238,7 +238,7 @@ sequence:
             error: >-
               Do not mix types: timed start requires end_date_time, not end_date.
       - stop: >-
-        Do not mix types: timed start requires end_date_time, not end_date.
+          Do not mix types: timed start requires end_date_time, not end_date.
         response_variable: response
   - alias: Disallow type mismatch for all-day start
     if:
@@ -251,7 +251,7 @@ sequence:
             error: >-
               Do not mix types: all-day start requires end_date, not end_date_time.
       - stop: >-
-        Do not mix types: all-day start requires end_date, not end_date_time.
+          Do not mix types: all-day start requires end_date, not end_date_time.
         response_variable: response
   - alias: Validate end after start for timed
     if:

@@ -155,7 +155,7 @@ fields:
     description: !input end_date_prompt
 sequence:
   - variables:
-      version: 20250828
+      version: 20250909
       summary: "{{ summary }}"
       description: "{{ description }}"
       start_date_time: "{{ start_date_time }}"

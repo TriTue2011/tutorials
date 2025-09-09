@@ -112,8 +112,8 @@ fields:
 sequence:
   - variables:
       version: 20250825
-      license_plate: "{{ license_plate | default }}"
-      vehicle_type: "{{ vehicle_type | default }}"
+      license_plate: "{{ license_plate | default('') | trim }}"
+      vehicle_type: "{{ vehicle_type | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

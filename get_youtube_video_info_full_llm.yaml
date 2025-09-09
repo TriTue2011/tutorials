@@ -143,7 +143,7 @@ sequence:
       version: 20250825
       entity_aliases: !input entity_aliases
       short_videos: !input short_videos
-      entities: "{{ entities | default }}"
+      entities: "{{ entities | default('') | trim }}"
       period_length: "{{ period_length | default(3) | abs }}"
   - alias: Check if variables were set correctly
     if:

@@ -116,8 +116,8 @@ sequence:
   - variables:
       version: 20250825
       results: !input results
-      query_string: "{{ query_string | default }}"
-      page_token: "{{ page_token | default }}"
+      query_string: "{{ query_string | default('') | trim }}"
+      page_token: "{{ page_token | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

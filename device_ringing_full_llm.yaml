@@ -63,7 +63,7 @@ fields:
 sequence:
   - variables:
       version: 20250825
-      ring_id: "{{ ring_id | default }}"
+      ring_id: "{{ ring_id | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

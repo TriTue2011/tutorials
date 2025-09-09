@@ -104,7 +104,7 @@ fields:
 sequence:
   - variables:
       version: 20250825
-      conversion_type: "{{ conversion_type | default }}"
+      conversion_type: "{{ conversion_type | default('') | trim }}"
       date: "{{ (date | as_datetime(default=now())).date() }}"
       leap_month: "{{ leap_month | default(false) }}"
   - alias: Check if variables were set correctly

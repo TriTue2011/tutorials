@@ -128,9 +128,9 @@ fields:
 sequence:
   - variables:
       version: 20250829
-      summary: "{{ summary | default }}"
-      detail: "{{ detail | default }}"
-      location: "{{ location | default }}"
+      summary: "{{ summary | default('') | trim }}"
+      detail: "{{ detail | default('') | trim }}"
+      location: "{{ location | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

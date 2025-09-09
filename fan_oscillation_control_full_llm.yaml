@@ -114,7 +114,7 @@ sequence:
   - variables:
       version: 20250825
       entity_aliases: !input entity_aliases
-      fan_entities: "{{ fan_entities | default }}"
+      fan_entities: "{{ fan_entities | default('') | trim }}"
       oscillating: "{{ oscillating | default(false) }}"
   - alias: Check if variables were set correctly
     if:
@@ -151,4 +151,4 @@ sequence:
     target:
       entity_id: "{{ devices | join(', ') }}"
     data:
-      oscillating: "{{ oscillating }}"
+      oscillating: "{{ (oscillating | string) | lower }}"

@@ -67,7 +67,7 @@ fields:
 sequence:
   - variables:
       version: 20250825
-      media_id: "{{ media_id | default }}"
+      media_id: "{{ media_id | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

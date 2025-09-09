@@ -152,8 +152,8 @@ sequence:
       version: 20250909
       entity_aliases: !input entity_aliases
       speed_steps: !input speed_steps
-      fan_entities: "{{ fan_entities | default }}"
-      speed_adjustment: "{{ speed_adjustment }}"
+      fan_entities: "{{ fan_entities | default('') | trim }}"
+      speed_adjustment: "{{ speed_adjustment | default(none) }}"
       percentage: "{{ percentage | default(0) }}"
   - alias: Check if variables were set correctly
     if:

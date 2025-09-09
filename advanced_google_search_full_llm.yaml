@@ -98,8 +98,8 @@ fields:
 sequence:
   - variables:
       version: 20250909
-      query_string: "{{ (query_string | default('') | string | trim) }}"
-      language: "{{ (language | default('') | string | trim) }}"
+      query_string: "{{ (query_string | default('') | trim) }}"
+      language: "{{ (language | default('') | trim) }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

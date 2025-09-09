@@ -79,7 +79,7 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided.
 
-            Use an IETF BCP 47 language tag (e.g., vi-VN, en-US). The value must match the user's language.
+            Specify the output language of the response using an IETF BCP 47 language tag (e.g., vi-VN, en-US). The value must match the user's language.
 mode: parallel
 max_exceeded: silent
 fields:

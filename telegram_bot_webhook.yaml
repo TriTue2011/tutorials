@@ -51,7 +51,7 @@ blueprint:
 
     ### Optional
 
-    * Use the `pyscript.get_telegram_bot_info` action to retrieve Zalo bot basic information.
+    * Use the `pyscript.get_telegram_bot_info` action to retrieve Telegram bot basic information.
 
     * Use the `pyscript.get_telegram_updates` action to retrieve chat IDs and user IDs.
 
@@ -60,6 +60,8 @@ blueprint:
     * Use the `pyscript.get_telegram_webhook` action to check the current Telegram Webhook ID.
 
     * Use the `pyscript.delete_telegram_webhook` action to delete the Telegram Webhook ID when you are no longer using it.
+
+    * Use the `pyscript.send_telegram_message` action to easily send a Telegram message directly in your automation without any dependencies.
   domain: automation
   homeassistant:
     min_version: 2025.8.0

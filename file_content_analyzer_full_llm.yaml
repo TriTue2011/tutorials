@@ -46,6 +46,8 @@ blueprint:
 
     * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to extract data from a media or document file.
 
+    * Expose any camera entities you want to use through Assist, and Assist will be able to "see" whenever you ask.
+
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.

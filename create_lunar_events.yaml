@@ -91,10 +91,7 @@ sequence:
     if:
       - condition: template
         value_template: >-
-          {{ start_date == 'n/a'
-            or not event_summary
-            or calendar not in (integration_entities('local_calendar') + integration_entities('google'))
-          }}
+          {{ start_date == 'n/a' or not event_summary }}
     then:
       - alias: Stop the script
         stop: Unable to add the event because either the Lunar date or event summary is empty or the calendar entity is invalid.

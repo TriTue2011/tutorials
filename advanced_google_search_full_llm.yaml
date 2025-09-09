@@ -69,9 +69,17 @@ blueprint:
 
             Provide the search string to obtain information from Google.
 
-            If the query contains errors caused by user mispronunciation, correct it to the most likely accurate search string and ask the user for confirmation before proceeding.
+            If the query seems misspelled or misheard, silently correct it to the most likely intended search string and proceed. Do not ask clarifying questions; instead, briefly note the correction in the response.
+        language_prompt:
+          name: Language Prompt
+          description: The prompt which will be used for the LLM can provide the language for the query.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            This argument is optional.
 
-            After obtaining the results, analyze them thoroughly, summarize the key points, and then deliver a response.
+            The output language for the conversation agent response. Use IETF tags like vi‑VN, en‑US.
 mode: parallel
 max_exceeded: silent
 fields:
@@ -81,10 +89,17 @@ fields:
     selector:
         text:
     required: true
+  language:
+    name: Language
+    description: !input language_prompt
+    selector:
+      text:
+    default: vi-VN
 sequence:
   - variables:
-      version: 20250825
+      version: 20250909
       query_string: "{{ query_string | default }}"
+      language: "{{ language | default('vi-VN') }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -102,8 +117,20 @@ sequence:
     data:
       agent_id: !input agent_id
       text: >-
-        Search on Google to gather detailed information about:
+        Use Google Search to gather accurate, comprehensive information about:
 
         {{ query_string }}
+
+
+        Instructions:
+
+        - Perform up to 3 iterative refinements; avoid duplicate sources; prefer recent, authoritative content.
+
+        - Provide both a brief overview and expanded details so follow-ups don't need another search.
+
+        - Name sources (publisher/site, optionally date).
+
+        - Always use the Google Search tool for factual lookup. If the tool returns no results, say so and propose refined queries. Do not fabricate sources.
+      language: "{{ language }}"
   - stop: ""
     response_variable: response

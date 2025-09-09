@@ -2,6 +2,19 @@
 
 * *Các bản thiết kế này đều được tinh chỉnh để chạy hiệu quả nhất với Gemini 2.5 Flash. Các model khác có thể sẽ cần tinh chỉnh thêm để có thể chạy chính xác như mong muốn.*
 
+## Bản thiết kế dùng cho Voice Assist "nhìn" thấy mọi thứ xung quanh
+
+* **Bản thiết kế này cho phép bạn xem camera hoặc tìm thông tin thông qua camera bằng cách ra lệnh bằng giọng nói.**
+  * Cần chia sẻ các thực thể camera nào muốn xem với Voice Assist
+  * Đây không phải là bản thiết kế mới, mà nó đã bao gồm trong các bản thiết kế bot Telegram/Zalo tương tác 2 chiều. Nó bao gồm tính năng xem camera có thể hoạt động độc lập nên mình tách riêng cho bạn nào chỉ cần tính năng này.
+  * Ví dụ bằng giọng nói:
+    * Xem các camera xem con mèo đang ở đâu
+    * Xem cam cổng hiện tại có người nào không
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
 ## Bản thiết kế dùng cho Voice Assist tạo sự kiện lưu vào lịch
 
 * **Bản thiết kế này cho phép bạn tạo các sự kiện lưu vào trong lịch bằng cách ra lệnh bằng giọng nói.**

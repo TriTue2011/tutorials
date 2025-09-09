@@ -288,8 +288,15 @@ sequence:
             data:
               summary: "{{ summary }}"
               description: "{{ description }}"
-              start_date_time: "{{ start_date_time | as_datetime }}"
-              end_date_time: "{{ end_date_time | as_datetime }}"
+              start_date_time: "{{ (start_date_time | as_datetime | as_local).isoformat() }}"
+              end_date_time: "{{ (end_date_time | as_datetime | as_local).isoformat() }}"
+          - alias: Return success message (timed)
+            variables:
+              response:
+                message: >-
+                  Đã tạo sự kiện: {{ summary }} ({{ (start_date_time | as_datetime).strftime('%Y-%m-%d %H:%M') }} → {{ (end_date_time | as_datetime).strftime('%Y-%m-%d %H:%M') }}) trên {{ state_attr(calendar,'friendly_name') or calendar }}.
+          - stop: ""
+            response_variable: response
       - alias: All-day event (requires end_date)
         conditions:
           - condition: template
@@ -304,3 +311,11 @@ sequence:
               description: "{{ description }}"
               start_date: "{{ (start_date | as_datetime).date() }}"
               end_date: "{{ (end_date | as_datetime).date() }}"
+          - alias: Return success message (all-day)
+            variables:
+              response:
+                message: >-
+                  Đã tạo sự kiện: {{ summary }} ({{ (start_date | as_datetime).date() }} → {{ (end_date | as_datetime).date() }}) trên {{ state_attr(calendar,'friendly_name') or calendar }}.
+          - stop: ""
+            response_variable: response
+

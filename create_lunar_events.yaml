@@ -82,8 +82,8 @@ sequence:
       lunar_date: "{{ lunar_date | as_datetime(default='') }}"
       start_date: "{{ as_datetime(lunar_date).date() if lunar_date else 'n/a' }}"
       days: "{{ days | default(1) | abs }}"
-      event_summary: "{{ event_summary | default }}"
-      event_description: "{{ event_description | default }}"
+      event_summary: "{{ event_summary | default('') | trim }}"
+      event_description: "{{ event_description | default('') | trim }}"
       repeat: "{{ repeat | default(1) | abs }}"
       leap_month: "{{ leap_month | default(false) }}"
       calendar: !input calendar
@@ -101,7 +101,7 @@ sequence:
       - condition: template
         value_template: >-
           {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
-          {{ not (feats % 2) == 1 }}
+          {{ (feats % 2) != 1 }}
     then:
       - alias: Stop the script
         stop: The event could not be added because the calendar entity lacks write permissions.

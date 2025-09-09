@@ -55,7 +55,7 @@ fields:
 sequence:
   - variables:
       version: 20250825
-      devices: "{{ devices | default }}"
+      devices: "{{ devices | default('') | trim }}"
       control: "{{ control | default(false) }}"
       timer: "{{ timer | default('00:00:00') }}"
   - delay: "{{ timer }}"

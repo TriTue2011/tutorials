@@ -122,7 +122,7 @@ sequence:
   - variables:
       version: 20250825
       entity_aliases: !input entity_aliases
-      entities: "{{ entities | default }}"
+      entities: "{{ entities | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

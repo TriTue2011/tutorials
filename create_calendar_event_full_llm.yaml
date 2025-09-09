@@ -158,10 +158,10 @@ sequence:
       version: 20250909
       summary: "{{ summary | default('') | trim }}"
       description: "{{ description | default('') | trim }}"
-      start_date_time: "{{ start_date_time }}"
-      end_date_time: "{{ end_date_time }}"
-      start_date: "{{ start_date }}"
-      end_date: "{{ end_date }}"
+      start_date_time: "{{ start_date_time | default('') | trim }}"
+      end_date_time: "{{ end_date_time | default('') | trim }}"
+      start_date: "{{ start_date | default('') | trim }}"
+      end_date: "{{ end_date | default('') | trim }}"
       calendar: !input calendar
   - alias: Check if variables were set correctly
     if:
@@ -181,7 +181,7 @@ sequence:
       - condition: template
         value_template: >-
           {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
-          {{ not (feats % 2) == 1 }}
+          {{ (feats % 2) != 1 }}
     then:
       - alias: Set variable for error message
         variables:
@@ -319,9 +319,10 @@ sequence:
           - stop: ""
             response_variable: response
     default:
-      - alias: Return unknown action
+      - alias: Invalid date configuration
         variables:
           response:
-            error: Something went wrong.
-      - stop: Return unknown action
+            error: >-
+              Invalid date configuration. Provide either start_date_time + end_date_time (timed) or start_date + end_date (all-day), and ensure end is on/after start.
+      - stop: Invalid date configuration
         response_variable: response

@@ -146,7 +146,7 @@ actions:
           - variables:
               input:
                 system: >-
-                  Always respond in the user's language: {{ language }}.
+                  Always respond in the user's language: {{ language | trim }}.
                 prompt: >-
                   {{ trigger.json.data.quote.msg if (trigger.json.data.quote is defined and trigger.json.data.quote.msg is defined) }}
 
@@ -171,7 +171,7 @@ actions:
 
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
 
-                  Always respond in the user's language: {{ language }}.
+                  Always respond in the user's language: {{ language | trim }}.
                 prompt: >-
                   {{ trigger.json.data.content.title }}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
@@ -205,7 +205,7 @@ actions:
                 data:
                   agent_id: !input agent_id
                   text: "{{ input }}"
-                  language: "{{ language }}"
+                  language: "{{ language | trim }}"
                 response_variable: result
             else:
               - action: conversation.process
@@ -213,14 +213,11 @@ actions:
                   agent_id: !input agent_id
                   text: "{{ input }}"
                   conversation_id: "{{ conversation_id }}"
-                  language: "{{ language }}"
+                  language: "{{ language | trim }}"
                 response_variable: result
           - variables:
               response: >-
-                {{ result.response.speech.plain.speech if (result is defined and
-                result.response is defined and result.response.response_type ==
-                'action_done' and result.response.speech.plain.speech | length >
-                0) else 'Something went wrong' }}
+                {{ result.response.speech.plain.speech if (result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0) else 'No response from assistant' }}
           - action: pyscript.conversation_id_setter
             data:
               conversation_id: "{{ result.conversation_id }}"
@@ -228,7 +225,7 @@ actions:
           - action: zalo_bot.send_message
             data:
               thread_id: "{{ trigger.json.threadId }}"
-              message: "{{ response }}"
+              message: "{{ response | trim }}"
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
     default:

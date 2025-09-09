@@ -169,10 +169,10 @@ sequence:
       version: 20250906
       entity_aliases: !input entity_aliases
       ai_task_entity: !input ai_task_entity
-      instructions: "{{ instructions | default }}"
-      media_source: "{{ media_source | default }}"
-      media_path: "{{ media_path | default }}"
-      mime_type: "{{ mime_type | default }}"
+      instructions: "{{ instructions | default('') | trim }}"
+      media_source: "{{ media_source | default('') | trim }}"
+      media_path: "{{ media_path | default('') | trim }}"
+      mime_type: "{{ mime_type | default('') | trim }}"
   - if:
       - alias: Check if variables were set correctly
         condition: template

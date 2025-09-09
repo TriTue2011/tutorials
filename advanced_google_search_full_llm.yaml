@@ -123,9 +123,13 @@ sequence:
 
 
         Instructions:
+
         - Perform up to three iterative refinements. Avoid duplicate sources; prioritize recent, authoritative content.
+
         - Provide both a concise overview and expanded details to minimize the need for follow-up searches.
+
         - Optionally include source names (publisher/site, date).
+
         - Always use the Google Search tool for factual lookups. If no results are found, state this clearly and suggest refined queries. Never fabricate sources.
       language: "{{ language }}"
   - stop: ""

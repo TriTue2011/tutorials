@@ -10,11 +10,11 @@ blueprint:
 
     * Create a Zalo bot if it does not already exist using Zalo Bot Creator.
 
-    * The Pyscript integration needs to be installed from HACS.
+    * The Pyscript integration needs to be installed through HACS and properly configured.
 
-    * The `zalo_bot_handle_tool.py` script needs to be copied into the `config/pyscript` folder.
+    * The `scripts/zalo_bot_handle_tool.py` script needs to be copied into the `config/pyscript` folder.
 
-    * The `requirements.txt` file needs to be copied into the `config/pyscript` folder.
+    * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
     * A Zalo bot token needs to be configured in `config/configuration.yaml`.
 

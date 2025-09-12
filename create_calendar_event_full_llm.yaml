@@ -10,9 +10,19 @@ blueprint:
 
     * A calendar entity with write permissions to save events.
 
+    ### Optional
+
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+
     ### Note
 
     * Google Calendar requires Read/Write access.
+
+    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for creating calendar events.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+    * Do not alter the default script name.
   domain: script
   homeassistant:
     min_version: 2024.10.0

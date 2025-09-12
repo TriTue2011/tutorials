@@ -7,11 +7,11 @@ blueprint:
 
     ## Yêu cầu
 
-    * Cần cài đặt tích hợp Pyscript từ HACS.
+    * Cần cài đặt tích hợp Pyscript thông qua HACS và được cấu hình đúng cách.
 
-    * Cần sao chép tập lệnh `traffic_fine_lookup_tool.py` vào thư mục pyscript.
+    * Cần sao chép tập lệnh `scripts/traffic_fine_lookup_tool.py` vào thư mục `config/pyscript`.
 
-    * Cần sao chép tập tin `requirements.txt` vào thư mục pyscript.
+    * Cần sao chép tập tin `scripts/requirements.txt` vào thư mục `config/pyscript`.
 
     * Cần cài đặt và cấu hình Redis để sử dụng làm bộ nhớ đệm, tăng tốc độ truy xuất dữ liệu.
 

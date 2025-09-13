@@ -76,7 +76,7 @@ blueprint:
             text:
     zalo_settings:
       name: Settings for Zalo
-      icon: mdi:send-circle
+      icon: mdi:alpha-z-circle-outline
       description: These settings allow you to set up the Zalo Chat IDs and optionally restrict specific user IDs within group chat IDs.
       input:
         chat_ids:

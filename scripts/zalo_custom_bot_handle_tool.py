@@ -14,6 +14,11 @@ _session: aiohttp.ClientSession | None = None
 
 @pyscript_compile
 async def _ensure_session() -> aiohttp.ClientSession:
+    """Create or reuse a shared aiohttp session.
+
+    Returns:
+        An open `aiohttp.ClientSession` with a default timeout.
+    """
     global _session
     if _session is None or _session.closed:
         _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
@@ -22,17 +27,37 @@ async def _ensure_session() -> aiohttp.ClientSession:
 
 @pyscript_compile
 async def _ensure_dir(path: str) -> None:
+    """Ensure a directory exists, creating it if missing.
+
+    Args:
+        path: Directory path to create if it does not exist.
+    """
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
 @pyscript_compile
 async def _write_file(path: str, content: bytes) -> None:
+    """Write bytes to a file asynchronously.
+
+    Args:
+        path: Destination file path.
+        content: Raw bytes to write.
+    """
     async with aiofiles.open(path, "wb") as f:
         await f.write(content)
 
 
 @pyscript_compile
 async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None:
+    """Download a file from a given URL and save it under DIRECTORY.
+
+    Args:
+        session: Shared aiohttp session.
+        url: Direct URL to the file to download.
+
+    Returns:
+        Full file path of the saved file, or None on failure.
+    """
     async with session.get(url) as resp:
         resp.raise_for_status()
         content = await resp.read()
@@ -51,11 +76,11 @@ async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
     """
     yaml
     name: Get Zalo File
-    description: Tool for retrieving and downloading media files directly from Zalo messages or groups.
+    description: Download a file by direct URL and save it under Home Assistant media; returns a local path and file type.
     fields:
       url:
         name: URL
-        description: The URL of the media file to be downloaded.
+        description: Direct file URL (e.g., from a Zalo attachment).
         required: true
         selector:
           text: {}

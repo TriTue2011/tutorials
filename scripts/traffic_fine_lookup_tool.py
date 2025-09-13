@@ -87,6 +87,14 @@ cache_min_age = cache_max_age - (
 
 @pyscript_compile
 def _redis() -> redis.Redis:
+    """Return a shared Redis client (lazy-initialized).
+
+    Uses host/port from pyscript config with `decode_responses=True` so values
+    are handled as text. Keeps a module-level singleton for reuse.
+
+    Returns:
+        A connected `redis.Redis` client instance.
+    """
     global _client
     if _client is not None:
         return _client
@@ -96,6 +104,14 @@ def _redis() -> redis.Redis:
 
 @pyscript_compile
 def _build_ssl_ctx() -> ssl.SSLContext:
+    """Build an SSL context compatible with target site requirements.
+
+    Configures ciphers and TLS minimum version explicitly to improve
+    compatibility when connecting via aiohttp.
+
+    Returns:
+        An initialized `ssl.SSLContext` instance.
+    """
     ctx = ssl.create_default_context()
     ctx.set_ciphers(
         "@SECLEVEL=0:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
@@ -106,6 +122,11 @@ def _build_ssl_ctx() -> ssl.SSLContext:
 
 @pyscript_compile
 def _build_gemini_client() -> Any:
+    """Create a Gemini client using the configured API key.
+
+    Returns:
+        Google GenAI client instance.
+    """
     import google.genai as genai
 
     return genai.Client(api_key=GEMINI_API_KEY)
@@ -113,6 +134,10 @@ def _build_gemini_client() -> Any:
 
 @pyscript_compile
 async def _ensure_ssl_ctx() -> None:
+    """Ensure the global SSL context is built once in a thread.
+
+    Safe to call multiple times; only initializes when missing.
+    """
     global SSL_CTX
     if SSL_CTX is None:
         SSL_CTX = await asyncio.to_thread(_build_ssl_ctx)
@@ -120,6 +145,10 @@ async def _ensure_ssl_ctx() -> None:
 
 @pyscript_compile
 async def _ensure_gemini_client() -> None:
+    """Ensure the global Gemini client is initialized once in a thread.
+
+    Safe to call multiple times; only initializes when missing.
+    """
     global GEMINI_CLIENT
     if GEMINI_CLIENT is None:
         GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
@@ -127,6 +156,15 @@ async def _ensure_gemini_client() -> None:
 
 @pyscript_compile
 def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
+    """Parse violations from the result HTML page.
+
+    Args:
+        content: HTML content returned by csgt.vn for a lookup.
+        url: Final detail URL used to fetch the result page.
+
+    Returns:
+        A dict with status (success/failure), source URL, message, and details.
+    """
     soup = BeautifulSoup(content, "html.parser")
     violations = []
     body_print = soup.find("div", id="bodyPrint123")
@@ -197,6 +235,15 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
 async def _get_captcha(
     ss: aiohttp.ClientSession, url: str
 ) -> tuple[BytesIO, None] | tuple[None, str]:
+    """Download the CAPTCHA image.
+
+    Args:
+        ss: An aiohttp session.
+        url: CAPTCHA endpoint URL.
+
+    Returns:
+        (BytesIO, None) on success or (None, error_message) on failure.
+    """
     try:
         async with ss.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
             response.raise_for_status()
@@ -214,6 +261,20 @@ async def _get_captcha(
 def _process_captcha(
     image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
+    """Preprocess CAPTCHA for better OCR.
+
+    Applies grayscale, contrast, binarization, scaling, background removal,
+    and crop around glyphs.
+
+    Args:
+        image: File path or BytesIO of the CAPTCHA image.
+        threshold: Binarization threshold (0-255).
+        factor: Scale multiplier for upscaling.
+        padding: Padding applied when cropping around glyphs.
+
+    Returns:
+        A Pillow Image prepared for OCR.
+    """
     img = Image.open(image)
     img = img.convert("L")
     img = ImageOps.autocontrast(img, cutoff=2)
@@ -244,6 +305,15 @@ def _process_captcha(
 async def _solve_captcha(
     image: Image.Image, retry_count: int = 1
 ) -> tuple[str, None] | tuple[None, str]:
+    """Solve CAPTCHA using Gemini with optional retries.
+
+    Args:
+        image: Preprocessed CAPTCHA image.
+        retry_count: Current retry attempt counter.
+
+    Returns:
+        (solution_text, None) on success or (None, error_message) on failure.
+    """
     prompt = "Extract exactly six consecutive lowercase letters (a-z) and digits (0-9) from this image, no spaces, and output only these characters."
     await _ensure_gemini_client()
 
@@ -294,6 +364,20 @@ async def _solve_captcha(
 async def _check_license_plate(
     license_plate: str, vehicle_type: int, retry_count: int = 1
 ) -> dict[str, Any]:
+    """End-to-end lookup flow against csgt.vn with caching and retries.
+
+    Performs: fetch landing page -> get CAPTCHA -> preprocess -> solve ->
+    submit form -> fetch result detail -> parse violations. Caches successful
+    results via Redis outside of this function.
+
+    Args:
+        license_plate: VN plate number (uppercase, validated by caller).
+        vehicle_type: 1=O to, 2=Xe may, 3=Xe dap dien.
+        retry_count: Current retry attempt counter.
+
+    Returns:
+        Parsed response dict with status and details, or error.
+    """
     await _ensure_ssl_ctx()
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=SSL_CTX)) as ss:
         try:
@@ -387,33 +471,33 @@ async def traffic_fine_lookup_tool(
     """
     yaml
     name: Traffic Fine Lookup Tool
-    description: Tool to check Vietnam traffic fines.
+    description: Check Vietnam traffic fine status on csgt.vn and return parsed results.
     fields:
       license_plate:
         name: License Plate
-        description: The license plate number of vehicle.
+        description: VN plate number (e.g., 29A99999).
         example: 29A99999
         required: true
         selector:
           text: {}
       vehicle_type:
         name: Vehicle Type
-        description: The type of vehicle.
+        description: Type of vehicle.
         example: '"1"'
         required: true
         selector:
           select:
             options:
-              - label: Ô tô
+              - label: O to
                 value: "1"
-              - label: Xe máy
+              - label: Xe may
                 value: "2"
-              - label: Xe đạp điện
+              - label: Xe dap dien
                 value: "3"
         default: "1"
       bypass_caching:
         name: Bypass Caching
-        description: Bypass the cache to fetch the latest data from csgt.vn. Use only for debugging purposes, and limit usage to prevent unnecessary load.
+        description: Ignore cached data and fetch fresh from source (debug only).
         example: false
         selector:
           boolean: {}

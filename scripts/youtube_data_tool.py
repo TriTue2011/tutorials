@@ -52,18 +52,18 @@ def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
     """
     yaml
     name: YouTube Search Tool
-    description: Tool for searching YouTube videos, channels, and playlists
+    description: Search YouTube for videos, channels, and playlists.
     fields:
       query:
         name: Query
-        description: The search query string.
-        example: Cuộc đời và sự nghiệp của Hồ Chí Minh
+        description: Search keywords or phrase.
+        example: Nikola Tesla
         required: true
         selector:
           text: {}
       search_type:
         name: Search Type
-        description: The type of content to search for.
+        description: Content types to include.
         example: video
         required: true
         selector:
@@ -77,8 +77,7 @@ def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
           - video
       results:
         name: Results
-        description: The maximum number of results to return.
-        example: 5
+        description: Maximum number of items to return (0–50).
         selector:
           number:
             min: 0
@@ -86,7 +85,7 @@ def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
         default: 5
       page_token:
         name: Page Token
-        description:  The page token to get other pages that could be retrieved.
+        description: Token for the next page of results.
         selector:
           text: {}
     """

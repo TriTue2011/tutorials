@@ -413,7 +413,7 @@ async def traffic_fine_lookup_tool(
         default: "1"
       bypass_caching:
         name: Bypass Caching
-        description: Bypass the cache to retrieve the latest data from csgt.vn. Limit usage to avoid unnecessary load.
+        description: Bypass the cache to fetch the latest data from csgt.vn. Use only for debugging purposes, and limit usage to prevent unnecessary load.
         example: false
         selector:
           boolean: {}

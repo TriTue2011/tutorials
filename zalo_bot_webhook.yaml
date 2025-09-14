@@ -111,6 +111,7 @@ blueprint:
             text:
           default: vi-VN
 mode: queued
+max: 30
 max_exceeded: silent
 variables:
   version: 20250829

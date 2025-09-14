@@ -90,7 +90,7 @@ blueprint:
 
             If the content does not have a location, set the default to Google.
 mode: queued
-max: 20
+max: 30
 max_exceeded: silent
 fields:
   summary:

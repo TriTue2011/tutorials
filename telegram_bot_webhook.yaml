@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * Create a Telegram bot if it does not already exist.
+    * Create a Telegram bot if it does not already exist using Telegram BotFather.
 
     * The bot needs to disable Privacy mode before being added to a group chat or set as a group chat admin to access messages.
 

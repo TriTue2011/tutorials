@@ -38,6 +38,19 @@ blueprint:
             entity:
               filter:
                 - domain: calendar
+    custom_settings:
+      name: Custom Settings
+      icon: mdi:tools
+      description: You can use these settings to configure the maximum number of simultaneous processes to run at a time.
+      collapsed: true
+      input:
+        simultaneous:
+          name: Simultaneous Processes
+          selector:
+            number:
+              min: 10
+              max: 50
+          default: 30
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -129,6 +142,7 @@ blueprint:
 
             If the user did not specify an end date, infer and provide end_date = start_date + 1 day. Do not ask clarifying questions.
 mode: queued
+max: !input simultaneous
 max_exceeded: silent
 fields:
   summary:

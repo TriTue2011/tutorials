@@ -59,7 +59,9 @@ blueprint:
 
     * Use the `pyscript.delete_zalo_webhook` action to delete the Zalo Webhook ID when you are no longer using it.
 
-    * Use the `pyscript.send_zalo_message` action to easily send a Zalo message directly in your automation without any dependencies.
+    * Use the `pyscript.send_zalo_message` action to easily send a message directly to Zalo in your automation without any dependencies.
+
+    * Use the `pyscript.send_zalo_photo` action to easily send a photo directly to Zalo in your automation without any dependencies.
   domain: automation
   homeassistant:
     min_version: 2025.8.0
@@ -76,7 +78,7 @@ blueprint:
             text:
     zalo_settings:
       name: Settings for Zalo
-      icon: mdi:send-circle
+      icon: mdi:alpha-z-circle-outline
       description: These settings allow you to set up the Zalo Chat IDs and optionally restrict specific user IDs within group chat IDs.
       input:
         chat_ids:
@@ -111,6 +113,7 @@ blueprint:
             text:
           default: vi-VN
 mode: queued
+max: 30
 max_exceeded: silent
 variables:
   version: 20250829

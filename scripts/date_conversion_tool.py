@@ -1043,30 +1043,30 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str,
     """
     yaml
     name: Date Conversion Tool
-    description: Tool converts Solar date (Dương lịch) to Lunar date (Âm lịch) and vice versa.
+    description: Convert between Solar (Duong lich) and Lunar (Am lich) dates.
     fields:
       conversion_type:
         name: Conversion Type
-        description: Type of conversion ("s2l" for Solar-to-Lunar, "l2s" for Lunar-to-Solar)
+        description: Direction (s2l = Solar->Lunar, l2s = Lunar->Solar).
         example: s2l
         required: true
         selector:
           select:
             options:
-              - label: Solar (Dương lịch) to Lunar (Âm lịch)
+              - label: Solar (Duong lich) to Lunar (Am lich)
                 value: s2l
-              - label: Lunar (Âm lịch) to Solar (Dương lịch)
+              - label: Lunar (Am lich) to Solar (Duong lich)
                 value: l2s
       date:
         name: Date
-        description: Format date YYYY-MM-DD
+        description: Date in YYYY-MM-DD.
         example: '"2022-01-01"'
         required: true
         selector:
           date: {}
       leap_month:
         name: Leap Month
-        description: Is it a Lunar leap month? (Only for Lunar-to-Solar)
+        description: Lunar leap month? Only needed for l2s.
         example: false
         selector:
           boolean: {}

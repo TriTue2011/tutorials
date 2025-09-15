@@ -16,6 +16,14 @@ if not all([REDIS_HOST, REDIS_PORT]):
 
 @pyscript_compile
 def _redis() -> redis.Redis:
+    """Return a shared Redis client (lazy-initialized).
+
+    Uses host/port from pyscript config and `decode_responses=True` so values
+    are handled as text. Keeps a module-level singleton for reuse.
+
+    Returns:
+        A connected `redis.Redis` client instance.
+    """
     global _client
     if _client is not None:
         return _client
@@ -25,6 +33,11 @@ def _redis() -> redis.Redis:
 
 @pyscript_compile
 def _internal_url() -> str | None:
+    """Get the internal Home Assistant URL if available.
+
+    Returns:
+        Internal URL string or None when not configured/available.
+    """
     try:
         return network.get_url(hass, allow_external=False)
     except network.NoURLAvailableError:
@@ -33,6 +46,15 @@ def _internal_url() -> str | None:
 
 @pyscript_compile
 def _external_url() -> str | None:
+    """Get the external HTTPS Home Assistant URL if available.
+
+    The URL is fetched with `allow_internal=False`, `allow_ip=False`,
+    `require_ssl=True`, and `require_standard_port=True` to ensure a
+    publicly reachable, secure address suitable for webhooks.
+
+    Returns:
+        External URL string or None when not configured/available.
+    """
     try:
         return network.get_url(
             hass,
@@ -50,11 +72,11 @@ async def conversation_id_fetcher(chat_id: str) -> dict[str, Any]:
     """
     yaml
     name: Conversation ID Fetcher
-    description: Tool for retrieving the conversation ID from cache.
+    description: Fetch a cached conversation ID for a given chat.
     fields:
       chat_id:
         name: Chat ID
-        description: The unique identifier of the chat to retrieve from cache.
+        description: ID of the conversation (user or group).
         required: true
         selector:
           text: {}
@@ -76,17 +98,17 @@ async def conversation_id_setter(
     """
     yaml
     name: Conversation ID Setter
-    description: Tool for storing the conversation ID to cache.
+    description: Store a conversation ID in cache (TTL ~5 minutes of idle).
     fields:
       chat_id:
         name: Chat ID
-        description: The unique identifier of the chat to store in cache.
+        description: ID of the conversation (user or group).
         required: true
         selector:
           text: {}
       conversation_id:
         name: Conversation ID
-        description: The unique identifier of the conversation to store in cache.
+        description: Conversation ID to cache for the chat.
         required: true
         selector:
           text: {}
@@ -107,7 +129,7 @@ def generate_webhook_id() -> dict[str, Any]:
     """
     yaml
     name: Generate Webhook ID
-    description: Tool for generating a unique, secure, URL-safe Webhook ID.
+    description: Generate a unique URL-safe webhook ID and sample URLs.
     """
     webhook_id = secrets.token_urlsafe()
     internal_url = _internal_url()

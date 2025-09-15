@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * Create a Telegram bot if it does not already exist.
+    * Create a Telegram bot if it does not already exist using Telegram BotFather.
 
     * The bot needs to disable Privacy mode before being added to a group chat or set as a group chat admin to access messages.
 
@@ -61,7 +61,9 @@ blueprint:
 
     * Use the `pyscript.delete_telegram_webhook` action to delete the Telegram Webhook ID when you are no longer using it.
 
-    * Use the `pyscript.send_telegram_message` action to easily send a Telegram message directly in your automation without any dependencies.
+    * Use the `pyscript.send_telegram_message` action to easily send a message directly to Telegram in your automation without any dependencies.
+
+    * Use the `pyscript.send_telegram_photo` action to easily send a photo directly to Telegram in your automation without any dependencies.
   domain: automation
   homeassistant:
     min_version: 2025.8.0
@@ -113,6 +115,7 @@ blueprint:
             text:
           default: vi-VN
 mode: queued
+max: 30
 max_exceeded: silent
 variables:
   version: 20250829

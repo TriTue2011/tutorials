@@ -27,7 +27,7 @@ blueprint:
   input:
     zalo_settings:
       name: Settings for Zalo
-      icon: mdi:application-cog
+      icon: mdi:alpha-z-circle-outline
       description: You can use these settings to configure Zalo for sending the message.
       input:
         account:
@@ -94,7 +94,7 @@ blueprint:
 
             If the content does not have a location, set the default to Google.
 mode: queued
-max: 20
+max: 30
 max_exceeded: silent
 fields:
   summary:

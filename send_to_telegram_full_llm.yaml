@@ -8,9 +8,38 @@ blueprint:
 
     ### Required
 
-    * The Telegram bot integration needs to be installed and properly configured.
+    * Create a Telegram bot if it does not already exist using Telegram BotFather.
+
+    * The Pyscript integration needs to be installed through HACS and properly configured.
+
+    * The `scripts/telegram_bot_handle_tool.py` script needs to be copied into the `config/pyscript` folder.
+
+    * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
+
+    * A Telegram bot token needs to be configured in `config/configuration.yaml`.
+
+    ```
+
+    #File configuration.yaml
+
+    pyscript:
+      allow_all_imports: true
+      hass_is_global: true
+      telegram_bot_token: !secret telegram_bot_token
+
+    ```
+
+    ```
+
+    #File secrets.yaml
+
+    telegram_bot_token: XXXXXX      # Retrieve the token from the Telegram BotFather.
+
+    ```
 
     ### Optional
+
+    * Using this custom script as an additional tool, instead of the Telegram bot integration, along with the Telegram Bot Webhook blueprint, enables smooth two-way communication between the Telegram bot and Home Assistant.
 
     * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
@@ -27,15 +56,9 @@ blueprint:
   input:
     telegram_settings:
       name: Settings for Telegram
-      icon: mdi:application-cog
+      icon: mdi:send-circle
       description: You can use these settings to configure Telegram for sending the message.
       input:
-        entry_id:
-          name: Entry ID
-          description: The Telegram bot to send the message.
-          selector:
-            config_entry:
-              integration: telegram_bot
         chat_id:
           name: Chat ID
           description: The target to send the message to.
@@ -45,7 +68,9 @@ blueprint:
           name: Thread ID
           description: The thread (topic) to send the message to.
           selector:
-            text:
+            number:
+              min: 1
+              step: 1
           default:
     prompt_settings:
       name: Prompt settings for the LLM
@@ -62,9 +87,11 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided.
 
-            Include a brief overview, such as the name of a person, object, or location title.
+            Provide a brief overview, such as the name of a person, object, or location title.
+            No extra commentary, no markdown or emojis.
+            Return only the title text.
 
-            When submitting multiple items or locations, make sure each one must be sent separately through a separate tool call.
+            When submitting multiple items, make sure each one must be sent separately through a separate tool call.
         detail_prompt:
           name: Detail Prompt
           description: The prompt which will be used for the LLM can provide the message detail.
@@ -74,9 +101,29 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide clear and specific details about the content, such as comprehensive information or a detailed description of the subject.
+            Provide clear and specific details, such as comprehensive information or a detailed description of the subject.
+            No links, no markdown/emojis, no additional commentary.
+            Return only the detail text.
 
-            When submitting multiple items or locations, make sure each one must be sent separately through a separate tool call.
+            When submitting multiple items, make sure each one must be sent separately through a separate tool call.
+        content_type_prompt:
+          name: Content Type Prompt
+          description: The prompt which will be used for the LLM can specify the type of content for the message.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            This argument is mandatory and must always be provided.
+
+            Return exactly one of the following options: information, location.
+            Return only the word, without quotes or extra text.
+
+            Choose location for any place/address/directions/map intent.
+            Do not choose information in these cases.
+
+            Otherwise choose information.
+
+            When submitting multiple items, make sure each one must be sent separately through a separate tool call.
         location_prompt:
           name: Location Prompt
           description: The prompt which will be used for the LLM can provide the location for the place.
@@ -84,13 +131,15 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is optional. Use only when content_type is location.
 
-            Specify the location using only the ward and province names.
+            Return the address of the location. Names only; no commas, prefixes or punctuation; single spaces.
 
-            If the content does not have a location, set the default to Google.
+            If content_type = information: leave this blank.
+
+            Return only the value.
 mode: queued
-max: 20
+max: 30
 max_exceeded: silent
 fields:
   summary:
@@ -104,66 +153,86 @@ fields:
     description: !input detail_prompt
     selector:
       text:
+  content_type:
+    name: Content Type
+    description: !input content_type_prompt
+    selector:
+      select:
+        options:
+          - information
+          - location
+    required: true
   location:
     name: Location
     description: !input location_prompt
     selector:
       text:
-    required: true
 sequence:
   - variables:
-      version: 20250825
-      thread_id: !input thread_id
+      version: 20250915
       summary: "{{ summary | default('') | trim }}"
       detail: "{{ detail | default('') | trim }}"
+      content_type: "{{ content_type | default('') | trim }}"
       location: "{{ location | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: "{{ not (summary and location) }}"
+        value_template: >-
+          {{
+            (not summary)
+            or (content_type not in ['information', 'location'])
+            or (content_type == 'location' and not location)
+          }}
     then:
       - alias: Set variable for error message
         variables:
           response:
-            error: Unable to send the message to Telegram because either the summary or the location is empty.
+            error: >-
+              Unable to send the message to Telegram because one or more
+              inputs are missing or invalid (summary, content_type, or location).
       - alias: Stop the script
-        stop: Unable to send the message to Telegram because either the summary or the location is empty.
+        stop: Unable to send the message to Telegram due to invalid inputs.
         response_variable: response
-  - variables:
-      message: >-
-        *{{ summary }}*
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ content_type == 'information' }}"
+        sequence:
+          - action: pyscript.send_telegram_message
+            data:
+              chat_id: !input chat_id
+              message_thread_id: !input thread_id
+              parse_mode: HTML
+              message: >-
+                <b>{{ summary | e }}</b>
 
 
-        {{ detail }}
+                {{ detail | e }}
 
 
-        {% if location == 'Google' -%}
-        {% set query = summary.split() | join('+') -%}
-        {% set url = 'https://www.google.com/search?q=' + query -%}
-        [Google Search]({{ url }})
-        {% else -%}
-        {% set place = (summary ~ ' ' ~ location).split() | join('+') -%}
-        {% set url = 'https://www.google.com/maps/search/' + place + '/' -%}
-        [Google Maps]({{ url }})
-        {% endif -%}
-  - if:
-      - condition: template
-        value_template: "{{ not thread_id }}"
-    then:
-      - variables:
-          data:
-            config_entry_id: !input entry_id
-            message: "{{ message }}"
-            target: !input chat_id
-            parse_mode: markdown
+                {% set query = summary.split() | join('+') -%}
+                {% set url = 'https://www.google.com/search?q=' ~ query -%}
+                <a href="{{ url }}">Google Search</a>
+            response_variable: telegram_response
+      - conditions:
+          - condition: template
+            value_template: "{{ content_type == 'location' }}"
+        sequence:
+          - action: pyscript.send_telegram_message
+            data:
+              chat_id: !input chat_id
+              message_thread_id: !input thread_id
+              parse_mode: HTML
+              message: >-
+                <b>{{ summary | e }}</b>
 
-    else:
-      - variables:
-          data:
-            config_entry_id: !input entry_id
-            message: "{{ message }}"
-            target: !input chat_id
-            parse_mode: markdown
-            message_thread_id: "{{ thread_id }}"
-  - action: telegram_bot.send_message
-    data: "{{ data }}"
+
+                {{ detail | e }}
+
+
+                {% set place = (summary.split() + location.split()) | join('+') -%}
+                {% set url = 'https://www.google.com/maps/search/?api=1&query=' ~ place -%}
+                <a href="{{ url }}">Google Maps</a>
+            response_variable: telegram_response
+  - stop: ""
+    response_variable: telegram_response

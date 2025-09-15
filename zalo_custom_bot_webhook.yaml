@@ -55,7 +55,7 @@ blueprint:
             text:
     zalo_settings:
       name: Settings for Zalo
-      icon: mdi:application-cog
+      icon: mdi:alpha-z-circle-outline
       description: These settings allow you to set up the Zalo bot account, thread IDs and optionally restrict specific user IDs within thread IDs.
       input:
         account_selection:
@@ -95,6 +95,7 @@ blueprint:
             text:
           default: vi-VN
 mode: queued
+max: 30
 max_exceeded: silent
 variables:
   version: 20250829

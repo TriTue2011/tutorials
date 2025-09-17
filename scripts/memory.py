@@ -18,6 +18,12 @@ NEAR_DISTANCE = 5
 _DB_READY = False
 _DB_READY_LOCK = threading.Lock()
 
+result_entity_name = {
+    "friendly_name": " ".join(
+        word.capitalize() for word in RESULT_ENTITY.split(".")[-1].split("_")
+    )
+}
+
 
 def _utcnow_iso() -> str:
     """Return the current UTC time as an ISO 8601 string."""
@@ -241,6 +247,7 @@ def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> bool:
 
 def _set_result(state_value: str = "ok", **attrs: Any) -> None:
     """Set result sensor state and attributes."""
+    attrs.update(result_entity_name)
     state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)
 
 

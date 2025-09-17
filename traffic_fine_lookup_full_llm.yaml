@@ -14,8 +14,6 @@ blueprint:
 
     * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * Redis needs to be installed and configured, as it's required for data caching.
-
     * A Gemini API key needs to be configured in `config/configuration.yaml`, as it's required for solving CAPTCHAs.
 
     ```
@@ -26,8 +24,6 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       gemini_api_key: !secret gemini_api_key
-      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
-      redis_port: 6379      # Default: 6379
 
     ```
 

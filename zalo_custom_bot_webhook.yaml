@@ -16,8 +16,6 @@ blueprint:
 
     * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * Redis needs to be installed and configured, as it's required for conversation caching.
-
     * Update the Webhook URL to the Zalo Bot Server after saving the script.
 
     ```
@@ -27,8 +25,6 @@ blueprint:
     pyscript:
       allow_all_imports: true
       hass_is_global: true
-      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
-      redis_port: 6379      # Default: 6379
 
     ```
 
@@ -135,10 +131,10 @@ actions:
   - action: pyscript.conversation_id_fetcher
     data:
       chat_id: "{{ chat_id }}"
-    response_variable: chat
+    response_variable: get_chat
   - variables:
       conversation_id: >-
-        {{ chat.conversation_id if (chat.conversation_id | default('', true) | length > 0) }}
+        {{ get_chat.conversation_id if (get_chat.conversation_id | default('', true) | length > 0) }}
   - choose:
       - conditions:
           - condition: template
@@ -223,6 +219,7 @@ actions:
             data:
               conversation_id: "{{ result.conversation_id }}"
               chat_id: "{{ chat_id }}"
+            response_variable: set_chat
           - action: zalo_bot.send_message
             data:
               thread_id: "{{ trigger.json.threadId }}"

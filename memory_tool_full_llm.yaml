@@ -1,0 +1,318 @@
+blueprint:
+  name: Voice - Memory Tool
+  description: >-
+    # Universal memory tool using for LLM
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * The Pyscript integration needs to be installed through HACS and properly configured.
+
+    * The `scripts/memory.py` script needs to be copied into the `config/pyscript` folder.
+
+    * The Memory Tool relies on specific instructions. For complete usage rules and system policies, please refer to `home_assistant_voice_instructions.md`. This file is included in the repository.
+
+    ### Optional
+
+    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+
+    ### Note
+
+    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to use as the Assist tool to let the LLM store and retrieve user/household memories reliably.
+
+    * Supports four operations: set, get, search, forget.
+
+    * Make sure to expose the script to Assist after the script has been saved.
+
+    * Do not alter the default script name.
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description: You can use these settings to finetune the prompts for your specific LLM (model). In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        operation_prompt:
+          name: Operation Prompt
+          description: Instruction shown to the LLM for selecting the operation.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Choose exactly one operation:
+
+            - set: store or update a value under a key.
+
+            - get: retrieve the latest value for a key.
+
+            - search: find entries by keyword or phrase.
+
+            - forget: permanently delete an entry by key.
+
+            Only populate the fields required for the chosen operation.
+            Leave unrelated fields empty or at their defaults.
+        key_prompt:
+          name: Key Prompt
+          description: Instruction shown to the LLM for providing the key.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Unique identifier for the memory entry.
+
+            Use a short, only lowercase letters, numbers, and underscores; no spaces, accents, or punctuation.
+
+            Example: "Car Parking Slot" to "car_parking_slot".
+
+            Required for "set", "get", and "forget".
+
+            Ignored if operation is "search".
+
+            Do not include trailing punctuation. Keep it concise.
+        value_prompt:
+          name: Value Prompt
+          description: Instruction shown to the LLM for providing the value.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            The content to remember for the given key (free text).
+
+            Example: an object, a password, a name, a birthday date.
+
+            Required only when operation = "set".
+
+            Use natural language or JSON if structured data fits the context.
+        scope_prompt:
+          name: Scope Prompt
+          description: Instruction shown to the LLM for choosing the scope.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Defines who this memory applies to.
+
+            - "user": personal memory tied to the current user.
+
+            - "household": shared memory accessible to everyone.
+
+            - "session": temporary memory for the current Assist session only.
+
+            Defaults to "user". Used only when setting a value.
+        ttl_days_prompt:
+          name: TTL (days) Prompt
+          description: Instruction shown to the LLM for providing TTL.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            How many days this memory should persist before expiring automatically.
+
+            Example: 30 means delete after 30 days.
+
+            Use 0 to keep forever.
+
+            Defaults to 180 days.
+
+            Provide an integer between 0 and 3650 (inclusive).
+        tags_prompt:
+          name: Tags Prompt
+          description: Instruction shown to the LLM for providing tags.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Optional space-separated tags for improved search.
+
+            Example: "Car Parking Slot".
+
+            Used only when setting a value.
+
+            Use a few keywords; do not include commas.
+
+            If no tags are obvious, copy the original user wording as a single tag.
+        query_prompt:
+          name: Query Prompt
+          description: Instruction shown to the LLM for providing the search query.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Free-text search string used to find memories when operation = "search".
+
+            Matches against keys, values, and tags.
+
+            Ignored for other operations.
+
+            Keep it concise and relevant.
+        search_limit_prompt:
+          name: Search Limit Prompt
+          description: Instruction shown to the LLM for providing the search limit.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Maximum number of results to return when operation = "search".
+
+            Defaults to 5; max 50.
+
+            Provide an integer between 1 and 50.
+fields:
+  operation:
+    name: Operation
+    description: !input operation_prompt
+    default: search
+    selector:
+      select:
+        options:
+          - set
+          - get
+          - search
+          - forget
+  key:
+    name: Key
+    description: !input key_prompt
+    default: ""
+    selector:
+      text:
+  value:
+    name: Value
+    description: !input value_prompt
+    default: ""
+    selector:
+      text:
+  scope:
+    name: Scope
+    description: !input scope_prompt
+    default: user
+    selector:
+      select:
+        options:
+          - user
+          - household
+          - session
+  ttl_days:
+    name: TTL (days)
+    description: !input ttl_days_prompt
+    default: 180
+    selector:
+      number:
+        min: 0
+        max: 3650
+        mode: box
+  tags:
+    name: Tags
+    description: !input tags_prompt
+    default: ""
+    selector:
+      text:
+  query:
+    name: Query
+    description: !input query_prompt
+    default: ""
+    selector:
+      text:
+  search_limit:
+    name: Search limit
+    description: !input search_limit_prompt
+    default: 5
+    selector:
+      number:
+        min: 1
+        max: 50
+        mode: box
+mode: restart
+max_exceeded: silent
+variables:
+  op: "{{ operation | default('set') }}"
+  key_t: "{{ (key | default('')) | trim }}"
+  value_t: "{{ (value | default('')) | trim }}"
+  query_t: "{{ (query | default('')) | trim }}"
+  tags_t: "{{ (tags | default('')) | regex_replace('\\s+', ' ') | trim }}"
+  ttl_i: "{{ (ttl_days | default(0)) | int(0) }}"
+  scope_v: "{{ (scope | default('')) or 'user' }}"
+  in_limit: "{{ (search_limit | default(5)) | int(5) }}"
+sequence:
+  - choose:
+      - conditions: "{{ op == 'set' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ key_t|length > 0 and value_t|length > 0 }}"
+                sequence:
+                  - service: pyscript.memory_set
+                    data:
+                      key: "{{ key_t }}"
+                      value: "{{ value_t }}"
+                      scope: "{{ scope_v }}"
+                      ttl_days: "{{ ttl_i }}"
+                      tags: "{{ tags_t if tags_t|length > 0 else key_t }}"
+                    response_variable: response
+            default:
+              - variables:
+                  response:
+                    error: "missing_input"
+                    message: "Missing 'key' or 'value' for set operation."
+                    details:
+                      key: "{{ key_t }}"
+                      value_present: "{{ value_t|length > 0 }}"
+      - conditions: "{{ op == 'get' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ key_t|length > 0 }}"
+                sequence:
+                  - service: pyscript.memory_get
+                    data:
+                      key: "{{ key_t }}"
+                    response_variable: response
+            default:
+              - variables:
+                  response:
+                    error: "missing_input"
+                    message: "Missing 'key' for get operation."
+                    details:
+                      key: "{{ key_t }}"
+      - conditions: "{{ op == 'search' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ query_t|length > 0 }}"
+                sequence:
+                  - service: pyscript.memory_search
+                    data:
+                      query: "{{ query_t }}"
+                      limit: "{{ in_limit | int(5) }}"
+                    response_variable: response
+            default:
+              - variables:
+                  response:
+                    error: "missing_input"
+                    message: "Missing 'query' for search operation."
+                    details:
+                      query: "{{ query_t }}"
+      - conditions: "{{ op == 'forget' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ key_t|length > 0 }}"
+                sequence:
+                  - service: pyscript.memory_forget
+                    data:
+                      key: "{{ key_t }}"
+                    response_variable: response
+            default:
+              - variables:
+                  response:
+                    error: "missing_input"
+                    message: "Missing 'key' for forget operation."
+                    details:
+                      key: "{{ key_t }}"
+    default:
+      - alias: Return response (invalid)
+        variables:
+          response:
+            error: "invalid_operation"
+            message: "Invalid operation. Use one of: set, get, search, forget."
+  - stop: ""
+    response_variable: response

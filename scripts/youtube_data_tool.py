@@ -11,6 +11,7 @@ if not YOUTUBE_API_KEY:
     raise ValueError("You need to configure your YouTube API key")
 
 
+@pyscript_compile
 def youtube_search(
     query: str,
     results: int = 5,

@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 from googleapiclient.discovery import build
@@ -10,7 +11,6 @@ if not YOUTUBE_API_KEY:
     raise ValueError("You need to configure your YouTube API key")
 
 
-@pyscript_executor
 def youtube_search(
     query: str,
     results: int = 5,
@@ -48,7 +48,7 @@ def youtube_search(
 
 
 @service(supports_response="only")
-def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
+async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
     """
     yaml
     name: YouTube Search Tool
@@ -95,7 +95,8 @@ def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
         results = int(kwargs.get("results", 5))
         search_type = list(kwargs.get("search_type", ["video"]))
         page_token = kwargs.get("page_token", "")
-        response = youtube_search(
+        response = await asyncio.to_thread(
+            youtube_search,
             query,
             results=results,
             search_type=",".join(search_type),

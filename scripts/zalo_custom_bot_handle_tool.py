@@ -12,7 +12,6 @@ DIRECTORY = "/media/zalo"
 _session: aiohttp.ClientSession | None = None
 
 
-@pyscript_compile
 async def _ensure_session() -> aiohttp.ClientSession:
     """Create or reuse a shared aiohttp session.
 
@@ -25,7 +24,6 @@ async def _ensure_session() -> aiohttp.ClientSession:
     return _session
 
 
-@pyscript_compile
 async def _ensure_dir(path: str) -> None:
     """Ensure a directory exists, creating it if missing.
 
@@ -35,7 +33,6 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-@pyscript_compile
 async def _write_file(path: str, content: bytes) -> None:
     """Write bytes to a file asynchronously.
 
@@ -47,7 +44,6 @@ async def _write_file(path: str, content: bytes) -> None:
         await f.write(content)
 
 
-@pyscript_compile
 async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None:
     """Download a file from a given URL and save it under DIRECTORY.
 

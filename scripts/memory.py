@@ -18,11 +18,12 @@ NEAR_DISTANCE = 5
 _DB_READY = False
 _DB_READY_LOCK = threading.Lock()
 
-result_entity_name = {
-    "friendly_name": " ".join(
-        word.capitalize() for word in RESULT_ENTITY.split(".")[-1].split("_")
-    )
-}
+name_parts = RESULT_ENTITY.split(".")[-1].split("_")
+_friendly_parts = []
+for part in name_parts:
+    _friendly_parts.append(part.capitalize())
+result_entity_name = {"friendly_name": " ".join(_friendly_parts)}
+del name_parts, _friendly_parts
 
 
 def _utcnow_iso() -> str:

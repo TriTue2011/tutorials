@@ -134,11 +134,38 @@ def _normalize_value(s: str) -> str:
     return unicodedata.normalize("NFC", str(s))
 
 
+def _strip_diacritics(value: str) -> str:
+    """Remove combining marks and normalize Vietnamese đ/Đ."""
+    if value is None:
+        return ""
+    decomposed = unicodedata.normalize("NFD", value)
+    filtered: list[str] = []
+    for ch in decomposed:
+        if unicodedata.category(ch) == "Mn":
+            continue
+        if ch in {"đ", "ð"}:
+            filtered.append("d")
+        elif ch in {"Đ", "Ð"}:
+            filtered.append("d")
+        else:
+            filtered.append(ch)
+    return "".join(filtered)
+
+
+def _normalize_search_text(value: str | None) -> str:
+    """Lowercase, strip diacritics, and collapse whitespace for search usage."""
+    if value is None:
+        return ""
+    lowered = str(value).lower()
+    stripped = _strip_diacritics(lowered)
+    cleaned = re.sub(r"[,/_]+", " ", stripped)
+    cleaned = re.sub(r"[^a-z0-9]+", " ", cleaned)
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
 def _normalize_tags(s: str) -> str:
-    """Normalize tags: NFC, replace commas with spaces, collapse whitespace."""
-    base = unicodedata.normalize("NFC", str(s)) if s is not None else ""
-    base = base.replace(",", " ")
-    return " ".join(base.split()).strip()
+    """Normalize tags similarly to keys but retain space-separated words."""
+    return _normalize_search_text(s)
 
 
 def _normalize_key(s: str) -> str:
@@ -146,28 +173,18 @@ def _normalize_key(s: str) -> str:
     if s is None:
         return ""
     s = str(s).strip().lower()
-    t = unicodedata.normalize("NFD", s)
-    filtered_chars = []
-    for ch in t:
-        if unicodedata.category(ch) != "Mn":
-            filtered_chars.append(ch)
-    t = "".join(filtered_chars)
-    t = t.replace("đ", "d")
-    t = re.sub(r"[^a-z0-9_]", "_", t)
-    t = re.sub(r"_+", "_", t).strip("_")
-    return t
+    s = _strip_diacritics(s)
+    s = re.sub(r"[^a-z0-9_]", "_", s)
+    s = re.sub(r"_+", "_", s).strip("_")
+    return s
 
 
 def _tokenize_query(q: str) -> list[str]:
-    """Tokenize a free-text query into simple word tokens for FTS.
-
-    - Lowercase, strip diacritics via tokenizer (handled by FTS), but here we
-      just extract word characters to avoid MATCH syntax issues.
-    - Returns a list of tokens; empty list if none.
-    """
-    if not q:
+    """Tokenize a free-text query into normalized word tokens for FTS."""
+    normalized = _normalize_search_text(q)
+    if not normalized:
         return []
-    return re.findall(r"[A-Za-z0-9_]+", str(q).lower())
+    return normalized.split()
 
 
 def _near_distance_for_tokens(n: int) -> int:
@@ -192,7 +209,8 @@ def _build_fts_queries(raw_query: str) -> list[str]:
     - OR*: any token with prefix match (broad recall)
     - RAW: the original raw query as a last option
     """
-    tokens = _tokenize_query(raw_query)
+    normalized_query = _normalize_search_text(raw_query)
+    tokens = normalized_query.split() if normalized_query else []
     variants = []
 
     if tokens:
@@ -218,6 +236,8 @@ def _build_fts_queries(raw_query: str) -> list[str]:
         variants.append(" OR ".join(or_tokens))
 
     # 5) RAW as very last resort if provided
+    if normalized_query:
+        variants.append(normalized_query)
     rq = (raw_query or "").strip()
     if rq:
         variants.append(rq)

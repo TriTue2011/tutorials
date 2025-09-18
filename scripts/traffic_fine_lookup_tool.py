@@ -15,6 +15,7 @@ from PIL import ImageOps
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
 from typing_extensions import Any, Buffer, cast
+from pyscript import task
 
 TTL = 30  # Cache retention period (1-30 days)
 RETRY_LIMIT = 3
@@ -607,14 +608,6 @@ async def _check_license_plate(
                 }
 
 
-async def _refresh_cache_background(license_plate: str, vehicle_type: int) -> None:
-    """Refresh the cached result for a license plate without blocking callers."""
-    try:
-        await _check_license_plate(license_plate, vehicle_type)
-    except Exception as error:
-        print(f"Background cache refresh failed: {error}")
-
-
 @time_trigger("startup")
 async def build_cached_ctx() -> None:
     """Run once at HA startup / Pyscript reload."""
@@ -690,9 +683,7 @@ async def traffic_fine_lookup_tool(
         cached_value, ttl = await _cache_get(cache_key)
         if cached_value is not None:
             if ttl is not None and ttl < cache_min_age:
-                asyncio.create_task(
-                    _refresh_cache_background(license_plate, vehicle_type)
-                )
+                task.create(_check_license_plate(license_plate, vehicle_type))
             return json.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)
     except Exception as error:

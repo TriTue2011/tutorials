@@ -21,7 +21,7 @@ blueprint:
 
     * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to use as the Assist tool to let the LLM store and retrieve user/household memories reliably.
 
-    * Supports four operations: set, get, search, forget.
+    * Supports four operations: `set` | `get` | `search` | `forget`.
 
     * Make sure to expose the script to Assist after the script has been saved.
 
@@ -45,18 +45,13 @@ blueprint:
           default: >-
             This argument is mandatory and must always be provided.
 
-            Choose exactly one operation:
+            Choose one operation: set (save/update), get (retrieve), search (find), forget (delete).
 
-            - set: store or update a value under a key.
+            Output exactly one: set|get|search|forget.
 
-            - get: retrieve the latest value for a key.
+            Only populate the fields required for the chosen operation. Leave unrelated fields empty or at their defaults.
 
-            - search: find entries by keyword or phrase.
-
-            - forget: permanently delete an entry by key.
-
-            Only populate the fields required for the chosen operation.
-            Leave unrelated fields empty or at their defaults.
+            Before set, run search to avoid duplicates; reuse an existing key if found.
         key_prompt:
           name: Key Prompt
           description: Instruction shown to the LLM for providing the key.
@@ -64,17 +59,13 @@ blueprint:
             text:
               multiline: true
           default: >-
+            Required when operation = set|get|forget. Ignored if operation = search.
+
             Unique identifier for the memory entry.
 
-            Use a short, only lowercase letters, numbers, and underscores; no spaces, accents, or punctuation.
+            Normalized key: lowercase letters, digits, underscores only (e.g., car_parking_slot).
 
-            Example: "Car Parking Slot" to "car_parking_slot".
-
-            Required for "set", "get", and "forget".
-
-            Ignored if operation is "search".
-
-            Do not include trailing punctuation. Keep it concise.
+            Output the key only. If unsure, use search.
         value_prompt:
           name: Value Prompt
           description: Instruction shown to the LLM for providing the value.
@@ -82,13 +73,13 @@ blueprint:
             text:
               multiline: true
           default: >-
-            The content to remember for the given key (free text).
+            Required only when operation = set.
 
-            Example: a memo, a password, a name, a birthday date,...
-
-            Required only when operation = "set".
+            The value to store for the key. Output the raw value only.
 
             Use natural language or JSON if structured data fits the context.
+
+            This output is a parameter for the tool, not a user-facing reply.
         scope_prompt:
           name: Scope Prompt
           description: Instruction shown to the LLM for choosing the scope.
@@ -96,15 +87,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Defines who this memory applies to.
+            Required only when operation = set.
 
-            - "user": personal memory tied to the current user.
-
-            - "household": shared memory accessible to everyone.
-
-            - "session": temporary memory for the current Assist session only.
-
-            Defaults to "user". Used only when setting a value.
+            Who it applies to: user|household|session. Output one token only. Default = user.
         ttl_days_prompt:
           name: TTL (days) Prompt
           description: Instruction shown to the LLM for providing TTL.
@@ -112,15 +97,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            How many days this memory should persist before expiring automatically.
+            Required only when operation = set.
 
-            Example: 30 means delete after 30 days.
+            Days before expiry (0 = forever). Defaults = 180 days.
 
-            Use 0 to keep forever.
-
-            Defaults to 180 days.
-
-            Provide an integer between 0 and 3650 (inclusive).
+            Provide an integer between 0 and 3650. Output an integer only.
         tags_prompt:
           name: Tags Prompt
           description: Instruction shown to the LLM for providing tags.
@@ -128,15 +109,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Optional space-separated tags for improved search.
+            Optional space-separated tags for improved search, used when operation = set.
 
-            Example: "car parking slot".
+            Use a few short keywords; space-separated only.
 
-            Used only when setting a value.
-
-            Use a few keywords; space-separated only.
-
-            If no tags are obvious, copy the original user wording as a single tag.
+            If no clear keywords, copy the main user phrase as a single tag.
         query_prompt:
           name: Query Prompt
           description: Instruction shown to the LLM for providing the search query.
@@ -144,13 +121,13 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Free-text search string used to find memories when operation = "search".
+            Free-text search string used when operation = search.
 
-            Matches against keys, values, and tags.
+            Matches keys, values, and tags.
 
             Ignored for other operations.
 
-            Keep it concise and relevant.
+            Keep it concise and relevant. Output the query only, no quotes or explanation.
         search_limit_prompt:
           name: Search Limit Prompt
           description: Instruction shown to the LLM for providing the search limit.
@@ -158,11 +135,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Maximum number of results to return when operation = "search".
+            Maximum number of results to return when operation = search.
 
-            Defaults to 5; max 50.
-
-            Provide an integer between 1 and 50.
+            Max results (1–50). Default = 5. Output an integer only.
 fields:
   operation:
     name: Operation
@@ -236,7 +211,7 @@ variables:
   value_t: "{{ (value | default('')) | trim }}"
   query_t: "{{ (query | default('')) | trim }}"
   tags_t: "{{ (tags | default('')) | regex_replace('\\s+', ' ') | trim }}"
-  ttl_i: "{{ (ttl_days | default(0)) | int(0) }}"
+  ttl_i: "{{ (ttl_days | default(180)) | int(180) }}"
   scope_v: "{{ (scope | default('')) or 'user' }}"
   in_limit: "{{ (search_limit | default(5)) | int(5) }}"
 sequence:

@@ -15,7 +15,6 @@ from PIL import ImageOps
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
 from typing_extensions import Any, Buffer, cast
-from pyscript import task
 
 TTL = 30  # Cache retention period (1-30 days)
 RETRY_LIMIT = 3

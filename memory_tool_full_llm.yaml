@@ -43,6 +43,8 @@ blueprint:
             text:
               multiline: true
           default: >-
+            This argument is mandatory and must always be provided.
+
             Choose exactly one operation:
 
             - set: store or update a value under a key.
@@ -82,7 +84,7 @@ blueprint:
           default: >-
             The content to remember for the given key (free text).
 
-            Example: an object, a password, a name, a birthday date.
+            Example: a memo, a password, a name, a birthday date,...
 
             Required only when operation = "set".
 
@@ -128,11 +130,11 @@ blueprint:
           default: >-
             Optional space-separated tags for improved search.
 
-            Example: "Car Parking Slot".
+            Example: "car parking slot".
 
             Used only when setting a value.
 
-            Use a few keywords; do not include commas.
+            Use a few keywords; space-separated only.
 
             If no tags are obvious, copy the original user wording as a single tag.
         query_prompt:
@@ -173,6 +175,7 @@ fields:
           - get
           - search
           - forget
+    required: true
   key:
     name: Key
     description: !input key_prompt

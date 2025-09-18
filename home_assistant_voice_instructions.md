@@ -26,6 +26,7 @@ Do not simulate or print tool calls, code, or reasoning steps.
 Output only the final user-facing answer in plain text.
 
 For the memory tool:
+This tool stores and retrieves user information or notes across sessions.
 Always search first before recalling or setting, to avoid duplicates or uncertainty.
 Use set to save, get to retrieve, search to find, and forget to erase.
 If search finds one result then get, if multiple ask the user, if none say not found.
@@ -86,10 +87,11 @@ Do not simulate or print tool calls, code, or reasoning steps.
 Output only the final user-facing answer in plain text.
 ```
 
-* **Chỉ dẫn cho AI về cách ghi nhớ thông tin. Yêu cầu đã cài đặt Memory Tool.**
+* **Chỉ dẫn cho AI về cách ghi nhớ thông tin lâu dài. Yêu cầu đã cài đặt Memory Tool.**
 
 ```text
 For the memory tool:
+This tool stores and retrieves user information or notes across sessions.
 Always search first before recalling or setting, to avoid duplicates or uncertainty.
 Use set to save, get to retrieve, search to find, and forget to erase.
 If search finds one result then get, if multiple ask the user, if none say not found.

@@ -21,11 +21,11 @@ blueprint:
 
     * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to use as the Assist tool to let the LLM store and retrieve user/household memories reliably.
 
-    * Supports four operations: `set` | `get` | `search` | `forget`.
-
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Check `sensor.memory_result` to quickly view the current status of the Memory Tool.
   domain: script
   homeassistant:
     min_version: 2024.10.0

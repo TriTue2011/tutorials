@@ -197,16 +197,17 @@ fields:
         mode: box
 mode: restart
 max_exceeded: silent
-variables:
-  op: "{{ operation | default('set') }}"
-  key_t: "{{ (key | default('')) | trim }}"
-  value_t: "{{ (value | default('')) | trim }}"
-  query_t: "{{ (query | default('')) | trim }}"
-  tags_t: "{{ (tags | default('')) | regex_replace('\\s+', ' ') | trim }}"
-  ttl_i: "{{ (ttl_days | default(180)) | int(180) }}"
-  scope_v: "{{ (scope | default('')) or 'user' }}"
-  in_limit: "{{ (search_limit | default(5)) | int(5) }}"
 sequence:
+  - variables:
+      version: 20250919
+      op: "{{ operation | default('set') }}"
+      key_t: "{{ (key | default('')) | trim }}"
+      value_t: "{{ (value | default('')) | trim }}"
+      query_t: "{{ (query | default('')) | trim }}"
+      tags_t: "{{ (tags | default('')) | regex_replace('\\s+', ' ') | trim }}"
+      ttl_i: "{{ (ttl_days | default(180)) | int(180) }}"
+      scope_v: "{{ (scope | default('')) or 'user' }}"
+      in_limit: "{{ (search_limit | default(5)) | int(5) }}"
   - choose:
       - conditions: "{{ op == 'set' }}"
         sequence:

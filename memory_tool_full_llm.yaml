@@ -43,15 +43,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            Choose exactly one operation: set (save/update), get (retrieve), search (find), forget (delete).
 
-            Choose one operation: set (save/update), get (retrieve), search (find), forget (delete).
+            Output must be one of: set|get|search|forget.
 
-            Output exactly one: set|get|search|forget.
-
-            Only populate the fields required for the chosen operation. Leave unrelated fields empty or at their defaults.
-
-            Before set, run search to avoid duplicates; reuse an existing key if found.
+            Fill only the fields required for the chosen operation; leave others empty or at defaults.
         key_prompt:
           name: Key Prompt
           description: Instruction shown to the LLM for providing the key.
@@ -59,13 +55,13 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when operation = set|get|forget. Ignored if operation = search.
+            Required only when operation = set|get|forget. Ignored if operation = search.
 
-            Unique identifier for the memory entry.
+            Key must be normalized (lowercase letters, digits, underscores only, e.g., car_parking_slot).
 
-            Normalized key: lowercase letters, digits, underscores only (e.g., car_parking_slot).
+            If the user selected a candidate, reuse that key exactly.
 
-            Output the key only. If unsure, use search.
+            Output the key only, no labels or quotes. If unsure, use search instead.
         value_prompt:
           name: Value Prompt
           description: Instruction shown to the LLM for providing the value.
@@ -75,11 +71,9 @@ blueprint:
           default: >-
             Required only when operation = set.
 
-            The value to store for the key. Output the raw value only.
+            The value to store for the key. Output the raw value only, in plain text or JSON if structured data fits.
 
-            Use natural language or JSON if structured data fits the context.
-
-            This output is a parameter for the tool, not a user-facing reply.
+            Do not add quotes, labels, or explanations. This output is a tool parameter, not a user-facing reply.
         scope_prompt:
           name: Scope Prompt
           description: Instruction shown to the LLM for choosing the scope.
@@ -99,9 +93,9 @@ blueprint:
           default: >-
             Required only when operation = set.
 
-            Days before expiry (0 = forever). Defaults = 180 days.
+            Days before expiry (0 = forever). Default = 180.
 
-            Provide an integer between 0 and 3650. Output an integer only.
+            Output an integer only, between 0 and 3650.
         tags_prompt:
           name: Tags Prompt
           description: Instruction shown to the LLM for providing tags.
@@ -109,11 +103,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Optional space-separated tags for improved search, used when operation = set.
+            Optional for improved search, used only when operation = set.
 
-            Use a few short keywords; space-separated only.
+            Use a few short, meaningful keywords (typically 3–6); space-separated only.
 
-            If no clear keywords, copy the main user phrase as a single tag.
+            If no clear keywords, copy the main user phrase as a single tag. Do not add commas or formatting.
         query_prompt:
           name: Query Prompt
           description: Instruction shown to the LLM for providing the search query.
@@ -121,13 +115,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Free-text search string used when operation = search.
+            Required only when operation = search.
 
-            Matches keys, values, and tags.
+            Free-text string to match keys, values, and tags.
 
-            Ignored for other operations.
-
-            Keep it concise and relevant. Output the query only, no quotes or explanation.
+            Keep concise and relevant. Output the query only, no quotes or explanation.
         search_limit_prompt:
           name: Search Limit Prompt
           description: Instruction shown to the LLM for providing the search limit.
@@ -135,9 +127,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Maximum number of results to return when operation = search.
+            Required only when operation = search.
 
-            Max results (1–50). Default = 5. Output an integer only.
+            Maximum results to return (1–50). Default = 5.
+
+            Output an integer only.
 fields:
   operation:
     name: Operation

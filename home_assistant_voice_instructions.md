@@ -27,11 +27,9 @@ Output only the final user-facing answer in plain text.
 
 For the memory tool:
 This tool stores and retrieves user information or notes across sessions.
-Always search first before recalling or setting, to avoid duplicates or uncertainty.
 Use set to save, get to retrieve, search to find, and forget to erase.
-If search finds one result then get, if multiple ask the user, if none say not found.
-For partial updates, get existing first, modify, then set; if not found, create new.
 Do not invent keys; normalize them, and do not include secrets in tags.
+On recall, prefer search; backend handles duplicates or ambiguity. Do not claim success until update succeeds.
 ```
 
 ## Chi tiết
@@ -92,11 +90,9 @@ Output only the final user-facing answer in plain text.
 ```text
 For the memory tool:
 This tool stores and retrieves user information or notes across sessions.
-Always search first before recalling or setting, to avoid duplicates or uncertainty.
 Use set to save, get to retrieve, search to find, and forget to erase.
-If search finds one result then get, if multiple ask the user, if none say not found.
-For partial updates, get existing first, modify, then set; if not found, create new.
 Do not invent keys; normalize them, and do not include secrets in tags.
+On recall, prefer search; backend handles duplicates or ambiguity. Do not claim success until update succeeds.
 ```
 
 ## Hỏi đáp

@@ -14,6 +14,8 @@ RESULT_ENTITY = "sensor.memory_result"
 TTL_MAX_DAYS = 3650
 SEARCH_LIMIT_MAX = 50
 NEAR_DISTANCE = 5
+CANDIDATE_CHECK_LIMIT = 5
+VALUE_PREVIEW_CHARS = 120
 
 _DB_READY = False
 _DB_READY_LOCK = threading.Lock()
@@ -179,6 +181,27 @@ def _normalize_key(s: str) -> str:
     return s
 
 
+def _condense_candidate_for_selection(
+    entry: dict[str, Any], *, score: float | None = None
+) -> dict[str, Any]:
+    """Prepare a candidate dict with trimmed value and optional score."""
+    value = entry.get("value")
+    if isinstance(value, str) and len(value) > VALUE_PREVIEW_CHARS:
+        value = value[: VALUE_PREVIEW_CHARS - 3] + "..."
+    data = {
+        "key": entry.get("key"),
+        "scope": entry.get("scope"),
+        "tags": entry.get("tags"),
+        "created_at": entry.get("created_at"),
+        "last_used_at": entry.get("last_used_at"),
+        "ttl_at": entry.get("ttl_at"),
+        "value": value,
+    }
+    if score is not None:
+        data["match_score"] = score
+    return data
+
+
 def _tokenize_query(q: str) -> list[str]:
     """Tokenize a free-text query into normalized word tokens for FTS."""
     normalized = _normalize_search_text(q)
@@ -315,6 +338,26 @@ def _memory_set_db_sync(
                 )
                 conn.commit()
             return True
+        except sqlite3.OperationalError:
+            _reset_db_ready()
+            if attempt == 0:
+                continue
+            raise
+    return False
+
+
+def _memory_key_exists_db_sync(key_norm: str) -> bool:
+    """Return True if a memory row already exists for key."""
+    for attempt in range(2):
+        try:
+            _ensure_db_once(force=attempt == 1)
+            with sqlite3.connect(DB_PATH) as conn:
+                cur = conn.cursor()
+                row = cur.execute(
+                    "SELECT 1 FROM mem WHERE key = ? LIMIT 1",
+                    (key_norm,),
+                ).fetchone()
+                return row is not None
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
@@ -609,6 +652,10 @@ async def _memory_set_db(
     )
 
 
+async def _memory_key_exists_db(key_norm: str) -> bool:
+    return await asyncio.to_thread(_memory_key_exists_db_sync, key_norm)
+
+
 async def _memory_get_db(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     return await asyncio.to_thread(_memory_get_db_sync, key_norm)
 
@@ -640,7 +687,7 @@ async def memory_set(
     """
     yaml
     name: Memory Set
-    description: Create or update a memory entry with optional TTL and tags.
+    description: Create or update a memory entry with optional TTL and tags. When creating a brand-new key, tag overlaps trigger a duplicate_tags error; successful responses include key_exists to clarify whether the entry was updated or newly inserted.
     fields:
       key:
         name: Key
@@ -713,6 +760,72 @@ async def memory_set(
         now_iso = now.isoformat()
         ttl_at = (now + timedelta(days=ttl_i)).isoformat() if ttl_i else None
 
+        key_exists = await _memory_key_exists_db(key_norm)
+
+        duplicate_matches: list[tuple[dict[str, Any], float]] = []
+        if not key_exists and tags_norm:
+            tag_tokens = {token for token in tags_norm.split() if token}
+            if tag_tokens:
+                try:
+                    raw_matches = await _memory_search_db(
+                        tags_norm,
+                        limit=min(CANDIDATE_CHECK_LIMIT, SEARCH_LIMIT_MAX),
+                    )
+                except Exception as lookup_err:
+                    log.error(
+                        f"memory_set: duplicate lookup failed for tags '{tags_norm}': {lookup_err}"
+                    )
+                else:
+                    if raw_matches:
+                        dedup: dict[str, tuple[dict[str, Any], float]] = {}
+                        for item in raw_matches:
+                            existing_key = _normalize_key(item.get("key"))
+                            if not existing_key:
+                                continue
+                            if existing_key in dedup:
+                                continue
+                            existing_tags_norm = _normalize_tags(item.get("tags"))
+                            existing_tokens = {
+                                token for token in existing_tags_norm.split() if token
+                            }
+                            intersection_count = len(
+                                existing_tokens.intersection(tag_tokens)
+                            )
+                            if not intersection_count:
+                                continue
+                            union_count = len(existing_tokens.union(tag_tokens)) or 1
+                            score = intersection_count / union_count
+                            dedup[existing_key] = (item, score)
+                        if dedup:
+                            duplicate_matches = sorted(
+                                dedup.values(), key=lambda pair: pair[1], reverse=True
+                            )
+
+        if duplicate_matches:
+            options = [
+                _condense_candidate_for_selection(match, score=score)
+                for match, score in duplicate_matches
+            ]
+            _set_result(
+                "error",
+                op="set",
+                key=key_norm,
+                scope=scope_norm,
+                tags=tags_norm,
+                error="duplicate_tags",
+                matches=options,
+            )
+            log.error("memory_set: duplicate tags detected, refusing to overwrite")
+            return {
+                "status": "error",
+                "op": "set",
+                "key": key_norm,
+                "scope": scope_norm,
+                "tags": tags_norm,
+                "error": "duplicate_tags",
+                "matches": options,
+            }
+
         ok_db = await _memory_set_db(
             key_norm=key_norm,
             value_norm=value_norm,
@@ -738,8 +851,8 @@ async def memory_set(
             scope=scope_norm,
             ttl_at=ttl_at,
             value=value_norm,
+            key_exists=key_exists,
         )
-        event.fire("memory_set_done", key=key_norm, scope=scope_norm, ttl_at=ttl_at)
         return {
             "status": "ok",
             "op": "set",
@@ -747,6 +860,7 @@ async def memory_set(
             "scope": scope_norm,
             "ttl_at": ttl_at,
             "value": value_norm,
+            "key_exists": key_exists,
         }
     except Exception as e:
         log.error(f"memory_set failed: {e}")
@@ -801,7 +915,6 @@ async def memory_get(key: str):
 
     res = payload or {}
     _set_result("ok", op="get", **res)
-    event.fire("memory_get_result", **res)
     return {"status": "ok", "op": "get", **res}
 
 
@@ -863,7 +976,6 @@ async def memory_search(query: str, limit: int = 5):
         count=len(results),
         results=json.dumps(results),
     )
-    event.fire("memory_search_result", query=query, count=len(results))
     return {
         "status": "ok",
         "op": "search",
@@ -905,7 +1017,6 @@ async def memory_forget(key: str):
         return {"status": "error", "op": "forget", "key": key_norm, "error": str(e)}
 
     _set_result("ok", op="forget", key=key_norm, deleted=deleted)
-    event.fire("memory_forget_done", key=key_norm, deleted=deleted)
     return {"status": "ok", "op": "forget", "key": key_norm, "deleted": deleted}
 
 
@@ -924,7 +1035,6 @@ async def memory_purge_expired():
         return {"status": "error", "op": "purge_expired", "error": str(e)}
 
     _set_result("ok", op="purge_expired", removed=removed)
-    event.fire("memory_purge_done", removed=removed)
     return {"status": "ok", "op": "purge_expired", "removed": removed}
 
 
@@ -943,7 +1053,6 @@ async def memory_reindex_fts():
         return {"status": "error", "op": "reindex_fts", "error": str(e)}
 
     _set_result("ok", op="reindex_fts", removed=before, inserted=after)
-    event.fire("memory_reindex_done", removed=before, inserted=after)
     return {
         "status": "ok",
         "op": "reindex_fts",

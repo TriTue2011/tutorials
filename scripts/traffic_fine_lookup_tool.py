@@ -82,7 +82,7 @@ _CACHE_READY_LOCK = threading.Lock()
 
 cache_max_age = TTL * 24 * 60 * 60
 cache_min_age = cache_max_age - (
-        2 * 60 * 60
+    2 * 60 * 60
 )  # Only update cache when existing data is older than 2 hours
 
 
@@ -386,7 +386,7 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
 
 
 async def _get_captcha(
-        ss: aiohttp.ClientSession, url: str
+    ss: aiohttp.ClientSession, url: str
 ) -> tuple[BytesIO, None] | tuple[None, str]:
     """Download the CAPTCHA image.
 
@@ -412,7 +412,7 @@ async def _get_captcha(
 
 @pyscript_compile
 def _process_captcha(
-        image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
+    image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
     """Preprocess CAPTCHA for better OCR.
 
@@ -455,7 +455,7 @@ def _process_captcha(
 
 
 async def _solve_captcha(
-        image: Image.Image, retry_count: int = 1
+    image: Image.Image, retry_count: int = 1
 ) -> tuple[str, None] | tuple[None, str]:
     """Solve CAPTCHA using Gemini with optional retries.
 
@@ -477,10 +477,10 @@ async def _solve_captcha(
     try:
         response = await asyncio.to_thread(_solve_captcha_sync, prompt, image)
         if (
-                response.candidates
-                and response.candidates[0].content
-                and response.candidates[0].content.parts
-                and response.candidates[0].content.parts[0].text
+            response.candidates
+            and response.candidates[0].content
+            and response.candidates[0].content.parts
+            and response.candidates[0].content.parts[0].text
         ):
             generated_text = response.candidates[0].content.parts[0].text.strip()
             return generated_text, None
@@ -513,7 +513,7 @@ async def _solve_captcha(
 
 
 async def _check_license_plate(
-        license_plate: str, vehicle_type: int, retry_count: int = 1
+    license_plate: str, vehicle_type: int, retry_count: int = 1
 ) -> dict[str, Any]:
     """End-to-end lookup flow against csgt.vn with caching and retries.
 
@@ -533,7 +533,7 @@ async def _check_license_plate(
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=SSL_CTX)) as ss:
         try:
             async with ss.get(
-                    GET_URL, headers=GET_HEADERS, timeout=aiohttp.ClientTimeout(total=60)
+                GET_URL, headers=GET_HEADERS, timeout=aiohttp.ClientTimeout(total=60)
             ) as response_1st:
                 response_1st.raise_for_status()
                 image, error = await _get_captcha(ss, CAPTCHA_URL)
@@ -552,10 +552,10 @@ async def _check_license_plate(
                 data = f"BienKS={license_plate}&Xe={vehicle_type}&captcha={captcha}&ipClient=9.9.9.91&cUrl=1"
 
                 async with ss.post(
-                        url=POST_URL,
-                        headers=POST_HEADERS,
-                        data=data,
-                        timeout=aiohttp.ClientTimeout(total=60),
+                    url=POST_URL,
+                    headers=POST_HEADERS,
+                    data=data,
+                    timeout=aiohttp.ClientTimeout(total=60),
                 ) as response_2nd:
                     response_2nd.raise_for_status()
                     response_2nd_json = await response_2nd.json(
@@ -578,7 +578,7 @@ async def _check_license_plate(
                             }
 
                     async with ss.get(
-                            url=url, timeout=aiohttp.ClientTimeout(total=60)
+                        url=url, timeout=aiohttp.ClientTimeout(total=60)
                     ) as response_3rd:
                         response_3rd.raise_for_status()
                         text_content = await response_3rd.text()
@@ -624,7 +624,7 @@ async def cleanup_expired_cache() -> None:
 
 @service(supports_response="only")
 async def traffic_fine_lookup_tool(
-        license_plate: str, vehicle_type: int, bypass_caching: bool = False
+    license_plate: str, vehicle_type: int, bypass_caching: bool = False
 ) -> dict[str, Any]:
     """
     yaml

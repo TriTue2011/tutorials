@@ -43,11 +43,13 @@ blueprint:
             text:
               multiline: true
           default: >-
+            Required for every request.
+
             Choose exactly one operation: set (save/update), get (retrieve), search (find), forget (delete).
 
-            Output must be one of: set|get|search|forget.
+            Output exactly one: set|get|search|forget.
 
-            Fill only the fields required for the chosen operation; leave others empty or at defaults.
+            Only fill the fields needed for that operation; leave others empty or default.
         key_prompt:
           name: Key Prompt
           description: Instruction shown to the LLM for providing the key.
@@ -55,7 +57,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required only when operation = set|get|forget. Ignored if operation = search.
+            Required when operation = set|get|forget. Ignored if operation = search.
 
             Key must be normalized (lowercase letters, digits, underscores only, e.g., car_parking_slot).
 
@@ -69,11 +71,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required only when operation = set.
+            Required when operation = set.
 
-            The value to store for the key. Output the raw value only, in plain text or JSON if structured data fits.
+            Value to store for the key. Output the raw value only, plain text or JSON.
 
-            Do not add quotes, labels, or explanations. This output is a tool parameter, not a user-facing reply.
+            Do not add quotes, labels, or explanations. This is a tool parameter, not a user-facing reply.
         scope_prompt:
           name: Scope Prompt
           description: Instruction shown to the LLM for choosing the scope.
@@ -81,9 +83,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required only when operation = set.
+            Required when operation = set.
 
-            Who it applies to: user|household|session. Output one token only. Default = user.
+            One token only: user|household|session. Default = user.
         ttl_days_prompt:
           name: TTL (days) Prompt
           description: Instruction shown to the LLM for providing TTL.
@@ -91,11 +93,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required only when operation = set.
+            Required when operation = set.
 
-            Days before expiry (0 = forever). Default = 180.
-
-            Output an integer only, between 0 and 3650.
+            Integer days before expiry (0 = forever). Default = 180. Range 0–3650.
         tags_prompt:
           name: Tags Prompt
           description: Instruction shown to the LLM for providing tags.
@@ -103,7 +103,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Always provide tags when operation = set.
+            Required when operation = set.
 
             Use a few short, meaningful keywords; space-separated only, no commas or formatting.
 
@@ -115,7 +115,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required only when operation = search.
+            Required when operation = search.
 
             Free-text string to match keys, values, and tags.
 
@@ -127,11 +127,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required only when operation = search.
+            Required when operation = search.
 
-            Maximum results to return (1–50). Default = 5.
-
-            Output an integer only.
+            Integer 1–50. Default = 5. Output an integer only.
 fields:
   operation:
     name: Operation

@@ -103,11 +103,11 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Optional for improved search, used only when operation = set.
+            Always provide tags when operation = set.
 
-            Use a few short, meaningful keywords (typically 3–6); space-separated only.
+            Use a few short, meaningful keywords; space-separated only, no commas or formatting.
 
-            If no clear keywords, copy the main user phrase as a single tag. Do not add commas or formatting.
+            If no clear keywords, copy the main user phrase as a single tag; if that is not possible, reuse the key.
         query_prompt:
           name: Query Prompt
           description: Instruction shown to the LLM for providing the search query.

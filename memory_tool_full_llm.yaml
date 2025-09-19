@@ -11,7 +11,9 @@ blueprint:
 
     * The `scripts/memory.py` script needs to be copied into the `config/pyscript` folder.
 
-    * The Memory Tool relies on specific instructions. For complete usage rules and system policies, please refer to `home_assistant_voice_instructions.md`. This file is included in the repository.
+    * The Memory Tool relies on specific instructions. For complete usage rules and system policies, please refer to `home_assistant_voice_instructions.md`.
+
+    * The mentioned dependency file(s) is/are included in the repository.
 
     ### Optional
 

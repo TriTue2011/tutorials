@@ -13,6 +13,8 @@ blueprint:
 
     * Cần sao chép tập tin `scripts/requirements.txt` vào thư mục `config/pyscript`.
 
+    * Các tệp phụ thuộc được đề cập bên trên đều có sẵn trong kho lưu trữ Github.
+
     * Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` sử dụng cho việc giải mã CAPTCHA.
 
     ```

@@ -12,6 +12,8 @@ blueprint:
 
     * This blueprint is a dependency for the `device_control_timer_full_llm.yaml` blueprint.
 
+    * The mentioned dependency file(s) is/are included in the repository.
+
     * Do not alter the default script name.
   domain: script
   homeassistant:

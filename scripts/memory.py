@@ -16,6 +16,7 @@ SEARCH_LIMIT_MAX = 50
 NEAR_DISTANCE = 5
 CANDIDATE_CHECK_LIMIT = 5
 VALUE_PREVIEW_CHARS = 120
+BM25_WEIGHT = 0.7
 
 _DB_READY = False
 _DB_READY_LOCK = threading.Lock()
@@ -200,6 +201,26 @@ def _condense_candidate_for_selection(
     if score is not None:
         data["match_score"] = score
     return data
+
+
+def _calculate_match_score(
+    source_tokens: set[str], candidate_tokens: set[str], bm25_raw: float | None
+) -> float:
+    """Blend Jaccard overlap with BM25 to estimate relevance."""
+    if not source_tokens or not candidate_tokens:
+        jaccard_score = 0.0
+    else:
+        intersection = source_tokens.intersection(candidate_tokens)
+        if not intersection:
+            return 0.0
+        union = source_tokens.union(candidate_tokens)
+        union_size = len(union) or 1
+        jaccard_score = len(intersection) / union_size
+    if isinstance(bm25_raw, (int, float)):
+        bm25_score = 1 / (1 + max(bm25_raw, 0))
+        jaccard_weight = 1 - BM25_WEIGHT
+        return BM25_WEIGHT * bm25_score + jaccard_weight * jaccard_score
+    return jaccard_score
 
 
 def _tokenize_query(q: str) -> list[str]:
@@ -413,6 +434,8 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
 
 def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     """Run the primary search query, returning matching memory rows."""
+    normalized_query = _normalize_search_text(query)
+    query_tokens = set(normalized_query.split()) if normalized_query else set()
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
@@ -477,6 +500,14 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                     ).fetchall()
             results: list[dict[str, Any]] = []
             for row in total_rows:
+                bm25 = row[7] if len(row) > 7 else None
+                candidate_tags_norm = _normalize_tags(row[3])
+                candidate_tokens = {
+                    token for token in candidate_tags_norm.split() if token
+                }
+                match_score = _calculate_match_score(
+                    query_tokens, candidate_tokens, bm25
+                )
                 results.append(
                     {
                         "key": row[0],
@@ -486,6 +517,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                         "created_at": row[4],
                         "last_used_at": row[5],
                         "ttl_at": row[6],
+                        "match_score": match_score,
                     }
                 )
             return results
@@ -784,17 +816,19 @@ async def memory_set(
                                 continue
                             if existing_key in dedup:
                                 continue
-                            existing_tags_norm = _normalize_tags(item.get("tags"))
-                            existing_tokens = {
-                                token for token in existing_tags_norm.split() if token
-                            }
-                            intersection_count = len(
-                                existing_tokens.intersection(tag_tokens)
-                            )
-                            if not intersection_count:
+                            score = item.get("match_score")
+                            if score is None:
+                                existing_tags_norm = _normalize_tags(item.get("tags"))
+                                candidate_tokens = {
+                                    token
+                                    for token in existing_tags_norm.split()
+                                    if token
+                                }
+                                score = _calculate_match_score(
+                                    tag_tokens, candidate_tokens, None
+                                )
+                            if score <= 0:
                                 continue
-                            union_count = len(existing_tokens.union(tag_tokens)) or 1
-                            score = intersection_count / union_count
                             dedup[existing_key] = (item, score)
                         if dedup:
                             duplicate_matches = sorted(

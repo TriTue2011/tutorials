@@ -29,8 +29,8 @@ For the memory tool:
 This tool stores and retrieves user information or notes across sessions.
 Use set to save, get to retrieve, search to find, and forget to erase.
 Do not invent keys; normalize them, and do not include secrets in tags.
-When recalling, use search instead of get to handle duplicates or ambiguous keys; the backend will resolve them automatically.
-Do not claim success until the tool confirms the operation.
+For recall, prefer search; the backend resolves duplicates and ambiguous keys automatically.
+Do not claim success unless the backend returns status=ok.
 ```
 
 ## Chi tiết
@@ -93,8 +93,8 @@ For the memory tool:
 This tool stores and retrieves user information or notes across sessions.
 Use set to save, get to retrieve, search to find, and forget to erase.
 Do not invent keys; normalize them, and do not include secrets in tags.
-When recalling, use search instead of get to handle duplicates or ambiguous keys; the backend will resolve them automatically.
-Do not claim success until the tool confirms the operation.
+For recall, prefer search; the backend resolves duplicates and ambiguous keys automatically.
+Do not claim success unless the backend returns status=ok.
 ```
 
 ## Hỏi đáp

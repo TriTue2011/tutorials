@@ -107,7 +107,7 @@ blueprint:
           default: >-
             Required when operation = set.
 
-            Use a few short, meaningful keywords; space-separated only, no commas or formatting.
+            Use a few short, meaningful keywords in the same language as the user's input; space-separated only, no commas or formatting.
 
             If no clear keywords, copy the main user phrase as a single tag; if that is not possible, reuse the key.
         query_prompt:
@@ -119,9 +119,13 @@ blueprint:
           default: >-
             Required when operation = search.
 
-            Free-text string to match keys, values, and tags.
+            If the user's input is already short, keep it unchanged.
 
-            Keep concise and relevant. Output the query only, no quotes or explanation.
+            If it is long, reduce it to the main keywords in the same language.
+
+            Do not translate, paraphrase, or include the full sentence.
+
+            Output only the query, no quotes or explanation.
         search_limit_prompt:
           name: Search Limit Prompt
           description: Instruction shown to the LLM for providing the search limit.

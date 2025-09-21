@@ -50,6 +50,7 @@ def _ensure_db() -> None:
     """
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute("PRAGMA synchronous=NORMAL;")
         conn.execute("PRAGMA temp_store=MEMORY;")
@@ -62,6 +63,7 @@ def _ensure_db() -> None:
                 value        TEXT NOT NULL,
                 scope        TEXT NOT NULL,
                 tags         TEXT NOT NULL,
+                tags_search  TEXT NOT NULL,
                 created_at   TEXT NOT NULL,
                 last_used_at TEXT NOT NULL,
                 ttl_at       TEXT
@@ -87,8 +89,8 @@ def _ensure_db() -> None:
                 INSERT INTO mem_fts(rowid, key, value, tags)
                 VALUES (new.rowid,
                         new.key,
-                        new.value || ' ' || REPLACE(REPLACE(new.value, 'đ', 'd'), 'Đ', 'D'),
-                        new.tags || ' ' || REPLACE(REPLACE(new.tags, 'đ', 'd'), 'Đ', 'D'));
+                        new.value,
+                        new.tags_search);
             END;
 
             CREATE TRIGGER IF NOT EXISTS mem_ad
@@ -106,8 +108,8 @@ def _ensure_db() -> None:
                 INSERT INTO mem_fts(rowid, key, value, tags)
                 VALUES (new.rowid,
                         new.key,
-                        new.value || ' ' || REPLACE(REPLACE(new.value, 'đ', 'd'), 'Đ', 'D'),
-                        new.tags || ' ' || REPLACE(REPLACE(new.tags, 'đ', 'd'), 'Đ', 'D'));
+                        new.value,
+                        new.tags_search);
             END;
             """
         )
@@ -301,7 +303,7 @@ def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> bool:
     row = cur.execute("SELECT ttl_at FROM mem WHERE key=?", (key,)).fetchone()
     if not row:
         return False
-    ttl_at = row[0]
+    ttl_at = row["ttl_at"]
     if ttl_at:
         dt = _dt_from_iso(ttl_at)
         if dt and datetime.now(timezone.utc) > dt:
@@ -327,7 +329,8 @@ def _memory_set_db_sync(
     key_norm: str,
     value_norm: str,
     scope_norm: str,
-    tags_norm: str,
+    tags_raw: str,
+    tags_search: str,
     now_iso: str,
     ttl_at: str | None,
 ) -> bool:
@@ -336,14 +339,16 @@ def _memory_set_db_sync(
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
                     """
-                    INSERT INTO mem(key, value, scope, tags, created_at, last_used_at, ttl_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO mem(key, value, scope, tags, tags_search, created_at, last_used_at, ttl_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(key) DO UPDATE SET value=excluded.value,
                                                    scope=excluded.scope,
                                                    tags=excluded.tags,
+                                                   tags_search=excluded.tags_search,
                                                    last_used_at=excluded.last_used_at,
                                                    ttl_at=excluded.ttl_at
                     """,
@@ -351,7 +356,8 @@ def _memory_set_db_sync(
                         key_norm,
                         value_norm,
                         scope_norm,
-                        tags_norm,
+                        tags_raw,
+                        tags_search,
                         now_iso,
                         now_iso,
                         ttl_at,
@@ -373,6 +379,7 @@ def _memory_key_exists_db_sync(key_norm: str) -> bool:
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 row = cur.execute(
                     "SELECT 1 FROM mem WHERE key = ? LIMIT 1",
@@ -393,6 +400,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 expired = _purge_if_expired(cur, key_norm)
                 if expired:
@@ -415,13 +423,13 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
                 )
                 conn.commit()
             result = {
-                "key": row[0],
-                "value": row[1],
-                "scope": row[2],
-                "tags": row[3],
-                "created_at": row[4],
+                "key": row["key"],
+                "value": row["value"],
+                "scope": row["scope"],
+                "tags": row["tags"],
+                "created_at": row["created_at"],
                 "last_used_at": last_used_iso,
-                "ttl_at": row[6],
+                "ttl_at": row["ttl_at"],
             }
             return "ok", result
         except sqlite3.OperationalError:
@@ -440,6 +448,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
                     "DELETE FROM mem WHERE ttl_at IS NOT NULL AND ttl_at < ?",
@@ -447,8 +456,8 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                 )
                 conn.commit()
 
-                found_by_key: dict[str, tuple] = {}
-                total_rows: list[tuple] = []
+                found_by_key: dict[str, sqlite3.Row] = {}
+                total_rows: list[sqlite3.Row] = []
                 match_variants = _build_fts_queries(query)
 
                 for mv in match_variants:
@@ -461,6 +470,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                             m.value,
                                             m.scope,
                                             m.tags,
+                                            m.tags_search,
                                             m.created_at,
                                             m.last_used_at,
                                             m.ttl_at,
@@ -477,7 +487,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                         continue
 
                     for row in fetched:
-                        key = row[0]
+                        key = row["key"]
                         if key not in found_by_key:
                             found_by_key[key] = row
                             total_rows.append(row)
@@ -488,35 +498,43 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                     like_q = f"%{query}%"
                     total_rows = cur.execute(
                         """
-                        SELECT DISTINCT m.key, m.value, m.scope, m.tags, m.created_at, m.last_used_at, m.ttl_at
+                        SELECT DISTINCT m.key,
+                                        m.value,
+                                        m.scope,
+                                        m.tags,
+                                        m.tags_search,
+                                        m.created_at,
+                                        m.last_used_at,
+                                        m.ttl_at,
+                                        NULL AS rank
                         FROM mem m
                         WHERE m.value LIKE ?
                            OR m.tags LIKE ?
+                           OR m.tags_search LIKE ?
                            OR m.key LIKE ?
                         ORDER BY m.last_used_at DESC
                         LIMIT ?;
                         """,
-                        (like_q, like_q, like_q, limit),
+                        (like_q, like_q, like_q, like_q, limit),
                     ).fetchall()
             results: list[dict[str, Any]] = []
             for row in total_rows:
-                bm25 = row[7] if len(row) > 7 else None
-                candidate_tags_norm = _normalize_tags(row[3])
+                candidate_source = row["tags_search"] or _normalize_tags(row["tags"])
                 candidate_tokens = {
-                    token for token in candidate_tags_norm.split() if token
+                    token for token in candidate_source.split() if token
                 }
                 match_score = _calculate_match_score(
-                    query_tokens, candidate_tokens, bm25
+                    query_tokens, candidate_tokens, row["rank"]
                 )
                 results.append(
                     {
-                        "key": row[0],
-                        "value": row[1],
-                        "scope": row[2],
-                        "tags": row[3],
-                        "created_at": row[4],
-                        "last_used_at": row[5],
-                        "ttl_at": row[6],
+                        "key": row["key"],
+                        "value": row["value"],
+                        "scope": row["scope"],
+                        "tags": row["tags"],
+                        "created_at": row["created_at"],
+                        "last_used_at": row["last_used_at"],
+                        "ttl_at": row["ttl_at"],
                         "match_score": match_score,
                     }
                 )
@@ -535,6 +553,7 @@ def _memory_forget_db_sync(key_norm: str) -> int:
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute("DELETE FROM mem WHERE key=?", (key_norm,))
                 rowcount = getattr(cur, "rowcount", -1)
@@ -555,6 +574,7 @@ def _memory_purge_expired_db_sync() -> int:
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
                     "DELETE FROM mem WHERE ttl_at IS NOT NULL AND ttl_at < ?",
@@ -578,6 +598,7 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 try:
                     cur.execute("SELECT COUNT(*) FROM mem_fts")
@@ -598,30 +619,32 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
 
                 cur.executescript(
                     """
-                    DROP TRIGGER IF EXISTS mem_ai;
-                    DROP TRIGGER IF EXISTS mem_ad;
-                    DROP TRIGGER IF EXISTS mem_au;
-                    CREATE TRIGGER mem_ai AFTER INSERT ON mem BEGIN
+                    CREATE TRIGGER IF NOT EXISTS mem_ai
+                        AFTER INSERT
+                        ON mem
+                    BEGIN
                         INSERT INTO mem_fts(rowid, key, value, tags)
-                        VALUES (
-                            new.rowid,
-                            new.key,
-                            new.value || ' ' || REPLACE(REPLACE(new.value,'đ','d'),'Đ','D'),
-                            new.tags  || ' ' || REPLACE(REPLACE(new.tags, 'đ','d'),'Đ','D')
-                        );
+                        VALUES (new.rowid,
+                                new.key,
+                                new.value,
+                                new.tags_search);
                     END;
-                    CREATE TRIGGER mem_ad AFTER DELETE ON mem BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES('delete', old.rowid);
+                    CREATE TRIGGER IF NOT EXISTS mem_ad
+                        AFTER DELETE
+                        ON mem
+                    BEGIN
+                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.rowid);
                     END;
-                    CREATE TRIGGER mem_au AFTER UPDATE ON mem BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES('delete', old.rowid);
+                    CREATE TRIGGER IF NOT EXISTS mem_au
+                        AFTER UPDATE
+                        ON mem
+                    BEGIN
+                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.rowid);
                         INSERT INTO mem_fts(rowid, key, value, tags)
-                        VALUES (
-                            new.rowid,
-                            new.key,
-                            new.value || ' ' || REPLACE(REPLACE(new.value,'đ','d'),'Đ','D'),
-                            new.tags  || ' ' || REPLACE(REPLACE(new.tags, 'đ','d'),'Đ','D')
-                        );
+                        VALUES (new.rowid,
+                                new.key,
+                                new.value,
+                                new.tags_search);
                     END;
                     """
                 )
@@ -645,6 +668,7 @@ def _memory_health_check_db_sync() -> tuple[int, int, int]:
         try:
             _ensure_db_once(force=attempt == 1)
             with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute("SELECT COUNT(*) FROM mem")
                 rows = cur.fetchone()[0]
@@ -669,7 +693,8 @@ async def _memory_set_db(
     key_norm: str,
     value_norm: str,
     scope_norm: str,
-    tags_norm: str,
+    tags_raw: str,
+    tags_search: str,
     now_iso: str,
     ttl_at: str | None,
 ) -> bool:
@@ -678,7 +703,8 @@ async def _memory_set_db(
         key_norm,
         value_norm,
         scope_norm,
-        tags_norm,
+        tags_raw,
+        tags_search,
         now_iso,
         ttl_at,
     )
@@ -786,7 +812,8 @@ async def memory_set(
     try:
         scope_norm = str(scope).strip() or "user"
         value_norm = _normalize_value(value)
-        tags_norm = _normalize_tags(tags)
+        tags_raw = _normalize_value(tags)
+        tags_search = _normalize_tags(tags_raw)
 
         now = datetime.now(timezone.utc)
         now_iso = now.isoformat()
@@ -795,17 +822,17 @@ async def memory_set(
         key_exists = await _memory_key_exists_db(key_norm)
 
         duplicate_matches: list[tuple[dict[str, Any], float]] = []
-        if not key_exists and tags_norm:
-            tag_tokens = {token for token in tags_norm.split() if token}
+        if not key_exists and tags_search:
+            tag_tokens = {token for token in tags_search.split() if token}
             if tag_tokens:
                 try:
                     raw_matches = await _memory_search_db(
-                        tags_norm,
+                        tags_search,
                         limit=min(CANDIDATE_CHECK_LIMIT, SEARCH_LIMIT_MAX),
                     )
                 except Exception as lookup_err:
                     log.error(
-                        f"memory_set: duplicate lookup failed for tags '{tags_norm}': {lookup_err}"
+                        f"memory_set: duplicate lookup failed for tags '{tags_search}': {lookup_err}"
                     )
                 else:
                     if raw_matches:
@@ -845,7 +872,7 @@ async def memory_set(
                 op="set",
                 key=key_norm,
                 scope=scope_norm,
-                tags=tags_norm,
+                tags=tags_raw,
                 error="duplicate_tags",
                 matches=options,
             )
@@ -855,7 +882,7 @@ async def memory_set(
                 "op": "set",
                 "key": key_norm,
                 "scope": scope_norm,
-                "tags": tags_norm,
+                "tags": tags_raw,
                 "error": "duplicate_tags",
                 "matches": options,
             }
@@ -864,7 +891,8 @@ async def memory_set(
             key_norm=key_norm,
             value_norm=value_norm,
             scope_norm=scope_norm,
-            tags_norm=tags_norm,
+            tags_raw=tags_raw,
+            tags_search=tags_search,
             now_iso=now_iso,
             ttl_at=ttl_at,
         )

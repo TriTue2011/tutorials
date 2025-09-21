@@ -963,17 +963,23 @@ async def memory_get(key: str):
         return {"status": "error", "op": "get", "key": key_norm, "error": str(e)}
 
     if status == "expired":
-        _set_result("not_found", op="get", key=key_norm, expired=True)
+        _set_result("error", op="get", key=key_norm, error="not_found", expired=True)
         return {
-            "status": "not_found",
+            "status": "error",
             "op": "get",
             "key": key_norm,
+            "error": "not_found",
             "expired": True,
         }
 
     if status == "not_found":
-        _set_result("not_found", op="get", key=key_norm)
-        return {"status": "not_found", "op": "get", "key": key_norm}
+        _set_result("error", op="get", key=key_norm, error="not_found")
+        return {
+            "status": "error",
+            "op": "get",
+            "key": key_norm,
+            "error": "not_found",
+        }
 
     res = payload or {}
     _set_result("ok", op="get", **res)
@@ -1077,6 +1083,15 @@ async def memory_forget(key: str):
         log.error(f"memory_forget failed: {e}")
         _set_result("error", op="forget", key=key_norm, error=str(e))
         return {"status": "error", "op": "forget", "key": key_norm, "error": str(e)}
+
+    if deleted == 0:
+        _set_result("error", op="forget", key=key_norm, error="not_found")
+        return {
+            "status": "error",
+            "op": "forget",
+            "key": key_norm,
+            "error": "not_found",
+        }
 
     _set_result("ok", op="forget", key=key_norm, deleted=deleted)
     return {"status": "ok", "op": "forget", "key": key_norm, "deleted": deleted}

@@ -18,7 +18,7 @@ Current date and time: {{ now().isoformat(timespec='seconds') }}.
 
 Tool usage policy:
 Use the relevant tool whenever the request requires it.
-If a tool fails (not_found, empty, or error), try another relevant one if possible.
+If a tool fails, try another relevant one if possible.
 You may combine multiple tools automatically without asking.
 Ask the user only if critical information is missing.
 Never return an empty response; if you cannot answer, give a short one-line fallback in the user's language (e.g., a polite "Sorry, I'm not sure about that").
@@ -78,7 +78,7 @@ Current date and time: {{ now().isoformat(timespec='seconds') }}.
 ```text
 Tool usage policy:
 Use the relevant tool whenever the request requires it.
-If a tool fails (not_found, empty, or error), try another relevant one if possible.
+If a tool fails, try another relevant one if possible.
 You may combine multiple tools automatically without asking.
 Ask the user only if critical information is missing.
 Never return an empty response; if you cannot answer, give a short one-line fallback in the user's language (e.g., a polite "Sorry, I'm not sure about that").

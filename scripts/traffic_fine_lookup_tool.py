@@ -325,7 +325,7 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
 
     if not body_print:
         return {
-            "status": "failure",
+            "status": "error",
             "url": url,
             "message": "Không tìm thấy dữ liệu vi phạm",
             "detail": "",

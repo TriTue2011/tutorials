@@ -97,7 +97,7 @@ blueprint:
           default: >-
             Required when operation = set.
 
-            Integer days before expiry (0 = forever). Default = 180. Range 0–3650.
+            Integer days before expiry (0 = forever). Default = 180. Range 0-3650.
         tags_prompt:
           name: Tags Prompt
           description: Instruction shown to the LLM for providing tags.
@@ -135,7 +135,7 @@ blueprint:
           default: >-
             Required when operation = search.
 
-            Integer 1–50. Default = 5. Output an integer only.
+            Integer 1-50. Default = 5. Output an integer only.
 fields:
   operation:
     name: Operation

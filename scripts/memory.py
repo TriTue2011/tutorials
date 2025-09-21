@@ -810,7 +810,7 @@ async def memory_set(
         ttl_i = TTL_MAX_DAYS
 
     try:
-        scope_norm = str(scope).strip() or "user"
+        scope_norm = ("" if scope is None else str(scope).strip()).lower() or "user"
         value_norm = _normalize_value(value)
         tags_raw = _normalize_value(tags)
         tags_search = _normalize_tags(tags_raw)

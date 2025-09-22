@@ -858,7 +858,6 @@ async def memory_set(
       scope:
         name: Scope
         description: Arbitrary grouping label for organization.
-        required: false
         default: user
         example: user
         selector:
@@ -866,7 +865,6 @@ async def memory_set(
       expiration_days:
         name: Expiration (days)
         description: Days until expiration; 0 keeps forever.
-        required: false
         default: 180
         example: 30
         selector:
@@ -877,16 +875,12 @@ async def memory_set(
       tags:
         name: Tags
         description: Optional space-separated tags for improved search.
-        required: false
-        default: ""
         example: "car parking slot"
         selector:
           text:
       force_new:
         name: Force New
         description: Proceed even when tags overlap with other entries.
-        required: false
-        default: false
         example: false
         selector:
           boolean:
@@ -1113,14 +1107,12 @@ async def memory_search(query: str, limit: int = 5):
       limit:
         name: Limit
         description: Maximum number of results to return.
-        required: false
         default: 5
         example: 5
         selector:
           number:
             min: 1
             max: 50
-            mode: box
     """
     if not query:
         _set_result("error", op="search", query=query or "", error="query_missing")

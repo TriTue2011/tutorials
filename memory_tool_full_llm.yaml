@@ -88,9 +88,9 @@ blueprint:
             Required when operation = set.
 
             One token only: user|household|session. Default = user.
-        ttl_days_prompt:
-          name: TTL (days) Prompt
-          description: Instruction shown to the LLM for providing TTL.
+        expiration_days_prompt:
+          name: Expiration (days) Prompt
+          description: Instruction shown to the LLM for providing expiration.
           selector:
             text:
               multiline: true
@@ -171,9 +171,9 @@ fields:
           - user
           - household
           - session
-  ttl_days:
-    name: TTL (days)
-    description: !input ttl_days_prompt
+  expiration_days:
+    name: Expiration (days)
+    description: !input expiration_days_prompt
     default: 180
     selector:
       number:
@@ -211,7 +211,7 @@ sequence:
       value_t: "{{ (value | default('')) | trim }}"
       query_t: "{{ (query | default('')) | trim }}"
       tags_t: "{{ (tags | default('')) | regex_replace('\\s+', ' ') | trim }}"
-      ttl_i: "{{ (ttl_days | default(180)) | int(180) }}"
+      expiration_days_i: "{{ (expiration_days | default(180)) | int(180) }}"
       scope_v: "{{ (scope | default('')) or 'user' }}"
       in_limit: "{{ (search_limit | default(5)) | int(5) }}"
   - choose:
@@ -225,7 +225,7 @@ sequence:
                       key: "{{ key_t }}"
                       value: "{{ value_t }}"
                       scope: "{{ scope_v }}"
-                      ttl_days: "{{ ttl_i }}"
+                      expiration_days: "{{ expiration_days_i }}"
                       tags: "{{ tags_t if tags_t|length > 0 else key_t }}"
                     response_variable: response
             default:

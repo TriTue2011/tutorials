@@ -11,7 +11,7 @@ import unicodedata
 
 DB_PATH = Path("/config/memory.db")
 RESULT_ENTITY = "sensor.memory_result"
-TTL_MAX_DAYS = 3650
+EXPIRATION_MAX_DAYS = 3650
 SEARCH_LIMIT_MAX = 50
 NEAR_DISTANCE = 5
 CANDIDATE_CHECK_LIMIT = 5
@@ -66,7 +66,7 @@ def _ensure_db() -> None:
                 tags_search  TEXT NOT NULL,
                 created_at   TEXT NOT NULL,
                 last_used_at TEXT NOT NULL,
-                ttl_at       TEXT
+                expired_at   TEXT
             );
             """
         )
@@ -197,7 +197,7 @@ def _condense_candidate_for_selection(
         "tags": entry.get("tags"),
         "created_at": entry.get("created_at"),
         "last_used_at": entry.get("last_used_at"),
-        "ttl_at": entry.get("ttl_at"),
+        "expired_at": entry.get("expired_at"),
         "value": value,
     }
     if score is not None:
@@ -377,17 +377,17 @@ def _build_fts_queries(raw_query: str) -> list[str]:
 
 
 def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> tuple[bool, str | None]:
-    """Delete key if TTL has passed; return (deleted, ttl_at)."""
-    row = cur.execute("SELECT ttl_at FROM mem WHERE key=?", (key,)).fetchone()
+    """Delete key if expiration has passed; return (deleted, expired_at)."""
+    row = cur.execute("SELECT expired_at FROM mem WHERE key=?", (key,)).fetchone()
     if not row:
         return False, None
-    ttl_at = row["ttl_at"]
-    if ttl_at:
-        dt = _dt_from_iso(ttl_at)
+    expired_at = row["expired_at"]
+    if expired_at:
+        dt = _dt_from_iso(expired_at)
         if dt and datetime.now(timezone.utc) > dt:
             cur.execute("DELETE FROM mem WHERE key=?", (key,))
-            return True, ttl_at
-    return False, ttl_at
+            return True, expired_at
+    return False, expired_at
 
 
 def _set_result(state_value: str = "ok", **attrs: Any) -> None:
@@ -410,7 +410,7 @@ def _memory_set_db_sync(
     tags_raw: str,
     tags_search: str,
     now_iso: str,
-    ttl_at: str | None,
+    expired_at: str | None,
 ) -> bool:
     """Persist a memory record, retrying once if schema objects are missing."""
     for attempt in range(2):
@@ -421,14 +421,14 @@ def _memory_set_db_sync(
                 cur = conn.cursor()
                 cur.execute(
                     """
-                    INSERT INTO mem(key, value, scope, tags, tags_search, created_at, last_used_at, ttl_at)
+                    INSERT INTO mem(key, value, scope, tags, tags_search, created_at, last_used_at, expired_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(key) DO UPDATE SET value=excluded.value,
                                                    scope=excluded.scope,
                                                    tags=excluded.tags,
                                                    tags_search=excluded.tags_search,
                                                    last_used_at=excluded.last_used_at,
-                                                   ttl_at=excluded.ttl_at
+                                                   expired_at=excluded.expired_at
                     """,
                     (
                         key_norm,
@@ -438,7 +438,7 @@ def _memory_set_db_sync(
                         tags_search,
                         now_iso,
                         now_iso,
-                        ttl_at,
+                        expired_at,
                     ),
                 )
                 conn.commit()
@@ -480,13 +480,13 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
             with sqlite3.connect(DB_PATH) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
-                expired, ttl_at = _purge_if_expired(cur, key_norm)
+                expired, expired_at = _purge_if_expired(cur, key_norm)
                 if expired:
                     conn.commit()
-                    return "expired", {"key": key_norm, "expired_at": ttl_at}
+                    return "expired", {"key": key_norm, "expired_at": expired_at}
                 row = cur.execute(
                     """
-                    SELECT key, value, scope, tags, created_at, last_used_at, ttl_at
+                    SELECT key, value, scope, tags, created_at, last_used_at, expired_at
                     FROM mem
                     WHERE key = ?;
                     """,
@@ -507,7 +507,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
                 "tags": row["tags"],
                 "created_at": row["created_at"],
                 "last_used_at": last_used_iso,
-                "ttl_at": row["ttl_at"],
+                "expired_at": row["expired_at"],
             }
             return "ok", result
         except sqlite3.OperationalError:
@@ -529,7 +529,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
-                    "DELETE FROM mem WHERE ttl_at IS NOT NULL AND ttl_at < ?",
+                    "DELETE FROM mem WHERE expired_at IS NOT NULL AND expired_at < ?",
                     (_utcnow_iso(),),
                 )
                 conn.commit()
@@ -551,7 +551,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                             m.tags_search,
                                             m.created_at,
                                             m.last_used_at,
-                                            m.ttl_at,
+                                            m.expired_at,
                                             bm25(mem_fts) AS rank
                             FROM mem m
                                      JOIN mem_fts ON m.key = mem_fts.key
@@ -583,7 +583,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                         m.tags_search,
                                         m.created_at,
                                         m.last_used_at,
-                                        m.ttl_at,
+                                        m.expired_at,
                                         NULL AS rank
                         FROM mem m
                         WHERE m.value LIKE ?
@@ -612,7 +612,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                         "tags": row["tags"],
                         "created_at": row["created_at"],
                         "last_used_at": row["last_used_at"],
-                        "ttl_at": row["ttl_at"],
+                        "expired_at": row["expired_at"],
                         "match_score": match_score,
                     }
                 )
@@ -655,7 +655,7 @@ def _memory_purge_expired_db_sync() -> int:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
-                    "DELETE FROM mem WHERE ttl_at IS NOT NULL AND ttl_at < ?",
+                    "DELETE FROM mem WHERE expired_at IS NOT NULL AND expired_at < ?",
                     (_utcnow_iso(),),
                 )
                 rowcount = getattr(cur, "rowcount", -1)
@@ -752,7 +752,7 @@ def _memory_health_check_db_sync() -> tuple[int, int, int]:
                 rows = cur.fetchone()[0]
                 now_iso = _utcnow_iso()
                 cur.execute(
-                    "SELECT COUNT(*) FROM mem WHERE ttl_at IS NOT NULL AND ttl_at < ?",
+                    "SELECT COUNT(*) FROM mem WHERE expired_at IS NOT NULL AND expired_at < ?",
                     (now_iso,),
                 )
                 expired = cur.fetchone()[0]
@@ -774,7 +774,7 @@ async def _memory_set_db(
     tags_raw: str,
     tags_search: str,
     now_iso: str,
-    ttl_at: str | None,
+    expired_at: str | None,
 ) -> bool:
     return await asyncio.to_thread(
         _memory_set_db_sync,
@@ -784,7 +784,7 @@ async def _memory_set_db(
         tags_raw,
         tags_search,
         now_iso,
-        ttl_at,
+        expired_at,
     )
 
 
@@ -818,12 +818,16 @@ async def _memory_health_check_db() -> tuple[int, int, int]:
 
 @service(supports_response="only")
 async def memory_set(
-    key: str, value: str, scope: str = "user", ttl_days: int = 180, tags: str = ""
+    key: str,
+    value: str,
+    scope: str = "user",
+    expiration_days: int = 180,
+    tags: str = "",
 ):
     """
     yaml
     name: Memory Set
-    description: Create or update a memory entry with optional TTL and tags. When creating a brand-new key, tag overlaps trigger a duplicate_tags error; successful responses include key_exists to clarify whether the entry was updated or newly inserted.
+    description: Create or update a memory entry with optional expiration and tags. When creating a brand-new key, tag overlaps trigger a duplicate_tags error; successful responses include key_exists to clarify whether the entry was updated or newly inserted.
     fields:
       key:
         name: Key
@@ -847,9 +851,9 @@ async def memory_set(
         example: user
         selector:
           text:
-      ttl_days:
-        name: TTL (days)
-        description: Days until expiration; 0 disables TTL.
+      expiration_days:
+        name: Expiration (days)
+        description: Days until expiration; 0 keeps forever.
         required: false
         default: 180
         example: 30
@@ -879,13 +883,13 @@ async def memory_set(
         }
 
     try:
-        ttl_i = int(ttl_days)
+        expiration_days_i = int(expiration_days)
     except (TypeError, ValueError):
-        ttl_i = 0
-    if ttl_i < 0:
-        ttl_i = 0
-    if ttl_i > TTL_MAX_DAYS:
-        ttl_i = TTL_MAX_DAYS
+        expiration_days_i = 0
+    if expiration_days_i < 0:
+        expiration_days_i = 0
+    if expiration_days_i > EXPIRATION_MAX_DAYS:
+        expiration_days_i = EXPIRATION_MAX_DAYS
 
     try:
         scope_norm = ("" if scope is None else str(scope).strip()).lower() or "user"
@@ -895,7 +899,11 @@ async def memory_set(
 
         now = datetime.now(timezone.utc)
         now_iso = now.isoformat()
-        ttl_at = (now + timedelta(days=ttl_i)).isoformat() if ttl_i else None
+        expired_at = (
+            (now + timedelta(days=expiration_days_i)).isoformat()
+            if expiration_days_i
+            else None
+        )
 
         key_exists = await _memory_key_exists_db(key_norm)
 
@@ -940,7 +948,7 @@ async def memory_set(
             tags_raw=tags_raw,
             tags_search=tags_search,
             now_iso=now_iso,
-            ttl_at=ttl_at,
+            expired_at=expired_at,
         )
 
         if not ok_db:
@@ -957,7 +965,7 @@ async def memory_set(
             op="set",
             key=key_norm,
             scope=scope_norm,
-            ttl_at=ttl_at,
+            expired_at=expired_at,
             value=value_norm,
             key_exists=key_exists,
         )
@@ -966,7 +974,7 @@ async def memory_set(
             "op": "set",
             "key": key_norm,
             "scope": scope_norm,
-            "ttl_at": ttl_at,
+            "expired_at": expired_at,
             "value": value_norm,
             "key_exists": key_exists,
         }

@@ -376,18 +376,18 @@ def _build_fts_queries(raw_query: str) -> list[str]:
     return out
 
 
-def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> bool:
-    """Delete key if TTL has passed; return True if deleted."""
+def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> tuple[bool, str | None]:
+    """Delete key if TTL has passed; return (deleted, ttl_at)."""
     row = cur.execute("SELECT ttl_at FROM mem WHERE key=?", (key,)).fetchone()
     if not row:
-        return False
+        return False, None
     ttl_at = row["ttl_at"]
     if ttl_at:
         dt = _dt_from_iso(ttl_at)
         if dt and datetime.now(timezone.utc) > dt:
             cur.execute("DELETE FROM mem WHERE key=?", (key,))
-            return True
-    return False
+            return True, ttl_at
+    return False, ttl_at
 
 
 def _set_result(state_value: str = "ok", **attrs: Any) -> None:
@@ -480,10 +480,10 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
             with sqlite3.connect(DB_PATH) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
-                expired = _purge_if_expired(cur, key_norm)
+                expired, ttl_at = _purge_if_expired(cur, key_norm)
                 if expired:
                     conn.commit()
-                    return "expired", None
+                    return "expired", {"key": key_norm, "expired_at": ttl_at}
                 row = cur.execute(
                     """
                     SELECT key, value, scope, tags, created_at, last_used_at, ttl_at
@@ -981,7 +981,7 @@ async def memory_get(key: str):
     """
     yaml
     name: Memory Get
-    description: Get a memory entry by key and update its last_used_at.
+    description: Get a memory entry by key, updating last_used_at; returns `ambiguous` when similar suggestions exist and `error=expired` with `expired_at` when the record has expired.
     fields:
       key:
         name: Key
@@ -1009,31 +1009,37 @@ async def memory_get(key: str):
         return {"status": "error", "op": "get", "key": key_norm, "error": str(e)}
 
     if status == "expired":
-        _set_result("error", op="get", key=key_norm, error="not_found", expired=True)
+        payload = payload or {}
+        expired_at = payload.get("expired_at")
+        expired_attrs = {"expired": True}
+        if expired_at:
+            expired_attrs["expired_at"] = expired_at
+        _set_result("error", op="get", key=key_norm, error="expired", **expired_attrs)
         return {
             "status": "error",
             "op": "get",
             "key": key_norm,
-            "error": "not_found",
-            "expired": True,
+            "error": "expired",
+            **expired_attrs,
         }
 
     if status == "not_found":
         matches = await _find_tag_matches_for_query(
             key or key_norm, exclude_keys={key_norm}
         )
+        error_code = "ambiguous" if matches else "not_found"
         _set_result(
             "error",
             op="get",
             key=key_norm,
-            error="not_found",
+            error=error_code,
             matches=matches,
         )
         return {
             "status": "error",
             "op": "get",
             "key": key_norm,
-            "error": "not_found",
+            "error": error_code,
             "matches": matches,
         }
 
@@ -1114,7 +1120,7 @@ async def memory_forget(key: str):
     """
     yaml
     name: Memory Forget
-    description: Delete a memory entry by key and remove it from the FTS index.
+    description: Delete a memory entry by key and remove it from the FTS index; returns `ambiguous` when nothing is removed but suggestions exist.
     fields:
       key:
         name: Key
@@ -1144,18 +1150,19 @@ async def memory_forget(key: str):
         matches = await _find_tag_matches_for_query(
             key or key_norm, exclude_keys={key_norm}
         )
+        error_code = "ambiguous" if matches else "not_found"
         _set_result(
             "error",
             op="forget",
             key=key_norm,
-            error="not_found",
+            error=error_code,
             matches=matches,
         )
         return {
             "status": "error",
             "op": "forget",
             "key": key_norm,
-            "error": "not_found",
+            "error": error_code,
             "matches": matches,
         }
 

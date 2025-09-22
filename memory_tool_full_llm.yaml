@@ -231,6 +231,7 @@ sequence:
             default:
               - variables:
                   response:
+                    status: "error"
                     error: "missing_input"
                     message: "Missing 'key' or 'value' for set operation."
                     details:
@@ -248,6 +249,7 @@ sequence:
             default:
               - variables:
                   response:
+                    status: "error"
                     error: "missing_input"
                     message: "Missing 'key' for get operation."
                     details:
@@ -265,6 +267,7 @@ sequence:
             default:
               - variables:
                   response:
+                    status: "error"
                     error: "missing_input"
                     message: "Missing 'query' for search operation."
                     details:
@@ -281,6 +284,7 @@ sequence:
             default:
               - variables:
                   response:
+                    status: "error"
                     error: "missing_input"
                     message: "Missing 'key' for forget operation."
                     details:
@@ -289,6 +293,7 @@ sequence:
       - alias: Return response (invalid)
         variables:
           response:
+            status: "error"
             error: "invalid_operation"
             message: "Invalid operation. Use one of: set, get, search, forget."
   - stop: ""

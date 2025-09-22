@@ -21,12 +21,22 @@ BM25_WEIGHT = 0.5
 _DB_READY = False
 _DB_READY_LOCK = threading.Lock()
 
-name_parts = RESULT_ENTITY.split(".")[-1].split("_")
-_friendly_parts = []
-for part in name_parts:
-    _friendly_parts.append(part.capitalize())
-result_entity_name = {"friendly_name": " ".join(_friendly_parts)}
-del name_parts, _friendly_parts
+result_entity_name: dict[str, str] = {}
+
+
+def _build_result_entity_name() -> dict[str, str]:
+    """Build a friendly name dict for the result entity."""
+    tail = RESULT_ENTITY.split(".")[-1]
+    parts = [part.capitalize() for part in tail.split("_") if part]
+    friendly = " ".join(parts) or tail
+    return {"friendly_name": friendly}
+
+
+def _ensure_result_entity_name(force: bool = False) -> None:
+    """Ensure result_entity_name is populated, optionally forcing a refresh."""
+    global result_entity_name
+    if force or not result_entity_name:
+        result_entity_name = _build_result_entity_name()
 
 
 def _utcnow_iso() -> str:
@@ -392,6 +402,7 @@ def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> tuple[bool, str | None]:
 
 def _set_result(state_value: str = "ok", **attrs: Any) -> None:
     """Set result sensor state and attributes."""
+    _ensure_result_entity_name()
     attrs.update(result_entity_name)
     state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)
 
@@ -1227,6 +1238,7 @@ async def memory_health_check():
     name: Memory Health Check
     description: Run a quick health check (counts, expired, FTS rows), update the sensor, and return details.
     """
+    _ensure_result_entity_name(force=True)
     try:
         rows, expired, fts_rows = await _memory_health_check_db()
         ts = _utcnow_iso()

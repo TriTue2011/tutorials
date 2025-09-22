@@ -125,7 +125,7 @@ blueprint:
 
             Otherwise output false (default).
 
-            Output exactly: true | false.
+            Output exactly: true|false.
         query_prompt:
           name: Query Prompt
           description: Instruction shown to the LLM for providing the search query.

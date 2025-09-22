@@ -225,6 +225,84 @@ def _calculate_match_score(
     return jaccard_score
 
 
+async def _search_tag_candidates(
+    source: str,
+    *,
+    exclude_keys: set[str] | None = None,
+    limit: int | None = None,
+    log_context: str = "tag lookup",
+) -> list[tuple[dict[str, Any], float]]:
+    """Return (entry, score) tuples for memories sharing normalized tags."""
+    tags_search = _normalize_tags(source or "")
+    if not tags_search:
+        return []
+    tag_tokens = {token for token in tags_search.split() if token}
+    if not tag_tokens:
+        return []
+    limit_value = (
+        limit if limit is not None else min(CANDIDATE_CHECK_LIMIT, SEARCH_LIMIT_MAX)
+    )
+    limit_value = max(1, min(limit_value, SEARCH_LIMIT_MAX))
+    try:
+        raw_matches = await _memory_search_db(tags_search, limit=limit_value)
+    except Exception as lookup_err:
+        log.error(f"memory {log_context} failed for '{tags_search}': {lookup_err}")
+        return []
+    if not raw_matches:
+        return []
+    exclude_norm = (
+        {_normalize_key(item) for item in exclude_keys if item}
+        if exclude_keys
+        else set()
+    )
+    dedup: dict[str, tuple[dict[str, Any], float]] = {}
+    for item in raw_matches:
+        existing_key = _normalize_key(item.get("key"))
+        if not existing_key or existing_key in exclude_norm or existing_key in dedup:
+            continue
+        score_raw = item.get("match_score")
+        score_val: float | None
+        if isinstance(score_raw, (int, float)):
+            score_val = float(score_raw)
+        else:
+            try:
+                score_val = float(score_raw)
+            except (TypeError, ValueError):
+                existing_tags_norm = _normalize_tags(item.get("tags"))
+                candidate_tokens = {
+                    token for token in existing_tags_norm.split() if token
+                }
+                score_val = _calculate_match_score(tag_tokens, candidate_tokens, None)
+        if score_val is None or score_val <= 0:
+            continue
+        dedup[existing_key] = (item, score_val)
+    if not dedup:
+        return []
+    sorted_candidates = sorted(dedup.values(), key=lambda pair: pair[1], reverse=True)
+    return sorted_candidates[:limit_value]
+
+
+async def _find_tag_matches_for_query(
+    source: str,
+    *,
+    exclude_keys: set[str] | None = None,
+    limit: int | None = None,
+) -> list[dict[str, Any]]:
+    """Search for potential key matches based on normalized tags."""
+    candidates = await _search_tag_candidates(
+        source,
+        exclude_keys=exclude_keys,
+        limit=limit,
+        log_context="tag lookup",
+    )
+    if not candidates:
+        return []
+    return [
+        _condense_candidate_for_selection(entry, score=score)
+        for entry, score in candidates
+    ]
+
+
 def _tokenize_query(q: str) -> list[str]:
     """Tokenize a free-text query into normalized word tokens for FTS."""
     normalized = _normalize_search_text(q)
@@ -823,44 +901,12 @@ async def memory_set(
 
         duplicate_matches: list[tuple[dict[str, Any], float]] = []
         if not key_exists and tags_search:
-            tag_tokens = {token for token in tags_search.split() if token}
-            if tag_tokens:
-                try:
-                    raw_matches = await _memory_search_db(
-                        tags_search,
-                        limit=min(CANDIDATE_CHECK_LIMIT, SEARCH_LIMIT_MAX),
-                    )
-                except Exception as lookup_err:
-                    log.error(
-                        f"memory_set: duplicate lookup failed for tags '{tags_search}': {lookup_err}"
-                    )
-                else:
-                    if raw_matches:
-                        dedup: dict[str, tuple[dict[str, Any], float]] = {}
-                        for item in raw_matches:
-                            existing_key = _normalize_key(item.get("key"))
-                            if not existing_key:
-                                continue
-                            if existing_key in dedup:
-                                continue
-                            score = item.get("match_score")
-                            if score is None:
-                                existing_tags_norm = _normalize_tags(item.get("tags"))
-                                candidate_tokens = {
-                                    token
-                                    for token in existing_tags_norm.split()
-                                    if token
-                                }
-                                score = _calculate_match_score(
-                                    tag_tokens, candidate_tokens, None
-                                )
-                            if score <= 0:
-                                continue
-                            dedup[existing_key] = (item, score)
-                        if dedup:
-                            duplicate_matches = sorted(
-                                dedup.values(), key=lambda pair: pair[1], reverse=True
-                            )
+            duplicate_matches = await _search_tag_candidates(
+                tags_search,
+                exclude_keys={key_norm},
+                limit=CANDIDATE_CHECK_LIMIT,
+                log_context="set: duplicate lookup",
+            )
 
         if duplicate_matches:
             options = [
@@ -973,12 +1019,22 @@ async def memory_get(key: str):
         }
 
     if status == "not_found":
-        _set_result("error", op="get", key=key_norm, error="not_found")
+        matches = await _find_tag_matches_for_query(
+            key or key_norm, exclude_keys={key_norm}
+        )
+        _set_result(
+            "error",
+            op="get",
+            key=key_norm,
+            error="not_found",
+            matches=matches,
+        )
         return {
             "status": "error",
             "op": "get",
             "key": key_norm,
             "error": "not_found",
+            "matches": matches,
         }
 
     res = payload or {}
@@ -1085,12 +1141,22 @@ async def memory_forget(key: str):
         return {"status": "error", "op": "forget", "key": key_norm, "error": str(e)}
 
     if deleted == 0:
-        _set_result("error", op="forget", key=key_norm, error="not_found")
+        matches = await _find_tag_matches_for_query(
+            key or key_norm, exclude_keys={key_norm}
+        )
+        _set_result(
+            "error",
+            op="forget",
+            key=key_norm,
+            error="not_found",
+            matches=matches,
+        )
         return {
             "status": "error",
             "op": "forget",
             "key": key_norm,
             "error": "not_found",
+            "matches": matches,
         }
 
     _set_result("ok", op="forget", key=key_norm, deleted=deleted)

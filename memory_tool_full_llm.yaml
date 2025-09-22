@@ -61,7 +61,9 @@ blueprint:
           default: >-
             Required when operation = set|get|forget. Ignored if operation = search.
 
-            Derive the key from the user's main concept; normalize to lowercase letters, digits, and underscores only (e.g., car_parking_slot).
+            Derive the key from the user's main concept; do not translate the wording to another language.
+
+            Normalize to lowercase letters, digits, and underscores only (e.g., car_parking_slot).
 
             If the user explicitly selected a candidate key, reuse that key exactly.
 

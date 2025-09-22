@@ -834,6 +834,7 @@ async def memory_set(
     scope: str = "user",
     expiration_days: int = 180,
     tags: str = "",
+    force_new: bool = False,
 ):
     """
     yaml
@@ -881,6 +882,14 @@ async def memory_set(
         example: "car parking slot"
         selector:
           text:
+      force_new:
+        name: Force New
+        description: Proceed even when tags overlap with other entries.
+        required: false
+        default: false
+        example: false
+        selector:
+          boolean:
     """
     key_norm = _normalize_key(key)
     if not key_norm or value is None:
@@ -901,6 +910,13 @@ async def memory_set(
         expiration_days_i = 0
     if expiration_days_i > EXPIRATION_MAX_DAYS:
         expiration_days_i = EXPIRATION_MAX_DAYS
+
+    force_new_bool = False
+    if isinstance(force_new, str):
+        force_new_bool = force_new.strip().lower() in {"1", "true", "yes", "y", "on"}
+    else:
+        force_new_bool = bool(force_new)
+    forced_duplicate_override = False
 
     try:
         scope_norm = ("" if scope is None else str(scope).strip()).lower() or "user"
@@ -927,30 +943,36 @@ async def memory_set(
                 log_context="set: duplicate lookup",
             )
 
+        duplicate_options: list[dict[str, Any]] = []
         if duplicate_matches:
-            options = [
+            duplicate_options = [
                 _condense_candidate_for_selection(match, score=score)
                 for match, score in duplicate_matches
             ]
-            _set_result(
-                "error",
-                op="set",
-                key=key_norm,
-                scope=scope_norm,
-                tags=tags_raw,
-                error="duplicate_tags",
-                matches=options,
-            )
-            log.error("memory_set: duplicate tags detected, refusing to overwrite")
-            return {
-                "status": "error",
-                "op": "set",
-                "key": key_norm,
-                "scope": scope_norm,
-                "tags": tags_raw,
-                "error": "duplicate_tags",
-                "matches": options,
-            }
+
+        if duplicate_options and not key_exists:
+            if not force_new_bool:
+                _set_result(
+                    "error",
+                    op="set",
+                    key=key_norm,
+                    scope=scope_norm,
+                    tags=tags_raw,
+                    error="duplicate_tags",
+                    matches=duplicate_options,
+                )
+                log.error("memory_set: duplicate tags detected, refusing to overwrite")
+                return {
+                    "status": "error",
+                    "op": "set",
+                    "key": key_norm,
+                    "scope": scope_norm,
+                    "tags": tags_raw,
+                    "error": "duplicate_tags",
+                    "matches": duplicate_options,
+                }
+            forced_duplicate_override = True
+            log.warning("memory_set: duplicate tags override forced by force_new")
 
         ok_db = await _memory_set_db(
             key_norm=key_norm,
@@ -971,16 +993,19 @@ async def memory_set(
                 "error": "memory_set_db returned False",
             }
 
-        _set_result(
-            "ok",
-            op="set",
-            key=key_norm,
-            scope=scope_norm,
-            expires_at=expires_at,
-            value=value_norm,
-            key_exists=key_exists,
-        )
-        return {
+        result_details = {
+            "scope": scope_norm,
+            "expires_at": expires_at,
+            "value": value_norm,
+            "key_exists": key_exists,
+            "force_new_applied": forced_duplicate_override,
+        }
+        if forced_duplicate_override:
+            result_details["duplicate_matches"] = duplicate_options
+
+        _set_result("ok", op="set", key=key_norm, **result_details)
+
+        response = {
             "status": "ok",
             "op": "set",
             "key": key_norm,
@@ -988,7 +1013,11 @@ async def memory_set(
             "expires_at": expires_at,
             "value": value_norm,
             "key_exists": key_exists,
+            "force_new_applied": forced_duplicate_override,
         }
+        if forced_duplicate_override:
+            response["duplicate_matches"] = duplicate_options
+        return response
     except Exception as e:
         log.error(f"memory_set failed: {e}")
         _set_result("error", op="set", key=key_norm, error=str(e))

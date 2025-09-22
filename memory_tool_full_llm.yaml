@@ -75,7 +75,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when operation = set.
+            Required only when operation = set.
 
             Value to store for the key. Output the raw value only, plain text or JSON.
 
@@ -87,9 +87,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when operation = set.
+            Required only when operation = set.
 
-            One token only: user|household|session. Default = user.
+            Who it applies to: user|household|session. Output one token only. Default = user.
         expiration_days_prompt:
           name: Expiration (days) Prompt
           description: Instruction shown to the LLM for providing expiration.
@@ -97,7 +97,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when operation = set.
+            Required only when operation = set.
 
             Integer days before expiry (0 = forever). Default = 180. Range 0-3650.
         tags_prompt:
@@ -107,11 +107,25 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when operation = set.
+            Required only when operation = set.
 
             Use a few short, meaningful keywords in the same language as the user's input; space-separated only, no commas or formatting.
 
             If no clear keywords, copy the main user phrase as a single tag; if that is not possible, reuse the key.
+        force_new_prompt:
+          name: Force New Prompt
+          description: Instruction shown to the LLM for deciding whether to override duplicate-tag protection.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Optional, only used when operation = set.
+
+            Output true only if the user explicitly confirms creating a new entry despite duplicate tags.
+
+            Otherwise output false (default).
+
+            Output exactly: true | false.
         query_prompt:
           name: Query Prompt
           description: Instruction shown to the LLM for providing the search query.
@@ -119,7 +133,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when operation = search.
+            Required only when operation = search.
 
             If the user's input is already short, keep it unchanged.
 
@@ -135,7 +149,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when operation = search.
+            Required only when operation = search.
 
             Integer 1-50. Default = 5. Output an integer only.
 fields:
@@ -188,6 +202,12 @@ fields:
     default: ""
     selector:
       text:
+  force_new:
+    name: Force New
+    description: !input force_new_prompt
+    default: false
+    selector:
+      boolean:
   query:
     name: Query
     description: !input query_prompt
@@ -216,6 +236,7 @@ sequence:
       expiration_days_i: "{{ (expiration_days | default(180)) | int(180) }}"
       scope_v: "{{ (scope | default('')) or 'user' }}"
       in_limit: "{{ (search_limit | default(5)) | int(5) }}"
+      force_new_s: "{{ 'true' if force_new | default(false) else 'false' }}"
   - choose:
       - conditions: "{{ op == 'set' }}"
         sequence:
@@ -229,6 +250,7 @@ sequence:
                       scope: "{{ scope_v }}"
                       expiration_days: "{{ expiration_days_i }}"
                       tags: "{{ tags_t if tags_t|length > 0 else key_t }}"
+                      force_new: "{{ force_new_s }}"
                     response_variable: response
             default:
               - variables:

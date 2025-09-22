@@ -317,7 +317,7 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
         url: Final detail URL used to fetch the result page.
 
     Returns:
-        A dict with status (success/failure), source URL, message, and details.
+        A dict with status (success/error), source URL, message, and details.
     """
     soup = BeautifulSoup(content, "html.parser")
     violations = []
@@ -523,7 +523,7 @@ async def _check_license_plate(
 
     Args:
         license_plate: VN plate number (uppercase, validated by caller).
-        vehicle_type: 1=O to, 2=Xe may, 3=Xe dap dien.
+        vehicle_type: 1=Car, 2=Motorbike, 3=Electric Bicycle.
         retry_count: Current retry attempt counter.
 
     Returns:

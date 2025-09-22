@@ -76,7 +76,7 @@ def _ensure_db() -> None:
                 tags_search  TEXT NOT NULL,
                 created_at   TEXT NOT NULL,
                 last_used_at TEXT NOT NULL,
-                expired_at   TEXT
+                expires_at   TEXT
             );
             """
         )
@@ -207,7 +207,7 @@ def _condense_candidate_for_selection(
         "tags": entry.get("tags"),
         "created_at": entry.get("created_at"),
         "last_used_at": entry.get("last_used_at"),
-        "expired_at": entry.get("expired_at"),
+        "expires_at": entry.get("expires_at"),
         "value": value,
     }
     if score is not None:
@@ -387,17 +387,17 @@ def _build_fts_queries(raw_query: str) -> list[str]:
 
 
 def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> tuple[bool, str | None]:
-    """Delete key if expiration has passed; return (deleted, expired_at)."""
-    row = cur.execute("SELECT expired_at FROM mem WHERE key=?", (key,)).fetchone()
+    """Delete key if expiry time has passed; return (deleted, expires_at)."""
+    row = cur.execute("SELECT expires_at FROM mem WHERE key=?", (key,)).fetchone()
     if not row:
         return False, None
-    expired_at = row["expired_at"]
-    if expired_at:
-        dt = _dt_from_iso(expired_at)
+    expires_at = row["expires_at"]
+    if expires_at:
+        dt = _dt_from_iso(expires_at)
         if dt and datetime.now(timezone.utc) > dt:
             cur.execute("DELETE FROM mem WHERE key=?", (key,))
-            return True, expired_at
-    return False, expired_at
+            return True, expires_at
+    return False, expires_at
 
 
 def _set_result(state_value: str = "ok", **attrs: Any) -> None:
@@ -421,7 +421,7 @@ def _memory_set_db_sync(
     tags_raw: str,
     tags_search: str,
     now_iso: str,
-    expired_at: str | None,
+    expires_at: str | None,
 ) -> bool:
     """Persist a memory record, retrying once if schema objects are missing."""
     for attempt in range(2):
@@ -432,14 +432,14 @@ def _memory_set_db_sync(
                 cur = conn.cursor()
                 cur.execute(
                     """
-                    INSERT INTO mem(key, value, scope, tags, tags_search, created_at, last_used_at, expired_at)
+                    INSERT INTO mem(key, value, scope, tags, tags_search, created_at, last_used_at, expires_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(key) DO UPDATE SET value=excluded.value,
                                                    scope=excluded.scope,
                                                    tags=excluded.tags,
                                                    tags_search=excluded.tags_search,
                                                    last_used_at=excluded.last_used_at,
-                                                   expired_at=excluded.expired_at
+                                                   expires_at=excluded.expires_at
                     """,
                     (
                         key_norm,
@@ -449,7 +449,7 @@ def _memory_set_db_sync(
                         tags_search,
                         now_iso,
                         now_iso,
-                        expired_at,
+                        expires_at,
                     ),
                 )
                 conn.commit()
@@ -491,13 +491,13 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
             with sqlite3.connect(DB_PATH) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
-                expired, expired_at = _purge_if_expired(cur, key_norm)
+                expired, expires_at = _purge_if_expired(cur, key_norm)
                 if expired:
                     conn.commit()
-                    return "expired", {"key": key_norm, "expired_at": expired_at}
+                    return "expired", {"key": key_norm, "expires_at": expires_at}
                 row = cur.execute(
                     """
-                    SELECT key, value, scope, tags, created_at, last_used_at, expired_at
+                    SELECT key, value, scope, tags, created_at, last_used_at, expires_at
                     FROM mem
                     WHERE key = ?;
                     """,
@@ -518,7 +518,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
                 "tags": row["tags"],
                 "created_at": row["created_at"],
                 "last_used_at": last_used_iso,
-                "expired_at": row["expired_at"],
+                "expires_at": row["expires_at"],
             }
             return "ok", result
         except sqlite3.OperationalError:
@@ -540,7 +540,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
-                    "DELETE FROM mem WHERE expired_at IS NOT NULL AND expired_at < ?",
+                    "DELETE FROM mem WHERE expires_at IS NOT NULL AND expires_at < ?",
                     (_utcnow_iso(),),
                 )
                 conn.commit()
@@ -562,7 +562,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                             m.tags_search,
                                             m.created_at,
                                             m.last_used_at,
-                                            m.expired_at,
+                                            m.expires_at,
                                             bm25(mem_fts) AS rank
                             FROM mem m
                                      JOIN mem_fts ON m.key = mem_fts.key
@@ -594,7 +594,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                         m.tags_search,
                                         m.created_at,
                                         m.last_used_at,
-                                        m.expired_at,
+                                        m.expires_at,
                                         NULL AS rank
                         FROM mem m
                         WHERE m.value LIKE ?
@@ -623,7 +623,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                         "tags": row["tags"],
                         "created_at": row["created_at"],
                         "last_used_at": row["last_used_at"],
-                        "expired_at": row["expired_at"],
+                        "expires_at": row["expires_at"],
                         "match_score": match_score,
                     }
                 )
@@ -666,7 +666,7 @@ def _memory_purge_expired_db_sync() -> int:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
-                    "DELETE FROM mem WHERE expired_at IS NOT NULL AND expired_at < ?",
+                    "DELETE FROM mem WHERE expires_at IS NOT NULL AND expires_at < ?",
                     (_utcnow_iso(),),
                 )
                 rowcount = getattr(cur, "rowcount", -1)
@@ -763,7 +763,7 @@ def _memory_health_check_db_sync() -> tuple[int, int, int]:
                 rows = cur.fetchone()[0]
                 now_iso = _utcnow_iso()
                 cur.execute(
-                    "SELECT COUNT(*) FROM mem WHERE expired_at IS NOT NULL AND expired_at < ?",
+                    "SELECT COUNT(*) FROM mem WHERE expires_at IS NOT NULL AND expires_at < ?",
                     (now_iso,),
                 )
                 expired = cur.fetchone()[0]
@@ -785,7 +785,7 @@ async def _memory_set_db(
     tags_raw: str,
     tags_search: str,
     now_iso: str,
-    expired_at: str | None,
+    expires_at: str | None,
 ) -> bool:
     return await asyncio.to_thread(
         _memory_set_db_sync,
@@ -795,7 +795,7 @@ async def _memory_set_db(
         tags_raw,
         tags_search,
         now_iso,
-        expired_at,
+        expires_at,
     )
 
 
@@ -910,7 +910,7 @@ async def memory_set(
 
         now = datetime.now(timezone.utc)
         now_iso = now.isoformat()
-        expired_at = (
+        expires_at = (
             (now + timedelta(days=expiration_days_i)).isoformat()
             if expiration_days_i
             else None
@@ -959,7 +959,7 @@ async def memory_set(
             tags_raw=tags_raw,
             tags_search=tags_search,
             now_iso=now_iso,
-            expired_at=expired_at,
+            expires_at=expires_at,
         )
 
         if not ok_db:
@@ -976,7 +976,7 @@ async def memory_set(
             op="set",
             key=key_norm,
             scope=scope_norm,
-            expired_at=expired_at,
+            expires_at=expires_at,
             value=value_norm,
             key_exists=key_exists,
         )
@@ -985,7 +985,7 @@ async def memory_set(
             "op": "set",
             "key": key_norm,
             "scope": scope_norm,
-            "expired_at": expired_at,
+            "expires_at": expires_at,
             "value": value_norm,
             "key_exists": key_exists,
         }
@@ -1000,7 +1000,7 @@ async def memory_get(key: str):
     """
     yaml
     name: Memory Get
-    description: Get a memory entry by key, updating last_used_at; returns `ambiguous` when similar suggestions exist and `error=expired` with `expired_at` when the record has expired.
+    description: Get a memory entry by key, updating last_used_at; returns `ambiguous` when similar suggestions exist and `error=expired` with `expires_at` when the record has expired.
     fields:
       key:
         name: Key
@@ -1029,17 +1029,17 @@ async def memory_get(key: str):
 
     if status == "expired":
         payload = payload or {}
-        expired_at = payload.get("expired_at")
-        expired_attrs = {"expired": True}
-        if expired_at:
-            expired_attrs["expired_at"] = expired_at
-        _set_result("error", op="get", key=key_norm, error="expired", **expired_attrs)
+        expires_at = payload.get("expires_at")
+        expiry_attrs = {"expired": True}
+        if expires_at:
+            expiry_attrs["expires_at"] = expires_at
+        _set_result("error", op="get", key=key_norm, error="expired", **expiry_attrs)
         return {
             "status": "error",
             "op": "get",
             "key": key_norm,
             "error": "expired",
-            **expired_attrs,
+            **expiry_attrs,
         }
 
     if status == "not_found":

@@ -96,6 +96,8 @@ blueprint:
             Always provide time. For a full day, use 00:00:00. For the current hour, use the start of the hour. Night starts at 00:00:00, morning starts at 06:00:00, afternoon starts at 12:00:00 and evening starts at 18:00:00.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   time_period_type:
     name: Time Period Type
@@ -128,7 +130,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       start_date: "{{ start_date | as_datetime(default='') }}"
       start_time: "{{ start_time | default('00:00:00') | as_timedelta | default('00:00:00', true) }}"
       start: >-

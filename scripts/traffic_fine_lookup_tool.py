@@ -1,19 +1,22 @@
 import asyncio
 import json
 import re
+import sqlite3
 import ssl
+import threading
+import time
 from io import BytesIO
+from pathlib import Path
 
 import aiohttp
 import google.api_core.exceptions
-import redis.asyncio as redis
 from PIL import Image
 from PIL import ImageOps
 from bs4 import BeautifulSoup
 from bs4.element import AttributeValueList
 from typing_extensions import Any, Buffer, cast
 
-TTL = 30  # Cache retention period (1–30 days)
+TTL = 30  # Cache retention period (1-30 days)
 RETRY_LIMIT = 3
 GET_URL = "https://www.csgt.vn/"
 POST_URL = "https://www.csgt.vn/?mod=contact&task=tracuu_post&ajax"
@@ -58,16 +61,14 @@ POST_HEADERS = {
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-platform": '"Windows"',
 }
+
+DB_PATH = Path("/config/cache.db")
+
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_API_KEY = pyscript.config.get("gemini_api_key")
-REDIS_HOST = pyscript.config.get("redis_host")
-REDIS_PORT = pyscript.config.get("redis_port")
 
 if not GEMINI_API_KEY:
     raise ValueError("You need to configure your Gemini API key")
-
-if not all([REDIS_HOST, REDIS_PORT]):
-    raise ValueError("You need to configure your Redis host and port")
 
 if TTL < 1 or TTL > 30:
     raise ValueError("TTL must be between 1 and 30")
@@ -76,30 +77,185 @@ GEMINI_CLIENT: Any = None
 
 SSL_CTX: ssl.SSLContext | None = None
 
-_client: redis.Redis | None = None
+_CACHE_READY = False
+_CACHE_READY_LOCK = threading.Lock()
 
 cache_max_age = TTL * 24 * 60 * 60
-
 cache_min_age = cache_max_age - (
     2 * 60 * 60
 )  # Only update cache when existing data is older than 2 hours
 
 
-@pyscript_compile
-def _redis() -> redis.Redis:
-    """Return a shared Redis client (lazy-initialized).
+def _ensure_cache_db() -> None:
+    """Create the cache database directory, SQLite file, and schema if they do not already exist."""
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        conn.execute("PRAGMA temp_store=MEMORY;")
+        conn.execute("PRAGMA busy_timeout=3000;")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS cache_entries
+            (
+                key        TEXT PRIMARY KEY,
+                value      TEXT    NOT NULL,
+                expires_at INTEGER NOT NULL
+            )
+            """
+        )
+        conn.commit()
 
-    Uses host/port from pyscript config with `decode_responses=True` so values
-    are handled as text. Keeps a module-level singleton for reuse.
 
-    Returns:
-        A connected `redis.Redis` client instance.
-    """
-    global _client
-    if _client is not None:
-        return _client
-    _client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
-    return _client
+def _ensure_cache_db_once(force: bool = False) -> None:
+    """Ensure the cache database exists, optionally forcing a rebuild."""
+    global _CACHE_READY
+    if force:
+        _CACHE_READY = False
+    if _CACHE_READY and DB_PATH.exists():
+        return
+    with _CACHE_READY_LOCK:
+        if force:
+            _CACHE_READY = False
+        if not _CACHE_READY or not DB_PATH.exists():
+            _ensure_cache_db()
+            _CACHE_READY = True
+
+
+def _reset_cache_ready() -> None:
+    """Mark the cache database schema as stale so it will be recreated."""
+    global _CACHE_READY
+    with _CACHE_READY_LOCK:
+        _CACHE_READY = False
+
+
+async def _cache_prepare_db(force: bool = False) -> bool:
+    """Ensure the cache database is ready for use."""
+    await asyncio.to_thread(_ensure_cache_db_once, force)
+    return True
+
+
+def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
+    """Fetch a cache record synchronously, returning the value and remaining TTL."""
+    for attempt in range(2):
+        try:
+            _ensure_cache_db_once(force=attempt == 1)
+            now = int(time.time())
+            with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
+                conn.commit()
+                cur.execute(
+                    """
+                    SELECT value, expires_at
+                    FROM cache_entries
+                    WHERE key = ?
+                      AND expires_at > ?
+                    """,
+                    (key, now),
+                )
+                row = cur.fetchone()
+            if not row:
+                return None, None
+            ttl_remaining = max(int(row["expires_at"]) - now, 0)
+            return row["value"], ttl_remaining
+        except sqlite3.OperationalError:
+            _reset_cache_ready()
+            if attempt == 0:
+                continue
+            raise
+    return None, None
+
+
+async def _cache_get(key: str) -> tuple[str | None, int | None]:
+    """Return the cached JSON payload for a key and its remaining TTL in seconds."""
+    return await asyncio.to_thread(_cache_get_sync, key)
+
+
+def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
+    """Store or update a cache record synchronously with retry on schema loss."""
+    for attempt in range(2):
+        try:
+            _ensure_cache_db_once(force=attempt == 1)
+            now = int(time.time())
+            expires_at = now + ttl_seconds
+            with sqlite3.connect(DB_PATH) as conn:
+                cur = conn.cursor()
+                cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
+                cur.execute(
+                    """
+                    INSERT INTO cache_entries (key, value, expires_at)
+                    VALUES (?, ?, ?)
+                    ON CONFLICT(key) DO UPDATE SET value      = excluded.value,
+                                                   expires_at = excluded.expires_at
+                    """,
+                    (key, value, expires_at),
+                )
+                conn.commit()
+            return True
+        except sqlite3.OperationalError:
+            _reset_cache_ready()
+            if attempt == 0:
+                continue
+            raise
+    return False
+
+
+async def _cache_set(key: str, value: str, ttl_seconds: int) -> bool:
+    """Persist a cache entry with the provided TTL and prune expired records."""
+    return await asyncio.to_thread(_cache_set_sync, key, value, ttl_seconds)
+
+
+def _cache_delete_sync(key: str) -> int:
+    """Remove a cache record synchronously and return the rowcount."""
+    for attempt in range(2):
+        try:
+            _ensure_cache_db_once(force=attempt == 1)
+            with sqlite3.connect(DB_PATH) as conn:
+                cur = conn.cursor()
+                cur.execute("DELETE FROM cache_entries WHERE key = ?", (key,))
+                deleted = cur.rowcount if cur.rowcount is not None else 0
+                conn.commit()
+            return max(deleted, 0)
+        except sqlite3.OperationalError:
+            _reset_cache_ready()
+            if attempt == 0:
+                continue
+            raise
+    return 0
+
+
+async def _cache_delete(key: str) -> int:
+    """Remove the cache entry identified by key if it exists."""
+    return await asyncio.to_thread(_cache_delete_sync, key)
+
+
+def _cache_prune_expired_sync(now: int | None = None) -> int:
+    """Delete expired cache rows synchronously and report removals."""
+    now_ts = now if now is not None else int(time.time())
+    for attempt in range(2):
+        try:
+            _ensure_cache_db_once(force=attempt == 1)
+            with sqlite3.connect(DB_PATH) as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "DELETE FROM cache_entries WHERE expires_at <= ?", (now_ts,)
+                )
+                removed = cur.rowcount if cur.rowcount is not None else 0
+                conn.commit()
+            return max(removed, 0)
+        except sqlite3.OperationalError:
+            _reset_cache_ready()
+            if attempt == 0:
+                continue
+            raise
+    return 0
+
+
+async def _cache_prune_expired(now: int | None = None) -> int:
+    """Delete expired entries and return the number of rows removed."""
+    return await asyncio.to_thread(_cache_prune_expired_sync, now)
 
 
 @pyscript_compile
@@ -132,7 +288,6 @@ def _build_gemini_client() -> Any:
     return genai.Client(api_key=GEMINI_API_KEY)
 
 
-@pyscript_compile
 async def _ensure_ssl_ctx() -> None:
     """Ensure the global SSL context is built once in a thread.
 
@@ -143,7 +298,6 @@ async def _ensure_ssl_ctx() -> None:
         SSL_CTX = await asyncio.to_thread(_build_ssl_ctx)
 
 
-@pyscript_compile
 async def _ensure_gemini_client() -> None:
     """Ensure the global Gemini client is initialized once in a thread.
 
@@ -163,7 +317,7 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
         url: Final detail URL used to fetch the result page.
 
     Returns:
-        A dict with status (success/failure), source URL, message, and details.
+        A dict with status (success/error), source URL, message, and details.
     """
     soup = BeautifulSoup(content, "html.parser")
     violations = []
@@ -171,7 +325,7 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
 
     if not body_print:
         return {
-            "status": "failure",
+            "status": "error",
             "url": url,
             "message": "Không tìm thấy dữ liệu vi phạm",
             "detail": "",
@@ -231,7 +385,6 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     }
 
 
-@pyscript_compile
 async def _get_captcha(
     ss: aiohttp.ClientSession, url: str
 ) -> tuple[BytesIO, None] | tuple[None, str]:
@@ -301,7 +454,6 @@ def _process_captcha(
     return img
 
 
-@pyscript_compile
 async def _solve_captcha(
     image: Image.Image, retry_count: int = 1
 ) -> tuple[str, None] | tuple[None, str]:
@@ -360,7 +512,6 @@ async def _solve_captcha(
         return None, f"An unexpected error occurred during CAPTCHA solving: {error}"
 
 
-@pyscript_compile
 async def _check_license_plate(
     license_plate: str, vehicle_type: int, retry_count: int = 1
 ) -> dict[str, Any]:
@@ -368,11 +519,11 @@ async def _check_license_plate(
 
     Performs: fetch landing page -> get CAPTCHA -> preprocess -> solve ->
     submit form -> fetch result detail -> parse violations. Caches successful
-    results via Redis outside of this function.
+    results via the shared SQLite cache outside of this function.
 
     Args:
         license_plate: VN plate number (uppercase, validated by caller).
-        vehicle_type: 1=O to, 2=Xe may, 3=Xe dap dien.
+        vehicle_type: 1=Car, 2=Motorbike, 3=Electric Bicycle.
         retry_count: Current retry attempt counter.
 
     Returns:
@@ -434,11 +585,10 @@ async def _check_license_plate(
                         response = _extract_violations_from_html(text_content, url)
 
                         if response and response.get("status") == "success":
-                            cached = _redis()
-                            await cached.set(
+                            await _cache_set(
                                 f"{license_plate}-{vehicle_type}",
                                 json.dumps(response),
-                                ex=cache_max_age,
+                                cache_max_age,
                             )
                         return response
 
@@ -457,11 +607,19 @@ async def _check_license_plate(
                 }
 
 
-@time_trigger
-async def build_cached_ctx():
+@time_trigger("startup")
+async def build_cached_ctx() -> None:
     """Run once at HA startup / Pyscript reload."""
+    await _cache_prepare_db(force=True)
     await _ensure_ssl_ctx()
     await _ensure_gemini_client()
+
+
+@time_trigger("cron(30 3 * * *)")
+async def cleanup_expired_cache() -> None:
+    """Remove expired cache entries daily at 03:30 so the SQLite file stays compact."""
+    await _cache_prepare_db(force=False)
+    await _cache_prune_expired(int(time.time()))
 
 
 @service(supports_response="only")
@@ -475,32 +633,32 @@ async def traffic_fine_lookup_tool(
     fields:
       license_plate:
         name: License Plate
-        description: VN plate number (e.g., 29A99999).
+        description: Vietnam license plate without spaces or dashes.
         example: 29A99999
         required: true
         selector:
-          text: {}
+          text:
       vehicle_type:
         name: Vehicle Type
-        description: Type of vehicle.
-        example: '"1"'
+        description: Vehicle classification expected by csgt.vn (1=Car, 2=Motorbike, 3=Electric Bicycle).
+        example: "1"
         required: true
         selector:
           select:
             options:
-              - label: O to
+              - label: Car
                 value: "1"
-              - label: Xe may
+              - label: Motorbike
                 value: "2"
-              - label: Xe dap dien
+              - label: Electric Bicycle
                 value: "3"
         default: "1"
       bypass_caching:
         name: Bypass Caching
-        description: Ignore cached data and fetch fresh from source (debug only).
+        description: Ignore cached data and fetch fresh results (useful for debugging).
         example: false
         selector:
-          boolean: {}
+          boolean:
     """
     try:
         license_plate = str(license_plate).upper()
@@ -516,17 +674,16 @@ async def traffic_fine_lookup_tool(
         if vehicle_type not in [1, 2, 3]:
             return {"error": "The type of vehicle is invalid"}
 
-        cached = _redis()
+        cache_key = f"{license_plate}-{vehicle_type}"
         if bool(bypass_caching):
-            await cached.delete(f"{license_plate}-{vehicle_type}")
+            await _cache_delete(cache_key)
             return await _check_license_plate(license_plate, vehicle_type)
 
-        response = await cached.get(f"{license_plate}-{vehicle_type}")
-        if response:  # Optimistic caching mechanism.
-            ttl = await cached.ttl(f"{license_plate}-{vehicle_type}")
-            if ttl < cache_min_age:
+        cached_value, ttl = await _cache_get(cache_key)
+        if cached_value is not None:
+            if ttl is not None and ttl < cache_min_age:
                 task.create(_check_license_plate, license_plate, vehicle_type)
-            return json.loads(response)
+            return json.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

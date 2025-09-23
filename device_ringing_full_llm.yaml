@@ -53,6 +53,8 @@ blueprint:
             Provide the Ring ID of the device you want to activate its ringing function.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   ring_id:
     name: Ring ID
@@ -62,7 +64,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       ring_id: "{{ ring_id | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:

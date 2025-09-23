@@ -12,6 +12,8 @@ blueprint:
 
     * The `scripts/date_conversion_tool.py` script needs to be copied into the `config/pyscript` folder.
 
+    * The mentioned dependency file(s) is/are included in the repository.
+
     * A calendar entity with write permissions to save events.
 
     ### Note
@@ -34,6 +36,8 @@ blueprint:
                 - domain: calendar
 mode: single
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   lunar_date:
     selector:
@@ -78,7 +82,6 @@ fields:
       boolean:
 sequence:
   - variables:
-      version: 20250828
       lunar_date: "{{ lunar_date | as_datetime(default='') }}"
       start_date: "{{ as_datetime(lunar_date).date() if lunar_date else 'n/a' }}"
       days: "{{ days | default(1) | abs }}"

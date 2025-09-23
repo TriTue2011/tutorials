@@ -19,7 +19,6 @@ if not TOKEN:
     raise ValueError("Zalo bot token is missing")
 
 
-@pyscript_compile
 def _to_media_path(path: str) -> str:
     """Normalize Home Assistant media source path to /media/ prefix.
 
@@ -36,7 +35,6 @@ def _to_media_path(path: str) -> str:
     return path
 
 
-@pyscript_compile
 def _to_local_path(path: str) -> str:
     """Convert a /media/ path to Home Assistant local/ media source path.
 
@@ -53,7 +51,6 @@ def _to_local_path(path: str) -> str:
     return path
 
 
-@pyscript_compile
 async def _ensure_session() -> aiohttp.ClientSession:
     """Create or reuse a shared aiohttp session.
 
@@ -66,7 +63,6 @@ async def _ensure_session() -> aiohttp.ClientSession:
     return _session
 
 
-@pyscript_compile
 async def _ensure_dir(path: str) -> None:
     """Ensure a directory exists, creating it if missing.
 
@@ -76,7 +72,6 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-@pyscript_compile
 async def _write_file(path: str, content: bytes) -> None:
     """Write bytes to a file asynchronously.
 
@@ -88,7 +83,6 @@ async def _write_file(path: str, content: bytes) -> None:
         await f.write(content)
 
 
-@pyscript_compile
 async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None:
     """Download a file from a given URL and save it under DIRECTORY.
 
@@ -112,7 +106,6 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
         return file_path
 
 
-@pyscript_compile
 async def _send_message(
     session: aiohttp.ClientSession, chat_id: str, message: str
 ) -> dict[str, Any]:
@@ -133,7 +126,6 @@ async def _send_message(
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _send_photo(
     session: aiohttp.ClientSession,
     chat_id: str,
@@ -160,7 +152,6 @@ async def _send_photo(
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
     """Retrieve current Zalo bot webhook information.
 
@@ -176,7 +167,6 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _set_webhook(
     session: aiohttp.ClientSession, base_url: str, webhook_id: str
 ) -> dict[str, Any]:
@@ -200,7 +190,6 @@ async def _set_webhook(
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     """Delete the Zalo bot webhook.
 
@@ -216,7 +205,6 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _get_updates(
     session: aiohttp.ClientSession, timeout: int = 30
 ) -> dict[str, Any]:
@@ -235,7 +223,6 @@ async def _get_updates(
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
     """Get basic information about the Zalo bot.
 
@@ -251,7 +238,6 @@ async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _send_chat_action(
     session: aiohttp.ClientSession, chat_id: str, action: str = "typing"
 ) -> dict[str, Any]:
@@ -272,7 +258,6 @@ async def _send_chat_action(
         return await resp.json(content_type=None)
 
 
-@pyscript_compile
 async def _copy_to_www(file_path: str) -> tuple[str, str]:
     """Copy a local media file to Home Assistant www/zalo and return its public URL and local destination path.
 
@@ -301,7 +286,6 @@ async def _copy_to_www(file_path: str) -> tuple[str, str]:
     return public_url, dest_path
 
 
-@pyscript_compile
 async def _remove_file(path: str) -> None:
     """Remove a file path if exists."""
     try:
@@ -310,7 +294,6 @@ async def _remove_file(path: str) -> None:
         return
 
 
-@pyscript_compile
 async def _delayed_remove(path: str, delay_seconds: int = 30) -> None:
     """Wait for a delay and then remove a file.
 
@@ -322,7 +305,6 @@ async def _delayed_remove(path: str, delay_seconds: int = 30) -> None:
     await _remove_file(path)
 
 
-@pyscript_compile
 def _internal_url() -> str | None:
     """Return the internal Home Assistant URL, if available.
 
@@ -335,7 +317,6 @@ def _internal_url() -> str | None:
         return None
 
 
-@pyscript_compile
 def _external_url() -> str | None:
     """Return the external HTTPS Home Assistant URL, if available.
 
@@ -366,14 +347,14 @@ async def send_zalo_message(chat_id: str, message: str) -> dict[str, Any]:
         description: Target chat ID.
         required: true
         selector:
-          text: {}
+          text:
       message:
         name: Message
         description: Message text (up to ~2000 chars).
         example: Hello from Home Assistant
         required: true
         selector:
-          text: {}
+          text:
     """
     if not all([chat_id, message]):
         return {"error": "Missing one or more required arguments: chat_id, message"}
@@ -399,7 +380,7 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
         description: Direct file URL (e.g., from a Zalo attachment).
         required: true
         selector:
-          text: {}
+          text:
     """
     if not url:
         return {"error": "Missing a required argument: url"}
@@ -456,7 +437,7 @@ async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         name: Webhook ID
         description: Optional custom path suffix for /api/webhook; leave empty to auto-generate.
         selector:
-          text: {}
+          text:
     """
     try:
         if not webhook_id:
@@ -539,7 +520,7 @@ async def send_zalo_chat_action(chat_id: str) -> dict[str, Any]:
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
     """
     if not chat_id:
         return {"error": "Missing a required argument: chat_id"}
@@ -569,18 +550,18 @@ async def send_zalo_photo(
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
       file_path:
         name: File Path
         description: Local image path under /media or local/; the file is copied to /config/www/zalo temporarily.
         required: true
         selector:
-          text: {}
+          text:
       caption:
         name: Caption
         description: Optional text shown under the photo.
         selector:
-          text: {}
+          text:
     """
     if not all([chat_id, file_path]):
         return {"error": "Missing one or more required arguments: chat_id, file_path"}

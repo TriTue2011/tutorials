@@ -2,6 +2,23 @@
 
 * *Các bản thiết kế này đều được tinh chỉnh để chạy hiệu quả nhất với Gemini 2.5 Flash. Các model khác có thể sẽ cần tinh chỉnh thêm để có thể chạy chính xác như mong muốn.*
 
+## Bản thiết kế dùng cho Voice Assist có thể ghi nhớ mọi thông tin từ người dùng
+
+* **Bản thiết kế này cho phép bạn yêu cầu Voice Assist nhớ được mọi thông tin bạn muốn.**
+  * Bạn có thể yêu cầu Voice Assist nhớ bất cứ điều gì.
+  * Bạn có thể yêu cầu Voice Assist tìm lại thông tin đã lưu bất kỳ lúc nào.
+  * Bạn có thể yêu cầu Voice Assist cập nhật lại thông tin đã lưu.
+  * Bạn có thể yêu cầu Voice Assist xóa thông tin đã lưu.
+  * Ví dụ bằng giọng nói:
+    * Lưu lại vị trí đậu xe ở XXX
+    * Xem lại vị trí đậu xe ở đâu?
+    * Ghi nhớ mật khẩu Wi-fi khách là XXX
+    * Mật khẩu Wi-fi khách là gì?
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_full_llm.yaml)
+
+*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+
 ## Bản thiết kế dùng cho Voice Assist "nhìn" thấy mọi thứ xung quanh
 
 * **Bản thiết kế này cho phép bạn xem camera hoặc tìm thông tin thông qua camera bằng cách ra lệnh bằng giọng nói.**

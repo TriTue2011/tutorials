@@ -20,7 +20,7 @@ blueprint:
 
     ### Required
 
-    * Check out the guide for further details.
+    * Check out the guide `home_assistant_device_location_lookup_guide_en.md` for further details.
 
     * An online LLM like Gemini or OpenAI.
 
@@ -29,6 +29,10 @@ blueprint:
     * Only add one device tracker per physical device.
 
     * If you expose your phone or tablet to Voice Assist using Bermuda Device Tracker, make sure to rename Bermuda Device the same as Mobile Device or Mobile Device name must be part of Bermuda Device name. Because this script identifies the relationship between them to find the notification action. This allows you to locate your phone in a specific room and make it ring.
+
+    * The `device_ringing_full_llm.yaml` blueprint needs to be installed.
+
+    * The mentioned dependency file(s) is/are included in the repository.
 
     * Consider adding entity aliases to make them easier to remember if needed.
 
@@ -111,6 +115,8 @@ blueprint:
             After obtaining the result, if the device supports ringing, prompt the user to activate its ringing function.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   entities:
     name: Entities
@@ -120,7 +126,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       entity_aliases: !input entity_aliases
       entities: "{{ entities | default('') | trim }}"
   - alias: Check if variables were set correctly

@@ -97,6 +97,8 @@ blueprint:
             It must be one of the following two values: 'true' turns oscillation on, or 'false' turns oscillation off.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   fan_entities:
     name: Fan Entities
@@ -112,7 +114,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       entity_aliases: !input entity_aliases
       fan_entities: "{{ fan_entities | default('') | trim }}"
       oscillating: "{{ oscillating | default(false) }}"

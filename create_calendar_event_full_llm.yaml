@@ -144,6 +144,8 @@ blueprint:
 mode: queued
 max: !input simultaneous
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   summary:
     selector:
@@ -179,7 +181,6 @@ fields:
     description: !input end_date_prompt
 sequence:
   - variables:
-      version: 20250909
       summary: "{{ summary | default('') | trim }}"
       description: "{{ description | default('') | trim }}"
       start_date_time: "{{ start_date_time | default('') | trim }}"

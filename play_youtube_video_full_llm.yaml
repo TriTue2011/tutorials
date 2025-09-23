@@ -57,6 +57,8 @@ blueprint:
             Specify the Media ID of the video you want to play.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   media_id:
     name: Media ID
@@ -66,7 +68,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       media_id: "{{ media_id | default('') | trim }}"
   - alias: Check if variables were set correctly
     if:

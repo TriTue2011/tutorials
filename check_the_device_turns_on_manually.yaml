@@ -26,7 +26,7 @@ blueprint:
 mode: queued
 max_exceeded: silent
 variables:
-  version: 20250825
+  version: 20250923
 triggers:
   - trigger: state
     entity_id: !input linked_entity

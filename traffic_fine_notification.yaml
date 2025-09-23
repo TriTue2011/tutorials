@@ -13,7 +13,7 @@ blueprint:
 
     * Cần sao chép tập tin `scripts/requirements.txt` vào thư mục `config/pyscript`.
 
-    * Cần cài đặt và cấu hình Redis để sử dụng làm bộ nhớ đệm, tăng tốc độ truy xuất dữ liệu.
+    * Các tệp phụ thuộc được đề cập bên trên đều có sẵn trong kho lưu trữ Github.
 
     * Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` sử dụng cho việc giải mã CAPTCHA.
 
@@ -25,8 +25,6 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       gemini_api_key: !secret gemini_api_key
-      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
-      redis_port: 6379      # Default: 6379
 
     ```
 
@@ -136,7 +134,7 @@ blueprint:
 mode: queued
 max_exceeded: silent
 variables:
-  version: 20250825
+  version: 20250923
 triggers:
   - trigger: state
     entity_id: !input vehicles

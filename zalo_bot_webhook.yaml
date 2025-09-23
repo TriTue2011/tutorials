@@ -16,9 +16,9 @@ blueprint:
 
     * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * A Zalo bot token needs to be configured in `config/configuration.yaml`.
+    * The mentioned dependency file(s) is/are included in the repository.
 
-    * Redis needs to be installed and configured, as it's required for conversation caching.
+    * A Zalo bot token needs to be configured in `config/configuration.yaml`.
     
     * Use the `pyscript.get_zalo_updates` action to retrieve chat IDs then use the `pyscript.set_zalo_webhook` action to generate a Webhook ID.
 
@@ -30,8 +30,6 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       zalo_bot_token: !secret zalo_bot_token
-      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
-      redis_port: 6379      # Default: 6379
 
     ```
 
@@ -116,7 +114,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20250829
+  version: 20250923
   chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language
@@ -153,10 +151,10 @@ actions:
   - action: pyscript.conversation_id_fetcher
     data:
       chat_id: "{{ chat_id }}"
-    response_variable: chat
+    response_variable: get_chat
   - variables:
       conversation_id: >-
-        {{ chat.conversation_id if (chat.conversation_id | default('', true) | length > 0) }}
+        {{ get_chat.conversation_id if (get_chat.conversation_id | default('', true) | length > 0) }}
   - choose:
       - conditions:
           - condition: template
@@ -238,6 +236,7 @@ actions:
             data:
               conversation_id: "{{ result.conversation_id }}"
               chat_id: "{{ chat_id }}"
+            response_variable: set_chat
           - action: pyscript.send_zalo_message
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"

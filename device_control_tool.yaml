@@ -12,6 +12,8 @@ blueprint:
 
     * This blueprint is a dependency for the `device_control_timer_full_llm.yaml` blueprint.
 
+    * The mentioned dependency file(s) is/are included in the repository.
+
     * Do not alter the default script name.
   domain: script
   homeassistant:
@@ -33,6 +35,8 @@ blueprint:
 mode: parallel
 max: !input simultaneous
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   devices:
     name: Devices
@@ -54,7 +58,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       devices: "{{ devices | default('') | trim }}"
       control: "{{ control | default(false) }}"
       timer: "{{ timer | default('00:00:00') }}"

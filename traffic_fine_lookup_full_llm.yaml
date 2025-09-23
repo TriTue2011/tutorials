@@ -14,7 +14,7 @@ blueprint:
 
     * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * Redis needs to be installed and configured, as it's required for data caching.
+    * The mentioned dependency file(s) is/are included in the repository.
 
     * A Gemini API key needs to be configured in `config/configuration.yaml`, as it's required for solving CAPTCHAs.
 
@@ -26,8 +26,6 @@ blueprint:
       allow_all_imports: true
       hass_is_global: true
       gemini_api_key: !secret gemini_api_key
-      redis_host: localhost     # If you're using the Home Assistant Addon, it should be the addon's hostname: xxxxxxxx-redis
-      redis_port: 6379      # Default: 6379
 
     ```
 
@@ -88,6 +86,8 @@ blueprint:
             It must be one of the following three values: '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   license_plate:
     name: License Plate
@@ -111,7 +111,6 @@ fields:
     default: "1"
 sequence:
   - variables:
-      version: 20250825
       license_plate: "{{ license_plate | default('') | trim }}"
       vehicle_type: "{{ vehicle_type | default('') | trim }}"
   - alias: Check if variables were set correctly

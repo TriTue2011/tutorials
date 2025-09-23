@@ -37,7 +37,6 @@ PARSE_MODES: tuple[str, ...] = (
 )
 
 
-@pyscript_compile
 def _to_media_path(path: str) -> str:
     """Normalize Home Assistant media source path to /media/ prefix.
 
@@ -54,7 +53,6 @@ def _to_media_path(path: str) -> str:
     return path
 
 
-@pyscript_compile
 def _to_local_path(path: str) -> str:
     """Convert a /media/ path to Home Assistant local/ media source path.
 
@@ -71,7 +69,6 @@ def _to_local_path(path: str) -> str:
     return path
 
 
-@pyscript_compile
 async def _ensure_session() -> aiohttp.ClientSession:
     """Create or reuse a shared aiohttp session.
 
@@ -84,7 +81,6 @@ async def _ensure_session() -> aiohttp.ClientSession:
     return _session
 
 
-@pyscript_compile
 async def _ensure_dir(path: str) -> None:
     """Ensure a directory exists, creating it if missing.
 
@@ -94,7 +90,6 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-@pyscript_compile
 async def _write_file(path: str, content: bytes) -> None:
     """Write bytes to a file asynchronously.
 
@@ -106,7 +101,6 @@ async def _write_file(path: str, content: bytes) -> None:
         await f.write(content)
 
 
-@pyscript_compile
 async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     """Resolve Telegram file path from a file_id.
 
@@ -124,7 +118,6 @@ async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     return data.get("result", {}).get("file_path")
 
 
-@pyscript_compile
 async def _download_file(
     session: aiohttp.ClientSession, file_path: str
 ) -> bytes | None:
@@ -143,7 +136,6 @@ async def _download_file(
         return await resp.read()
 
 
-@pyscript_compile
 async def _send_message(
     session: aiohttp.ClientSession,
     chat_id: int | str,
@@ -182,7 +174,6 @@ async def _send_message(
         return await resp.json()
 
 
-@pyscript_compile
 async def _send_photo(
     session: aiohttp.ClientSession,
     chat_id: int | str,
@@ -242,7 +233,6 @@ async def _send_photo(
         return await resp.json()
 
 
-@pyscript_compile
 async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
     """Retrieve current Telegram bot webhook information.
 
@@ -258,7 +248,6 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
         return await resp.json()
 
 
-@pyscript_compile
 async def _set_webhook(
     session: aiohttp.ClientSession, base_url: str, webhook_id: str
 ) -> dict[str, Any]:
@@ -282,7 +271,6 @@ async def _set_webhook(
         return await resp.json()
 
 
-@pyscript_compile
 async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     """Delete the Telegram bot webhook.
 
@@ -299,7 +287,6 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
         return await resp.json()
 
 
-@pyscript_compile
 async def _get_updates(
     session: aiohttp.ClientSession, timeout: int = 30
 ) -> dict[str, Any]:
@@ -319,7 +306,6 @@ async def _get_updates(
         return await resp.json()
 
 
-@pyscript_compile
 async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
     """Get basic information about the bot.
 
@@ -335,7 +321,6 @@ async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
         return await resp.json()
 
 
-@pyscript_compile
 async def _send_chat_action(
     session: aiohttp.ClientSession,
     chat_id: int | str,
@@ -369,7 +354,6 @@ async def _send_chat_action(
         return await resp.json()
 
 
-@pyscript_compile
 def _internal_url() -> str | None:
     """Return the internal Home Assistant URL, if available.
 
@@ -382,7 +366,6 @@ def _internal_url() -> str | None:
         return None
 
 
-@pyscript_compile
 def _external_url() -> str | None:
     """Return the external HTTPS Home Assistant URL, if available.
 
@@ -419,14 +402,14 @@ async def send_telegram_message(
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
       message:
         name: Message
         description: Message text.
         example: Hello from Home Assistant
         required: true
         selector:
-          text: {}
+          text:
       reply_to_message_id:
         name: Reply To Message ID
         description: Message ID to reply to.
@@ -487,7 +470,7 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         description: Telegram file_id of the media to download.
         required: true
         selector:
-          text: {}
+          text:
     """
     if not file_id:
         return {"error": "Missing a required argument: file_id"}
@@ -551,7 +534,7 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         name: Webhook ID
         description: Optional custom path suffix for /api/webhook; leave empty to auto-generate.
         selector:
-          text: {}
+          text:
     """
     try:
         if not webhook_id:
@@ -638,7 +621,7 @@ async def send_telegram_chat_action(
         description: The unique identifier of the target chat where the chat action will be sent.
         required: true
         selector:
-          text: {}
+          text:
       message_thread_id:
         name: Message Thread ID
         description: The unique identifier of the specific message thread (topic) where the chat action will be sent.
@@ -706,18 +689,18 @@ async def send_telegram_photo(
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
       file_path:
         name: File Path
         description: Local image path under /media or local/.
         required: true
         selector:
-          text: {}
+          text:
       caption:
         name: Caption
         description: Optional text shown under the photo.
         selector:
-          text: {}
+          text:
       parse_mode:
         name: Parse Mode
         description: Format entities in the caption using the selected parse mode.

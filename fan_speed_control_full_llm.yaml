@@ -127,6 +127,8 @@ blueprint:
             Do not provide both 'percentage' and 'speed_adjustment'. Prefer 'percentage' when the user provides an explicit target. Do not ask clarifying questions.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   fan_entities:
     name: Fan Entities
@@ -149,7 +151,6 @@ fields:
         step: 1
 sequence:
   - variables:
-      version: 20250909
       entity_aliases: !input entity_aliases
       speed_steps: !input speed_steps
       fan_entities: "{{ fan_entities | default('') | trim }}"

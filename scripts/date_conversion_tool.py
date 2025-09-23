@@ -1043,13 +1043,13 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str,
         example: '"2022-01-01"'
         required: true
         selector:
-          date: {}
+          date:
       leap_month:
         name: Leap Month
         description: Lunar leap month? Only needed for l2s.
         example: false
         selector:
-          boolean: {}
+          boolean:
     """
     if not all([conversion_type, date]):
         return {

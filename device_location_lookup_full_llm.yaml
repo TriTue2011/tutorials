@@ -115,6 +115,8 @@ blueprint:
             After obtaining the result, if the device supports ringing, prompt the user to activate its ringing function.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   entities:
     name: Entities
@@ -124,7 +126,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       entity_aliases: !input entity_aliases
       entities: "{{ entities | default('') | trim }}"
   - alias: Check if variables were set correctly

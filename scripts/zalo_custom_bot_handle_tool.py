@@ -79,7 +79,7 @@ async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
         description: Direct file URL (e.g., from a Zalo attachment).
         required: true
         selector:
-          text: {}
+          text:
     """
     if not url:
         return {"error": "Missing a required argument: url"}

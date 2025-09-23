@@ -84,6 +84,8 @@ blueprint:
             Specify the output language of the response using an IETF BCP 47 language tag (e.g., vi-VN, en-US). The value must match the user's language.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   query_string:
     name: Query String
@@ -99,7 +101,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250909
       query_string: "{{ query_string | default('') | trim }}"
       language: "{{ language | default('') | trim }}"
   - alias: Check if variables were set correctly

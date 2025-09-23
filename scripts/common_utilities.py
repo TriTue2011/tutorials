@@ -236,7 +236,7 @@ async def conversation_id_fetcher(chat_id: str) -> dict[str, Any]:
         description: Unique identifier of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
     """
     if not chat_id:
         return {
@@ -272,13 +272,13 @@ async def conversation_id_setter(chat_id: str, conversation_id: str) -> dict[str
         description: Unique identifier of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
       conversation_id:
         name: Conversation ID
         description: Identifier to cache for the conversation.
         required: true
         selector:
-          text: {}
+          text:
     """
     if not all([chat_id, conversation_id]):
         return {

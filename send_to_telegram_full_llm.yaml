@@ -143,6 +143,8 @@ blueprint:
 mode: queued
 max: 30
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   summary:
     name: Summary
@@ -171,7 +173,6 @@ fields:
       text:
 sequence:
   - variables:
-      version: 20250915
       summary: "{{ summary | default('') | trim }}"
       detail: "{{ detail | default('') | trim }}"
       content_type: "{{ content_type | default('') | trim }}"

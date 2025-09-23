@@ -82,6 +82,8 @@ blueprint:
             It must be one of the following two values: 'true' for a leap month, or 'false' for a regular month.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   conversion_type:
     name: Conversion Type
@@ -105,7 +107,6 @@ fields:
       boolean:
 sequence:
   - variables:
-      version: 20250825
       conversion_type: "{{ conversion_type | default('') | trim }}"
       date: "{{ (date | as_datetime(default=now())).date() }}"
       leap_month: "{{ leap_month | default(false) }}"

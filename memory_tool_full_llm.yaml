@@ -225,9 +225,10 @@ fields:
         mode: box
 mode: restart
 max_exceeded: silent
+variables:
+  version: 20250923
 sequence:
   - variables:
-      version: 20250919
       op: "{{ operation | default('set') }}"
       key_t: "{{ (key | default('')) | trim }}"
       value_t: "{{ (value | default('')) | trim }}"

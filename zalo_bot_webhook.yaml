@@ -114,7 +114,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20250829
+  version: 20250923
   chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language

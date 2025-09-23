@@ -402,14 +402,14 @@ async def send_telegram_message(
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
       message:
         name: Message
         description: Message text.
         example: Hello from Home Assistant
         required: true
         selector:
-          text: {}
+          text:
       reply_to_message_id:
         name: Reply To Message ID
         description: Message ID to reply to.
@@ -470,7 +470,7 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         description: Telegram file_id of the media to download.
         required: true
         selector:
-          text: {}
+          text:
     """
     if not file_id:
         return {"error": "Missing a required argument: file_id"}
@@ -534,7 +534,7 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         name: Webhook ID
         description: Optional custom path suffix for /api/webhook; leave empty to auto-generate.
         selector:
-          text: {}
+          text:
     """
     try:
         if not webhook_id:
@@ -621,7 +621,7 @@ async def send_telegram_chat_action(
         description: The unique identifier of the target chat where the chat action will be sent.
         required: true
         selector:
-          text: {}
+          text:
       message_thread_id:
         name: Message Thread ID
         description: The unique identifier of the specific message thread (topic) where the chat action will be sent.
@@ -689,18 +689,18 @@ async def send_telegram_photo(
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
       file_path:
         name: File Path
         description: Local image path under /media or local/.
         required: true
         selector:
-          text: {}
+          text:
       caption:
         name: Caption
         description: Optional text shown under the photo.
         selector:
-          text: {}
+          text:
       parse_mode:
         name: Parse Mode
         description: Format entities in the caption using the selected parse mode.

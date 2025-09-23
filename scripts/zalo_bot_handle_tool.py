@@ -347,14 +347,14 @@ async def send_zalo_message(chat_id: str, message: str) -> dict[str, Any]:
         description: Target chat ID.
         required: true
         selector:
-          text: {}
+          text:
       message:
         name: Message
         description: Message text (up to ~2000 chars).
         example: Hello from Home Assistant
         required: true
         selector:
-          text: {}
+          text:
     """
     if not all([chat_id, message]):
         return {"error": "Missing one or more required arguments: chat_id, message"}
@@ -380,7 +380,7 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
         description: Direct file URL (e.g., from a Zalo attachment).
         required: true
         selector:
-          text: {}
+          text:
     """
     if not url:
         return {"error": "Missing a required argument: url"}
@@ -437,7 +437,7 @@ async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         name: Webhook ID
         description: Optional custom path suffix for /api/webhook; leave empty to auto-generate.
         selector:
-          text: {}
+          text:
     """
     try:
         if not webhook_id:
@@ -520,7 +520,7 @@ async def send_zalo_chat_action(chat_id: str) -> dict[str, Any]:
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
     """
     if not chat_id:
         return {"error": "Missing a required argument: chat_id"}
@@ -550,18 +550,18 @@ async def send_zalo_photo(
         description: ID of the conversation (user or group).
         required: true
         selector:
-          text: {}
+          text:
       file_path:
         name: File Path
         description: Local image path under /media or local/; the file is copied to /config/www/zalo temporarily.
         required: true
         selector:
-          text: {}
+          text:
       caption:
         name: Caption
         description: Optional text shown under the photo.
         selector:
-          text: {}
+          text:
     """
     if not all([chat_id, file_path]):
         return {"error": "Missing one or more required arguments: chat_id, file_path"}

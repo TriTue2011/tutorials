@@ -637,7 +637,7 @@ async def traffic_fine_lookup_tool(
         example: 29A99999
         required: true
         selector:
-          text: {}
+          text:
       vehicle_type:
         name: Vehicle Type
         description: Vehicle classification expected by csgt.vn (1=Car, 2=Motorbike, 3=Electric Bicycle).
@@ -658,7 +658,7 @@ async def traffic_fine_lookup_tool(
         description: Ignore cached data and fetch fresh results (useful for debugging).
         example: false
         selector:
-          boolean: {}
+          boolean:
     """
     try:
         license_plate = str(license_plate).upper()

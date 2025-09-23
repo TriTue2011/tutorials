@@ -86,6 +86,8 @@ blueprint:
             It must be one of the following three values: '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   license_plate:
     name: License Plate
@@ -109,7 +111,6 @@ fields:
     default: "1"
 sequence:
   - variables:
-      version: 20250825
       license_plate: "{{ license_plate | default('') | trim }}"
       vehicle_type: "{{ vehicle_type | default('') | trim }}"
   - alias: Check if variables were set correctly

@@ -61,7 +61,7 @@ async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
         example: Nikola Tesla
         required: true
         selector:
-          text: {}
+          text:
       search_type:
         name: Search Type
         description: Content types to include.
@@ -88,7 +88,7 @@ async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
         name: Page Token
         description: Token for the next page of results.
         selector:
-          text: {}
+          text:
     """
     if not query:
         return {"error": "Missing a required argument: query"}

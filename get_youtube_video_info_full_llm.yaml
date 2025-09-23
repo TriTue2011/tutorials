@@ -123,6 +123,8 @@ blueprint:
             The default is 3 days. The minimum is 1 day, and the maximum is 30 days. "Today" means 1 day, "This week" means 7 days, and "This month" means 30 days.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   entities:
     name: Entities
@@ -140,7 +142,6 @@ fields:
     default: 3
 sequence:
   - variables:
-      version: 20250825
       entity_aliases: !input entity_aliases
       short_videos: !input short_videos
       entities: "{{ entities | default('') | trim }}"

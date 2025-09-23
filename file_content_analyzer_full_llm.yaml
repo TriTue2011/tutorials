@@ -135,6 +135,8 @@ blueprint:
             If the media source is 'camera', the MIME type must be set to 'application/vnd.apple.mpegurl'.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   instructions:
     name: Instructions
@@ -166,7 +168,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250906
       entity_aliases: !input entity_aliases
       ai_task_entity: !input ai_task_entity
       instructions: "{{ instructions | default('') | trim }}"

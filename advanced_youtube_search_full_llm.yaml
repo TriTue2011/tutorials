@@ -102,6 +102,8 @@ blueprint:
             Use it when the initial query results are unsatisfying and the user wants to find more videos.
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   query_string:
     name: Query String
@@ -116,7 +118,6 @@ fields:
         text:
 sequence:
   - variables:
-      version: 20250825
       results: !input results
       query_string: "{{ query_string | default('') | trim }}"
       page_token: "{{ page_token | default('') | trim }}"

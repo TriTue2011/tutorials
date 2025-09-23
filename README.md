@@ -11,7 +11,7 @@
   * Bạn có thể yêu cầu Voice Assist xóa thông tin đã lưu.
   * Ví dụ bằng giọng nói:
     * Lưu lại vị trí đậu xe ở XXX
-    * Nhớ lại xem xe đỗ ở đâu?
+    * Xem lại vị trí đậu xe ở đâu?
     * Ghi nhớ mật khẩu Wi-fi khách là XXX
     * Mật khẩu Wi-fi khách là gì?
 

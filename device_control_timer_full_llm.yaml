@@ -122,6 +122,8 @@ blueprint:
             If a query specifies a particular target time, calculate the delay from the current time to that specified time
 mode: parallel
 max_exceeded: silent
+variables:
+  version: 20250923
 fields:
   entities:
     name: Entities
@@ -143,7 +145,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20250825
       entity_aliases: !input entity_aliases
       entities: "{{ entities | default }}"
       control: "{{ control | default(false) }}"

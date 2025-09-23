@@ -861,7 +861,11 @@ async def memory_set(
         default: user
         example: user
         selector:
-          text:
+          select:
+            options:
+              - user
+              - household
+              - session
       expiration_days:
         name: Expiration (days)
         description: Days until expiration; 0 keeps forever.
@@ -905,7 +909,6 @@ async def memory_set(
     if expiration_days_i > EXPIRATION_MAX_DAYS:
         expiration_days_i = EXPIRATION_MAX_DAYS
 
-    force_new_bool = False
     if isinstance(force_new, str):
         force_new_bool = force_new.strip().lower() in {"1", "true", "yes", "y", "on"}
     else:

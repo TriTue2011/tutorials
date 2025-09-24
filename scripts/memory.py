@@ -335,7 +335,6 @@ async def _find_tag_matches_for_query(
     *,
     exclude_keys: set[str] | None = None,
     limit: int | None = None,
-    update_last_used: bool = False,
 ) -> list[dict[str, Any]]:
     """Search for potential key matches based on normalized tags."""
     candidates = await _search_tag_candidates(
@@ -346,22 +345,10 @@ async def _find_tag_matches_for_query(
     )
     if not candidates:
         return []
-    condensed = [
+    return [
         _condense_candidate_for_selection(entry, score=score)
         for entry, score in candidates
     ]
-    if update_last_used:
-        max_touch = limit if isinstance(limit, int) and limit > 0 else 1
-        touch_keys: list[str] = []
-        for entry in condensed:
-            key = entry.get("key")
-            if key:
-                touch_keys.append(key)
-            if len(touch_keys) >= max_touch:
-                break
-        if touch_keys:
-            await _memory_touch_keys(touch_keys)
-    return condensed
 
 
 def _tokenize_query(q: str) -> list[str]:
@@ -584,36 +571,6 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
                 continue
             raise
     return "error", None
-
-
-def _memory_touch_keys_db_sync(keys: list[str], ts: str | None = None) -> None:
-    """Update last_used_at timestamp for provided keys."""
-    normalized_keys: list[str] = []
-    for key in keys:
-        normalized = _normalize_key(key)
-        if normalized:
-            normalized_keys.append(normalized)
-    if not normalized_keys:
-        return
-    unique_keys = list(dict.fromkeys(normalized_keys))
-    stamp = ts or _utcnow_iso()
-    for attempt in range(2):
-        try:
-            _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
-                cur = conn.cursor()
-                cur.executemany(
-                    "UPDATE mem SET last_used_at=? WHERE key=?",
-                    [(stamp, key) for key in unique_keys],
-                )
-                conn.commit()
-            return
-        except sqlite3.OperationalError:
-            _reset_db_ready()
-            if attempt == 0:
-                continue
-            raise
 
 
 def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
@@ -894,14 +851,6 @@ async def _memory_get_db(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     return await asyncio.to_thread(_memory_get_db_sync, key_norm)
 
 
-async def _memory_touch_keys(keys: list[str]) -> None:
-    """Async helper to mark keys as recently used."""
-    key_list = [key for key in keys if key]
-    if not key_list:
-        return
-    await asyncio.to_thread(_memory_touch_keys_db_sync, key_list)
-
-
 async def _memory_search_db(query: str, limit: int) -> list[dict[str, Any]]:
     """Async wrapper that runs _memory_search_db_sync without blocking."""
     return await asyncio.to_thread(_memory_search_db_sync, query, limit)
@@ -1163,7 +1112,7 @@ async def memory_get(key: str):
 
     if status == "not_found":
         matches = await _find_tag_matches_for_query(
-            key or key_norm, exclude_keys={key_norm}, update_last_used=True
+            key or key_norm, exclude_keys={key_norm}
         )
         error_code = "ambiguous" if matches else "not_found"
         _set_result(

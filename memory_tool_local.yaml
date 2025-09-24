@@ -570,8 +570,8 @@ actions:
                                                     - set_conversation_response: "Created new entry {{ resp_new_from_exp_search.result.key or new_key }}."
                                               default:
                                                 - set_conversation_response: "Unable to create a new entry right now."
-                                  default:
-                                    - set_conversation_response: "Canceled."
+                              default:
+                                - set_conversation_response: "Canceled."
                             - stop:
                         - conditions: "{{ c in more_cmds }}"
                           sequence:

@@ -2,7 +2,7 @@ blueprint:
   name: Voice Memory Tool — Local (automation, English, paginated + expired options)
   description: >
     Local voice blueprint for a Memory Tool with strict operation mapping:
-    SET→set, GET→get, SEARCH→search, FORGET→forget. Handles duplicate_tags, ambiguous,
+    SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,
     not_found, and expired. Candidate lists are capped to 5; SEARCH supports pagination.
     Backend may truncate candidate values to ≤120 chars; this blueprint also truncates to 60 for clarity.
   domain: automation
@@ -16,7 +16,6 @@ blueprint:
       description:
         Settings for the trigger, you can adjust them, or translate them to your own language
       input:
-        # ---------- Main conversation commands (Text selector → list) ----------
         set_commands:
           name: Set commands
           description: Phrases that trigger SET (save/update).
@@ -25,7 +24,6 @@ blueprint:
             - "remember {key_phrase} is {value}"
             - "create note {key_phrase} is {value}"
           selector: { text: { multiple: true } }
-      
         get_commands:
           name: Get/Recall commands
           description: Phrases that trigger GET (retrieve).
@@ -34,14 +32,12 @@ blueprint:
             - "recall {key_phrase}"
             - "get info {key_phrase}"
           selector: { text: { multiple: true } }
-      
         search_commands:
           name: Search-only commands
           description: Phrases that trigger SEARCH.
           default:
             - "search {key_phrase}"
           selector: { text: { multiple: true } }
-      
         forget_commands:
           name: Forget/Delete commands
           description: Phrases that trigger FORGET (delete).
@@ -50,50 +46,39 @@ blueprint:
             - "forget {key_phrase}"
             - "remove {key_phrase}"
           selector: { text: { multiple: true } }
-      
-        # ---------- Follow-up phrases ----------
         yes_commands:
           name: Yes / confirm phrases
           default: ["yes","yep","sure","ok","okay","confirm","do it"]
           selector: { text: { multiple: true } }
-      
         no_commands:
           name: No / cancel phrases
           default: ["no","nope","cancel","stop","never mind"]
           selector: { text: { multiple: true } }
-      
         create_new_commands:
           name: Create-new phrases
           description: Explicitly create a new entry despite duplicate tags.
           default: ["create new","new","make new"]
           selector: { text: { multiple: true } }
-      
         cancel_commands:
           name: Cancel phrases (for choice steps)
           default: ["cancel","stop","abort"]
           selector: { text: { multiple: true } }
-      
         refine_commands:
           name: Refine phrases (search refine)
           default: ["refine","filter","narrow"]
           selector: { text: { multiple: true } }
-      
         more_commands:
           name: Show-more phrases (pagination)
           default: ["more","next","show more"]
           selector: { text: { multiple: true } }
-      
-        # ---------- Expired handling phrases ----------
         restore_commands:
           name: Restore phrases (reactivate expired entry as-is)
           default: ["restore","reactivate","bring back"]
           selector: { text: { multiple: true } }
-      
         update_commands:
           name: Update phrases (change value before restoring)
           default: ["update","change","edit"]
           selector: { text: { multiple: true } }
-
     tool_settings:
       name: Tool settings
       icon: mdi:tools
@@ -101,7 +86,6 @@ blueprint:
       description:
         Settings for the trigger, you can adjust them, or translate them to your own language
       input:
-        # ---------- Behavior / defaults ----------
         default_scope:
           name: Default scope
           description: Apply to user | household | session
@@ -110,41 +94,32 @@ blueprint:
             select:
               options: [user, household, session]
               mode: dropdown
-        
         default_expiration_days:
           name: Default expiration (days)
           default: 180
           selector: { number: { min: 0, max: 3650, mode: box } }
-        
         default_search_limit:
           name: Default search fetch limit (1–50, backend fetch)
           default: 20
           selector: { number: { min: 1, max: 50, mode: box } }
-        
         max_list_choices:
           name: Max candidates to list per page (capped to 5)
           default: 5
           selector: { number: { min: 1, max: 5, mode: box } }
-        
         confirm_delete:
           name: Require delete confirmation
           default: true
           selector: { boolean: {} }
-        
         allow_force_new:
           name: Allow force_new on duplicates (user explicitly says create new)
           default: true
           selector: { boolean: {} }
-        
         choice_timeout:
           name: Choice/confirmation timeout (seconds)
           default: 25
           selector: { number: { min: 5, max: 120, mode: slider } }
-
 mode: queued
 max: 20
-
-# ---------- Conversation triggers wired to inputs ----------
 triggers:
   - id: set
     trigger: conversation
@@ -158,13 +133,9 @@ triggers:
   - id: forget
     trigger: conversation
     command: !input forget_commands
-
 variables:
-  # Slots
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
   value: "{{ trigger.slots.value | default('', true) }}"
-
-  # Inputs
   scope: !input default_scope
   exp_days: !input default_expiration_days
   s_limit: !input default_search_limit
@@ -173,7 +144,6 @@ variables:
   must_confirm_delete: !input confirm_delete
   allow_force_new: !input allow_force_new
   choice_timeout: !input choice_timeout
-
   yes_cmds: !input yes_commands
   no_cmds: !input no_commands
   create_new_cmds: !input create_new_commands
@@ -182,8 +152,6 @@ variables:
   more_cmds: !input more_commands
   restore_cmds: !input restore_commands
   update_cmds: !input update_commands
-
-  # Number-choice synonyms map (1..5)
   num_aliases:
     one: 1
     first: 1
@@ -195,8 +163,6 @@ variables:
     fourth: 4
     five: 5
     fifth: 5
-
-  # Key normalization (English, concept-based)
   key_norm: >
     {% set k = (key_phrase or '') | lower %}
     {% set k = k | regex_replace('[^a-z0-9\\s_]+',' ') %}
@@ -205,18 +171,13 @@ variables:
     {% set toks = toks | reject('search','^[a-z]*[0-9]+$', ignorecase=True) | list %}
     {% set key2 = toks | join('_') %}
     {{ key2 if key2 else k | replace(' ','_') }}
-
-  # Auto-tags if none provided (simple heuristic)
   tags_auto: >
     {% set phrase = (key_phrase or '') | lower %}
     {% set val = (value or '') | lower %}
     {% set base = (phrase ~ ' ' ~ val).strip() %}
     {{ base if base else (key_norm or 'note') }}
-
 actions:
   - choose:
-
-      # ===================== SET → set =====================
       - conditions: "{{ trigger.id == 'set' and key_phrase and value }}"
         sequence:
           - service: pyscript.memory_set
@@ -228,7 +189,6 @@ actions:
               tags: "{{ tags_auto }}"
               force_new: false
             response_variable: resp_set
-
           - choose:
               - conditions: "{{ resp_set.result.status == 'ok' }}"
                 sequence:
@@ -305,15 +265,12 @@ actions:
                       - set_conversation_response: "Canceled."
             default:
               - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
-
-      # ===================== GET → get (with expired flow) =====================
       - conditions: "{{ trigger.id == 'get' and key_phrase }}"
         sequence:
           - service: pyscript.memory_get
             data:
               key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
             response_variable: resp_get
-
           - choose:
               - conditions: "{{ resp_get.result.status == 'ok' }}"
                 sequence:
@@ -325,8 +282,8 @@ actions:
                       kget: "{{ resp_get.result.key | default(key_norm or key_phrase) }}"
                   - set_conversation_response: >
                       This entry has expired{% if prev %}: "{{ prev | string | truncate(60, True) }}"{% endif %}.
-                      Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, 
-                      "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first, 
+                      Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
+                      "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first,
                       "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   - wait_for_trigger:
                       - trigger: conversation
@@ -339,7 +296,6 @@ actions:
                         command: !input cancel_commands
                     timeout: !input choice_timeout
                   - choose:
-                      # Restore as-is
                       - conditions: "{{ trigger.conversation_command in restore_cmds }}"
                         sequence:
                           - service: pyscript.memory_set
@@ -356,7 +312,6 @@ actions:
                                   - set_conversation_response: "Restored {{ kget }}."
                             default:
                               - set_conversation_response: "Unable to restore right now."
-                      # Update value then restore
                       - conditions: "{{ trigger.conversation_command in update_cmds }}"
                         sequence:
                           - set_conversation_response: "What is the new value?"
@@ -382,7 +337,6 @@ actions:
                                   - set_conversation_response: "Updated and restored {{ kget }}."
                             default:
                               - set_conversation_response: "Unable to update right now."
-                      # Create new entry (force_new)
                       - conditions: "{{ trigger.conversation_command in create_new_cmds and allow_force_new }}"
                         sequence:
                           - variables:
@@ -465,8 +419,6 @@ actions:
                       - set_conversation_response: "Canceled."
             default:
               - set_conversation_response: "I couldn't retrieve it right now."
-
-      # ===================== SEARCH → search (status check + pagination + refine) =====================
       - conditions: "{{ trigger.id == 'search' and key_phrase }}"
         sequence:
           - service: pyscript.memory_search
@@ -474,7 +426,6 @@ actions:
               query: "{{ key_phrase }}"
               limit: "{{ s_limit }}"
             response_variable: resp_s
-
           - choose:
               - conditions: "{{ resp_s.result.status != 'ok' }}"
                 sequence:
@@ -655,8 +606,6 @@ actions:
                       default:
                         - set_conversation_response: "Canceled."
                         - stop:
-
-      # ===================== FORGET → forget (with ambiguous handling) =====================
       - conditions: "{{ trigger.id == 'forget' and key_phrase }}"
         sequence:
           - choose:
@@ -837,7 +786,5 @@ actions:
                           - set_conversation_response: "Canceled."
                 default:
                   - set_conversation_response: "I couldn't delete it right now."
-
-    # ===================== FALLBACK =====================
     default:
       - set_conversation_response: "I didn't quite catch that. Do you want to save, find, search, or delete something?"

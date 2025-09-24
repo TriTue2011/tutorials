@@ -437,18 +437,32 @@ def _build_fts_queries(raw_query: str) -> list[str]:
     return out
 
 
-def _purge_if_expired(cur: sqlite3.Cursor, key: str) -> tuple[bool, str | None]:
-    """Delete key if expiry time has passed; return (deleted, expires_at)."""
-    row = cur.execute("SELECT expires_at FROM mem WHERE key=?", (key,)).fetchone()
+def _fetch_with_expiry(
+    cur: sqlite3.Cursor, key: str
+) -> tuple[bool, sqlite3.Row | None]:
+    """Fetch the row and report whether it is expired; never deletes the row."""
+    row = cur.execute(
+        """
+        SELECT key,
+               value,
+               scope,
+               tags,
+               created_at,
+               last_used_at,
+               expires_at
+        FROM mem
+        WHERE key = ?;
+        """,
+        (key,),
+    ).fetchone()
     if not row:
         return False, None
     expires_at = row["expires_at"]
     if expires_at:
         dt = _dt_from_iso(expires_at)
         if dt and datetime.now(timezone.utc) > dt:
-            cur.execute("DELETE FROM mem WHERE key=?", (key,))
-            return True, expires_at
-    return False, expires_at
+            return True, row
+    return False, row
 
 
 def _set_result(state_value: str = "ok", **attrs: Any) -> None:
@@ -542,36 +556,28 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
             with sqlite3.connect(DB_PATH) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
-                expired, expires_at = _purge_if_expired(cur, key_norm)
-                if expired:
-                    conn.commit()
-                    return "expired", {"key": key_norm, "expires_at": expires_at}
-                row = cur.execute(
-                    """
-                    SELECT key, value, scope, tags, created_at, last_used_at, expires_at
-                    FROM mem
-                    WHERE key = ?;
-                    """,
-                    (key_norm,),
-                ).fetchone()
-                if not row:
+                expired, row = _fetch_with_expiry(cur, key_norm)
+                if row is None:
                     return "not_found", None
+                row_data = {
+                    "key": row["key"],
+                    "value": row["value"],
+                    "scope": row["scope"],
+                    "tags": row["tags"],
+                    "created_at": row["created_at"],
+                    "last_used_at": row["last_used_at"],
+                    "expires_at": row["expires_at"],
+                }
+                if expired:
+                    return "expired", row_data
                 last_used_iso = _utcnow_iso()
                 cur.execute(
                     "UPDATE mem SET last_used_at=? WHERE key=?",
                     (last_used_iso, key_norm),
                 )
                 conn.commit()
-            result = {
-                "key": row["key"],
-                "value": row["value"],
-                "scope": row["scope"],
-                "tags": row["tags"],
-                "created_at": row["created_at"],
-                "last_used_at": last_used_iso,
-                "expires_at": row["expires_at"],
-            }
-            return "ok", result
+            row_data["last_used_at"] = last_used_iso
+            return "ok", row_data
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
@@ -620,12 +626,6 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
             with sqlite3.connect(DB_PATH) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
-                cur.execute(
-                    "DELETE FROM mem WHERE expires_at IS NOT NULL AND expires_at < ?",
-                    (_utcnow_iso(),),
-                )
-                conn.commit()
-
                 found_by_key: dict[str, sqlite3.Row] = {}
                 total_rows: list[sqlite3.Row] = []
                 match_variants = _build_fts_queries(query)
@@ -1090,7 +1090,7 @@ async def memory_set(
                 "error": "memory_set_db returned False",
             }
 
-        result_details = {
+        result_details: dict[str, Any] = {
             "scope": scope_norm,
             "expires_at": expires_at,
             "value": value_norm,
@@ -1102,7 +1102,7 @@ async def memory_set(
 
         _set_result("ok", op="set", key=key_norm, **result_details)
 
-        response = {
+        response: dict[str, Any] = {
             "status": "ok",
             "op": "set",
             "key": key_norm,
@@ -1126,7 +1126,7 @@ async def memory_get(key: str):
     """
     yaml
     name: Memory Get
-    description: Get a memory entry by key, updating last_used_at; returns `ambiguous` when similar suggestions exist and `error=expired` with `expires_at` when the record has expired.
+    description: Get a memory entry by key, updating last_used_at; returns `ambiguous` when similar suggestions exist and `status=expired` with the stored payload so callers can reuse it when the record has expired.
     fields:
       key:
         name: Key
@@ -1154,19 +1154,12 @@ async def memory_get(key: str):
         return {"status": "error", "op": "get", "key": key_norm, "error": str(e)}
 
     if status == "expired":
-        payload = payload or {}
-        expires_at = payload.get("expires_at")
-        expiry_attrs = {"expired": True}
-        if expires_at:
-            expiry_attrs["expires_at"] = expires_at
-        _set_result("error", op="get", key=key_norm, error="expired", **expiry_attrs)
-        return {
-            "status": "error",
-            "op": "get",
-            "key": key_norm,
-            "error": "expired",
-            **expiry_attrs,
-        }
+        payload = payload or {"key": key_norm}
+        attrs: dict[str, Any] = {**payload, "expired": True}
+        if "error" not in attrs:
+            attrs["error"] = "expired"
+        _set_result("expired", op="get", **attrs)
+        return {"status": "expired", "op": "get", **attrs}
 
     if status == "not_found":
         matches = await _find_tag_matches_for_query(

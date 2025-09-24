@@ -231,33 +231,6 @@ async def _cache_delete(key: str) -> int:
     return await asyncio.to_thread(_cache_delete_sync, key)
 
 
-def _cache_prune_expired_sync(now: int | None = None) -> int:
-    """Delete expired cache rows synchronously and report removals."""
-    now_ts = now if now is not None else int(time.time())
-    for attempt in range(2):
-        try:
-            _ensure_cache_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                cur = conn.cursor()
-                cur.execute(
-                    "DELETE FROM cache_entries WHERE expires_at <= ?", (now_ts,)
-                )
-                removed = cur.rowcount if cur.rowcount is not None else 0
-                conn.commit()
-            return max(removed, 0)
-        except sqlite3.OperationalError:
-            _reset_cache_ready()
-            if attempt == 0:
-                continue
-            raise
-    return 0
-
-
-async def _cache_prune_expired(now: int | None = None) -> int:
-    """Delete expired entries and return the number of rows removed."""
-    return await asyncio.to_thread(_cache_prune_expired_sync, now)
-
-
 @pyscript_compile
 def _build_ssl_ctx() -> ssl.SSLContext:
     """Build an SSL context compatible with target site requirements.
@@ -613,13 +586,6 @@ async def build_cached_ctx() -> None:
     await _cache_prepare_db(force=True)
     await _ensure_ssl_ctx()
     await _ensure_gemini_client()
-
-
-@time_trigger("cron(30 3 * * *)")
-async def cleanup_expired_cache() -> None:
-    """Remove expired cache entries daily at 03:30 so the SQLite file stays compact."""
-    await _cache_prepare_db(force=False)
-    await _cache_prune_expired(int(time.time()))
 
 
 @service(supports_response="only")

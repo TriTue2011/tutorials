@@ -142,28 +142,6 @@ def _cache_delete_sync(key: str) -> int:
     return 0
 
 
-def _cache_prune_expired_sync(now: int | None = None) -> int:
-    """Delete expired entries and return the number of rows removed."""
-    now_ts = now if now is not None else int(time.time())
-    for attempt in range(2):
-        try:
-            _ensure_cache_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                cur = conn.cursor()
-                cur.execute(
-                    "DELETE FROM cache_entries WHERE expires_at <= ?", (now_ts,)
-                )
-                removed = cur.rowcount if cur.rowcount is not None else 0
-                conn.commit()
-            return max(removed, 0)
-        except sqlite3.OperationalError:
-            _reset_cache_ready()
-            if attempt == 0:
-                continue
-            raise
-    return 0
-
-
 async def _cache_prepare_db(force: bool = False) -> bool:
     """Ensure the cache database is ready for use."""
     return await asyncio.to_thread(_cache_prepare_db_sync, force)
@@ -182,11 +160,6 @@ async def _cache_set(key: str, value: str, ttl_seconds: int) -> bool:
 async def _cache_delete(key: str) -> int:
     """Remove the cache entry identified by key if it exists."""
     return await asyncio.to_thread(_cache_delete_sync, key)
-
-
-async def _cache_prune_expired(now: int | None = None) -> int:
-    """Delete expired entries and return the number of rows removed."""
-    return await asyncio.to_thread(_cache_prune_expired_sync, now)
 
 
 def _internal_url() -> str | None:
@@ -215,13 +188,6 @@ def _external_url() -> str | None:
 async def initialize_cache_db() -> None:
     """Run once at startup to create the cache database and schema before services execute."""
     await _cache_prepare_db(force=True)
-
-
-@time_trigger("cron(15 3 * * *)")
-async def cleanup_expired_cache() -> None:
-    """Remove expired cache entries daily at 03:15 so the SQLite file stays compact."""
-    await _cache_prepare_db(force=False)
-    await _cache_prune_expired(int(time.time()))
 
 
 @service(supports_response="only")

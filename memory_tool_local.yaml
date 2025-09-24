@@ -190,13 +190,13 @@ actions:
               force_new: false
             response_variable: resp_set
           - choose:
-              - conditions: "{{ resp_set.result.status == 'ok' }}"
+              - conditions: "{{ resp_set.status == 'ok' }}"
                 sequence:
-                  - set_conversation_response: "Saved {{ resp_set.result.key or (key_norm or key_phrase) }}."
-              - conditions: "{{ resp_set.result.error == 'duplicate_tags' and (resp_set.result.matches | length) > 0 }}"
+                  - set_conversation_response: "Saved {{ resp_set.key or (key_norm or key_phrase) }}."
+              - conditions: "{{ resp_set.error == 'duplicate_tags' and (resp_set.matches | length) > 0 }}"
                 sequence:
                   - variables:
-                      matches: "{{ resp_set.result.matches[:max_choices] }}"
+                      matches: "{{ resp_set.matches[:max_choices] }}"
                   - set_conversation_response: >
                       I found similar entries:
                       {% for m in matches -%}
@@ -239,7 +239,7 @@ actions:
                               tags: "{{ tags_auto }}"
                             response_variable: resp_update
                           - choose:
-                              - conditions: "{{ resp_update.result.status == 'ok' }}"
+                              - conditions: "{{ resp_update.status == 'ok' }}"
                                 sequence:
                                   - set_conversation_response: "Updated {{ chosen_key }}."
                             default:
@@ -256,9 +256,9 @@ actions:
                               force_new: true
                             response_variable: resp_new
                           - choose:
-                              - conditions: "{{ resp_new.result.status == 'ok' }}"
+                              - conditions: "{{ resp_new.status == 'ok' }}"
                                 sequence:
-                                  - set_conversation_response: "Created new entry {{ resp_new.result.key or (key_norm or key_phrase) }}."
+                                  - set_conversation_response: "Created new entry {{ resp_new.key or (key_norm or key_phrase) }}."
                             default:
                               - set_conversation_response: "Unable to create a new entry right now."
                     default:
@@ -272,14 +272,14 @@ actions:
               key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
             response_variable: resp_get
           - choose:
-              - conditions: "{{ resp_get.result.status == 'ok' }}"
+              - conditions: "{{ resp_get.status == 'ok' }}"
                 sequence:
-                  - set_conversation_response: "{{ resp_get.result.value }}"
-              - conditions: "{{ resp_get.result.error == 'expired' }}"
+                  - set_conversation_response: "{{ resp_get.value }}"
+              - conditions: "{{ resp_get.error == 'expired' }}"
                 sequence:
                   - variables:
-                      prev: "{{ resp_get.result.value | default(resp_get.result.value_preview, true) | default('', true) }}"
-                      kget: "{{ resp_get.result.key | default(key_norm or key_phrase) }}"
+                      prev: "{{ resp_get.value | default('', true) }}"
+                      kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
                   - set_conversation_response: >
                       This entry has expired{% if prev %}: "{{ prev | string | truncate(60, True) }}"{% endif %}.
                       Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
@@ -301,13 +301,13 @@ actions:
                           - service: pyscript.memory_set
                             data:
                               key: "{{ kget }}"
-                              value: "{{ resp_get.result.value }}"
+                              value: "{{ resp_get.value }}"
                               scope: "{{ scope }}"
                               expiration_days: "{{ exp_days }}"
-                              tags: "{{ resp_get.result.tags | default('', true) }}"
+                              tags: "{{ resp_get.tags | default('', true) }}"
                             response_variable: resp_restore
                           - choose:
-                              - conditions: "{{ resp_restore.result.status == 'ok' }}"
+                              - conditions: "{{ resp_restore.status == 'ok' }}"
                                 sequence:
                                   - set_conversation_response: "Restored {{ kget }}."
                             default:
@@ -328,10 +328,10 @@ actions:
                               value: "{{ new_val }}"
                               scope: "{{ scope }}"
                               expiration_days: "{{ exp_days }}"
-                              tags: "{{ resp_get.result.tags | default('', true) }}"
+                              tags: "{{ resp_get.tags | default('', true) }}"
                             response_variable: resp_update_exp
                           - choose:
-                              - conditions: "{{ resp_update_exp.result.status == 'ok' }}"
+                              - conditions: "{{ resp_update_exp.status == 'ok' }}"
                                 sequence:
                                   - set_conversation_response: "Updated and restored {{ kget }}."
                             default:
@@ -343,27 +343,27 @@ actions:
                           - service: pyscript.memory_set
                             data:
                               key: "{{ new_key }}"
-                              value: "{{ resp_get.result.value }}"
+                              value: "{{ resp_get.value }}"
                               scope: "{{ scope }}"
                               expiration_days: "{{ exp_days }}"
-                              tags: "{{ resp_get.result.tags | default('', true) }}"
+                              tags: "{{ resp_get.tags | default('', true) }}"
                               force_new: true
                             response_variable: resp_new_from_exp
                           - choose:
-                              - conditions: "{{ resp_new_from_exp.result.status == 'ok' }}"
+                              - conditions: "{{ resp_new_from_exp.status == 'ok' }}"
                                 sequence:
-                                  - set_conversation_response: "Created new entry {{ resp_new_from_exp.result.key or new_key }}."
+                                  - set_conversation_response: "Created new entry {{ resp_new_from_exp.key or new_key }}."
                             default:
                               - set_conversation_response: "Unable to create a new entry right now."
                     default:
                       - set_conversation_response: "Canceled."
-              - conditions: "{{ resp_get.result.error == 'not_found' and (resp_get.result.matches | default([], true) | length) == 0 }}"
+              - conditions: "{{ resp_get.error == 'not_found' and (resp_get.matches | default([], true) | length) == 0 }}"
                 sequence:
                   - set_conversation_response: "I couldn't find that entry."
-              - conditions: "{{ resp_get.result.error == 'ambiguous' and (resp_get.result.matches | length) > 0 }}"
+              - conditions: "{{ resp_get.error == 'ambiguous' and (resp_get.matches | length) > 0 }}"
                 sequence:
                   - variables:
-                      items: "{{ resp_get.result.matches[:max_choices] }}"
+                      items: "{{ resp_get.matches[:max_choices] }}"
                   - set_conversation_response: >
                       I found a few candidates:
                       {% for it in items -%}
@@ -400,14 +400,14 @@ actions:
                               key: "{{ chosen_key }}"
                             response_variable: resp_getn
                           - choose:
-                              - conditions: "{{ resp_getn.result.status == 'ok' }}"
+                              - conditions: "{{ resp_getn.status == 'ok' }}"
                                 sequence:
-                                  - set_conversation_response: "{{ resp_getn.result.value }}"
-                              - conditions: "{{ resp_getn.result.error == 'expired' }}"
+                                  - set_conversation_response: "{{ resp_getn.value }}"
+                              - conditions: "{{ resp_getn.error == 'expired' }}"
                                 sequence:
                                   - variables:
-                                      prev2: "{{ resp_getn.result.value | default(resp_getn.result.value_preview, true) | default('', true) }}"
-                                      kget2: "{{ resp_getn.result.key | default(chosen_key) }}"
+                                      prev2: "{{ resp_getn.value | default('', true) }}"
+                                      kget2: "{{ resp_getn.key | default(chosen_key) }}"
                                   - set_conversation_response: >
                                       This entry has expired{% if prev2 %}: "{{ prev2 | string | truncate(60, True) }}"{% endif %}.
                                       Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
@@ -426,15 +426,15 @@ actions:
               limit: "{{ s_limit }}"
             response_variable: resp_s
           - choose:
-              - conditions: "{{ resp_s.result.status != 'ok' }}"
+              - conditions: "{{ resp_s.status != 'ok' }}"
                 sequence:
                   - set_conversation_response: "Search failed. Please try again later."
-              - conditions: "{{ (resp_s.result.results | length) == 0 }}"
+              - conditions: "{{ (resp_s.results | length) == 0 }}"
                 sequence:
                   - set_conversation_response: "No matching results."
             default:
               - variables:
-                  all_items: "{{ resp_s.result.results }}"
+                  all_items: "{{ resp_s.results }}"
                   page: 0
               - repeat:
                   while:
@@ -486,14 +486,14 @@ actions:
                                 key: "{{ chosen_key }}"
                               response_variable: resp_get_from_search
                             - choose:
-                                - conditions: "{{ resp_get_from_search.result.status == 'ok' }}"
+                                - conditions: "{{ resp_get_from_search.status == 'ok' }}"
                                   sequence:
-                                    - set_conversation_response: "{{ resp_get_from_search.result.value }}"
-                                - conditions: "{{ resp_get_from_search.result.error == 'expired' }}"
+                                    - set_conversation_response: "{{ resp_get_from_search.value }}"
+                                - conditions: "{{ resp_get_from_search.error == 'expired' }}"
                                   sequence:
                                     - variables:
-                                        prevs: "{{ resp_get_from_search.result.value | default(resp_get_from_search.result.value_preview, true) | default('', true) }}"
-                                        ksel: "{{ resp_get_from_search.result.key | default(chosen_key) }}"
+                                        prevs: "{{ resp_get_from_search.value | default('', true) }}"
+                                        ksel: "{{ resp_get_from_search.key | default(chosen_key) }}"
                                     - set_conversation_response: >
                                         This entry has expired{% if prevs %}: "{{ prevs | string | truncate(60, True) }}"{% endif %}.
                                         Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
@@ -514,13 +514,13 @@ actions:
                                             - service: pyscript.memory_set
                                               data:
                                                 key: "{{ ksel }}"
-                                                value: "{{ resp_get_from_search.result.value }}"
+                                                value: "{{ resp_get_from_search.value }}"
                                                 scope: "{{ scope }}"
                                                 expiration_days: "{{ exp_days }}"
-                                                tags: "{{ resp_get_from_search.result.tags | default('', true) }}"
+                                                tags: "{{ resp_get_from_search.tags | default('', true) }}"
                                               response_variable: resp_restore_search
                                             - choose:
-                                                - conditions: "{{ resp_restore_search.result.status == 'ok' }}"
+                                                - conditions: "{{ resp_restore_search.status == 'ok' }}"
                                                   sequence:
                                                     - set_conversation_response: "Restored {{ ksel }}."
                                               default:
@@ -541,10 +541,10 @@ actions:
                                                 value: "{{ new_val }}"
                                                 scope: "{{ scope }}"
                                                 expiration_days: "{{ exp_days }}"
-                                                tags: "{{ resp_get_from_search.result.tags | default('', true) }}"
+                                                tags: "{{ resp_get_from_search.tags | default('', true) }}"
                                               response_variable: resp_update_exp_search
                                             - choose:
-                                                - conditions: "{{ resp_update_exp_search.result.status == 'ok' }}"
+                                                - conditions: "{{ resp_update_exp_search.status == 'ok' }}"
                                                   sequence:
                                                     - set_conversation_response: "Updated and restored {{ ksel }}."
                                               default:
@@ -556,16 +556,16 @@ actions:
                                             - service: pyscript.memory_set
                                               data:
                                                 key: "{{ new_key }}"
-                                                value: "{{ resp_get_from_search.result.value }}"
+                                                value: "{{ resp_get_from_search.value }}"
                                                 scope: "{{ scope }}"
                                                 expiration_days: "{{ exp_days }}"
-                                                tags: "{{ resp_get_from_search.result.tags | default('', true) }}"
+                                                tags: "{{ resp_get_from_search.tags | default('', true) }}"
                                                 force_new: true
                                               response_variable: resp_new_from_exp_search
                                             - choose:
-                                                - conditions: "{{ resp_new_from_exp_search.result.status == 'ok' }}"
+                                                - conditions: "{{ resp_new_from_exp_search.status == 'ok' }}"
                                                   sequence:
-                                                    - set_conversation_response: "Created new entry {{ resp_new_from_exp_search.result.key or new_key }}."
+                                                    - set_conversation_response: "Created new entry {{ resp_new_from_exp_search.key or new_key }}."
                                               default:
                                                 - set_conversation_response: "Unable to create a new entry right now."
                               default:
@@ -590,15 +590,15 @@ actions:
                                 limit: "{{ s_limit }}"
                               response_variable: resp_s_refine
                             - choose:
-                                - conditions: "{{ resp_s_refine.result.status != 'ok' }}"
+                                - conditions: "{{ resp_s_refine.status != 'ok' }}"
                                   sequence:
                                     - set_conversation_response: "Search failed. Please try again later."
-                                - conditions: "{{ (resp_s_refine.result.results | length) == 0 }}"
+                                - conditions: "{{ (resp_s_refine.results | length) == 0 }}"
                                   sequence:
                                     - set_conversation_response: "No matching results after refine."
                               default:
                                 - variables:
-                                    all_items: "{{ resp_s_refine.result.results }}"
+                                    all_items: "{{ resp_s_refine.results }}"
                                     page: 0
                       default:
                         - set_conversation_response: "Canceled."
@@ -624,16 +624,16 @@ actions:
                               key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                             response_variable: resp_del_try
                           - choose:
-                              - conditions: "{{ resp_del_try.result.status == 'ok' }}"
+                              - conditions: "{{ resp_del_try.status == 'ok' }}"
                                 sequence:
-                                  - set_conversation_response: "Deleted {{ resp_del_try.result.key or (key_norm or key_phrase) }}."
-                              - conditions: "{{ resp_del_try.result.error == 'not_found' and (resp_del_try.result.matches | default([], true) | length) == 0 }}"
+                                  - set_conversation_response: "Deleted {{ resp_del_try.key or (key_norm or key_phrase) }}."
+                              - conditions: "{{ resp_del_try.error == 'not_found' and (resp_del_try.matches | default([], true) | length) == 0 }}"
                                 sequence:
                                   - set_conversation_response: "Nothing to delete for that entry."
-                              - conditions: "{{ resp_del_try.result.error == 'ambiguous' and (resp_del_try.result.matches | length) > 0 }}"
+                              - conditions: "{{ resp_del_try.error == 'ambiguous' and (resp_del_try.matches | length) > 0 }}"
                                 sequence:
                                   - variables:
-                                      itemsd: "{{ resp_del_try.result.matches[:max_choices] }}"
+                                      itemsd: "{{ resp_del_try.matches[:max_choices] }}"
                                   - set_conversation_response: >
                                       I found a few candidates:
                                       {% for it in itemsd -%}
@@ -682,7 +682,7 @@ actions:
                                                       key: "{{ chosen_key }}"
                                                     response_variable: resp_deln
                                                   - choose:
-                                                      - conditions: "{{ resp_deln.result.status == 'ok' }}"
+                                                      - conditions: "{{ resp_deln.status == 'ok' }}"
                                                         sequence:
                                                           - set_conversation_response: "Deleted {{ chosen_key }}."
                                                     default:
@@ -701,16 +701,16 @@ actions:
                   key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                 response_variable: resp_del_try2
               - choose:
-                  - conditions: "{{ resp_del_try2.result.status == 'ok' }}"
+                  - conditions: "{{ resp_del_try2.status == 'ok' }}"
                     sequence:
-                      - set_conversation_response: "Deleted {{ resp_del_try2.result.key or (key_norm or key_phrase) }}."
-                  - conditions: "{{ resp_del_try2.result.error == 'not_found' and (resp_del_try2.result.matches | default([], true) | length) == 0 }}"
+                      - set_conversation_response: "Deleted {{ resp_del_try2.key or (key_norm or key_phrase) }}."
+                  - conditions: "{{ resp_del_try2.error == 'not_found' and (resp_del_try2.matches | default([], true) | length) == 0 }}"
                     sequence:
                       - set_conversation_response: "Nothing to delete for that entry."
-                  - conditions: "{{ resp_del_try2.result.error == 'ambiguous' and (resp_del_try2.result.matches | length) > 0 }}"
+                  - conditions: "{{ resp_del_try2.error == 'ambiguous' and (resp_del_try2.matches | length) > 0 }}"
                     sequence:
                       - variables:
-                          itemsd: "{{ resp_del_try2.result.matches[:max_choices] }}"
+                          itemsd: "{{ resp_del_try2.matches[:max_choices] }}"
                       - set_conversation_response: >
                           I found a few candidates:
                           {% for it in itemsd -%}
@@ -761,7 +761,7 @@ actions:
                                                   key: "{{ chosen_key }}"
                                                 response_variable: resp_deln2
                                               - choose:
-                                                  - conditions: "{{ resp_deln2.result.status == 'ok' }}"
+                                                  - conditions: "{{ resp_deln2.status == 'ok' }}"
                                                     sequence:
                                                       - set_conversation_response: "Deleted {{ chosen_key }}."
                                                 default:
@@ -774,7 +774,7 @@ actions:
                                       key: "{{ chosen_key }}"
                                     response_variable: resp_deln3
                                   - choose:
-                                      - conditions: "{{ resp_deln3.result.status == 'ok' }}"
+                                      - conditions: "{{ resp_deln3.status == 'ok' }}"
                                         sequence:
                                           - set_conversation_response: "Deleted {{ chosen_key }}."
                                     default:

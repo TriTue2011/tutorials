@@ -15,8 +15,46 @@ EXPIRATION_MAX_DAYS = 3650
 SEARCH_LIMIT_MAX = 50
 NEAR_DISTANCE = 5
 CANDIDATE_CHECK_LIMIT = 5
+HOUSEKEEPING_GRACE_DAYS = 10
+HOUSEKEEPING_GRACE_MAX_DAYS = 365
 VALUE_PREVIEW_CHARS = 120
 BM25_WEIGHT = 0.5
+
+EXTRA_CHAR_REPLACEMENTS = {
+    "đ": "d",
+    "Đ": "d",
+    "ı": "i",
+    "İ": "i",
+    "ñ": "n",
+    "Ñ": "n",
+    "ç": "c",
+    "Ç": "c",
+    "ğ": "g",
+    "Ğ": "g",
+    "ş": "s",
+    "Ş": "s",
+    "ø": "o",
+    "Ø": "o",
+    "ł": "l",
+    "Ł": "l",
+    "ß": "ss",
+    "Æ": "AE",
+    "æ": "ae",
+    "Œ": "OE",
+    "œ": "oe",
+    "Þ": "th",
+    "þ": "th",
+    "Ð": "d",
+    "ð": "d",
+    "Å": "a",
+    "å": "a",
+    "Ä": "a",
+    "ä": "a",
+    "Ö": "o",
+    "ö": "o",
+    "Ü": "u",
+    "ü": "u",
+}
 
 _DB_READY = False
 _DB_READY_LOCK = threading.Lock()
@@ -150,20 +188,20 @@ def _normalize_value(s: str) -> str:
 
 
 def _strip_diacritics(value: str) -> str:
-    """Remove combining marks and normalize Vietnamese đ/Đ."""
+    """Remove diacritics and normalize locale-specific letters (Vietnamese, Turkish, Spanish, Germanic, Nordic)."""
     if value is None:
         return ""
-    decomposed = unicodedata.normalize("NFD", value)
+    decomposed = unicodedata.normalize("NFKD", value)
     filtered: list[str] = []
     for ch in decomposed:
+        replacement = EXTRA_CHAR_REPLACEMENTS.get(ch)
+        if replacement is not None:
+            if replacement:
+                filtered.extend(replacement)
+            continue
         if unicodedata.category(ch) == "Mn":
             continue
-        if ch in {"đ", "ð"}:
-            filtered.append("d")
-        elif ch in {"Đ", "Ð"}:
-            filtered.append("d")
-        else:
-            filtered.append(ch)
+        filtered.append(ch)
     return "".join(filtered)
 
 
@@ -297,6 +335,7 @@ async def _find_tag_matches_for_query(
     *,
     exclude_keys: set[str] | None = None,
     limit: int | None = None,
+    update_last_used: bool = False,
 ) -> list[dict[str, Any]]:
     """Search for potential key matches based on normalized tags."""
     candidates = await _search_tag_candidates(
@@ -307,10 +346,22 @@ async def _find_tag_matches_for_query(
     )
     if not candidates:
         return []
-    return [
+    condensed = [
         _condense_candidate_for_selection(entry, score=score)
         for entry, score in candidates
     ]
+    if update_last_used:
+        max_touch = limit if isinstance(limit, int) and limit > 0 else 1
+        touch_keys: list[str] = []
+        for entry in condensed:
+            key = entry.get("key")
+            if key:
+                touch_keys.append(key)
+            if len(touch_keys) >= max_touch:
+                break
+        if touch_keys:
+            await _memory_touch_keys(touch_keys)
+    return condensed
 
 
 def _tokenize_query(q: str) -> list[str]:
@@ -529,6 +580,36 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     return "error", None
 
 
+def _memory_touch_keys_db_sync(keys: list[str], ts: str | None = None) -> None:
+    """Update last_used_at timestamp for provided keys."""
+    normalized_keys: list[str] = []
+    for key in keys:
+        normalized = _normalize_key(key)
+        if normalized:
+            normalized_keys.append(normalized)
+    if not normalized_keys:
+        return
+    unique_keys = list(dict.fromkeys(normalized_keys))
+    stamp = ts or _utcnow_iso()
+    for attempt in range(2):
+        try:
+            _ensure_db_once(force=attempt == 1)
+            with sqlite3.connect(DB_PATH) as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+                cur.executemany(
+                    "UPDATE mem SET last_used_at=? WHERE key=?",
+                    [(stamp, key) for key in unique_keys],
+                )
+                conn.commit()
+            return
+        except sqlite3.OperationalError:
+            _reset_db_ready()
+            if attempt == 0:
+                continue
+            raise
+
+
 def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     """Run the primary search query, returning matching memory rows."""
     normalized_query = _normalize_search_text(query)
@@ -657,8 +738,11 @@ def _memory_forget_db_sync(key_norm: str) -> int:
     return 0
 
 
-def _memory_purge_expired_db_sync() -> int:
-    """Remove expired rows from the main table and report how many were purged."""
+def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
+    """Remove expired rows older than the grace period and report how many were purged."""
+    grace = max(int(grace_days), 0)
+    cutoff_dt = datetime.now(timezone.utc) - timedelta(days=grace)
+    cutoff_iso = cutoff_dt.isoformat()
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
@@ -667,7 +751,7 @@ def _memory_purge_expired_db_sync() -> int:
                 cur = conn.cursor()
                 cur.execute(
                     "DELETE FROM mem WHERE expires_at IS NOT NULL AND expires_at < ?",
-                    (_utcnow_iso(),),
+                    (cutoff_iso,),
                 )
                 rowcount = getattr(cur, "rowcount", -1)
                 removed = rowcount if rowcount and rowcount > 0 else 0
@@ -787,6 +871,7 @@ async def _memory_set_db(
     now_iso: str,
     expires_at: str | None,
 ) -> bool:
+    """Async wrapper around _memory_set_db_sync to keep writes off the event loop."""
     return await asyncio.to_thread(
         _memory_set_db_sync,
         key_norm,
@@ -800,30 +885,45 @@ async def _memory_set_db(
 
 
 async def _memory_key_exists_db(key_norm: str) -> bool:
+    """Async wrapper that checks key existence via _memory_key_exists_db_sync."""
     return await asyncio.to_thread(_memory_key_exists_db_sync, key_norm)
 
 
 async def _memory_get_db(key_norm: str) -> tuple[str, dict[str, Any] | None]:
+    """Async wrapper for _memory_get_db_sync handling DB access in a thread."""
     return await asyncio.to_thread(_memory_get_db_sync, key_norm)
 
 
+async def _memory_touch_keys(keys: list[str]) -> None:
+    """Async helper to mark keys as recently used."""
+    key_list = [key for key in keys if key]
+    if not key_list:
+        return
+    await asyncio.to_thread(_memory_touch_keys_db_sync, key_list)
+
+
 async def _memory_search_db(query: str, limit: int) -> list[dict[str, Any]]:
+    """Async wrapper that runs _memory_search_db_sync without blocking."""
     return await asyncio.to_thread(_memory_search_db_sync, query, limit)
 
 
 async def _memory_forget_db(key_norm: str) -> int:
+    """Async wrapper for _memory_forget_db_sync."""
     return await asyncio.to_thread(_memory_forget_db_sync, key_norm)
 
 
-async def _memory_purge_expired_db() -> int:
-    return await asyncio.to_thread(_memory_purge_expired_db_sync)
+async def _memory_purge_expired_db(grace_days: int = 0) -> int:
+    """Async wrapper for the purge helper supporting a grace window."""
+    return await asyncio.to_thread(_memory_purge_expired_db_sync, grace_days)
 
 
 async def _memory_reindex_fts_db() -> tuple[int, int]:
+    """Async wrapper rebuilding the FTS index via _memory_reindex_fts_db_sync."""
     return await asyncio.to_thread(_memory_reindex_fts_db_sync)
 
 
 async def _memory_health_check_db() -> tuple[int, int, int]:
+    """Async wrapper running the health-check query in a thread."""
     return await asyncio.to_thread(_memory_health_check_db_sync)
 
 
@@ -1070,7 +1170,7 @@ async def memory_get(key: str):
 
     if status == "not_found":
         matches = await _find_tag_matches_for_query(
-            key or key_norm, exclude_keys={key_norm}
+            key or key_norm, exclude_keys={key_norm}, update_last_used=True
         )
         error_code = "ambiguous" if matches else "not_found"
         _set_result(
@@ -1214,21 +1314,53 @@ async def memory_forget(key: str):
 
 
 @service(supports_response="only")
-async def memory_purge_expired():
+async def memory_purge_expired(grace_days: int | None = None):
     """
     yaml
     name: Memory Purge Expired
-    description: Remove expired records; FTS triggers maintain the index.
+    description: Remove expired rows older than the provided grace period; manual calls default to 0 days while daily housekeeping uses HOUSEKEEPING_GRACE_DAYS.
+    fields:
+      grace_days:
+        name: Grace Days
+        description: Extra days to keep expired entries before deletion (clamped to HOUSEKEEPING_GRACE_MAX_DAYS).
+        default: 0
+        example: 10
+        selector:
+          number:
+            min: 0
+            max: 365
     """
+    if grace_days is None:
+        grace = 0
+    else:
+        try:
+            grace = int(grace_days)
+        except (TypeError, ValueError):
+            grace = 0
+    if grace < 0:
+        grace = 0
+    if grace > HOUSEKEEPING_GRACE_MAX_DAYS:
+        grace = HOUSEKEEPING_GRACE_MAX_DAYS
+
     try:
-        removed = await _memory_purge_expired_db()
+        removed = await _memory_purge_expired_db(grace)
     except Exception as e:
         log.error(f"memory_purge_expired failed: {e}")
-        _set_result("error", op="purge_expired", error=str(e))
-        return {"status": "error", "op": "purge_expired", "error": str(e)}
+        _set_result("error", op="purge_expired", grace_days=grace, error=str(e))
+        return {
+            "status": "error",
+            "op": "purge_expired",
+            "grace_days": grace,
+            "error": str(e),
+        }
 
-    _set_result("ok", op="purge_expired", removed=removed)
-    return {"status": "ok", "op": "purge_expired", "removed": removed}
+    _set_result("ok", op="purge_expired", grace_days=grace, removed=removed)
+    return {
+        "status": "ok",
+        "op": "purge_expired",
+        "grace_days": grace,
+        "removed": removed,
+    }
 
 
 @service(supports_response="only")
@@ -1295,8 +1427,8 @@ async def memory_health_check():
 
 @time_trigger("cron(0 3 * * *)")
 async def memory_daily_housekeeping():
-    """Daily housekeeping: purge expired items and clean FTS index."""
+    """Daily housekeeping: purge entries older than HOUSEKEEPING_GRACE_DAYS and tidy the FTS index."""
     try:
-        await memory_purge_expired()
+        await memory_purge_expired(grace_days=HOUSEKEEPING_GRACE_DAYS)
     except Exception as e:
         log.error(f"memory_daily_housekeeping failed: {e}")

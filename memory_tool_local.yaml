@@ -317,8 +317,7 @@ actions:
                           - set_conversation_response: "What is the new value?"
                           - wait_for_trigger:
                               - trigger: conversation
-                                sentence:
-                                  text: "{update_value}"
+                                command: "{update_value}"
                             timeout: !input choice_timeout
                             continue_on_timeout: false
                           - variables:
@@ -531,8 +530,7 @@ actions:
                                             - set_conversation_response: "What is the new value?"
                                             - wait_for_trigger:
                                                 - trigger: conversation
-                                                  sentence:
-                                                    text: "{update_value_search}"
+                                                  command: "{update_value_search}"
                                               timeout: !input choice_timeout
                                               continue_on_timeout: false
                                             - variables:
@@ -581,8 +579,7 @@ actions:
                             - set_conversation_response: "Please say extra keywords to refine your search."
                             - wait_for_trigger:
                                 - trigger: conversation
-                                  sentence:
-                                    text: "{refine_extra}"
+                                  command: "{refine_extra}"
                               timeout: !input choice_timeout
                               continue_on_timeout: false
                             - variables:

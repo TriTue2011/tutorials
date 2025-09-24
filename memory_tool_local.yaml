@@ -178,11 +178,11 @@ variables:
     {{ base if base else (key_norm or 'note') }}
 actions:
   - choose:
-      - conditions: "{{ trigger.id == 'set' and key_phrase and value }}"
+      - conditions: "{{ trigger.id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:
           - service: pyscript.memory_set
             data:
-              key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
+              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
               value: "{{ value }}"
               scope: "{{ scope }}"
               expiration_days: "{{ exp_days }}"
@@ -248,7 +248,7 @@ actions:
                         sequence:
                           - service: pyscript.memory_set
                             data:
-                              key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
+                              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                               value: "{{ value }}"
                               scope: "{{ scope }}"
                               expiration_days: "{{ exp_days }}"
@@ -265,11 +265,11 @@ actions:
                       - set_conversation_response: "Canceled."
             default:
               - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
-      - conditions: "{{ trigger.id == 'get' and key_phrase }}"
+      - conditions: "{{ trigger.id == 'get' and key_phrase|length > 0 }}"
         sequence:
           - service: pyscript.memory_get
             data:
-              key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
+              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
             response_variable: resp_get
           - choose:
               - conditions: "{{ resp_get.result.status == 'ok' }}"
@@ -339,7 +339,7 @@ actions:
                       - conditions: "{{ trigger.conversation_command in create_new_cmds and allow_force_new }}"
                         sequence:
                           - variables:
-                              new_key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
+                              new_key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                           - service: pyscript.memory_set
                             data:
                               key: "{{ new_key }}"
@@ -418,7 +418,7 @@ actions:
                       - set_conversation_response: "Canceled."
             default:
               - set_conversation_response: "I couldn't retrieve it right now."
-      - conditions: "{{ trigger.id == 'search' and key_phrase }}"
+      - conditions: "{{ trigger.id == 'search' and key_phrase|length > 0 }}"
         sequence:
           - service: pyscript.memory_search
             data:
@@ -552,7 +552,7 @@ actions:
                                         - conditions: "{{ trigger.conversation_command in create_new_cmds and allow_force_new }}"
                                           sequence:
                                             - variables:
-                                                new_key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
+                                                new_key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                                             - service: pyscript.memory_set
                                               data:
                                                 key: "{{ new_key }}"
@@ -603,7 +603,7 @@ actions:
                       default:
                         - set_conversation_response: "Canceled."
                         - stop:
-      - conditions: "{{ trigger.id == 'forget' and key_phrase }}"
+      - conditions: "{{ trigger.id == 'forget' and key_phrase|length > 0 }}"
         sequence:
           - choose:
               - conditions: "{{ must_confirm_delete }}"
@@ -621,7 +621,7 @@ actions:
                         sequence:
                           - service: pyscript.memory_forget
                             data:
-                              key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
+                              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                             response_variable: resp_del_try
                           - choose:
                               - conditions: "{{ resp_del_try.result.status == 'ok' }}"
@@ -698,7 +698,7 @@ actions:
             default:
               - service: pyscript.memory_forget
                 data:
-                  key: "{{ key_norm if key_norm else (key_phrase | lower | replace(' ','_')) }}"
+                  key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                 response_variable: resp_del_try2
               - choose:
                   - conditions: "{{ resp_del_try2.result.status == 'ok' }}"

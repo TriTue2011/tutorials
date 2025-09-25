@@ -178,8 +178,22 @@ variables:
     {{ base if base else (key_norm or 'note') }}
 actions:
   - variables:
-      context_id: "{{ trigger.context.id | default('', true) }}"
-      parent_id: "{{ trigger.context.parent_id | default('', true) }}"
+      context_id: >
+        {% set ctx = none %}
+        {% if trigger.user_input is defined and trigger.user_input.context is defined %}
+          {% set ctx = trigger.user_input.context %}
+        {% elif this is defined and this.context is defined %}
+          {% set ctx = this.context %}
+        {% endif %}
+        {{ ctx.id | default('', true) if ctx is not none else '' }}
+      parent_id: >
+        {% set ctx = none %}
+        {% if trigger.user_input is defined and trigger.user_input.context is defined %}
+          {% set ctx = trigger.user_input.context %}
+        {% elif this is defined and this.context is defined %}
+          {% set ctx = this.context %}
+        {% endif %}
+        {{ ctx.parent_id | default('', true) if ctx is not none else '' }}
       resume_key: "{{ parent_id if parent_id | length > 0 else context_id }}"
       store_key: "{{ context_id }}"
       resume_enabled: "{{ resume_key | length > 0 }}"

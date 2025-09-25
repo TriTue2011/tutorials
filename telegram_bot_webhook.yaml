@@ -150,13 +150,13 @@ actions:
   - variables:
       chat_id: >-
         {{ ('id_' ~ trigger.json.message.chat.id ~ '_' ~ trigger.json.message.from.id) | slugify }}
-  - action: pyscript.conversation_id_fetcher
+  - action: pyscript.cache_entry_fetcher
     data:
-      chat_id: "{{ chat_id }}"
+      key: "{{ chat_id }}"
     response_variable: get_chat
   - variables:
       conversation_id: >-
-        {{ get_chat.conversation_id if (get_chat.conversation_id | default('', true) | length > 0) }}
+        {{ get_chat.value if (get_chat.value | default('', true) | length > 0) }}
   - choose:
       - conditions:
           - condition: template
@@ -430,10 +430,10 @@ actions:
           - variables:
               response: >-
                 {{ result.response.speech.plain.speech if (result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0) else 'No response from assistant' }}
-          - action: pyscript.conversation_id_setter
+          - action: pyscript.cache_entry_setter
             data:
-              conversation_id: "{{ result.conversation_id }}"
-              chat_id: "{{ chat_id }}"
+              value: "{{ result.conversation_id }}"
+              key: "{{ chat_id }}"
             response_variable: set_chat
           - action: pyscript.send_telegram_message
             data:

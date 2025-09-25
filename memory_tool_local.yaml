@@ -199,8 +199,10 @@ actions:
                       matches: "{{ resp_set.matches[:max_choices] }}"
                   - set_conversation_response: >
                       I found similar entries:
+
                       {% for m in matches -%}
-                      {{ loop.index }}) {{ m.key }} - "{{ (m.value or '') | string | truncate(60, True) }}"
+                      {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(60, True) }}"
+
                       {% endfor %}
                       Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   - wait_for_trigger:
@@ -282,6 +284,7 @@ actions:
                       kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
                   - set_conversation_response: >
                       This entry has expired{% if prev %}: "{{ prev | string | truncate(60, True) }}"{% endif %}.
+
                       Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
                       "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first,
                       "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
@@ -366,8 +369,10 @@ actions:
                       items: "{{ resp_get.matches[:max_choices] }}"
                   - set_conversation_response: >
                       I found a few candidates:
+
                       {% for it in items -%}
-                      {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+                      {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
                       {% endfor %}
                       Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   - wait_for_trigger:
@@ -410,6 +415,7 @@ actions:
                                       kget2: "{{ resp_getn.key | default(chosen_key) }}"
                                   - set_conversation_response: >
                                       This entry has expired{% if prev2 %}: "{{ prev2 | string | truncate(60, True) }}"{% endif %}.
+
                                       Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
                                       "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                             default:
@@ -447,8 +453,10 @@ actions:
                         page_items: "{{ all_items[start_idx:end_idx] }}"
                     - set_conversation_response: >
                         Results ({{ start_idx + 1 }}-{{ [end_idx, (all_items | length)] | min }} of {{ all_items | length }}):
+
                         {% for it in page_items -%}
-                        {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
                         {% endfor %}
                         Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
                         say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
@@ -496,6 +504,7 @@ actions:
                                         ksel: "{{ resp_get_from_search.key | default(chosen_key) }}"
                                     - set_conversation_response: >
                                         This entry has expired{% if prevs %}: "{{ prevs | string | truncate(60, True) }}"{% endif %}.
+
                                         Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
                                         "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                                     - wait_for_trigger:
@@ -636,8 +645,10 @@ actions:
                                       itemsd: "{{ resp_del_try.matches[:max_choices] }}"
                                   - set_conversation_response: >
                                       I found a few candidates:
+
                                       {% for it in itemsd -%}
-                                      {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+                                      {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
                                       {% endfor %}
                                       Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                                   - wait_for_trigger:
@@ -713,8 +724,10 @@ actions:
                           itemsd: "{{ resp_del_try2.matches[:max_choices] }}"
                       - set_conversation_response: >
                           I found a few candidates:
+
                           {% for it in itemsd -%}
-                          {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+                          {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
                           {% endfor %}
                           Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                       - wait_for_trigger:

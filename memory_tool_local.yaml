@@ -135,15 +135,7 @@ triggers:
     command: !input forget_commands
   - id: resume
     trigger: conversation
-    command:
-      - !input yes_commands
-      - !input no_commands
-      - !input create_new_commands
-      - !input cancel_commands
-      - !input refine_commands
-      - !input more_commands
-      - !input restore_commands
-      - !input update_commands
+    command: "{{ resume_cmds }}"
 
 variables:
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
@@ -188,6 +180,8 @@ variables:
     {% set val = (value or '') | lower -%}
     {% set base = (phrase ~ ' ' ~ val).strip() -%}
     {{ base if base else (key_norm or 'note') }}
+  resume_cmds: >
+    {{ yes_cmds + no_cmds + create_new_cmds + cancel_cmds + refine_cmds + more_cmds + restore_cmds + update_cmds }}
 actions:
   - variables:
       context_id: >

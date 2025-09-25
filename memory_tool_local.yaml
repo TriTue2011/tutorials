@@ -177,6 +177,610 @@ variables:
     {% set base = (phrase ~ ' ' ~ val).strip() -%}
     {{ base if base else (key_norm or 'note') }}
 actions:
+  - variables:
+      convo_key: "{{ trigger.conversation_id | default('', true) }}"
+  - service: pyscript.memory_cache_get
+    data:
+      key: "{{ convo_key }}"
+    response_variable: resume_cache
+  - choose:
+      - conditions: "{{ resume_cache.status == 'ok' and (resume_cache.value | default('', true) | length) > 0 }}"
+        sequence:
+          - variables:
+              resume_original: "{{ resume_cache.value }}"
+              resume_payload: "{{ resume_cache.value | from_json }}"
+          - service: pyscript.memory_cache_forget
+            data:
+              key: "{{ convo_key }}"
+          - choose:
+              - conditions: "{{ resume_payload.pending_action == 'set_duplicate_choice' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                      matches_ctx: "{{ resume_payload.matches | default([], true) }}"
+                      pick_num: >
+                        {% set c = resume_sentence %}
+                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                        {% else -%}0{% endif -%}
+                  - choose:
+                      - conditions: "{{ resume_sentence in cancel_cmds }}"
+                        sequence:
+                          - set_conversation_response: "Canceled."
+                          - stop: true
+                      - conditions: "{{ resume_sentence in create_new_cmds and resume_payload.allow_force_new }}"
+                        sequence:
+                          - service: pyscript.memory_set
+                            data:
+                              key: "{{ resume_payload.key_norm or resume_payload.key_phrase }}"
+                              value: "{{ resume_payload.value }}"
+                              scope: "{{ resume_payload.scope }}"
+                              expiration_days: "{{ resume_payload.expiration_days }}"
+                              tags: "{{ resume_payload.tags }}"
+                              force_new: true
+                            response_variable: resp_force_new
+                          - choose:
+                              - conditions: "{{ resp_force_new.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Created new entry {{ resp_force_new.key or (resume_payload.key_norm or resume_payload.key_phrase) }}."
+                            default:
+                              - set_conversation_response: "Unable to create a new entry right now."
+                          - stop: true
+                      - conditions: "{{ 1 <= pick_num <= (matches_ctx | length) }}"
+                        sequence:
+                          - variables:
+                              chosen_item: "{{ matches_ctx[pick_num - 1] }}"
+                              chosen_key: "{{ chosen_item.key }}"
+                          - service: pyscript.memory_set
+                            data:
+                              key: "{{ chosen_key }}"
+                              value: "{{ resume_payload.value }}"
+                              scope: "{{ resume_payload.scope }}"
+                              expiration_days: "{{ resume_payload.expiration_days }}"
+                              tags: "{{ resume_payload.tags }}"
+                            response_variable: resp_update_existing
+                          - choose:
+                              - conditions: "{{ resp_update_existing.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Updated {{ chosen_key }}."
+                            default:
+                              - set_conversation_response: "Unable to update right now."
+                          - stop: true
+                  - variables:
+                      prompt_text: "{{ resume_payload.prompt }}"
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'get_ambiguous_choice' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                      items_ctx: "{{ resume_payload.items | default([], true) }}"
+                      prompt_text: "{{ resume_payload.prompt }}"
+                      pick_num: >
+                        {% set c = resume_sentence %}
+                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                        {% else -%}0{% endif -%}
+                  - choose:
+                      - conditions: "{{ resume_sentence in cancel_cmds }}"
+                        sequence:
+                          - set_conversation_response: "Canceled."
+                          - stop: true
+                      - conditions: "{{ 1 <= pick_num <= (items_ctx | length) }}"
+                        sequence:
+                          - variables:
+                              chosen_item: "{{ items_ctx[pick_num - 1] }}"
+                              chosen_key: "{{ chosen_item.key }}"
+                          - service: pyscript.memory_get
+                            data:
+                              key: "{{ chosen_key }}"
+                            response_variable: resp_resume_get
+                          - choose:
+                              - conditions: "{{ resp_resume_get.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "{{ resp_resume_get.value }}"
+                                  - stop: true
+                              - conditions: "{{ resp_resume_get.error == 'expired' }}"
+                                sequence:
+                                  - variables:
+                                      expired_prompt: >
+                                        This entry has expired{% if resp_resume_get.value | default('', true) -%}: "{{ resp_resume_get.value | string | truncate(60, True) }}"{% endif -%}.
+
+
+                                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}", "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                                  - variables:
+                                      expired_payload: >
+                                        {{ {
+                                          'pending_action': 'get_expired_choice',
+                                          'key': chosen_key,
+                                          'value': resp_resume_get.value,
+                                          'tags': resp_resume_get.tags | default('', true),
+                                          'scope': scope,
+                                          'expiration_days': exp_days,
+                                          'key_phrase': resume_payload.key_phrase | default(key_phrase, true),
+                                          'key_norm': chosen_key,
+                                          'prompt': expired_prompt,
+                                          'allow_force_new': allow_force_new
+                                        } | to_json }}
+                                  - service: pyscript.memory_cache_set
+                                    data:
+                                      key: "{{ convo_key }}"
+                                      value: "{{ expired_payload }}"
+                                      ttl_seconds: "{{ choice_timeout }}"
+                                  - set_conversation_response: "{{ expired_prompt }}"
+                                  - stop: true
+                          - set_conversation_response: "I couldn't retrieve it right now."
+                          - stop: true
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'search_results' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                      results_list: "{{ resume_payload.results | default([], true) }}"
+                      page: "{{ resume_payload.page | default(0, true) }}"
+                      prompt_text: "{{ resume_payload.prompt }}"
+                      start_idx: "{{ (page | int) * max_choices }}"
+                      end_idx: "{{ [((page | int) * max_choices) + max_choices, (results_list | length)] | min }}"
+                      page_items: "{{ results_list[start_idx:end_idx] }}"
+                      pick_num: >
+                        {% set c = resume_sentence %}
+                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                        {% else -%}0{% endif -%}
+                  - choose:
+                      - conditions: "{{ resume_sentence in cancel_cmds }}"
+                        sequence:
+                          - set_conversation_response: "Canceled."
+                          - stop: true
+                      - conditions: "{{ resume_sentence in refine_cmds }}"
+                        sequence:
+                          - variables:
+                              refine_prompt: "Please say extra keywords to refine your search."
+                              refine_payload: >
+                                {{ {
+                                  'pending_action': 'search_refine',
+                                  'query': resume_payload.query | default(key_phrase, true),
+                                  'prompt': refine_prompt
+                                } | to_json }}
+                          - service: pyscript.memory_cache_set
+                            data:
+                              key: "{{ convo_key }}"
+                              value: "{{ refine_payload }}"
+                              ttl_seconds: "{{ choice_timeout }}"
+                          - set_conversation_response: "{{ refine_prompt }}"
+                          - stop: true
+                      - conditions: "{{ resume_sentence in more_cmds }}"
+                        sequence:
+                          - variables:
+                              total_results: "{{ results_list | length }}"
+                              next_page: "{{ (page | int) + 1 }}"
+                              next_start: "{{ ((page | int) + 1) * max_choices }}"
+                          - choose:
+                              - conditions: "{{ next_start < total_results }}"
+                                sequence:
+                                  - variables:
+                                      next_end: "{{ [next_start + max_choices, total_results] | min }}"
+                                      next_items: "{{ results_list[next_start:next_end] }}"
+                                      next_prompt: >
+                                        Results ({{ next_start + 1 }}-{{ next_end }} of {{ total_results }}):
+
+                                        {% for it in next_items -%}
+                                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
+                                        {% endfor -%}
+                                        Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
+                                        say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                                      next_payload: >
+                                        {{ {
+                                          'pending_action': 'search_results',
+                                          'results': results_list,
+                                          'page': next_page,
+                                          'query': resume_payload.query | default(key_phrase, true),
+                                          'prompt': next_prompt
+                                        } | to_json }}
+                                  - service: pyscript.memory_cache_set
+                                    data:
+                                      key: "{{ convo_key }}"
+                                      value: "{{ next_payload }}"
+                                      ttl_seconds: "{{ choice_timeout }}"
+                                  - set_conversation_response: "{{ next_prompt }}"
+                                  - stop: true
+                          - service: pyscript.memory_cache_set
+                            data:
+                              key: "{{ convo_key }}"
+                              value: "{{ resume_original }}"
+                              ttl_seconds: "{{ choice_timeout }}"
+                          - set_conversation_response: "No more results."
+                          - stop: true
+                      - conditions: "{{ 1 <= pick_num <= (page_items | length) }}"
+                        sequence:
+                          - variables:
+                              chosen_item: "{{ page_items[pick_num - 1] }}"
+                              chosen_key: "{{ chosen_item.key }}"
+                          - service: pyscript.memory_get
+                            data:
+                              key: "{{ chosen_key }}"
+                            response_variable: resp_resume_search_get
+                          - choose:
+                              - conditions: "{{ resp_resume_search_get.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "{{ resp_resume_search_get.value }}"
+                                  - stop: true
+                              - conditions: "{{ resp_resume_search_get.error == 'expired' }}"
+                                sequence:
+                                  - variables:
+                                      expired_prompt: >
+                                        This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: "{{ resp_resume_search_get.value | string | truncate(60, True) }}"{% endif -%}.
+
+                                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}", "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                                  - variables:
+                                      expired_payload: >
+                                        {{ {
+                                          'pending_action': 'get_expired_choice',
+                                          'key': chosen_key,
+                                          'value': resp_resume_search_get.value,
+                                          'tags': resp_resume_search_get.tags | default('', true),
+                                          'scope': scope,
+                                          'expiration_days': exp_days,
+                                          'key_phrase': resume_payload.query | default(key_phrase, true),
+                                          'key_norm': chosen_key,
+                                          'prompt': expired_prompt,
+                                          'allow_force_new': allow_force_new
+                                        } | to_json }}
+                                  - service: pyscript.memory_cache_set
+                                    data:
+                                      key: "{{ convo_key }}"
+                                      value: "{{ expired_payload }}"
+                                      ttl_seconds: "{{ choice_timeout }}"
+                                  - set_conversation_response: "{{ expired_prompt }}"
+                                  - stop: true
+                          - set_conversation_response: "I couldn't retrieve it right now."
+                          - stop: true
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'search_refine' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | trim }}"
+                      base_query: "{{ resume_payload.query | default(key_phrase, true) }}"
+                      prompt_text: "{{ resume_payload.prompt }}"
+                  - choose:
+                      - conditions: "{{ resume_sentence | length == 0 }}"
+                        sequence:
+                          - service: pyscript.memory_cache_set
+                            data:
+                              key: "{{ convo_key }}"
+                              value: "{{ resume_original }}"
+                              ttl_seconds: "{{ choice_timeout }}"
+                          - set_conversation_response: "{{ prompt_text }}"
+                          - stop: true
+                  - service: pyscript.memory_search
+                    data:
+                      query: "{{ (base_query ~ ' ' ~ resume_sentence) | trim }}"
+                      limit: "{{ s_limit }}"
+                    response_variable: resp_refine
+                  - choose:
+                      - conditions: "{{ resp_refine.status != 'ok' }}"
+                        sequence:
+                          - set_conversation_response: "Search failed. Please try again later."
+                          - stop: true
+                      - conditions: "{{ (resp_refine.results | length) == 0 }}"
+                        sequence:
+                          - set_conversation_response: "No matching results after refine."
+                          - stop: true
+                  - variables:
+                      all_items: "{{ resp_refine.results }}"
+                      new_query: "{{ (base_query ~ ' ' ~ resume_sentence) | trim }}"
+                      new_prompt: >
+                        {% set total = all_items | length %}
+                        {% set end_idx = [max_choices, total] | min %}
+                        {% set page_items = all_items[:max_choices] %}
+                        Results (1-{{ end_idx }} of {{ total }}):
+
+                        {% for it in page_items -%}
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
+                        {% endfor -%}
+                        Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
+                        say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                      new_payload: >
+                        {{ {
+                          'pending_action': 'search_results',
+                          'results': all_items,
+                          'page': 0,
+                          'query': new_query,
+                          'prompt': new_prompt
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ new_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ new_prompt }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'forget_confirm_primary' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                      target_key: "{{ resume_payload.key }}"
+                      prompt_text: "{{ resume_payload.prompt }}"
+                  - choose:
+                      - conditions: "{{ resume_sentence in yes_cmds }}"
+                        sequence:
+                          - service: pyscript.memory_forget
+                            data:
+                              key: "{{ target_key }}"
+                            response_variable: resp_forget_confirm
+                          - choose:
+                              - conditions: "{{ resp_forget_confirm.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Deleted {{ resp_forget_confirm.key or target_key }}."
+                                  - stop: true
+                              - conditions: "{{ resp_forget_confirm.error == 'not_found' and (resp_forget_confirm.matches | default([], true) | length) == 0 }}"
+                                sequence:
+                                  - set_conversation_response: "Nothing to delete for that entry."
+                                  - stop: true
+                              - conditions: "{{ resp_forget_confirm.error == 'ambiguous' and (resp_forget_confirm.matches | length) > 0 }}"
+                                sequence:
+                                  - variables:
+                                      itemsd: "{{ resp_forget_confirm.matches[:max_choices] }}"
+                                      prompt_text: >
+                                        I found a few candidates:
+
+                                        {% for it in itemsd -%}
+                                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
+                                        {% endfor -%}
+                                        Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                                      cache_payload: >
+                                        {% set ns = namespace(items=[]) %}
+                                        {% for it in itemsd %}
+                                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(60, True)}] %}
+                                        {% endfor %}
+                                        {{ {
+                                          'pending_action': 'forget_ambiguous_choice',
+                                          'items': ns.items,
+                                          'must_confirm': must_confirm_delete,
+                                          'prompt': prompt_text
+                                        } | to_json }}
+                                  - service: pyscript.memory_cache_set
+                                    data:
+                                      key: "{{ convo_key }}"
+                                      value: "{{ cache_payload }}"
+                                      ttl_seconds: "{{ choice_timeout }}"
+                                  - set_conversation_response: "{{ prompt_text }}"
+                                  - stop: true
+                          - set_conversation_response: "I couldn't delete it right now."
+                          - stop: true
+                      - conditions: "{{ resume_sentence in no_cmds or resume_sentence in cancel_cmds }}"
+                        sequence:
+                          - set_conversation_response: "Canceled."
+                          - stop: true
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'forget_ambiguous_choice' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                      items_ctx: "{{ resume_payload.items | default([], true) }}"
+                      prompt_text: "{{ resume_payload.prompt }}"
+                      pick_num: >
+                        {% set c = resume_sentence %}
+                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                        {% else -%}0{% endif -%}
+                  - choose:
+                      - conditions: "{{ resume_sentence in cancel_cmds }}"
+                        sequence:
+                          - set_conversation_response: "Canceled."
+                          - stop: true
+                      - conditions: "{{ 1 <= pick_num <= (items_ctx | length) }}"
+                        sequence:
+                          - variables:
+                              chosen_item: "{{ items_ctx[pick_num - 1] }}"
+                              chosen_key: "{{ chosen_item.key }}"
+                              snip_value: "{{ chosen_item.value }}"
+                          - choose:
+                              - conditions: "{{ resume_payload.must_confirm }}"
+                                sequence:
+                                  - variables:
+                                      confirm_prompt: >
+                                        Confirm delete "{{ chosen_key }}"{% if snip_value %} - "{{ snip_value }}"{% endif %}? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
+                                      confirm_payload: >
+                                        {{ {
+                                          'pending_action': 'forget_confirm_secondary',
+                                          'key': chosen_key,
+                                          'prompt': confirm_prompt
+                                        } | to_json }}
+                                  - service: pyscript.memory_cache_set
+                                    data:
+                                      key: "{{ convo_key }}"
+                                      value: "{{ confirm_payload }}"
+                                      ttl_seconds: "{{ choice_timeout }}"
+                                  - set_conversation_response: "{{ confirm_prompt }}"
+                                  - stop: true
+                          - service: pyscript.memory_forget
+                            data:
+                              key: "{{ chosen_key }}"
+                            response_variable: resp_forget_choice
+                          - choose:
+                              - conditions: "{{ resp_forget_choice.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Deleted {{ chosen_key }}."
+                                  - stop: true
+                          - set_conversation_response: "I couldn't delete it right now."
+                          - stop: true
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'forget_confirm_secondary' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                      target_key: "{{ resume_payload.key }}"
+                      prompt_text: "{{ resume_payload.prompt }}"
+                  - choose:
+                      - conditions: "{{ resume_sentence in yes_cmds }}"
+                        sequence:
+                          - service: pyscript.memory_forget
+                            data:
+                              key: "{{ target_key }}"
+                            response_variable: resp_forget_secondary
+                          - choose:
+                              - conditions: "{{ resp_forget_secondary.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Deleted {{ target_key }}."
+                                  - stop: true
+                          - set_conversation_response: "I couldn't delete it right now."
+                          - stop: true
+                      - conditions: "{{ resume_sentence in no_cmds or resume_sentence in cancel_cmds }}"
+                        sequence:
+                          - set_conversation_response: "Canceled."
+                          - stop: true
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'get_expired_choice' }}"
+                sequence:
+                  - variables:
+                      resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                  - choose:
+                      - conditions: "{{ resume_sentence in restore_cmds }}"
+                        sequence:
+                          - service: pyscript.memory_set
+                            data:
+                              key: "{{ resume_payload.key }}"
+                              value: "{{ resume_payload.value }}"
+                              scope: "{{ resume_payload.scope }}"
+                              expiration_days: "{{ resume_payload.expiration_days }}"
+                              tags: "{{ resume_payload.tags }}"
+                            response_variable: resp_resume_restore
+                          - choose:
+                              - conditions: "{{ resp_resume_restore.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Restored {{ resume_payload.key }}."
+                            default:
+                              - set_conversation_response: "Unable to restore right now."
+                          - stop: true
+                      - conditions: "{{ resume_sentence in update_cmds }}"
+                        sequence:
+                          - variables:
+                              update_prompt: "What is the new value?"
+                              update_payload: >
+                                {{ {
+                                  'pending_action': 'get_expired_update_value',
+                                  'key': resume_payload.key,
+                                  'scope': resume_payload.scope,
+                                  'expiration_days': resume_payload.expiration_days,
+                                  'tags': resume_payload.tags,
+                                  'prompt': update_prompt
+                                } | to_json }}
+                          - service: pyscript.memory_cache_set
+                            data:
+                              key: "{{ convo_key }}"
+                              value: "{{ update_payload }}"
+                              ttl_seconds: "{{ choice_timeout }}"
+                          - set_conversation_response: "{{ update_prompt }}"
+                          - stop: true
+                      - conditions: "{{ resume_sentence in create_new_cmds and resume_payload.allow_force_new }}"
+                        sequence:
+                          - variables:
+                              new_key: >
+                                {% if resume_payload.key_norm | default('', true) %}
+                                {{ resume_payload.key_norm }}
+                                {% else %}
+                                {{ (resume_payload.key_phrase | default('', true) | lower | replace(' ','_')) }}
+                                {% endif %}
+                          - service: pyscript.memory_set
+                            data:
+                              key: "{{ new_key }}"
+                              value: "{{ resume_payload.value }}"
+                              scope: "{{ resume_payload.scope }}"
+                              expiration_days: "{{ resume_payload.expiration_days }}"
+                              tags: "{{ resume_payload.tags }}"
+                              force_new: true
+                            response_variable: resp_resume_new
+                          - choose:
+                              - conditions: "{{ resp_resume_new.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Created new entry {{ resp_resume_new.key or new_key }}."
+                            default:
+                              - set_conversation_response: "Unable to create a new entry right now."
+                          - stop: true
+                      - conditions: "{{ resume_sentence in cancel_cmds }}"
+                        sequence:
+                          - set_conversation_response: "Canceled."
+                          - stop: true
+                  - variables:
+                      prompt_text: "{{ resume_payload.prompt }}"
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+              - conditions: "{{ resume_payload.pending_action == 'get_expired_update_value' }}"
+                sequence:
+                  - variables:
+                      new_val: "{{ trigger.slots.update_value | default(trigger.sentence | default('', true), true) }}"
+                  - choose:
+                      - conditions: "{{ new_val | default('', true) | length > 0 }}"
+                        sequence:
+                          - service: pyscript.memory_set
+                            data:
+                              key: "{{ resume_payload.key }}"
+                              value: "{{ new_val }}"
+                              scope: "{{ resume_payload.scope }}"
+                              expiration_days: "{{ resume_payload.expiration_days }}"
+                              tags: "{{ resume_payload.tags }}"
+                            response_variable: resp_resume_update
+                          - choose:
+                              - conditions: "{{ resp_resume_update.status == 'ok' }}"
+                                sequence:
+                                  - set_conversation_response: "Updated and restored {{ resume_payload.key }}."
+                            default:
+                              - set_conversation_response: "Unable to update right now."
+                          - stop: true
+                  - variables:
+                      prompt_text: "{{ resume_payload.prompt | default('What is the new value?') }}"
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ resume_original }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+          - stop: true
   - choose:
       - conditions: "{{ trigger.id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:
@@ -197,74 +801,38 @@ actions:
                 sequence:
                   - variables:
                       matches: "{{ resp_set.matches[:max_choices] }}"
-                  - set_conversation_response: >
-                      I found similar entries:
+                      prompt_text: >
+                        I found similar entries:
 
-                      {% for m in matches -%}
-                      {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(60, True) }}"
+                        {% for m in matches -%}
+                        {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(60, True) }}"
 
-                      {% endfor -%}
-                      Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                  - wait_for_trigger:
-                      - trigger: conversation
-                        command: ["1","one","first"]
-                      - trigger: conversation
-                        command: ["2","two","second"]
-                      - trigger: conversation
-                        command: ["3","three","third"]
-                      - trigger: conversation
-                        command: ["4","four","fourth"]
-                      - trigger: conversation
-                        command: ["5","five","fifth"]
-                      - trigger: conversation
-                        command: !input create_new_commands
-                      - trigger: conversation
-                        command: !input cancel_commands
-                    timeout: !input choice_timeout
-                  - variables:
-                      c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
-                      pick_num: >
-                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
-                        {% else -%}0{% endif -%}
-                  - choose:
-                      - conditions: "{{ 1 <= pick_num <= (matches | length) }}"
-                        sequence:
-                          - variables:
-                              chosen_key: "{{ matches[pick_num - 1].key }}"
-                          - service: pyscript.memory_set
-                            data:
-                              key: "{{ chosen_key }}"
-                              value: "{{ value }}"
-                              scope: "{{ scope }}"
-                              expiration_days: "{{ exp_days }}"
-                              tags: "{{ tags_auto }}"
-                            response_variable: resp_update
-                          - choose:
-                              - conditions: "{{ resp_update.status == 'ok' }}"
-                                sequence:
-                                  - set_conversation_response: "Updated {{ chosen_key }}."
-                            default:
-                              - set_conversation_response: "Unable to update right now."
-                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in create_new_cmds and allow_force_new }}"
-                        sequence:
-                          - service: pyscript.memory_set
-                            data:
-                              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-                              value: "{{ value }}"
-                              scope: "{{ scope }}"
-                              expiration_days: "{{ exp_days }}"
-                              tags: "{{ tags_auto }}"
-                              force_new: true
-                            response_variable: resp_new
-                          - choose:
-                              - conditions: "{{ resp_new.status == 'ok' }}"
-                                sequence:
-                                  - set_conversation_response: "Created new entry {{ resp_new.key or (key_norm or key_phrase) }}."
-                            default:
-                              - set_conversation_response: "Unable to create a new entry right now."
-                    default:
-                      - set_conversation_response: "Canceled."
+                        {% endfor -%}
+                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                      cache_payload: >
+                        {% set ns = namespace(items=[]) %}
+                        {% for m in matches %}
+                        {% set ns.items = ns.items + [{'key': m.key, 'value': (m.value or '') | string | truncate(60, True)}] %}
+                        {% endfor %}
+                        {{ {
+                          'pending_action': 'set_duplicate_choice',
+                          'matches': ns.items,
+                          'value': value,
+                          'scope': scope,
+                          'expiration_days': exp_days,
+                          'tags': tags_auto,
+                          'key_norm': key_norm,
+                          'key_phrase': key_phrase,
+                          'prompt': prompt_text,
+                          'allow_force_new': allow_force_new
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
             default:
               - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
       - conditions: "{{ trigger.id == 'get' and key_phrase|length > 0 }}"
@@ -282,84 +850,32 @@ actions:
                   - variables:
                       prev: "{{ resp_get.value | default('', true) }}"
                       kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
-                  - set_conversation_response: >
-                      This entry has expired{% if prev -%}: "{{ prev | string | truncate(60, True) }}"{% endif -%}.
+                      prompt_text: >
+                        This entry has expired{% if prev -%}: "{{ prev | string | truncate(60, True) }}"{% endif -%}.
 
-                      Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
-                      "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first,
-                      "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                  - wait_for_trigger:
-                      - trigger: conversation
-                        command: !input restore_commands
-                      - trigger: conversation
-                        command: !input update_commands
-                      - trigger: conversation
-                        command: !input create_new_commands
-                      - trigger: conversation
-                        command: !input cancel_commands
-                    timeout: !input choice_timeout
-                  - choose:
-                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in restore_cmds }}"
-                        sequence:
-                          - service: pyscript.memory_set
-                            data:
-                              key: "{{ kget }}"
-                              value: "{{ resp_get.value }}"
-                              scope: "{{ scope }}"
-                              expiration_days: "{{ exp_days }}"
-                              tags: "{{ resp_get.tags | default('', true) }}"
-                            response_variable: resp_restore
-                          - choose:
-                              - conditions: "{{ resp_restore.status == 'ok' }}"
-                                sequence:
-                                  - set_conversation_response: "Restored {{ kget }}."
-                            default:
-                              - set_conversation_response: "Unable to restore right now."
-                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in update_cmds }}"
-                        sequence:
-                          - set_conversation_response: "What is the new value?"
-                          - wait_for_trigger:
-                              - trigger: conversation
-                                command: "{update_value}"
-                            timeout: !input choice_timeout
-                            continue_on_timeout: false
-                          - variables:
-                              new_val: "{{ wait.trigger.slots.update_value if wait.trigger is not none else '' }}"
-                          - service: pyscript.memory_set
-                            data:
-                              key: "{{ kget }}"
-                              value: "{{ new_val }}"
-                              scope: "{{ scope }}"
-                              expiration_days: "{{ exp_days }}"
-                              tags: "{{ resp_get.tags | default('', true) }}"
-                            response_variable: resp_update_exp
-                          - choose:
-                              - conditions: "{{ resp_update_exp.status == 'ok' }}"
-                                sequence:
-                                  - set_conversation_response: "Updated and restored {{ kget }}."
-                            default:
-                              - set_conversation_response: "Unable to update right now."
-                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in create_new_cmds and allow_force_new }}"
-                        sequence:
-                          - variables:
-                              new_key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-                          - service: pyscript.memory_set
-                            data:
-                              key: "{{ new_key }}"
-                              value: "{{ resp_get.value }}"
-                              scope: "{{ scope }}"
-                              expiration_days: "{{ exp_days }}"
-                              tags: "{{ resp_get.tags | default('', true) }}"
-                              force_new: true
-                            response_variable: resp_new_from_exp
-                          - choose:
-                              - conditions: "{{ resp_new_from_exp.status == 'ok' }}"
-                                sequence:
-                                  - set_conversation_response: "Created new entry {{ resp_new_from_exp.key or new_key }}."
-                            default:
-                              - set_conversation_response: "Unable to create a new entry right now."
-                    default:
-                      - set_conversation_response: "Canceled."
+                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
+                        "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first,
+                        "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                      cache_payload: >
+                        {{ {
+                          'pending_action': 'get_expired_choice',
+                          'key': kget,
+                          'value': resp_get.value,
+                          'tags': resp_get.tags | default('', true),
+                          'scope': scope,
+                          'expiration_days': exp_days,
+                          'key_phrase': key_phrase,
+                          'key_norm': key_norm,
+                          'prompt': prompt_text,
+                          'allow_force_new': allow_force_new
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
               - conditions: "{{ resp_get.error == 'not_found' and (resp_get.matches | default([], true) | length) == 0 }}"
                 sequence:
                   - set_conversation_response: "I couldn't find that entry."
@@ -367,61 +883,33 @@ actions:
                 sequence:
                   - variables:
                       items: "{{ resp_get.matches[:max_choices] }}"
-                  - set_conversation_response: >
-                      I found a few candidates:
-
-                      {% for it in items -%}
-                      {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
-
-                      {% endfor -%}
-                      Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                  - wait_for_trigger:
-                      - trigger: conversation
-                        command: ["1","one","first"]
-                      - trigger: conversation
-                        command: ["2","two","second"]
-                      - trigger: conversation
-                        command: ["3","three","third"]
-                      - trigger: conversation
-                        command: ["4","four","fourth"]
-                      - trigger: conversation
-                        command: ["5","five","fifth"]
-                      - trigger: conversation
-                        command: !input cancel_commands
-                    timeout: !input choice_timeout
                   - variables:
-                      c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
-                      pick_num: >
-                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
-                        {% else -%}0{% endif -%}
-                  - choose:
-                      - conditions: "{{ 1 <= pick_num <= (items | length) }}"
-                        sequence:
-                          - variables:
-                              chosen_key: "{{ items[pick_num - 1].key }}"
-                          - service: pyscript.memory_get
-                            data:
-                              key: "{{ chosen_key }}"
-                            response_variable: resp_getn
-                          - choose:
-                              - conditions: "{{ resp_getn.status == 'ok' }}"
-                                sequence:
-                                  - set_conversation_response: "{{ resp_getn.value }}"
-                              - conditions: "{{ resp_getn.error == 'expired' }}"
-                                sequence:
-                                  - variables:
-                                      prev2: "{{ resp_getn.value | default('', true) }}"
-                                      kget2: "{{ resp_getn.key | default(chosen_key) }}"
-                                  - set_conversation_response: >
-                                      This entry has expired{% if prev2 -%}: "{{ prev2 | string | truncate(60, True) }}"{% endif -%}.
+                      items: "{{ resp_get.matches[:max_choices] }}"
+                      prompt_text: >
+                        I found a few candidates:
 
-                                      Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
-                                      "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                            default:
-                              - set_conversation_response: "I couldn't retrieve it right now."
-                    default:
-                      - set_conversation_response: "Canceled."
+                        {% for it in items -%}
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+
+                        {% endfor -%}
+                        Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                      cache_payload: >
+                        {% set ns = namespace(items=[]) %}
+                        {% for it in items %}
+                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(60, True)}] %}
+                        {% endfor %}
+                        {{ {
+                          'pending_action': 'get_ambiguous_choice',
+                          'items': ns.items,
+                          'prompt': prompt_text
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
             default:
               - set_conversation_response: "I couldn't retrieve it right now."
       - conditions: "{{ trigger.id == 'search' and key_phrase|length > 0 }}"
@@ -441,360 +929,99 @@ actions:
             default:
               - variables:
                   all_items: "{{ resp_s.results }}"
-                  page: 0
-              - repeat:
-                  while:
-                    - condition: template
-                      value_template: "{{ (all_items | length) > (page * max_choices) }}"
-                  sequence:
-                    - variables:
-                        start_idx: "{{ page * max_choices }}"
-                        end_idx: "{{ (start_idx + max_choices) | int }}"
-                        page_items: "{{ all_items[start_idx:end_idx] }}"
-                    - set_conversation_response: >
-                        Results ({{ start_idx + 1 }}-{{ [end_idx, (all_items | length)] | min }} of {{ all_items | length }}):
+                  prompt_text: >
+                    {% set total = all_items | length %}
+                    {% set start_idx = 0 %}
+                    {% set end_idx = [max_choices, total] | min %}
+                    {% set page_items = all_items[:max_choices] %}
+                    Results ({{ start_idx + 1 }}-{{ end_idx }} of {{ total }}):
 
-                        {% for it in page_items -%}
-                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+                    {% for it in page_items -%}
+                    {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
 
-                        {% endfor -%}
-                        Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
-                        say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                    - wait_for_trigger:
-                        - trigger: conversation
-                          command: ["1","one","first"]
-                        - trigger: conversation
-                          command: ["2","two","second"]
-                        - trigger: conversation
-                          command: ["3","three","third"]
-                        - trigger: conversation
-                          command: ["4","four","fourth"]
-                        - trigger: conversation
-                          command: ["5","five","fifth"]
-                        - trigger: conversation
-                          command: !input more_commands
-                        - trigger: conversation
-                          command: !input refine_commands
-                        - trigger: conversation
-                          command: !input cancel_commands
-                      timeout: !input choice_timeout
-                    - variables:
-                        c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
-                        pick_num: >
-                          {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                          {% elif c in num_aliases -%}{{ num_aliases[c] }}
-                          {% else -%}0{% endif -%}
-                    - choose:
-                        - conditions: "{{ 1 <= pick_num <= (page_items | length) }}"
-                          sequence:
-                            - variables:
-                                chosen_key: "{{ page_items[pick_num - 1].key }}"
-                            - service: pyscript.memory_get
-                              data:
-                                key: "{{ chosen_key }}"
-                              response_variable: resp_get_from_search
-                            - choose:
-                                - conditions: "{{ resp_get_from_search.status == 'ok' }}"
-                                  sequence:
-                                    - set_conversation_response: "{{ resp_get_from_search.value }}"
-                                - conditions: "{{ resp_get_from_search.error == 'expired' }}"
-                                  sequence:
-                                    - variables:
-                                        prevs: "{{ resp_get_from_search.value | default('', true) }}"
-                                        ksel: "{{ resp_get_from_search.key | default(chosen_key) }}"
-                                    - set_conversation_response: >
-                                        This entry has expired{% if prevs -%}: "{{ prevs | string | truncate(60, True) }}"{% endif -%}.
-
-                                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
-                                        "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                                    - wait_for_trigger:
-                                        - trigger: conversation
-                                          command: !input restore_commands
-                                        - trigger: conversation
-                                          command: !input update_commands
-                                        - trigger: conversation
-                                          command: !input create_new_commands
-                                        - trigger: conversation
-                                          command: !input cancel_commands
-                                      timeout: !input choice_timeout
-                                    - choose:
-                                        - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in restore_cmds }}"
-                                          sequence:
-                                            - service: pyscript.memory_set
-                                              data:
-                                                key: "{{ ksel }}"
-                                                value: "{{ resp_get_from_search.value }}"
-                                                scope: "{{ scope }}"
-                                                expiration_days: "{{ exp_days }}"
-                                                tags: "{{ resp_get_from_search.tags | default('', true) }}"
-                                              response_variable: resp_restore_search
-                                            - choose:
-                                                - conditions: "{{ resp_restore_search.status == 'ok' }}"
-                                                  sequence:
-                                                    - set_conversation_response: "Restored {{ ksel }}."
-                                              default:
-                                                - set_conversation_response: "Unable to restore right now."
-                                        - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in update_cmds }}"
-                                          sequence:
-                                            - set_conversation_response: "What is the new value?"
-                                            - wait_for_trigger:
-                                                - trigger: conversation
-                                                  command: "{update_value_search}"
-                                              timeout: !input choice_timeout
-                                              continue_on_timeout: false
-                                            - variables:
-                                                new_val: "{{ trigger.slots.update_value_search if wait.trigger is not none else '' }}"
-                                            - service: pyscript.memory_set
-                                              data:
-                                                key: "{{ ksel }}"
-                                                value: "{{ new_val }}"
-                                                scope: "{{ scope }}"
-                                                expiration_days: "{{ exp_days }}"
-                                                tags: "{{ resp_get_from_search.tags | default('', true) }}"
-                                              response_variable: resp_update_exp_search
-                                            - choose:
-                                                - conditions: "{{ resp_update_exp_search.status == 'ok' }}"
-                                                  sequence:
-                                                    - set_conversation_response: "Updated and restored {{ ksel }}."
-                                              default:
-                                                - set_conversation_response: "Unable to update right now."
-                                        - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in create_new_cmds and allow_force_new }}"
-                                          sequence:
-                                            - variables:
-                                                new_key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-                                            - service: pyscript.memory_set
-                                              data:
-                                                key: "{{ new_key }}"
-                                                value: "{{ resp_get_from_search.value }}"
-                                                scope: "{{ scope }}"
-                                                expiration_days: "{{ exp_days }}"
-                                                tags: "{{ resp_get_from_search.tags | default('', true) }}"
-                                                force_new: true
-                                              response_variable: resp_new_from_exp_search
-                                            - choose:
-                                                - conditions: "{{ resp_new_from_exp_search.status == 'ok' }}"
-                                                  sequence:
-                                                    - set_conversation_response: "Created new entry {{ resp_new_from_exp_search.key or new_key }}."
-                                              default:
-                                                - set_conversation_response: "Unable to create a new entry right now."
-                              default:
-                                - set_conversation_response: "Canceled."
-                            - stop:
-                        - conditions: "{{ c in more_cmds }}"
-                          sequence:
-                            - variables: { page: "{{ page + 1 }}" }
-                        - conditions: "{{ c in refine_cmds }}"
-                          sequence:
-                            - set_conversation_response: "Please say extra keywords to refine your search."
-                            - wait_for_trigger:
-                                - trigger: conversation
-                                  command: "{refine_extra}"
-                              timeout: !input choice_timeout
-                              continue_on_timeout: false
-                            - variables:
-                                extra: "{{ trigger.slots.refine_extra if wait.trigger is not none else '' }}"
-                            - service: pyscript.memory_search
-                              data:
-                                query: "{{ (key_phrase ~ ' ' ~ extra) | trim }}"
-                                limit: "{{ s_limit }}"
-                              response_variable: resp_s_refine
-                            - choose:
-                                - conditions: "{{ resp_s_refine.status != 'ok' }}"
-                                  sequence:
-                                    - set_conversation_response: "Search failed. Please try again later."
-                                - conditions: "{{ (resp_s_refine.results | length) == 0 }}"
-                                  sequence:
-                                    - set_conversation_response: "No matching results after refine."
-                              default:
-                                - variables:
-                                    all_items: "{{ resp_s_refine.results }}"
-                                    page: 0
-                      default:
-                        - set_conversation_response: "Canceled."
-                        - stop:
+                    {% endfor -%}
+                    Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
+                    say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                  cache_payload: >
+                    {{ {
+                      'pending_action': 'search_results',
+                      'results': all_items,
+                      'page': 0,
+                      'query': key_phrase,
+                      'prompt': prompt_text
+                    } | to_json }}
+              - service: pyscript.memory_cache_set
+                data:
+                  key: "{{ convo_key }}"
+                  value: "{{ cache_payload }}"
+                  ttl_seconds: "{{ choice_timeout }}"
+              - set_conversation_response: "{{ prompt_text }}"
+              - stop: true
       - conditions: "{{ trigger.id == 'forget' and key_phrase|length > 0 }}"
         sequence:
           - choose:
               - conditions: "{{ must_confirm_delete }}"
                 sequence:
-                  - set_conversation_response: >
-                      Delete "{{ key_norm or key_phrase }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
-                  - wait_for_trigger:
-                      - trigger: conversation
-                        command: !input yes_commands
-                      - trigger: conversation
-                        command: !input no_commands
-                    timeout: !input choice_timeout
-                  - choose:
-                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in yes_cmds }}"
-                        sequence:
-                          - service: pyscript.memory_forget
-                            data:
-                              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-                            response_variable: resp_del_try
-                          - choose:
-                              - conditions: "{{ resp_del_try.status == 'ok' }}"
-                                sequence:
-                                  - set_conversation_response: "Deleted {{ resp_del_try.key or (key_norm or key_phrase) }}."
-                              - conditions: "{{ resp_del_try.error == 'not_found' and (resp_del_try.matches | default([], true) | length) == 0 }}"
-                                sequence:
-                                  - set_conversation_response: "Nothing to delete for that entry."
-                              - conditions: "{{ resp_del_try.error == 'ambiguous' and (resp_del_try.matches | length) > 0 }}"
-                                sequence:
-                                  - variables:
-                                      itemsd: "{{ resp_del_try.matches[:max_choices] }}"
-                                  - set_conversation_response: >
-                                      I found a few candidates:
+                  - variables:
+                      prompt_text: >
+                        Delete "{{ key_norm or key_phrase }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
+                      cache_payload: >
+                        {{ {
+                          'pending_action': 'forget_confirm_primary',
+                          'key': key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')),
+                          'key_phrase': key_phrase,
+                          'prompt': prompt_text
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
+          - service: pyscript.memory_forget
+            data:
+              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
+            response_variable: resp_forget
+          - choose:
+              - conditions: "{{ resp_forget.status == 'ok' }}"
+                sequence:
+                  - set_conversation_response: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
+              - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
+                sequence:
+                  - set_conversation_response: "Nothing to delete for that entry."
+              - conditions: "{{ resp_forget.error == 'ambiguous' and (resp_forget.matches | length) > 0 }}"
+                sequence:
+                  - variables:
+                      itemsd: "{{ resp_forget.matches[:max_choices] }}"
+                      prompt_text: >
+                        I found a few candidates:
 
-                                      {% for it in itemsd -%}
-                                      {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
+                        {% for it in itemsd -%}
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
 
-                                      {% endfor -%}
-                                      Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                                  - wait_for_trigger:
-                                      - trigger: conversation
-                                        command: ["1","one","first"]
-                                      - trigger: conversation
-                                        command: ["2","two","second"]
-                                      - trigger: conversation
-                                        command: ["3","three","third"]
-                                      - trigger: conversation
-                                        command: ["4","four","fourth"]
-                                      - trigger: conversation
-                                        command: ["5","five","fifth"]
-                                      - trigger: conversation
-                                        command: !input cancel_commands
-                                    timeout: !input choice_timeout
-                                  - variables:
-                                      c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
-                                      pick_num: >
-                                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
-                                        {% else -%}0{% endif -%}
-                                  - choose:
-                                      - conditions: "{{ 1 <= pick_num <= (itemsd | length) }}"
-                                        sequence:
-                                          - variables:
-                                              chosen_key: "{{ itemsd[pick_num - 1].key }}"
-                                              snip_d2: "{{ (itemsd[pick_num - 1].value or '') | string | truncate(60, True) }}"
-                                          - set_conversation_response: >
-                                              Confirm delete "{{ chosen_key }}" - "{{ snip_d2 }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
-                                          - wait_for_trigger:
-                                              - trigger: conversation
-                                                command: !input yes_commands
-                                              - trigger: conversation
-                                                command: !input no_commands
-                                            timeout: !input choice_timeout
-                                          - choose:
-                                              - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in yes_cmds }}"
-                                                sequence:
-                                                  - service: pyscript.memory_forget
-                                                    data:
-                                                      key: "{{ chosen_key }}"
-                                                    response_variable: resp_deln
-                                                  - choose:
-                                                      - conditions: "{{ resp_deln.status == 'ok' }}"
-                                                        sequence:
-                                                          - set_conversation_response: "Deleted {{ chosen_key }}."
-                                                    default:
-                                                      - set_conversation_response: "I couldn't delete it right now."
-                                            default:
-                                              - set_conversation_response: "Canceled."
-                                    default:
-                                      - set_conversation_response: "Canceled."
-                            default:
-                              - set_conversation_response: "I couldn't delete it right now."
-                    default:
-                      - set_conversation_response: "Canceled."
+                        {% endfor -%}
+                        Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                      cache_payload: >
+                        {% set ns = namespace(items=[]) %}
+                        {% for it in itemsd %}
+                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(60, True)}] %}
+                        {% endfor %}
+                        {{ {
+                          'pending_action': 'forget_ambiguous_choice',
+                          'items': ns.items,
+                          'must_confirm': must_confirm_delete,
+                          'prompt': prompt_text
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ convo_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: true
             default:
-              - service: pyscript.memory_forget
-                data:
-                  key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-                response_variable: resp_del_try2
-              - choose:
-                  - conditions: "{{ resp_del_try2.status == 'ok' }}"
-                    sequence:
-                      - set_conversation_response: "Deleted {{ resp_del_try2.key or (key_norm or key_phrase) }}."
-                  - conditions: "{{ resp_del_try2.error == 'not_found' and (resp_del_try2.matches | default([], true) | length) == 0 }}"
-                    sequence:
-                      - set_conversation_response: "Nothing to delete for that entry."
-                  - conditions: "{{ resp_del_try2.error == 'ambiguous' and (resp_del_try2.matches | length) > 0 }}"
-                    sequence:
-                      - variables:
-                          itemsd: "{{ resp_del_try2.matches[:max_choices] }}"
-                      - set_conversation_response: >
-                          I found a few candidates:
+              - set_conversation_response: "I couldn't delete it right now."
 
-                          {% for it in itemsd -%}
-                          {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
-
-                          {% endfor -%}
-                          Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                      - wait_for_trigger:
-                          - trigger: conversation
-                            command: ["1","one","first"]
-                          - trigger: conversation
-                            command: ["2","two","second"]
-                          - trigger: conversation
-                            command: ["3","three","third"]
-                          - trigger: conversation
-                            command: ["4","four","fourth"]
-                          - trigger: conversation
-                            command: ["5","five","fifth"]
-                          - trigger: conversation
-                            command: !input cancel_commands
-                        timeout: !input choice_timeout
-                      - variables:
-                          c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
-                          pick_num: >
-                            {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                            {% elif c in num_aliases -%}{{ num_aliases[c] }}
-                            {% else -%}0{% endif -%}
-                      - choose:
-                          - conditions: "{{ 1 <= pick_num <= (itemsd | length) }}"
-                            sequence:
-                              - variables:
-                                  chosen_key: "{{ itemsd[pick_num - 1].key }}"
-                              - choose:
-                                  - conditions: "{{ must_confirm_delete }}"
-                                    sequence:
-                                      - set_conversation_response: >
-                                          Confirm delete "{{ chosen_key }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
-                                      - wait_for_trigger:
-                                          - trigger: conversation
-                                            command: !input yes_commands
-                                          - trigger: conversation
-                                            command: !input no_commands
-                                        timeout: !input choice_timeout
-                                      - choose:
-                                          - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in yes_cmds }}"
-                                            sequence:
-                                              - service: pyscript.memory_forget
-                                                data:
-                                                  key: "{{ chosen_key }}"
-                                                response_variable: resp_deln2
-                                              - choose:
-                                                  - conditions: "{{ resp_deln2.status == 'ok' }}"
-                                                    sequence:
-                                                      - set_conversation_response: "Deleted {{ chosen_key }}."
-                                                default:
-                                                  - set_conversation_response: "I couldn't delete it right now."
-                                        default:
-                                          - set_conversation_response: "Canceled."
-                                default:
-                                  - service: pyscript.memory_forget
-                                    data:
-                                      key: "{{ chosen_key }}"
-                                    response_variable: resp_deln3
-                                  - choose:
-                                      - conditions: "{{ resp_deln3.status == 'ok' }}"
-                                        sequence:
-                                          - set_conversation_response: "Deleted {{ chosen_key }}."
-                                    default:
-                                      - set_conversation_response: "I couldn't delete it right now."
-                        default:
-                          - set_conversation_response: "Canceled."
-                default:
-                  - set_conversation_response: "I couldn't delete it right now."
-    default:
+  - default:
       - set_conversation_response: "I didn't quite catch that. Do you want to save, find, search, or delete something?"

@@ -860,7 +860,7 @@ actions:
                                     response_variable: cache_state
                           - set_conversation_response: "{{ prompt_text }}"
                           - stop: true
-              - stop: true
+          - stop: true
   - choose:
       - conditions: "{{ trigger.id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:

@@ -203,6 +203,43 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
 
 
 @service(supports_response="only")
+async def memory_cache_delete(key: str) -> dict[str, Any]:
+    """
+    yaml
+    name: Memory Cache Delete
+    description: Remove a cached entry if it exists.
+    fields:
+      key:
+        name: Key
+        description: Identifier for the cached entry.
+        required: true
+        selector:
+          text:
+    """
+    if not key:
+        return {
+            "status": "error",
+            "op": "delete",
+            "error": "Missing a required argument: key",
+        }
+    try:
+        deleted = await _cache_delete(key)
+        return {
+            "status": "ok",
+            "op": "delete",
+            "key": key,
+            "deleted": deleted,
+        }
+    except Exception as error:
+        return {
+            "status": "error",
+            "op": "delete",
+            "key": key,
+            "error": f"An unexpected error occurred during processing: {error}",
+        }
+
+
+@service(supports_response="only")
 async def memory_cache_set(
     key: str,
     value: str,

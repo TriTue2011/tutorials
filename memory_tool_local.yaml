@@ -120,22 +120,6 @@ blueprint:
           selector: { number: { min: 5, max: 120, mode: slider } }
 mode: single
 max_exceeded: silent
-triggers:
-  - id: set
-    trigger: conversation
-    command: !input set_commands
-  - id: get
-    trigger: conversation
-    command: !input get_commands
-  - id: search
-    trigger: conversation
-    command: !input search_commands
-  - id: forget
-    trigger: conversation
-    command: !input forget_commands
-  - id: resume
-    trigger: conversation
-    command: "{{ resume_cmds }}"
 
 variables:
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
@@ -182,6 +166,24 @@ variables:
     {{ base if base else (key_norm or 'note') }}
   resume_cmds: >
     {{ yes_cmds + no_cmds + create_new_cmds + cancel_cmds + refine_cmds + more_cmds + restore_cmds + update_cmds }}
+
+triggers:
+  - id: set
+    trigger: conversation
+    command: !input set_commands
+  - id: get
+    trigger: conversation
+    command: !input get_commands
+  - id: search
+    trigger: conversation
+    command: !input search_commands
+  - id: forget
+    trigger: conversation
+    command: !input forget_commands
+  - id: resume
+    trigger: conversation
+    command: "{{ resume_cmds }}"
+
 actions:
   - variables:
       context_id: >

@@ -118,8 +118,8 @@ blueprint:
           name: Choice/confirmation timeout (seconds)
           default: 25
           selector: { number: { min: 5, max: 120, mode: slider } }
-mode: queued
-max: 20
+mode: single
+max_exceeded: silent
 triggers:
   - id: set
     trigger: conversation
@@ -220,7 +220,7 @@ actions:
                         command: !input cancel_commands
                     timeout: !input choice_timeout
                   - variables:
-                      c: "{{ trigger.sentence | default('') }}"
+                      c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                       pick_num: >
                         {% if c in ['1','2','3','4','5'] %}{{ c | int }}
                         {% elif c in num_aliases %}{{ num_aliases[c] }}
@@ -244,7 +244,7 @@ actions:
                                   - set_conversation_response: "Updated {{ chosen_key }}."
                             default:
                               - set_conversation_response: "Unable to update right now."
-                      - conditions: "{{ trigger.sentence in create_new_cmds and allow_force_new }}"
+                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in create_new_cmds and allow_force_new }}"
                         sequence:
                           - service: pyscript.memory_set
                             data:
@@ -296,7 +296,7 @@ actions:
                         command: !input cancel_commands
                     timeout: !input choice_timeout
                   - choose:
-                      - conditions: "{{ trigger.sentence in restore_cmds }}"
+                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in restore_cmds }}"
                         sequence:
                           - service: pyscript.memory_set
                             data:
@@ -312,7 +312,7 @@ actions:
                                   - set_conversation_response: "Restored {{ kget }}."
                             default:
                               - set_conversation_response: "Unable to restore right now."
-                      - conditions: "{{ trigger.sentence in update_cmds }}"
+                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in update_cmds }}"
                         sequence:
                           - set_conversation_response: "What is the new value?"
                           - wait_for_trigger:
@@ -321,7 +321,7 @@ actions:
                             timeout: !input choice_timeout
                             continue_on_timeout: false
                           - variables:
-                              new_val: "{{ trigger.slots.update_value | default(trigger.sentence, true) }}"
+                              new_val: "{{ wait.trigger.slots.update_value if wait.trigger is not none else '' }}"
                           - service: pyscript.memory_set
                             data:
                               key: "{{ kget }}"
@@ -336,7 +336,7 @@ actions:
                                   - set_conversation_response: "Updated and restored {{ kget }}."
                             default:
                               - set_conversation_response: "Unable to update right now."
-                      - conditions: "{{ trigger.sentence in create_new_cmds and allow_force_new }}"
+                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in create_new_cmds and allow_force_new }}"
                         sequence:
                           - variables:
                               new_key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
@@ -385,7 +385,7 @@ actions:
                         command: !input cancel_commands
                     timeout: !input choice_timeout
                   - variables:
-                      c: "{{ trigger.sentence | default('') }}"
+                      c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                       pick_num: >
                         {% if c in ['1','2','3','4','5'] %}{{ c | int }}
                         {% elif c in num_aliases %}{{ num_aliases[c] }}
@@ -471,7 +471,7 @@ actions:
                           command: !input cancel_commands
                       timeout: !input choice_timeout
                     - variables:
-                        c: "{{ trigger.sentence | default('') }}"
+                        c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                         pick_num: >
                           {% if c in ['1','2','3','4','5'] %}{{ c | int }}
                           {% elif c in num_aliases %}{{ num_aliases[c] }}
@@ -509,7 +509,7 @@ actions:
                                           command: !input cancel_commands
                                       timeout: !input choice_timeout
                                     - choose:
-                                        - conditions: "{{ trigger.sentence in restore_cmds }}"
+                                        - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in restore_cmds }}"
                                           sequence:
                                             - service: pyscript.memory_set
                                               data:
@@ -525,7 +525,7 @@ actions:
                                                     - set_conversation_response: "Restored {{ ksel }}."
                                               default:
                                                 - set_conversation_response: "Unable to restore right now."
-                                        - conditions: "{{ trigger.sentence in update_cmds }}"
+                                        - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in update_cmds }}"
                                           sequence:
                                             - set_conversation_response: "What is the new value?"
                                             - wait_for_trigger:
@@ -534,7 +534,7 @@ actions:
                                               timeout: !input choice_timeout
                                               continue_on_timeout: false
                                             - variables:
-                                                new_val: "{{ trigger.slots.update_value_search | default(trigger.sentence, true) }}"
+                                                new_val: "{{ trigger.slots.update_value_search if wait.trigger is not none else '' }}"
                                             - service: pyscript.memory_set
                                               data:
                                                 key: "{{ ksel }}"
@@ -549,7 +549,7 @@ actions:
                                                     - set_conversation_response: "Updated and restored {{ ksel }}."
                                               default:
                                                 - set_conversation_response: "Unable to update right now."
-                                        - conditions: "{{ trigger.sentence in create_new_cmds and allow_force_new }}"
+                                        - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in create_new_cmds and allow_force_new }}"
                                           sequence:
                                             - variables:
                                                 new_key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
@@ -583,7 +583,7 @@ actions:
                               timeout: !input choice_timeout
                               continue_on_timeout: false
                             - variables:
-                                extra: "{{ trigger.slots.refine_extra | default(trigger.sentence, true) }}"
+                                extra: "{{ trigger.slots.refine_extra if wait.trigger is not none else '' }}"
                             - service: pyscript.memory_search
                               data:
                                 query: "{{ (key_phrase ~ ' ' ~ extra) | trim }}"
@@ -617,7 +617,7 @@ actions:
                         command: !input no_commands
                     timeout: !input choice_timeout
                   - choose:
-                      - conditions: "{{ trigger.sentence in yes_cmds }}"
+                      - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in yes_cmds }}"
                         sequence:
                           - service: pyscript.memory_forget
                             data:
@@ -655,7 +655,7 @@ actions:
                                         command: !input cancel_commands
                                     timeout: !input choice_timeout
                                   - variables:
-                                      c: "{{ trigger.sentence | default('') }}"
+                                      c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                                       pick_num: >
                                         {% if c in ['1','2','3','4','5'] %}{{ c | int }}
                                         {% elif c in num_aliases %}{{ num_aliases[c] }}
@@ -675,7 +675,7 @@ actions:
                                                 command: !input no_commands
                                             timeout: !input choice_timeout
                                           - choose:
-                                              - conditions: "{{ trigger.sentence in yes_cmds }}"
+                                              - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in yes_cmds }}"
                                                 sequence:
                                                   - service: pyscript.memory_forget
                                                     data:
@@ -732,7 +732,7 @@ actions:
                             command: !input cancel_commands
                         timeout: !input choice_timeout
                       - variables:
-                          c: "{{ trigger.sentence | default('') }}"
+                          c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                           pick_num: >
                             {% if c in ['1','2','3','4','5'] %}{{ c | int }}
                             {% elif c in num_aliases %}{{ num_aliases[c] }}
@@ -754,7 +754,7 @@ actions:
                                             command: !input no_commands
                                         timeout: !input choice_timeout
                                       - choose:
-                                          - conditions: "{{ trigger.sentence in yes_cmds }}"
+                                          - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in yes_cmds }}"
                                             sequence:
                                               - service: pyscript.memory_forget
                                                 data:

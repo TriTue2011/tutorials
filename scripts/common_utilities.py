@@ -204,9 +204,9 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
 
 @service(supports_response="only")
 async def memory_cache_set(
-        key: str,
-        value: str,
-        ttl_seconds: int | None = None,
+    key: str,
+    value: str,
+    ttl_seconds: int | None = None,
 ) -> dict[str, Any]:
     """
     yaml

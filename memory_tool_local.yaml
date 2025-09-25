@@ -205,6 +205,7 @@ actions:
 
                       {% endfor -%}
                       Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                  - delay: {seconds: 1}
                   - wait_for_trigger:
                       - trigger: conversation
                         command: ["1","one","first"]
@@ -288,6 +289,7 @@ actions:
                       Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
                       "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first,
                       "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                  - delay: {seconds: 1}
                   - wait_for_trigger:
                       - trigger: conversation
                         command: !input restore_commands
@@ -318,6 +320,7 @@ actions:
                       - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in update_cmds }}"
                         sequence:
                           - set_conversation_response: "What is the new value?"
+                          - delay: {seconds: 1}
                           - wait_for_trigger:
                               - trigger: conversation
                                 command: "{update_value}"
@@ -375,6 +378,7 @@ actions:
 
                       {% endfor -%}
                       Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                  - delay: {seconds: 1}
                   - wait_for_trigger:
                       - trigger: conversation
                         command: ["1","one","first"]
@@ -460,6 +464,7 @@ actions:
                         {% endfor -%}
                         Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
                         say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                    - delay: {seconds: 1}
                     - wait_for_trigger:
                         - trigger: conversation
                           command: ["1","one","first"]
@@ -507,6 +512,7 @@ actions:
 
                                         Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
                                         "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                                    - delay: {seconds: 1}
                                     - wait_for_trigger:
                                         - trigger: conversation
                                           command: !input restore_commands
@@ -537,6 +543,7 @@ actions:
                                         - conditions: "{{ (wait.trigger.sentence if wait.trigger is not none else '') in update_cmds }}"
                                           sequence:
                                             - set_conversation_response: "What is the new value?"
+                                            - delay: {seconds: 1}
                                             - wait_for_trigger:
                                                 - trigger: conversation
                                                   command: "{update_value_search}"
@@ -586,6 +593,7 @@ actions:
                         - conditions: "{{ c in refine_cmds }}"
                           sequence:
                             - set_conversation_response: "Please say extra keywords to refine your search."
+                            - delay: {seconds: 1}
                             - wait_for_trigger:
                                 - trigger: conversation
                                   command: "{refine_extra}"
@@ -619,6 +627,7 @@ actions:
                 sequence:
                   - set_conversation_response: >
                       Delete "{{ key_norm or key_phrase }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
+                  - delay: {seconds: 1}
                   - wait_for_trigger:
                       - trigger: conversation
                         command: !input yes_commands
@@ -651,6 +660,7 @@ actions:
 
                                       {% endfor -%}
                                       Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                                  - delay: {seconds: 1}
                                   - wait_for_trigger:
                                       - trigger: conversation
                                         command: ["1","one","first"]
@@ -679,6 +689,7 @@ actions:
                                               snip_d2: "{{ (itemsd[pick_num - 1].value or '') | string | truncate(60, True) }}"
                                           - set_conversation_response: >
                                               Confirm delete "{{ chosen_key }}" - "{{ snip_d2 }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
+                                          - delay: {seconds: 1}
                                           - wait_for_trigger:
                                               - trigger: conversation
                                                 command: !input yes_commands
@@ -730,6 +741,7 @@ actions:
 
                           {% endfor -%}
                           Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                      - delay: {seconds: 1}
                       - wait_for_trigger:
                           - trigger: conversation
                             command: ["1","one","first"]
@@ -760,6 +772,7 @@ actions:
                                     sequence:
                                       - set_conversation_response: >
                                           Confirm delete "{{ chosen_key }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
+                                      - delay: {seconds: 1}
                                       - wait_for_trigger:
                                           - trigger: conversation
                                             command: !input yes_commands

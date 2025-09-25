@@ -274,13 +274,13 @@ actions:
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence in cancel_cmds }}"
                                 sequence:
                                   - variables:
                                       handled: true
-                                      final_response: 'Canceled.'
+                                      final_response: "Canceled."
                               - conditions: "{{ resume_sentence in create_new_cmds and resume_payload.allow_force_new }}"
                                 sequence:
                                   - service: pyscript.memory_set
@@ -301,7 +301,7 @@ actions:
                                               final_response: "Created new entry {{ resp_force_new.key or (resume_payload.key_norm or resume_payload.key_phrase) }}."
                                     default:
                                       - variables:
-                                          final_response: 'Unable to create a new entry right now.'
+                                          final_response: "Unable to create a new entry right now."
                               - conditions: "{{ 1 <= pick_num <= (matches_ctx | length) }}"
                                 sequence:
                                   - variables:
@@ -323,7 +323,7 @@ actions:
                                               final_response: "Updated {{ chosen_key }}."
                                     default:
                                       - variables:
-                                          final_response: 'Unable to update right now.'
+                                          final_response: "Unable to update right now."
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -353,13 +353,13 @@ actions:
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence in cancel_cmds }}"
                                 sequence:
                                   - variables:
                                       handled: true
-                                      final_response: 'Canceled.'
+                                      final_response: "Canceled."
                               - conditions: "{{ 1 <= pick_num <= (items_ctx | length) }}"
                                 sequence:
                                   - variables:
@@ -409,7 +409,7 @@ actions:
                                               final_response: "{{ expired_prompt }}"
                                     default:
                                       - variables:
-                                          final_response: 'I couldn't retrieve it right now.'
+                                          final_response: "I couldn't retrieve it right now."
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -441,13 +441,13 @@ actions:
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence in cancel_cmds }}"
                                 sequence:
                                   - variables:
                                       handled: true
-                                      final_response: 'Canceled.'
+                                      final_response: "Canceled."
                               - conditions: "{{ resume_sentence in refine_cmds }}"
                                 sequence:
                                   - variables:
@@ -523,7 +523,7 @@ actions:
                                                 response_variable: cache_state
                                       - variables:
                                           handled: true
-                                          final_response: 'No more results.'
+                                          final_response: "No more results."
                               - conditions: "{{ 1 <= pick_num <= (page_items | length) }}"
                                 sequence:
                                   - variables:
@@ -573,7 +573,7 @@ actions:
                                               final_response: "{{ expired_prompt }}"
                                     default:
                                       - variables:
-                                          final_response: 'I couldn't retrieve it right now.'
+                                          final_response: "I couldn't retrieve it right now."
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -596,7 +596,7 @@ actions:
                               base_query: "{{ resume_payload.query | default(key_phrase, true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence | length == 0 }}"
                                 sequence:
@@ -625,12 +625,12 @@ actions:
                                         sequence:
                                           - variables:
                                               handled: true
-                                              final_response: 'Search failed. Please try again later.'
+                                              final_response: "Search failed. Please try again later."
                                       - conditions: "{{ (resp_refine.results | length) == 0 }}"
                                         sequence:
                                           - variables:
                                               handled: true
-                                              final_response: 'No matching results after refine.'
+                                              final_response: "No matching results after refine."
                                   - choose:
                                       - conditions: "{{ not handled }}"
                                         sequence:
@@ -691,7 +691,7 @@ actions:
                               target_key: "{{ resume_payload.key }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence in yes_cmds }}"
                                 sequence:
@@ -709,7 +709,7 @@ actions:
                                       - conditions: "{{ resp_forget_confirm.error == 'not_found' and (resp_forget_confirm.matches | default([], true) | length) == 0 }}"
                                         sequence:
                                           - variables:
-                                              final_response: 'Nothing to delete for that entry.'
+                                              final_response: "Nothing to delete for that entry."
                                       - conditions: "{{ resp_forget_confirm.error == 'ambiguous' and (resp_forget_confirm.matches | length) > 0 }}"
                                         sequence:
                                           - variables:
@@ -746,12 +746,12 @@ actions:
                                               final_response: "{{ prompt_text }}"
                                     default:
                                       - variables:
-                                          final_response: 'I couldn't delete it right now.'
+                                          final_response: "I couldn't delete it right now."
                               - conditions: "{{ resume_sentence in no_cmds or resume_sentence in cancel_cmds }}"
                                 sequence:
                                   - variables:
                                       handled: true
-                                      final_response: 'Canceled.'
+                                      final_response: "Canceled."
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -779,13 +779,13 @@ actions:
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence in cancel_cmds }}"
                                 sequence:
                                   - variables:
                                       handled: true
-                                      final_response: 'Canceled.'
+                                      final_response: "Canceled."
                               - conditions: "{{ 1 <= pick_num <= (items_ctx | length) }}"
                                 sequence:
                                   - variables:
@@ -832,7 +832,7 @@ actions:
                                                       final_response: "Deleted {{ chosen_key }}."
                                             default:
                                               - variables:
-                                                  final_response: 'I couldn't delete it right now.'
+                                                  final_response: "I couldn't delete it right now."
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -855,7 +855,7 @@ actions:
                               target_key: "{{ resume_payload.key }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence in yes_cmds }}"
                                 sequence:
@@ -872,12 +872,12 @@ actions:
                                     default:
                                       - variables:
                                           handled: true
-                                          final_response: 'I couldn't delete it right now.'
+                                          final_response: "I couldn't delete it right now."
                               - conditions: "{{ resume_sentence in no_cmds or resume_sentence in cancel_cmds }}"
                                 sequence:
                                   - variables:
                                       handled: true
-                                      final_response: 'Canceled.'
+                                      final_response: "Canceled."
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -898,7 +898,7 @@ actions:
                           - variables:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ resume_sentence in restore_cmds }}"
                                 sequence:
@@ -919,7 +919,7 @@ actions:
                                     default:
                                       - variables:
                                           handled: true
-                                          final_response: 'Unable to restore right now.'
+                                          final_response: "Unable to restore right now."
                               - conditions: "{{ resume_sentence in update_cmds }}"
                                 sequence:
                                   - variables:
@@ -972,12 +972,12 @@ actions:
                                     default:
                                       - variables:
                                           handled: true
-                                          final_response: 'Unable to create a new entry right now.'
+                                          final_response: "Unable to create a new entry right now."
                               - conditions: "{{ resume_sentence in cancel_cmds }}"
                                 sequence:
                                   - variables:
                                       handled: true
-                                      final_response: 'Canceled.'
+                                      final_response: "Canceled."
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -1000,7 +1000,7 @@ actions:
                           - variables:
                               new_val: "{{ trigger.slots.update_value | default(trigger.sentence | default('', true), true) }}"
                               handled: false
-                              final_response: ''
+                              final_response: ""
                           - choose:
                               - conditions: "{{ new_val | default('', true) | length > 0 }}"
                                 sequence:
@@ -1021,7 +1021,7 @@ actions:
                                     default:
                                       - variables:
                                           handled: true
-                                          final_response: 'Unable to update right now.'
+                                          final_response: "Unable to update right now."
                           - variables:
                               prompt_text: "{{ resume_payload.prompt | default('What is the new value?') }}"
                           - choose:

@@ -4,7 +4,7 @@ blueprint:
     Local voice blueprint for a Memory Tool with strict operation mapping:
     SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,
     not_found, and expired. Candidate lists are capped to 5; SEARCH supports pagination.
-    Backend truncate candidate values to <= 120 chars; this blueprint also truncates to 60 for clarity.
+    Backend truncate candidate values to 120 chars; this blueprint also truncates to 60 for clarity.
   domain: automation
   homeassistant:
     min_version: 2024.10.0
@@ -164,17 +164,17 @@ variables:
     five: 5
     fifth: 5
   key_norm: >
-    {% set k = (key_phrase or '') | lower %}
-    {% set k = k | regex_replace('[^a-z0-9\\s_]+',' ') %}
-    {% set k = k | regex_replace('\\s+',' ') | trim %}
-    {% set toks = k.split(' ') %}
-    {% set toks = toks | reject('search','^[a-z]*[0-9]+$', ignorecase=True) | list %}
-    {% set key2 = toks | join('_') %}
+    {% set k = (key_phrase or '') | lower -%}
+    {% set k = k | regex_replace('[^a-z0-9\\s_]+',' ') -%}
+    {% set k = k | regex_replace('\\s+',' ') | trim -%}
+    {% set toks = k.split(' ') -%}
+    {% set toks = toks | reject('search','^[a-z]*[0-9]+$', ignorecase=True) | list -%}
+    {% set key2 = toks | join('_') -%}
     {{ key2 if key2 else k | replace(' ','_') }}
   tags_auto: >
-    {% set phrase = (key_phrase or '') | lower %}
-    {% set val = (value or '') | lower %}
-    {% set base = (phrase ~ ' ' ~ val).strip() %}
+    {% set phrase = (key_phrase or '') | lower -%}
+    {% set val = (value or '') | lower -%}
+    {% set base = (phrase ~ ' ' ~ val).strip() -%}
     {{ base if base else (key_norm or 'note') }}
 actions:
   - choose:
@@ -203,7 +203,7 @@ actions:
                       {% for m in matches -%}
                       {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(60, True) }}"
 
-                      {% endfor %}
+                      {% endfor -%}
                       Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   - wait_for_trigger:
                       - trigger: conversation
@@ -224,9 +224,9 @@ actions:
                   - variables:
                       c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                       pick_num: >
-                        {% if c in ['1','2','3','4','5'] %}{{ c | int }}
-                        {% elif c in num_aliases %}{{ num_aliases[c] }}
-                        {% else %}0{% endif %}
+                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                        {% else -%}0{% endif -%}
                   - choose:
                       - conditions: "{{ 1 <= pick_num <= (matches | length) }}"
                         sequence:
@@ -283,7 +283,7 @@ actions:
                       prev: "{{ resp_get.value | default('', true) }}"
                       kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
                   - set_conversation_response: >
-                      This entry has expired{% if prev %}: "{{ prev | string | truncate(60, True) }}"{% endif %}.
+                      This entry has expired{% if prev -%}: "{{ prev | string | truncate(60, True) }}"{% endif -%}.
 
                       Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
                       "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first,
@@ -373,7 +373,7 @@ actions:
                       {% for it in items -%}
                       {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
 
-                      {% endfor %}
+                      {% endfor -%}
                       Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   - wait_for_trigger:
                       - trigger: conversation
@@ -392,9 +392,9 @@ actions:
                   - variables:
                       c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                       pick_num: >
-                        {% if c in ['1','2','3','4','5'] %}{{ c | int }}
-                        {% elif c in num_aliases %}{{ num_aliases[c] }}
-                        {% else %}0{% endif %}
+                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                        {% else -%}0{% endif -%}
                   - choose:
                       - conditions: "{{ 1 <= pick_num <= (items | length) }}"
                         sequence:
@@ -414,7 +414,7 @@ actions:
                                       prev2: "{{ resp_getn.value | default('', true) }}"
                                       kget2: "{{ resp_getn.key | default(chosen_key) }}"
                                   - set_conversation_response: >
-                                      This entry has expired{% if prev2 %}: "{{ prev2 | string | truncate(60, True) }}"{% endif %}.
+                                      This entry has expired{% if prev2 -%}: "{{ prev2 | string | truncate(60, True) }}"{% endif -%}.
 
                                       Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
                                       "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
@@ -457,7 +457,7 @@ actions:
                         {% for it in page_items -%}
                         {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
 
-                        {% endfor %}
+                        {% endfor -%}
                         Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
                         say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                     - wait_for_trigger:
@@ -481,9 +481,9 @@ actions:
                     - variables:
                         c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                         pick_num: >
-                          {% if c in ['1','2','3','4','5'] %}{{ c | int }}
-                          {% elif c in num_aliases %}{{ num_aliases[c] }}
-                          {% else %}0{% endif %}
+                          {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                          {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                          {% else -%}0{% endif -%}
                     - choose:
                         - conditions: "{{ 1 <= pick_num <= (page_items | length) }}"
                           sequence:
@@ -503,7 +503,7 @@ actions:
                                         prevs: "{{ resp_get_from_search.value | default('', true) }}"
                                         ksel: "{{ resp_get_from_search.key | default(chosen_key) }}"
                                     - set_conversation_response: >
-                                        This entry has expired{% if prevs %}: "{{ prevs | string | truncate(60, True) }}"{% endif %}.
+                                        This entry has expired{% if prevs -%}: "{{ prevs | string | truncate(60, True) }}"{% endif -%}.
 
                                         Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}",
                                         "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
@@ -649,7 +649,7 @@ actions:
                                       {% for it in itemsd -%}
                                       {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
 
-                                      {% endfor %}
+                                      {% endfor -%}
                                       Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                                   - wait_for_trigger:
                                       - trigger: conversation
@@ -668,9 +668,9 @@ actions:
                                   - variables:
                                       c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                                       pick_num: >
-                                        {% if c in ['1','2','3','4','5'] %}{{ c | int }}
-                                        {% elif c in num_aliases %}{{ num_aliases[c] }}
-                                        {% else %}0{% endif %}
+                                        {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                                        {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                                        {% else -%}0{% endif -%}
                                   - choose:
                                       - conditions: "{{ 1 <= pick_num <= (itemsd | length) }}"
                                         sequence:
@@ -728,7 +728,7 @@ actions:
                           {% for it in itemsd -%}
                           {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
 
-                          {% endfor %}
+                          {% endfor -%}
                           Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                       - wait_for_trigger:
                           - trigger: conversation
@@ -747,9 +747,9 @@ actions:
                       - variables:
                           c: "{{ wait.trigger.sentence if wait.trigger is not none else '' }}"
                           pick_num: >
-                            {% if c in ['1','2','3','4','5'] %}{{ c | int }}
-                            {% elif c in num_aliases %}{{ num_aliases[c] }}
-                            {% else %}0{% endif %}
+                            {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
+                            {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                            {% else -%}0{% endif -%}
                       - choose:
                           - conditions: "{{ 1 <= pick_num <= (itemsd | length) }}"
                             sequence:

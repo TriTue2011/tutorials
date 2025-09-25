@@ -50,6 +50,7 @@
 ## Bản thiết kế tương tác 2 chiều với Zalo (Official Zalo Bot)
 
 * **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**
+* Bản thiết kế này sử dụng official bot được tạo từ OA Zalo Bot Manager.
   * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Zalo.
   * Bạn có thể gửi ảnh từ Zalo và yêu cầu bot phân tích nội dung.
   * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
@@ -63,6 +64,7 @@
 ## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo (Official Zalo Bot)
 
 * **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận trên Zalo bằng cách ra lệnh bằng giọng nói.**
+* Bản thiết kế này sử dụng official bot được tạo từ OA Zalo Bot Manager.
   * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
   * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
   * Ví dụ bằng giọng nói:
@@ -76,6 +78,7 @@
 ## Bản thiết kế tương tác 2 chiều với Zalo (Custom Zalo Bot)
 
 * **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**
+* Bản thiết kế này sử dụng custom bot từ tích hợp Zalo Bot.
     * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Zalo.
     * Bạn có thể gửi ảnh, video, âm thanh, hoặc tệp tài liệu từ Zalo và yêu cầu bot phân tích nội dung.
     * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
@@ -89,6 +92,7 @@
 ## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo (Custom Zalo Bot)
 
 * **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**
+* Bản thiết kế này sử dụng custom bot từ tích hợp Zalo Bot.
     * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
     * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
     * Ví dụ bằng giọng nói:

@@ -130,7 +130,7 @@ actions:
   - variables:
       chat_id: >-
         {{ ('id_' ~ trigger.json.threadId ~ '_' ~ trigger.json.data.uidFrom) | slugify }}
-  - action: pyscript.cache_entry_fetcher
+  - action: pyscript.memory_cache_get
     data:
       key: "{{ chat_id }}"
     response_variable: get_chat
@@ -217,7 +217,7 @@ actions:
           - variables:
               response: >-
                 {{ result.response.speech.plain.speech if (result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0) else 'No response from assistant' }}
-          - action: pyscript.cache_entry_setter
+          - action: pyscript.memory_cache_set
             data:
               value: "{{ result.conversation_id }}"
               key: "{{ chat_id }}"

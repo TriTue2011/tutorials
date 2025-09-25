@@ -166,10 +166,10 @@ async def initialize_cache_db() -> None:
 
 
 @service(supports_response="only")
-async def cache_entry_fetcher(key: str) -> dict[str, Any]:
+async def memory_cache_get(key: str) -> dict[str, Any]:
     """
     yaml
-    name: Cache Entry Fetcher
+    name: Memory Cache Get
     description: Fetch a cached value for a given key.
     fields:
       key:
@@ -203,14 +203,14 @@ async def cache_entry_fetcher(key: str) -> dict[str, Any]:
 
 
 @service(supports_response="only")
-async def cache_entry_setter(
-    key: str,
-    value: str,
-    ttl_seconds: int | None = None,
+async def memory_cache_set(
+        key: str,
+        value: str,
+        ttl_seconds: int | None = None,
 ) -> dict[str, Any]:
     """
     yaml
-    name: Cache Entry Setter
+    name: Memory Cache Set
     description: Store a value in cache for a given key.
     fields:
       key:

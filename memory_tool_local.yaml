@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice Memory Tool - Local
+  name: Memory Tool - Local
   description: >
     Local voice blueprint for a Memory Tool with strict operation mapping:
     SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,

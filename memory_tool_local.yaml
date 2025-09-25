@@ -118,7 +118,7 @@ blueprint:
           name: Choice/confirmation timeout (seconds)
           default: 25
           selector: { number: { min: 5, max: 120, mode: slider } }
-mode: queued
+mode: single
 max_exceeded: silent
 triggers:
   - id: set

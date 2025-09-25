@@ -1022,6 +1022,5 @@ actions:
                   - stop: true
             default:
               - set_conversation_response: "I couldn't delete it right now."
-
-  - default:
+    default:
       - set_conversation_response: "I didn't quite catch that. Do you want to save, find, search, or delete something?"

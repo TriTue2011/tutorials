@@ -8,7 +8,7 @@ blueprint:
 
     ### Required
 
-    * Create a Zalo bot if it does not already exist using Zalo Bot Creator.
+    * Create a Zalo bot if it does not already exist using OA Zalo Bot Manager.
 
     * The Pyscript integration needs to be installed through HACS and properly configured.
 
@@ -37,7 +37,7 @@ blueprint:
 
     #File secrets.yaml
 
-    zalo_bot_token: XXXXXX      # Retrieve the token from the Zalo Bot Creator.
+    zalo_bot_token: XXXXXX      # Retrieve the token from the OA Zalo Bot Manager.
 
     ```
 

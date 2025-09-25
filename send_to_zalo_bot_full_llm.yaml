@@ -35,7 +35,7 @@ blueprint:
 
     #File secrets.yaml
 
-    zalo_bot_token: XXXXXX      # Retrieve the token from the Zalo Bot Creator.
+    zalo_bot_token: XXXXXX      # Retrieve the token from the OA Zalo Bot Manager.
 
     ```
 

@@ -164,8 +164,6 @@ variables:
     {% set val = (value or '') | lower -%}
     {% set base = (phrase ~ ' ' ~ val).strip() -%}
     {{ base if base else (key_norm or 'note') }}
-  resume_cmds: >
-    {{ yes_cmds + no_cmds + create_new_cmds + cancel_cmds + refine_cmds + more_cmds + restore_cmds + update_cmds }}
 
 triggers:
   - id: set
@@ -180,9 +178,6 @@ triggers:
   - id: forget
     trigger: conversation
     command: !input forget_commands
-  - id: resume
-    trigger: conversation
-    command: "{{ resume_cmds }}"
 
 actions:
   - variables:

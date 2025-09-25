@@ -1,10 +1,10 @@
 blueprint:
-  name: Voice Memory Tool — Local (automation, English, paginated + expired options)
+  name: Voice Memory Tool - Local (automation, English, paginated + expired options)
   description: >
     Local voice blueprint for a Memory Tool with strict operation mapping:
     SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,
     not_found, and expired. Candidate lists are capped to 5; SEARCH supports pagination.
-    Backend may truncate candidate values to ≤120 chars; this blueprint also truncates to 60 for clarity.
+    Backend truncate candidate values to <= 120 chars; this blueprint also truncates to 60 for clarity.
   domain: automation
   homeassistant:
     min_version: 2024.10.0
@@ -99,7 +99,7 @@ blueprint:
           default: 180
           selector: { number: { min: 0, max: 3650, mode: box } }
         default_search_limit:
-          name: Default search fetch limit (1–50, backend fetch)
+          name: Default search fetch limit (1-50, backend fetch)
           default: 20
           selector: { number: { min: 1, max: 50, mode: box } }
         max_list_choices:
@@ -118,7 +118,7 @@ blueprint:
           name: Choice/confirmation timeout (seconds)
           default: 25
           selector: { number: { min: 5, max: 120, mode: slider } }
-mode: single
+mode: queued
 max_exceeded: silent
 triggers:
   - id: set
@@ -200,7 +200,7 @@ actions:
                   - set_conversation_response: >
                       I found similar entries:
                       {% for m in matches -%}
-                      {{ loop.index }}) {{ m.key }} — "{{ (m.value or '') | string | truncate(60, True) }}"
+                      {{ loop.index }}) {{ m.key }} - "{{ (m.value or '') | string | truncate(60, True) }}"
                       {% endfor %}
                       Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   - wait_for_trigger:
@@ -367,7 +367,7 @@ actions:
                   - set_conversation_response: >
                       I found a few candidates:
                       {% for it in items -%}
-                      {{ loop.index }}) {{ it.key }} — "{{ (it.value or '') | string | truncate(60, True) }}"
+                      {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
                       {% endfor %}
                       Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   - wait_for_trigger:
@@ -446,9 +446,9 @@ actions:
                         end_idx: "{{ (start_idx + max_choices) | int }}"
                         page_items: "{{ all_items[start_idx:end_idx] }}"
                     - set_conversation_response: >
-                        Results ({{ start_idx + 1 }}–{{ [end_idx, (all_items | length)] | min }} of {{ all_items | length }}):
+                        Results ({{ start_idx + 1 }}-{{ [end_idx, (all_items | length)] | min }} of {{ all_items | length }}):
                         {% for it in page_items -%}
-                        {{ loop.index }}) {{ it.key }} — "{{ (it.value or '') | string | truncate(60, True) }}"
+                        {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
                         {% endfor %}
                         Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
                         say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
@@ -637,7 +637,7 @@ actions:
                                   - set_conversation_response: >
                                       I found a few candidates:
                                       {% for it in itemsd -%}
-                                      {{ loop.index }}) {{ it.key }} — "{{ (it.value or '') | string | truncate(60, True) }}"
+                                      {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
                                       {% endfor %}
                                       Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                                   - wait_for_trigger:
@@ -667,7 +667,7 @@ actions:
                                               chosen_key: "{{ itemsd[pick_num - 1].key }}"
                                               snip_d2: "{{ (itemsd[pick_num - 1].value or '') | string | truncate(60, True) }}"
                                           - set_conversation_response: >
-                                              Confirm delete "{{ chosen_key }}" — "{{ snip_d2 }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
+                                              Confirm delete "{{ chosen_key }}" - "{{ snip_d2 }}"? Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or {{ (no_cmds[0] if no_cmds else 'no') }}.
                                           - wait_for_trigger:
                                               - trigger: conversation
                                                 command: !input yes_commands
@@ -714,7 +714,7 @@ actions:
                       - set_conversation_response: >
                           I found a few candidates:
                           {% for it in itemsd -%}
-                          {{ loop.index }}) {{ it.key }} — "{{ (it.value or '') | string | truncate(60, True) }}"
+                          {{ loop.index }}) {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
                           {% endfor %}
                           Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                       - wait_for_trigger:

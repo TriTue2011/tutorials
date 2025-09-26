@@ -258,7 +258,7 @@ actions:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
                               matches_ctx: "{{ resume_payload.matches | default([], true) }}"
                               pick_num: >
-                                {% set c = resume_sentence %}
+                                {% set c = (resume_sentence | string) %}
                                 {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
@@ -337,7 +337,7 @@ actions:
                               items_ctx: "{{ resume_payload.items | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
-                                {% set c = resume_sentence %}
+                                {% set c = (resume_sentence | string) %}
                                 {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
@@ -425,7 +425,7 @@ actions:
                               end_idx: "{{ [((page | int) * max_choices) + max_choices, (results_list | length)] | min }}"
                               page_items: "{{ results_list[start_idx:end_idx] }}"
                               pick_num: >
-                                {% set c = resume_sentence %}
+                                {% set c = (resume_sentence | string) %}
                                 {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
@@ -763,7 +763,7 @@ actions:
                               items_ctx: "{{ resume_payload.items | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
-                                {% set c = resume_sentence %}
+                                {% set c = (resume_sentence | string) %}
                                 {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
                                 {% elif c in num_aliases -%}{{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
@@ -1306,4 +1306,9 @@ actions:
             default:
               - set_conversation_response: "I couldn't delete it right now."
     default:
-      - set_conversation_response: "I didn't quite catch that. Do you want to save, find, search, or delete something?"
+      - set_conversation_response: >
+          {% if final_response is defined and final_response | length > 0 -%}
+          {{ final_response }}
+          {% else -%}
+          I didn't quite catch that. Do you want to save, find, search, or delete something?
+          {% endif -%}

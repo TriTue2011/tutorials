@@ -316,7 +316,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - variables:
                                   prompt_text: "{{ resume_payload.prompt }}"
@@ -329,7 +330,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'get_ambiguous_choice' }}"
                         sequence:
                           - variables:
@@ -402,7 +404,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - choose:
                                   - conditions: "{{ store_enabled }}"
@@ -413,7 +416,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'search_results' }}"
                         sequence:
                           - variables:
@@ -566,7 +570,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - choose:
                                   - conditions: "{{ store_enabled }}"
@@ -577,7 +582,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'search_refine' }}"
                         sequence:
                           - variables:
@@ -661,7 +667,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - choose:
                                   - conditions: "{{ store_enabled }}"
@@ -672,7 +679,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'forget_confirm_primary' }}"
                         sequence:
                           - variables:
@@ -744,7 +752,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - choose:
                                   - conditions: "{{ store_enabled }}"
@@ -755,7 +764,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'forget_ambiguous_choice' }}"
                         sequence:
                           - variables:
@@ -825,7 +835,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - choose:
                                   - conditions: "{{ store_enabled }}"
@@ -836,7 +847,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'forget_confirm_secondary' }}"
                         sequence:
                           - variables:
@@ -870,7 +882,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - choose:
                                   - conditions: "{{ store_enabled }}"
@@ -881,7 +894,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'get_expired_choice' }}"
                         sequence:
                           - variables:
@@ -970,7 +984,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
                               - variables:
                                   prompt_text: "{{ resume_payload.prompt }}"
@@ -983,7 +998,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'get_expired_update_value' }}"
                         sequence:
                           - variables:
@@ -1016,7 +1032,8 @@ actions:
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else prompt_text }}"
+                                  - stop: "{{ final_response if final_response | length > 0 else prompt_text }}"
+                                    response_variable: "{{ final_response if final_response | length > 0 else prompt_text }}"
                             default:
                               - choose:
                                   - conditions: "{{ store_enabled }}"
@@ -1027,7 +1044,8 @@ actions:
                                           value: "{{ resume_original }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
+                              - stop: "{{ prompt_text }}"
+                                response_variable: "{{ prompt_text }}"
   - choose:
       - conditions: "{{ trigger.id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:
@@ -1043,7 +1061,8 @@ actions:
           - choose:
               - conditions: "{{ resp_set.status == 'ok' }}"
                 sequence:
-                  - set_conversation_response: "Saved {{ resp_set.key or (key_norm or key_phrase) }}."
+                  - stop: "Saved {{ resp_set.key or (key_norm or key_phrase) }}."
+                    response_variable: "Saved {{ resp_set.key or (key_norm or key_phrase) }}."
               - conditions: "{{ resp_set.error == 'duplicate_tags' and (resp_set.matches | length) > 0 }}"
                 sequence:
                   - variables:
@@ -1085,9 +1104,11 @@ actions:
                                       value: "{{ cache_payload }}"
                                       ttl_seconds: "{{ choice_timeout }}"
                                     response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: "{{ prompt_text }}"
+                    response_variable: "{{ prompt_text }}"
             default:
-              - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
+              - stop: "I couldn't save due to an error. Would you like to try again?"
+                response_variable: "I couldn't save due to an error. Would you like to try again?"
       - conditions: "{{ trigger.id == 'get' and key_phrase|length > 0 }}"
         sequence:
           - service: pyscript.memory_get
@@ -1097,7 +1118,8 @@ actions:
           - choose:
               - conditions: "{{ resp_get.status == 'ok' }}"
                 sequence:
-                  - set_conversation_response: "{{ resp_get.value }}"
+                  - stop: "{{ resp_get.value }}"
+                    response_variable: "{{ resp_get.value }}"
               - conditions: "{{ resp_get.error == 'expired' }}"
                 sequence:
                   - variables:
@@ -1134,10 +1156,12 @@ actions:
                                       value: "{{ cache_payload }}"
                                       ttl_seconds: "{{ choice_timeout }}"
                                     response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: "{{ prompt_text }}"
+                    response_variable: "{{ prompt_text }}"
               - conditions: "{{ resp_get.error == 'not_found' and (resp_get.matches | default([], true) | length) == 0 }}"
                 sequence:
-                  - set_conversation_response: "I couldn't find that entry."
+                  - stop: "I couldn't find that entry."
+                    response_variable: "I couldn't find that entry."
               - conditions: "{{ resp_get.error == 'ambiguous' and (resp_get.matches | length) > 0 }}"
                 sequence:
                   - variables:
@@ -1174,9 +1198,11 @@ actions:
                                       value: "{{ cache_payload }}"
                                       ttl_seconds: "{{ choice_timeout }}"
                                     response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: "{{ prompt_text }}"
+                    response_variable: "{{ prompt_text }}"
             default:
-              - set_conversation_response: "I couldn't retrieve it right now."
+              - stop: "I couldn't retrieve it right now."
+                response_variable: "I couldn't retrieve it right now."
       - conditions: "{{ trigger.id == 'search' and key_phrase|length > 0 }}"
         sequence:
           - service: pyscript.memory_search
@@ -1187,10 +1213,12 @@ actions:
           - choose:
               - conditions: "{{ resp_s.status != 'ok' }}"
                 sequence:
-                  - set_conversation_response: "Search failed. Please try again later."
+                  - stop: "Search failed. Please try again later."
+                    response_variable: "Search failed. Please try again later."
               - conditions: "{{ (resp_s.results | length) == 0 }}"
                 sequence:
-                  - set_conversation_response: "No matching results."
+                  - stop: "No matching results."
+                    response_variable: "No matching results."
             default:
               - variables:
                   all_items: "{{ resp_s.results }}"
@@ -1227,7 +1255,8 @@ actions:
                                   value: "{{ cache_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
-              - set_conversation_response: "{{ prompt_text }}"
+              - stop: "{{ prompt_text }}"
+                response_variable: "{{ prompt_text }}"
       - conditions: "{{ trigger.id == 'forget' and key_phrase|length > 0 }}"
         sequence:
           - choose:
@@ -1255,7 +1284,8 @@ actions:
                                       value: "{{ cache_payload }}"
                                       ttl_seconds: "{{ choice_timeout }}"
                                     response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: "{{ prompt_text }}"
+                    response_variable: "{{ prompt_text }}"
           - service: pyscript.memory_forget
             data:
               key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
@@ -1263,10 +1293,12 @@ actions:
           - choose:
               - conditions: "{{ resp_forget.status == 'ok' }}"
                 sequence:
-                  - set_conversation_response: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
+                  - stop: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
+                    response_variable: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
               - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
                 sequence:
-                  - set_conversation_response: "Nothing to delete for that entry."
+                  - stop: "Nothing to delete for that entry."
+                    response_variable: "Nothing to delete for that entry."
               - conditions: "{{ resp_forget.error == 'ambiguous' and (resp_forget.matches | length) > 0 }}"
                 sequence:
                   - variables:
@@ -1302,11 +1334,19 @@ actions:
                                       value: "{{ cache_payload }}"
                                       ttl_seconds: "{{ choice_timeout }}"
                                     response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
+                  - stop: "{{ prompt_text }}"
+                    response_variable: "{{ prompt_text }}"
             default:
-              - set_conversation_response: "I couldn't delete it right now."
+              - stop: "I couldn't delete it right now."
+                response_variable: "I couldn't delete it right now."
     default:
-      - set_conversation_response: >
+      - stop: >
+          {% if final_response is defined and final_response | length > 0 -%}
+          {{ final_response }}
+          {% else -%}
+          I didn't quite catch that. Do you want to save, find, search, or delete something?
+          {% endif -%}
+        response_variable: >
           {% if final_response is defined and final_response | length > 0 -%}
           {{ final_response }}
           {% else -%}

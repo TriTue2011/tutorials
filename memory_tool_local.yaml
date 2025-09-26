@@ -9,17 +9,6 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
-#    helper_settings:
-#      name: Helper settings
-#      icon: mdi:application-cog
-#      description: Settings for the `Memory Tool Resume Helper` script.
-#      input:
-#        helper:
-#          name: Resume Helper
-#          selector:
-#            entity:
-#              filter:
-#                - domain: script
     trigger_settings:
       name: Trigger settings
       icon: mdi:chat
@@ -243,17 +232,14 @@ actions:
         {% else %}
           ''
         {% endif %}
-      trigger_id: "{{ trigger.id | default('', true) }}"
-      resume_key: "{{ 'mem_resume_' ~ conversation_id ~ '_' ~ trigger_id if conversation_id | length > 0 and trigger_id | length > 0 else '' }}"
-      store_key: "{{ resume_key }}"
-      resume_enabled: "{{ resume_key | length > 0 }}"
+      store_key: "{{ 'memory_' ~ conversation_id if conversation_id | length > 0 else '' }}"
       store_enabled: "{{ store_key | length > 0 }}"
   - choose:
-      - conditions: "{{ resume_enabled }}"
+      - conditions: "{{ store_enabled }}"
         sequence:
           - service: pyscript.memory_cache_get
             data:
-              key: "{{ resume_key }}"
+              key: "{{ store_key }}"
             response_variable: resume_cache
           - choose:
               - conditions: "{{ resume_cache.status == 'ok' and (resume_cache.value | default('', true) | length) > 0 }}"
@@ -263,7 +249,7 @@ actions:
                       resume_payload: "{{ resume_cache.value | from_json }}"
                   - service: pyscript.memory_cache_forget
                     data:
-                      key: "{{ resume_key }}"
+                      key: "{{ store_key }}"
                   - choose:
                       - conditions: "{{ resume_payload.pending_action == 'set_duplicate_choice' }}"
                         sequence:

@@ -1,5 +1,5 @@
 blueprint:
-  name: Memory Tool - Local
+  name: Memory Tool
   description: >
     Local voice blueprint for a Memory Tool with strict operation mapping:
     SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,
@@ -9,6 +9,17 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
+#    helper_settings:
+#      name: Helper settings
+#      icon: mdi:application-cog
+#      description: Settings for the `Memory Tool Resume Helper` script.
+#      input:
+#        helper:
+#          name: Resume Helper
+#          selector:
+#            entity:
+#              filter:
+#                - domain: script
     trigger_settings:
       name: Trigger settings
       icon: mdi:chat
@@ -226,24 +237,15 @@ triggers:
 
 actions:
   - variables:
-      context_id: >
-        {% set ctx = none %}
-        {% if trigger.user_input is defined and trigger.user_input.context is defined %}
-          {% set ctx = trigger.user_input.context %}
-        {% elif this is defined and this.context is defined %}
-          {% set ctx = this.context %}
+      conversation_id: >
+        {% if trigger.user_input is defined and trigger.user_input.conversation_id is defined %}
+          {{ trigger.user_input.conversation_id }}
+        {% else %}
+          ''
         {% endif %}
-        {{ ctx.id | default('', true) if ctx is not none else '' }}
-      parent_id: >
-        {% set ctx = none %}
-        {% if trigger.user_input is defined and trigger.user_input.context is defined %}
-          {% set ctx = trigger.user_input.context %}
-        {% elif this is defined and this.context is defined %}
-          {% set ctx = this.context %}
-        {% endif %}
-        {{ ctx.parent_id | default('', true) if ctx is not none else '' }}
-      resume_key: "{{ parent_id if parent_id | length > 0 else context_id }}"
-      store_key: "{{ context_id }}"
+      trigger_id: "{{ trigger.id | default('', true) }}"
+      resume_key: "{{ 'mem_resume_' ~ conversation_id ~ '_' ~ trigger_id if conversation_id | length > 0 and trigger_id | length > 0 else '' }}"
+      store_key: "{{ resume_key }}"
       resume_enabled: "{{ resume_key | length > 0 }}"
       store_enabled: "{{ store_key | length > 0 }}"
   - choose:

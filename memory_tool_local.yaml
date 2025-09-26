@@ -63,10 +63,6 @@ blueprint:
           name: Cancel phrases (for choice steps)
           default: ["cancel","stop","abort"]
           selector: { text: { multiple: true } }
-        refine_commands:
-          name: Refine phrases (search refine)
-          default: ["refine","filter","narrow"]
-          selector: { text: { multiple: true } }
         more_commands:
           name: Show-more phrases (pagination)
           default: ["more","next","show more"]
@@ -136,7 +132,6 @@ variables:
   no_cmds: !input no_commands
   create_new_cmds: !input create_new_commands
   cancel_cmds: !input cancel_commands
-  refine_cmds: !input refine_commands
   more_cmds: !input more_commands
   restore_cmds: !input restore_commands
   update_cmds: !input update_commands
@@ -214,9 +209,6 @@ triggers:
   - id: resume_more
     trigger: conversation
     command: !input more_commands
-  - id: resume_refine
-    trigger: conversation
-    command: !input refine_commands
   - id: resume_restore
     trigger: conversation
     command: !input restore_commands
@@ -234,8 +226,9 @@ actions:
         {% endif %}
       store_key: "{{ 'memory_' ~ conversation_id if conversation_id | length > 0 else '' }}"
       store_enabled: "{{ store_key | length > 0 }}"
+      trigger_id: "{{ trigger.id if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   - choose:
-      - conditions: "{{ store_enabled }}"
+      - conditions: "{{ store_enabled and trigger_id.startswith('resume_') }}"
         sequence:
           - service: pyscript.memory_cache_get
             data:
@@ -437,28 +430,6 @@ actions:
                                   - variables:
                                       handled: true
                                       final_response: "Canceled."
-                              - conditions: "{{ resume_sentence in refine_cmds }}"
-                                sequence:
-                                  - variables:
-                                      handled: true
-                                      refine_prompt: "Please say extra keywords to refine your search."
-                                      refine_payload: >
-                                        {{ {
-                                          'pending_action': 'search_refine',
-                                          'query': resume_payload.query | default(key_phrase, true),
-                                          'prompt': refine_prompt
-                                        } | to_json }}
-                                  - choose:
-                                      - conditions: "{{ store_enabled }}"
-                                        sequence:
-                                          - service: pyscript.memory_cache_set
-                                            data:
-                                              key: "{{ store_key }}"
-                                              value: "{{ refine_payload }}"
-                                              ttl_seconds: "{{ choice_timeout }}"
-                                            response_variable: cache_state
-                                  - variables:
-                                      final_response: "{{ refine_prompt }}"
                               - conditions: "{{ resume_sentence in more_cmds }}"
                                 sequence:
                                   - variables:
@@ -479,7 +450,7 @@ actions:
 
                                                 {% endfor -%}
                                                 Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
-                                                say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                                                say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                                               next_payload: >
                                                 {{ {
                                                   'pending_action': 'search_results',
@@ -563,101 +534,6 @@ actions:
                                     default:
                                       - variables:
                                           final_response: "I couldn't retrieve it right now."
-                          - choose:
-                              - conditions: "{{ handled }}"
-                                sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
-                            default:
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
-                      - conditions: "{{ resume_payload.pending_action == 'search_refine' }}"
-                        sequence:
-                          - variables:
-                              resume_sentence: "{{ trigger.sentence | default('', true) | trim }}"
-                              base_query: "{{ resume_payload.query | default(key_phrase, true) }}"
-                              prompt_text: "{{ resume_payload.prompt }}"
-                              handled: false
-                              final_response: ""
-                          - choose:
-                              - conditions: "{{ resume_sentence | length == 0 }}"
-                                sequence:
-                                  - choose:
-                                      - conditions: "{{ store_enabled }}"
-                                        sequence:
-                                          - service: pyscript.memory_cache_set
-                                            data:
-                                              key: "{{ store_key }}"
-                                              value: "{{ resume_original }}"
-                                              ttl_seconds: "{{ choice_timeout }}"
-                                            response_variable: cache_state
-                                  - variables:
-                                      handled: true
-                                      final_response: "{{ prompt_text }}"
-                          - choose:
-                              - conditions: "{{ not handled }}"
-                                sequence:
-                                  - service: pyscript.memory_search
-                                    data:
-                                      query: "{{ (base_query ~ ' ' ~ resume_sentence) | trim }}"
-                                      limit: "{{ s_limit }}"
-                                    response_variable: resp_refine
-                                  - choose:
-                                      - conditions: "{{ resp_refine.status != 'ok' }}"
-                                        sequence:
-                                          - variables:
-                                              handled: true
-                                              final_response: "Search failed. Please try again later."
-                                      - conditions: "{{ (resp_refine.results | length) == 0 }}"
-                                        sequence:
-                                          - variables:
-                                              handled: true
-                                              final_response: "No matching results after refine."
-                                  - choose:
-                                      - conditions: "{{ not handled }}"
-                                        sequence:
-                                          - variables:
-                                              all_items: "{{ resp_refine.results }}"
-                                              new_query: "{{ (base_query ~ ' ' ~ resume_sentence) | trim }}"
-                                              new_prompt: >
-                                                {% set total = all_items | length %}
-                                                {% set end_idx = [max_choices, total] | min %}
-                                                {% set page_items = all_items[:max_choices] %}
-                                                Results (1-{{ end_idx }} of {{ total }}):
-
-                                                {% for it in page_items -%}
-                                                {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(60, True) }}"
-
-                                                {% endfor -%}
-                                                Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
-                                                say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
-                                              new_payload: >
-                                                {{ {
-                                                  'pending_action': 'search_results',
-                                                  'results': all_items,
-                                                  'page': 0,
-                                                  'query': new_query,
-                                                  'prompt': new_prompt
-                                                } | to_json }}
-                                          - choose:
-                                              - conditions: "{{ store_enabled }}"
-                                                sequence:
-                                                  - service: pyscript.memory_cache_set
-                                                    data:
-                                                      key: "{{ store_key }}"
-                                                      value: "{{ new_payload }}"
-                                                      ttl_seconds: "{{ choice_timeout }}"
-                                                    response_variable: cache_state
-                                          - variables:
-                                              handled: true
-                                              final_response: "{{ new_prompt }}"
                           - choose:
                               - conditions: "{{ handled }}"
                                 sequence:
@@ -1206,7 +1082,7 @@ actions:
 
                     {% endfor -%}
                     Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page,
-                    say "{{ (refine_cmds[0] if refine_cmds else 'refine') }}" to add keywords, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
+                    say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}".
                   cache_payload: >
                     {{ {
                       'pending_action': 'search_results',

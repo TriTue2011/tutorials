@@ -250,6 +250,7 @@ actions:
                   - service: pyscript.memory_cache_forget
                     data:
                       key: "{{ store_key }}"
+                    response_variable: forget_cache
                   - choose:
                       - conditions: "{{ resume_payload.pending_action == 'set_duplicate_choice' }}"
                         sequence:

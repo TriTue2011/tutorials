@@ -334,7 +334,7 @@ actions:
                         sequence:
                           - variables:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
-                              items_ctx: "{{ resume_payload['items'] | default([], true) }}"
+                              items_ctx: "{{ resume_payload.entries | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
                                 {% set c = (resume_sentence | string) %}
@@ -718,7 +718,7 @@ actions:
                                                 {% endfor %}
                                                 {{ {
                                                   'pending_action': 'forget_ambiguous_choice',
-                                                  'items': ns.items,
+                                                  'entries': ns.items,
                                                   'must_confirm': must_confirm_delete,
                                                   'prompt': prompt_text
                                                 } | to_json }}
@@ -760,7 +760,7 @@ actions:
                         sequence:
                           - variables:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
-                              items_ctx: "{{ resume_payload['items'] | default([], true) }}"
+                              items_ctx: "{{ resume_payload.entries | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
                                 {% set c = (resume_sentence | string) %}
@@ -1159,7 +1159,7 @@ actions:
                         {% endfor %}
                         {{ {
                           'pending_action': 'get_ambiguous_choice',
-                          'items': ns.items,
+                          'entries': ns.items,
                           'prompt': prompt_text
                         } | to_json }}
                   - choose:
@@ -1286,7 +1286,7 @@ actions:
                         {% endfor %}
                         {{ {
                           'pending_action': 'forget_ambiguous_choice',
-                          'items': ns.items,
+                          'entries': ns.items,
                           'must_confirm': must_confirm_delete,
                           'prompt': prompt_text
                         } | to_json }}

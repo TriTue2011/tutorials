@@ -334,7 +334,7 @@ actions:
                         sequence:
                           - variables:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
-                              items_ctx: "{{ resume_payload.items | default([], true) }}"
+                              items_ctx: "{{ resume_payload['items'] | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
                                 {% set c = (resume_sentence | string) %}
@@ -760,7 +760,7 @@ actions:
                         sequence:
                           - variables:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
-                              items_ctx: "{{ resume_payload.items | default([], true) }}"
+                              items_ctx: "{{ resume_payload['items'] | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
                                 {% set c = (resume_sentence | string) %}

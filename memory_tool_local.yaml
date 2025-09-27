@@ -159,9 +159,7 @@ variables:
     {{ key2 if key2 else k | replace(' ','_') }}
   tags_auto: >
     {% set phrase = (key_phrase or '') | lower -%}
-    {% set val = (value or '') | lower -%}
-    {% set base = (phrase ~ ' ' ~ val).strip() -%}
-    {{ base if base else (key_norm or 'note') }}
+    {{ phrase if phrase else 'note' }}
 
 triggers:
   - id: set

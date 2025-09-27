@@ -123,6 +123,7 @@ max_exceeded: silent
 variables:
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
   value: "{{ trigger.slots.value | default('', true) }}"
+  update_value: "{{ trigger.slots.update_value | default('', true) }}"
   scope: !input default_scope
   exp_days: !input default_expiration_days
   s_limit: !input default_search_limit
@@ -356,7 +357,7 @@ actions:
                                               expired_prompt: >
                                                 This entry has expired{% if resp_resume_get.value | default('', true) -%}: "{{ resp_resume_get.value | string | truncate(20, True) }}"{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to change the value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -485,7 +486,7 @@ actions:
                                               expired_prompt: >
                                                 This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: "{{ resp_resume_search_get.value | string | truncate(20, True) }}"{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to change the value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -747,7 +748,7 @@ actions:
                               - conditions: "{{ resume_sentence in update_cmds }}"
                                 sequence:
                                   - variables:
-                                      new_val: "{{ trigger.slots.update_value | default(trigger.sentence | default('', true), true) }}"
+                                      new_val: "{{ update_value | default(trigger.sentence | default('', true), true) }}"
                                       handled: false
                                       final_response: ""
                                   - choose:
@@ -899,12 +900,11 @@ actions:
               - conditions: "{{ resp_get.error == 'expired' }}"
                 sequence:
                   - variables:
-                      prev: "{{ resp_get.value | default('', true) }}"
                       kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
                       prompt_text: >
-                        This entry has expired{% if prev -%}: "{{ prev | string | truncate(20, True) }}"{% endif -%}.
+                        This entry has expired{% if resp_get.value | default('', true) -%}: "{{ resp_get.value | string | truncate(20, True) }}"{% endif -%}.
 
-                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to change the value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                       cache_payload: >
                         {{ {
                           'pending_action': 'get_expired_choice',

@@ -187,11 +187,18 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
         }
     try:
         value = await _cache_get(key)
+        if value:
+            return {
+                "status": "ok",
+                "op": "get",
+                "key": key,
+                "value": value,
+            }
         return {
-            "status": "ok",
+            "status": "error",
             "op": "get",
             "key": key,
-            "value": value,
+            "error": "not_found",
         }
     except Exception as error:
         return {

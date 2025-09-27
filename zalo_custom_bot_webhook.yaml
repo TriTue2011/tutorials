@@ -136,7 +136,7 @@ actions:
     response_variable: get_chat
   - variables:
       conversation_id: >-
-        {{ get_chat.value if (get_chat.value | default('', true) | length > 0) }}
+        {{ get_chat.value if (get_chat.status == 'ok' and get_chat.value | default('', true) | length > 0) }}
   - choose:
       - conditions:
           - condition: template

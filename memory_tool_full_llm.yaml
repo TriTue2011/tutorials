@@ -61,13 +61,13 @@ blueprint:
           default: >-
             Required when operation = set|get|forget. Ignored if operation = search.
 
-            Derive the key from the user's main concept; do not translate the wording to another language.
+            Derive a concise key that captures the user's main concept from their original wording, keeping exactly the same language.
 
-            Normalize to lowercase letters, digits, and underscores only (e.g., car_parking_slot).
+            Do not translate, paraphrase, or canonicalize into English or any other language; do not invent synonyms or new terms.
 
-            If the user explicitly selected a candidate key, reuse that key exactly.
+            If the user explicitly selected a candidate key, reuse it exactly.
 
-            Output the normalized key only, no labels or quotes. If unsure, prefer search instead of inventing a new key.
+            Output the key only, no quotes or labels. If unsure, use search instead of inventing a new key.
         value_prompt:
           name: Value Prompt
           description: Instruction shown to the LLM for providing the value.
@@ -109,9 +109,13 @@ blueprint:
           default: >-
             Required only when operation = set.
 
-            Use a few short, meaningful keywords in the same language as the user's input; space-separated only, no commas or formatting.
+            Generate a few short, meaningful keywords in the same language as the user's input.
 
-            If no clear keywords, copy the main user phrase as a single tag; if that is not possible, reuse the key.
+            Output space-separated tags only, no commas or special formatting.
+
+            If no clear keywords exist, use the main user phrase as a single tag.
+
+            If that is not possible, reuse the key.
         force_new_prompt:
           name: Force New Prompt
           description: Instruction shown to the LLM for deciding whether to override duplicate-tag protection.
@@ -135,13 +139,13 @@ blueprint:
           default: >-
             Required only when operation = search.
 
-            If the user's input is already short, keep it unchanged.
+            If the user's input is short, output it unchanged.
 
-            If it is long, reduce it to the main keywords in the same language.
+            If it is long, keep only the main keywords in the same language.
 
-            Do not translate, paraphrase, or include the full sentence.
+            Do not translate, paraphrase, or copy the full sentence.
 
-            Output only the query, no quotes or explanation.
+            Output the query only, no quotes or extra text.
         search_limit_prompt:
           name: Search Limit Prompt
           description: Instruction shown to the LLM for providing the search limit.

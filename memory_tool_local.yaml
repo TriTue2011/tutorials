@@ -105,8 +105,8 @@ blueprint:
           selector: { number: { min: 1, max: 50, mode: box } }
         max_list_choices:
           name: Max entries to list per page
-          description: Default = 5. Range 1-5 (entries).
-          default: 5
+          description: Default = 3. Range 1-5 (entries).
+          default: 3
           selector: { number: { min: 1, max: 5, mode: box } }
         confirm_delete:
           name: Require delete confirmation

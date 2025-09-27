@@ -1069,6 +1069,6 @@ actions:
                     default:
                       - set_conversation_response: "I didn't quite catch that. Pending action is not supported by the current handler."
             default:
-              - set_conversation_response: "I didn't quite catch that. Could it be that the resume timed out?"
+              - set_conversation_response: "I didn't quite catch that. Could it be that the confirmation timed out?"
     default:
       - set_conversation_response: "I didn't quite catch that. Do you want to save, find, search, or delete something?"

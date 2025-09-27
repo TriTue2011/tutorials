@@ -123,7 +123,6 @@ max_exceeded: silent
 variables:
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
   value: "{{ trigger.slots.value | default('', true) }}"
-  update_value: "{{ trigger.slots.update_value | default('', true) }}"
   scope: !input default_scope
   exp_days: !input default_expiration_days
   s_limit: !input default_search_limit
@@ -225,6 +224,242 @@ actions:
       store_key: "memory_tool"
       trigger_id: "{{ trigger.id if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   - choose:
+      - conditions: "{{ trigger_id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
+        sequence:
+          - service: pyscript.memory_set
+            data:
+              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
+              value: "{{ value }}"
+              scope: "{{ scope }}"
+              expiration_days: "{{ exp_days }}"
+              tags: "{{ tags_auto }}"
+              force_new: false
+            response_variable: resp_set
+          - choose:
+              - conditions: "{{ resp_set.status == 'ok' }}"
+                sequence:
+                  - set_conversation_response: "Saved {{ resp_set.key or (key_norm or key_phrase) }}."
+              - conditions: "{{ resp_set.error == 'duplicate_tags' and (resp_set.matches | length) > 0 }}"
+                sequence:
+                  - variables:
+                      matches: "{{ resp_set.matches[:max_choices] }}"
+                      prompt_text: >
+                        I found similar entries:
+
+                        {% for m in matches -%}
+                        {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(20, True) }}"
+
+                        {% endfor -%}
+                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                      cache_payload: >
+                        {% set ns = namespace(items=[]) %}
+                        {% for m in matches %}
+                        {% set ns.items = ns.items + [{'key': m.key, 'value': (m.value or '') | string | truncate(20, True)}] %}
+                        {% endfor %}
+                        {{ {
+                          'pending_action': 'set_duplicate_choice',
+                          'matches': ns.items,
+                          'value': value,
+                          'scope': scope,
+                          'expiration_days': exp_days,
+                          'tags': tags_auto,
+                          'key_norm': key_norm,
+                          'key_phrase': key_phrase,
+                          'prompt': prompt_text,
+                          'allow_force_new': allow_force_new
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
+                  - set_conversation_response: "{{ prompt_text }}"
+            default:
+              - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
+      - conditions: "{{ trigger_id == 'get' and key_phrase|length > 0 }}"
+        sequence:
+          - service: pyscript.memory_get
+            data:
+              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
+            response_variable: resp_get
+          - choose:
+              - conditions: "{{ resp_get.status == 'ok' }}"
+                sequence:
+                  - set_conversation_response: "{{ resp_get.value }}"
+              - conditions: "{{ resp_get.error == 'expired' }}"
+                sequence:
+                  - variables:
+                      kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
+                      prompt_text: >
+                        This entry has expired{% if resp_get.value | default('', true) -%}: "{{ resp_get.value | string | truncate(20, True) }}"{% endif -%}.
+
+                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                      cache_payload: >
+                        {{ {
+                          'pending_action': 'get_expired_choice',
+                          'key': kget,
+                          'value': resp_get.value,
+                          'tags': resp_get.tags | default('', true),
+                          'scope': scope,
+                          'expiration_days': exp_days,
+                          'key_phrase': key_phrase,
+                          'key_norm': key_norm,
+                          'prompt': prompt_text,
+                          'allow_force_new': allow_force_new
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
+                  - set_conversation_response: "{{ prompt_text }}"
+              - conditions: "{{ resp_get.error == 'not_found' and (resp_get.matches | default([], true) | length) == 0 }}"
+                sequence:
+                  - set_conversation_response: "I couldn't find that entry."
+              - conditions: "{{ resp_get.error == 'ambiguous' and (resp_get.matches | length) > 0 }}"
+                sequence:
+                  - variables:
+                      items: "{{ resp_get.matches[:max_choices] }}"
+                  - variables:
+                      items: "{{ resp_get.matches[:max_choices] }}"
+                      prompt_text: >
+                        I found a few candidates:
+
+                        {% for it in items -%}
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+
+                        {% endfor -%}
+                        Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                      cache_payload: >
+                        {% set ns = namespace(items=[]) %}
+                        {% for it in items %}
+                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(20, True)}] %}
+                        {% endfor %}
+                        {{ {
+                          'pending_action': 'get_ambiguous_choice',
+                          'entries': ns.items,
+                          'prompt': prompt_text
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
+                  - set_conversation_response: "{{ prompt_text }}"
+            default:
+              - set_conversation_response: "I couldn't retrieve it right now."
+      - conditions: "{{ trigger_id == 'search' and key_phrase|length > 0 }}"
+        sequence:
+          - service: pyscript.memory_search
+            data:
+              query: "{{ key_phrase }}"
+              limit: "{{ s_limit }}"
+            response_variable: resp_s
+          - choose:
+              - conditions: "{{ resp_s.status != 'ok' }}"
+                sequence:
+                  - set_conversation_response: "Search failed. Please try again later."
+              - conditions: "{{ (resp_s.results | length) == 0 }}"
+                sequence:
+                  - set_conversation_response: "No matching results."
+            default:
+              - variables:
+                  all_items: "{{ resp_s.results }}"
+                  prompt_text: >
+                    {% set total = all_items | length %}
+                    {% set start_idx = 0 %}
+                    {% set end_idx = [max_choices, total] | min %}
+                    {% set page_items = all_items[:max_choices] %}
+                    Results ({{ start_idx + 1 }}-{{ end_idx }} of {{ total }}):
+
+                    {% for it in page_items -%}
+                    {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+
+                    {% endfor -%}
+                    Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                  cache_payload: >
+                    {{ {
+                      'pending_action': 'search_results',
+                      'results': all_items,
+                      'page': 0,
+                      'query': key_phrase,
+                      'prompt': prompt_text
+                    } | to_json }}
+              - service: pyscript.memory_cache_set
+                data:
+                  key: "{{ store_key }}"
+                  value: "{{ cache_payload }}"
+                  ttl_seconds: "{{ choice_timeout }}"
+                response_variable: cache_state
+              - set_conversation_response: "{{ prompt_text }}"
+      - conditions: "{{ trigger_id == 'forget' and key_phrase|length > 0 }}"
+        sequence:
+          - choose:
+              - conditions: "{{ must_confirm_delete }}"
+                sequence:
+                  - variables:
+                      prompt_text: >
+                        Delete "{{ key_norm or key_phrase }}". Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'no') }}?
+                      cache_payload: >
+                        {{ {
+                          'pending_action': 'forget_confirm_primary',
+                          'key': key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')),
+                          'key_phrase': key_phrase,
+                          'prompt': prompt_text
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
+                  - set_conversation_response: "{{ prompt_text }}"
+          - service: pyscript.memory_forget
+            data:
+              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
+            response_variable: resp_forget
+          - choose:
+              - conditions: "{{ resp_forget.status == 'ok' }}"
+                sequence:
+                  - set_conversation_response: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
+              - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
+                sequence:
+                  - set_conversation_response: "Nothing to delete for that entry."
+              - conditions: "{{ resp_forget.error == 'ambiguous' and (resp_forget.matches | length) > 0 }}"
+                sequence:
+                  - variables:
+                      itemsd: "{{ resp_forget.matches[:max_choices] }}"
+                      prompt_text: >
+                        I found a few candidates:
+
+                        {% for it in itemsd -%}
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+
+                        {% endfor -%}
+                        Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                      cache_payload: >
+                        {% set ns = namespace(items=[]) %}
+                        {% for it in itemsd %}
+                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(20, True)}] %}
+                        {% endfor %}
+                        {{ {
+                          'pending_action': 'forget_ambiguous_choice',
+                          'entries': ns.items,
+                          'must_confirm': must_confirm_delete,
+                          'prompt': prompt_text
+                        } | to_json }}
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
+                  - set_conversation_response: "{{ prompt_text }}"
+            default:
+              - set_conversation_response: "I couldn't delete it right now."
       - conditions: "{{ trigger_id.startswith('resume_') }}"
         sequence:
           - service: pyscript.memory_cache_get
@@ -748,7 +983,7 @@ actions:
                               - conditions: "{{ resume_sentence in update_cmds }}"
                                 sequence:
                                   - variables:
-                                      new_val: "{{ update_value | default(trigger.sentence | default('', true), true) }}"
+                                      new_val: "{{ trigger.slots.update_value | default(resume_sentence, true) }}"
                                       handled: false
                                       final_response: ""
                                   - choose:
@@ -833,247 +1068,5 @@ actions:
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
-  - choose:
-      - conditions: "{{ trigger.id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
-        sequence:
-          - service: pyscript.memory_set
-            data:
-              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-              value: "{{ value }}"
-              scope: "{{ scope }}"
-              expiration_days: "{{ exp_days }}"
-              tags: "{{ tags_auto }}"
-              force_new: false
-            response_variable: resp_set
-          - choose:
-              - conditions: "{{ resp_set.status == 'ok' }}"
-                sequence:
-                  - set_conversation_response: "Saved {{ resp_set.key or (key_norm or key_phrase) }}."
-              - conditions: "{{ resp_set.error == 'duplicate_tags' and (resp_set.matches | length) > 0 }}"
-                sequence:
-                  - variables:
-                      matches: "{{ resp_set.matches[:max_choices] }}"
-                      prompt_text: >
-                        I found similar entries:
-
-                        {% for m in matches -%}
-                        {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(20, True) }}"
-
-                        {% endfor -%}
-                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
-                      cache_payload: >
-                        {% set ns = namespace(items=[]) %}
-                        {% for m in matches %}
-                        {% set ns.items = ns.items + [{'key': m.key, 'value': (m.value or '') | string | truncate(20, True)}] %}
-                        {% endfor %}
-                        {{ {
-                          'pending_action': 'set_duplicate_choice',
-                          'matches': ns.items,
-                          'value': value,
-                          'scope': scope,
-                          'expiration_days': exp_days,
-                          'tags': tags_auto,
-                          'key_norm': key_norm,
-                          'key_phrase': key_phrase,
-                          'prompt': prompt_text,
-                          'allow_force_new': allow_force_new
-                        } | to_json }}
-                  - service: pyscript.memory_cache_set
-                    data:
-                      key: "{{ store_key }}"
-                      value: "{{ cache_payload }}"
-                      ttl_seconds: "{{ choice_timeout }}"
-                    response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
-            default:
-              - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
-      - conditions: "{{ trigger.id == 'get' and key_phrase|length > 0 }}"
-        sequence:
-          - service: pyscript.memory_get
-            data:
-              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-            response_variable: resp_get
-          - choose:
-              - conditions: "{{ resp_get.status == 'ok' }}"
-                sequence:
-                  - set_conversation_response: "{{ resp_get.value }}"
-              - conditions: "{{ resp_get.error == 'expired' }}"
-                sequence:
-                  - variables:
-                      kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
-                      prompt_text: >
-                        This entry has expired{% if resp_get.value | default('', true) -%}: "{{ resp_get.value | string | truncate(20, True) }}"{% endif -%}.
-
-                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
-                      cache_payload: >
-                        {{ {
-                          'pending_action': 'get_expired_choice',
-                          'key': kget,
-                          'value': resp_get.value,
-                          'tags': resp_get.tags | default('', true),
-                          'scope': scope,
-                          'expiration_days': exp_days,
-                          'key_phrase': key_phrase,
-                          'key_norm': key_norm,
-                          'prompt': prompt_text,
-                          'allow_force_new': allow_force_new
-                        } | to_json }}
-                  - service: pyscript.memory_cache_set
-                    data:
-                      key: "{{ store_key }}"
-                      value: "{{ cache_payload }}"
-                      ttl_seconds: "{{ choice_timeout }}"
-                    response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
-              - conditions: "{{ resp_get.error == 'not_found' and (resp_get.matches | default([], true) | length) == 0 }}"
-                sequence:
-                  - set_conversation_response: "I couldn't find that entry."
-              - conditions: "{{ resp_get.error == 'ambiguous' and (resp_get.matches | length) > 0 }}"
-                sequence:
-                  - variables:
-                      items: "{{ resp_get.matches[:max_choices] }}"
-                  - variables:
-                      items: "{{ resp_get.matches[:max_choices] }}"
-                      prompt_text: >
-                        I found a few candidates:
-
-                        {% for it in items -%}
-                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
-
-                        {% endfor -%}
-                        Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
-                      cache_payload: >
-                        {% set ns = namespace(items=[]) %}
-                        {% for it in items %}
-                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(20, True)}] %}
-                        {% endfor %}
-                        {{ {
-                          'pending_action': 'get_ambiguous_choice',
-                          'entries': ns.items,
-                          'prompt': prompt_text
-                        } | to_json }}
-                  - service: pyscript.memory_cache_set
-                    data:
-                      key: "{{ store_key }}"
-                      value: "{{ cache_payload }}"
-                      ttl_seconds: "{{ choice_timeout }}"
-                    response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
-            default:
-              - set_conversation_response: "I couldn't retrieve it right now."
-      - conditions: "{{ trigger.id == 'search' and key_phrase|length > 0 }}"
-        sequence:
-          - service: pyscript.memory_search
-            data:
-              query: "{{ key_phrase }}"
-              limit: "{{ s_limit }}"
-            response_variable: resp_s
-          - choose:
-              - conditions: "{{ resp_s.status != 'ok' }}"
-                sequence:
-                  - set_conversation_response: "Search failed. Please try again later."
-              - conditions: "{{ (resp_s.results | length) == 0 }}"
-                sequence:
-                  - set_conversation_response: "No matching results."
-            default:
-              - variables:
-                  all_items: "{{ resp_s.results }}"
-                  prompt_text: >
-                    {% set total = all_items | length %}
-                    {% set start_idx = 0 %}
-                    {% set end_idx = [max_choices, total] | min %}
-                    {% set page_items = all_items[:max_choices] %}
-                    Results ({{ start_idx + 1 }}-{{ end_idx }} of {{ total }}):
-
-                    {% for it in page_items -%}
-                    {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
-
-                    {% endfor -%}
-                    Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
-                  cache_payload: >
-                    {{ {
-                      'pending_action': 'search_results',
-                      'results': all_items,
-                      'page': 0,
-                      'query': key_phrase,
-                      'prompt': prompt_text
-                    } | to_json }}
-              - service: pyscript.memory_cache_set
-                data:
-                  key: "{{ store_key }}"
-                  value: "{{ cache_payload }}"
-                  ttl_seconds: "{{ choice_timeout }}"
-                response_variable: cache_state
-              - set_conversation_response: "{{ prompt_text }}"
-      - conditions: "{{ trigger.id == 'forget' and key_phrase|length > 0 }}"
-        sequence:
-          - choose:
-              - conditions: "{{ must_confirm_delete }}"
-                sequence:
-                  - variables:
-                      prompt_text: >
-                        Delete "{{ key_norm or key_phrase }}". Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'no') }}?
-                      cache_payload: >
-                        {{ {
-                          'pending_action': 'forget_confirm_primary',
-                          'key': key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')),
-                          'key_phrase': key_phrase,
-                          'prompt': prompt_text
-                        } | to_json }}
-                  - service: pyscript.memory_cache_set
-                    data:
-                      key: "{{ store_key }}"
-                      value: "{{ cache_payload }}"
-                      ttl_seconds: "{{ choice_timeout }}"
-                    response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
-          - service: pyscript.memory_forget
-            data:
-              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-            response_variable: resp_forget
-          - choose:
-              - conditions: "{{ resp_forget.status == 'ok' }}"
-                sequence:
-                  - set_conversation_response: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
-              - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
-                sequence:
-                  - set_conversation_response: "Nothing to delete for that entry."
-              - conditions: "{{ resp_forget.error == 'ambiguous' and (resp_forget.matches | length) > 0 }}"
-                sequence:
-                  - variables:
-                      itemsd: "{{ resp_forget.matches[:max_choices] }}"
-                      prompt_text: >
-                        I found a few candidates:
-
-                        {% for it in itemsd -%}
-                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
-
-                        {% endfor -%}
-                        Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
-                      cache_payload: >
-                        {% set ns = namespace(items=[]) %}
-                        {% for it in itemsd %}
-                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(20, True)}] %}
-                        {% endfor %}
-                        {{ {
-                          'pending_action': 'forget_ambiguous_choice',
-                          'entries': ns.items,
-                          'must_confirm': must_confirm_delete,
-                          'prompt': prompt_text
-                        } | to_json }}
-                  - service: pyscript.memory_cache_set
-                    data:
-                      key: "{{ store_key }}"
-                      value: "{{ cache_payload }}"
-                      ttl_seconds: "{{ choice_timeout }}"
-                    response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
-            default:
-              - set_conversation_response: "I couldn't delete it right now."
     default:
-      - set_conversation_response: >
-          {% if final_response is defined and final_response | length > 0 -%}
-          {{ final_response }}
-          {% else -%}
-          I didn't quite catch that. Do you want to save, find, search, or delete something?
-          {% endif -%}
+      - set_conversation_response: "I didn't quite catch that. Do you want to save, find, search, or delete something?"

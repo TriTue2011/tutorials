@@ -1372,5 +1372,6 @@ async def memory_daily_housekeeping():
     """Daily housekeeping: purge entries older than HOUSEKEEPING_GRACE_DAYS and tidy the FTS index."""
     try:
         await memory_purge_expired(grace_days=HOUSEKEEPING_GRACE_DAYS)
+        await memory_reindex_fts()
     except Exception as e:
         log.error(f"memory_daily_housekeeping failed: {e}")

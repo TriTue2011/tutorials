@@ -73,7 +73,10 @@ blueprint:
           selector: { text: { multiple: true } }
         update_commands:
           name: Update phrases (change value before restoring)
-          default: ["update","change","edit"]
+          default:
+            - "change to {update_value}"
+            - "update to {update_value}"
+            - "edit to {update_value}"
           selector: { text: { multiple: true } }
     tool_settings:
       name: Tool settings
@@ -363,7 +366,7 @@ actions:
                                               expired_prompt: >
                                                 This entry has expired{% if resp_resume_get.value | default('', true) -%}: "{{ resp_resume_get.value | string | truncate(60, True) }}"{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}", "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to change the value, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -505,7 +508,7 @@ actions:
                                               expired_prompt: >
                                                 This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: "{{ resp_resume_search_get.value | string | truncate(60, True) }}"{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}", "{{ (update_cmds[0] if update_cmds else 'update') }}", "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to change the value, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -788,28 +791,47 @@ actions:
                               - conditions: "{{ resume_sentence in update_cmds }}"
                                 sequence:
                                   - variables:
-                                      update_prompt: "What is the new value?"
-                                      update_payload: >
-                                        {{ {
-                                          'pending_action': 'get_expired_update_value',
-                                          'key': resume_payload.key,
-                                          'scope': resume_payload.scope,
-                                          'expiration_days': resume_payload.expiration_days,
-                                          'tags': resume_payload.tags,
-                                          'prompt': update_prompt
-                                        } | to_json }}
+                                      new_val: "{{ trigger.slots.update_value | default(trigger.sentence | default('', true), true) }}"
+                                      handled: false
+                                      final_response: ""
                                   - choose:
-                                      - conditions: "{{ store_enabled }}"
+                                      - conditions: "{{ new_val | default('', true) | length > 0 }}"
                                         sequence:
-                                          - service: pyscript.memory_cache_set
+                                          - service: pyscript.memory_set
                                             data:
-                                              key: "{{ store_key }}"
-                                              value: "{{ update_payload }}"
-                                              ttl_seconds: "{{ choice_timeout }}"
-                                            response_variable: cache_state
+                                              key: "{{ resume_payload.key }}"
+                                              value: "{{ new_val }}"
+                                              scope: "{{ resume_payload.scope }}"
+                                              expiration_days: "{{ resume_payload.expiration_days }}"
+                                              tags: "{{ resume_payload.tags }}"
+                                            response_variable: resp_resume_update
+                                          - choose:
+                                              - conditions: "{{ resp_resume_update.status == 'ok' }}"
+                                                sequence:
+                                                  - variables:
+                                                      handled: true
+                                                      final_response: "Updated and restored {{ resume_payload.key }}."
+                                            default:
+                                              - variables:
+                                                  handled: true
+                                                  final_response: "Unable to update right now."
                                   - variables:
-                                      handled: true
-                                      final_response: "{{ update_prompt }}"
+                                      prompt_text: "{{ resume_payload.prompt }}"
+                                  - choose:
+                                      - conditions: "{{ handled }}"
+                                        sequence:
+                                          - set_conversation_response: "{{ final_response if final_response | length > 0 else prompt_text }}"
+                                    default:
+                                      - choose:
+                                          - conditions: "{{ store_enabled }}"
+                                            sequence:
+                                              - service: pyscript.memory_cache_set
+                                                data:
+                                                  key: "{{ store_key }}"
+                                                  value: "{{ resume_original }}"
+                                                  ttl_seconds: "{{ choice_timeout }}"
+                                                response_variable: cache_state
+                                      - set_conversation_response: "{{ prompt_text }}"
                               - conditions: "{{ resume_sentence in create_new_cmds and resume_payload.allow_force_new }}"
                                 sequence:
                                   - variables:
@@ -860,50 +882,6 @@ actions:
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
-                      - conditions: "{{ resume_payload.pending_action == 'get_expired_update_value' }}"
-                        sequence:
-                          - variables:
-                              new_val: "{{ trigger.slots.update_value | default(trigger.sentence | default('', true), true) }}"
-                              handled: false
-                              final_response: ""
-                          - choose:
-                              - conditions: "{{ new_val | default('', true) | length > 0 }}"
-                                sequence:
-                                  - service: pyscript.memory_set
-                                    data:
-                                      key: "{{ resume_payload.key }}"
-                                      value: "{{ new_val }}"
-                                      scope: "{{ resume_payload.scope }}"
-                                      expiration_days: "{{ resume_payload.expiration_days }}"
-                                      tags: "{{ resume_payload.tags }}"
-                                    response_variable: resp_resume_update
-                                  - choose:
-                                      - conditions: "{{ resp_resume_update.status == 'ok' }}"
-                                        sequence:
-                                          - variables:
-                                              handled: true
-                                              final_response: "Updated and restored {{ resume_payload.key }}."
-                                    default:
-                                      - variables:
-                                          handled: true
-                                          final_response: "Unable to update right now."
-                          - variables:
-                              prompt_text: "{{ resume_payload.prompt | default('What is the new value?') }}"
-                          - choose:
-                              - conditions: "{{ handled }}"
-                                sequence:
-                                  - set_conversation_response: "{{ final_response if final_response | length > 0 else prompt_text }}"
-                            default:
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
-                              - set_conversation_response: "{{ prompt_text }}"
   - choose:
       - conditions: "{{ trigger.id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:
@@ -931,7 +909,7 @@ actions:
                         {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(60, True) }}"
 
                         {% endfor -%}
-                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}", or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for m in matches %}
@@ -982,9 +960,7 @@ actions:
                       prompt_text: >
                         This entry has expired{% if prev -%}: "{{ prev | string | truncate(60, True) }}"{% endif -%}.
 
-                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate,
-                        "{{ (update_cmds[0] if update_cmds else 'update') }}" to change the value first,
-                        "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to change the value, or "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                       cache_payload: >
                         {{ {
                           'pending_action': 'get_expired_choice',

@@ -1,5 +1,5 @@
 blueprint:
-  name: Memory Tool
+  name: Voice - Memory Tool
   description: >
     Local voice blueprint for a Memory Tool with strict operation mapping:
     SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,
@@ -94,27 +94,33 @@ blueprint:
               options: [user, household, session]
               mode: dropdown
         default_expiration_days:
-          name: Default expiration (days)
+          name: Default expiration
+          description: Days before expiry (0 = forever). Default = 180. Range 0-3650.
           default: 180
           selector: { number: { min: 0, max: 3650, mode: box } }
         default_search_limit:
-          name: Default search fetch limit (1-50, backend fetch)
-          default: 10
+          name: Default search fetch limit
+          description: Default = 5. Range 1-50 (entries).
+          default: 5
           selector: { number: { min: 1, max: 50, mode: box } }
         max_list_choices:
-          name: Max candidates to list per page (capped to 5)
+          name: Max entries to list per page
+          description: Default = 5. Range 1-5 (entries).
           default: 5
           selector: { number: { min: 1, max: 5, mode: box } }
         confirm_delete:
           name: Require delete confirmation
+          description: Require confirmation before deleting an entry.
           default: true
           selector: { boolean: {} }
         allow_force_new:
-          name: Allow force_new on duplicates (user explicitly says create new)
+          name: Allow force_new on duplicates
+          description:  User require to explicitly says create new
           default: true
           selector: { boolean: {} }
         choice_timeout:
-          name: Choice/confirmation timeout (seconds)
+          name: Choice/confirmation timeout
+          description: Default = 30. Range 5-120 (seconds).
           default: 30
           selector: { number: { min: 5, max: 120, mode: slider } }
 mode: single

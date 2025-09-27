@@ -1068,5 +1068,9 @@ actions:
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
+                    default:
+                      - set_conversation_response: "I didn't quite catch that. Pending action is not supported by the current handler."
+            default:
+              - set_conversation_response: "I didn't quite catch that. Could it be that the resume timed out?"
     default:
       - set_conversation_response: "I didn't quite catch that. Do you want to save, find, search, or delete something?"

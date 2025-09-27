@@ -221,17 +221,10 @@ triggers:
 
 actions:
   - variables:
-      conversation_id: >
-        {% if trigger.user_input is defined and trigger.user_input.conversation_id is defined %}
-          {{ trigger.user_input.conversation_id }}
-        {% else %}
-          ''
-        {% endif %}
-      store_key: "{{ 'memory_' ~ conversation_id if conversation_id | length > 0 else '' }}"
-      store_enabled: "{{ store_key | length > 0 }}"
+      store_key: "memory_tool"
       trigger_id: "{{ trigger.id if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   - choose:
-      - conditions: "{{ store_enabled and trigger_id.startswith('resume_') }}"
+      - conditions: "{{ trigger_id.startswith('resume_') }}"
         sequence:
           - service: pyscript.memory_cache_get
             data:
@@ -316,15 +309,12 @@ actions:
                             default:
                               - variables:
                                   prompt_text: "{{ resume_payload.prompt }}"
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
+                              - service: pyscript.memory_cache_set
+                                data:
+                                  key: "{{ store_key }}"
+                                  value: "{{ resume_original }}"
+                                  ttl_seconds: "{{ choice_timeout }}"
+                                response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'get_ambiguous_choice' }}"
                         sequence:
@@ -381,15 +371,12 @@ actions:
                                                   'prompt': expired_prompt,
                                                   'allow_force_new': allow_force_new
                                                 } | to_json }}
-                                          - choose:
-                                              - conditions: "{{ store_enabled }}"
-                                                sequence:
-                                                  - service: pyscript.memory_cache_set
-                                                    data:
-                                                      key: "{{ store_key }}"
-                                                      value: "{{ expired_payload }}"
-                                                      ttl_seconds: "{{ choice_timeout }}"
-                                                    response_variable: cache_state
+                                          - service: pyscript.memory_cache_set
+                                            data:
+                                              key: "{{ store_key }}"
+                                              value: "{{ expired_payload }}"
+                                              ttl_seconds: "{{ choice_timeout }}"
+                                            response_variable: cache_state
                                           - variables:
                                               final_response: "{{ expired_prompt }}"
                                     default:
@@ -400,15 +387,12 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
+                              - service: pyscript.memory_cache_set
+                                data:
+                                  key: "{{ store_key }}"
+                                  value: "{{ resume_original }}"
+                                  ttl_seconds: "{{ choice_timeout }}"
+                                response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'search_results' }}"
                         sequence:
@@ -461,28 +445,22 @@ actions:
                                                   'query': resume_payload.query | default(key_phrase, true),
                                                   'prompt': next_prompt
                                                 } | to_json }}
-                                          - choose:
-                                              - conditions: "{{ store_enabled }}"
-                                                sequence:
-                                                  - service: pyscript.memory_cache_set
-                                                    data:
-                                                      key: "{{ store_key }}"
-                                                      value: "{{ next_payload }}"
-                                                      ttl_seconds: "{{ choice_timeout }}"
-                                                    response_variable: cache_state
+                                          - service: pyscript.memory_cache_set
+                                            data:
+                                              key: "{{ store_key }}"
+                                              value: "{{ next_payload }}"
+                                              ttl_seconds: "{{ choice_timeout }}"
+                                            response_variable: cache_state
                                           - variables:
                                               handled: true
                                               final_response: "{{ next_prompt }}"
                                     default:
-                                      - choose:
-                                          - conditions: "{{ store_enabled }}"
-                                            sequence:
-                                              - service: pyscript.memory_cache_set
-                                                data:
-                                                  key: "{{ store_key }}"
-                                                  value: "{{ resume_original }}"
-                                                  ttl_seconds: "{{ choice_timeout }}"
-                                                response_variable: cache_state
+                                      - service: pyscript.memory_cache_set
+                                        data:
+                                          key: "{{ store_key }}"
+                                          value: "{{ resume_original }}"
+                                          ttl_seconds: "{{ choice_timeout }}"
+                                        response_variable: cache_state
                                       - variables:
                                           handled: true
                                           final_response: "No more results."
@@ -522,15 +500,12 @@ actions:
                                                   'prompt': expired_prompt,
                                                   'allow_force_new': allow_force_new
                                                 } | to_json }}
-                                          - choose:
-                                              - conditions: "{{ store_enabled }}"
-                                                sequence:
-                                                  - service: pyscript.memory_cache_set
-                                                    data:
-                                                      key: "{{ store_key }}"
-                                                      value: "{{ expired_payload }}"
-                                                      ttl_seconds: "{{ choice_timeout }}"
-                                                    response_variable: cache_state
+                                          - service: pyscript.memory_cache_set
+                                            data:
+                                              key: "{{ store_key }}"
+                                              value: "{{ expired_payload }}"
+                                              ttl_seconds: "{{ choice_timeout }}"
+                                            response_variable: cache_state
                                           - variables:
                                               final_response: "{{ expired_prompt }}"
                                     default:
@@ -541,15 +516,12 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
+                              - service: pyscript.memory_cache_set
+                                data:
+                                  key: "{{ store_key }}"
+                                  value: "{{ resume_original }}"
+                                  ttl_seconds: "{{ choice_timeout }}"
+                                response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'forget_confirm_primary' }}"
                         sequence:
@@ -600,15 +572,12 @@ actions:
                                                   'must_confirm': must_confirm_delete,
                                                   'prompt': prompt_text
                                                 } | to_json }}
-                                          - choose:
-                                              - conditions: "{{ store_enabled }}"
-                                                sequence:
-                                                  - service: pyscript.memory_cache_set
-                                                    data:
-                                                      key: "{{ store_key }}"
-                                                      value: "{{ cache_payload }}"
-                                                      ttl_seconds: "{{ choice_timeout }}"
-                                                    response_variable: cache_state
+                                          - service: pyscript.memory_cache_set
+                                            data:
+                                              key: "{{ store_key }}"
+                                              value: "{{ cache_payload }}"
+                                              ttl_seconds: "{{ choice_timeout }}"
+                                            response_variable: cache_state
                                           - variables:
                                               final_response: "{{ prompt_text }}"
                                     default:
@@ -624,15 +593,12 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
+                              - service: pyscript.memory_cache_set
+                                data:
+                                  key: "{{ store_key }}"
+                                  value: "{{ resume_original }}"
+                                  ttl_seconds: "{{ choice_timeout }}"
+                                response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'forget_ambiguous_choice' }}"
                         sequence:
@@ -671,15 +637,12 @@ actions:
                                                   'key': chosen_key,
                                                   'prompt': confirm_prompt
                                                 } | to_json }}
-                                          - choose:
-                                              - conditions: "{{ store_enabled }}"
-                                                sequence:
-                                                  - service: pyscript.memory_cache_set
-                                                    data:
-                                                      key: "{{ store_key }}"
-                                                      value: "{{ confirm_payload }}"
-                                                      ttl_seconds: "{{ choice_timeout }}"
-                                                    response_variable: cache_state
+                                          - service: pyscript.memory_cache_set
+                                            data:
+                                              key: "{{ store_key }}"
+                                              value: "{{ confirm_payload }}"
+                                              ttl_seconds: "{{ choice_timeout }}"
+                                            response_variable: cache_state
                                           - variables:
                                               handled: true
                                               final_response: "{{ confirm_prompt }}"
@@ -705,15 +668,12 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
+                              - service: pyscript.memory_cache_set
+                                data:
+                                  key: "{{ store_key }}"
+                                  value: "{{ resume_original }}"
+                                  ttl_seconds: "{{ choice_timeout }}"
+                                response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'forget_confirm_secondary' }}"
                         sequence:
@@ -750,15 +710,12 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
+                              - service: pyscript.memory_cache_set
+                                data:
+                                  key: "{{ store_key }}"
+                                  value: "{{ resume_original }}"
+                                  ttl_seconds: "{{ choice_timeout }}"
+                                response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                       - conditions: "{{ resume_payload.pending_action == 'get_expired_choice' }}"
                         sequence:
@@ -821,15 +778,12 @@ actions:
                                         sequence:
                                           - set_conversation_response: "{{ final_response if final_response | length > 0 else prompt_text }}"
                                     default:
-                                      - choose:
-                                          - conditions: "{{ store_enabled }}"
-                                            sequence:
-                                              - service: pyscript.memory_cache_set
-                                                data:
-                                                  key: "{{ store_key }}"
-                                                  value: "{{ resume_original }}"
-                                                  ttl_seconds: "{{ choice_timeout }}"
-                                                response_variable: cache_state
+                                      - service: pyscript.memory_cache_set
+                                        data:
+                                          key: "{{ store_key }}"
+                                          value: "{{ resume_original }}"
+                                          ttl_seconds: "{{ choice_timeout }}"
+                                        response_variable: cache_state
                                       - set_conversation_response: "{{ prompt_text }}"
                               - conditions: "{{ resume_sentence in create_new_cmds and resume_payload.allow_force_new }}"
                                 sequence:
@@ -871,15 +825,12 @@ actions:
                             default:
                               - variables:
                                   prompt_text: "{{ resume_payload.prompt }}"
-                              - choose:
-                                  - conditions: "{{ store_enabled }}"
-                                    sequence:
-                                      - service: pyscript.memory_cache_set
-                                        data:
-                                          key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
-                                          ttl_seconds: "{{ choice_timeout }}"
-                                        response_variable: cache_state
+                              - service: pyscript.memory_cache_set
+                                data:
+                                  key: "{{ store_key }}"
+                                  value: "{{ resume_original }}"
+                                  ttl_seconds: "{{ choice_timeout }}"
+                                response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
   - choose:
       - conditions: "{{ trigger.id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
@@ -926,18 +877,12 @@ actions:
                           'prompt': prompt_text,
                           'allow_force_new': allow_force_new
                         } | to_json }}
-                  - choose:
-                      - conditions: "{{ store_enabled }}"
-                        sequence:
-                          - choose:
-                              - conditions: "{{ store_enabled }}"
-                                sequence:
-                                  - service: pyscript.memory_cache_set
-                                    data:
-                                      key: "{{ store_key }}"
-                                      value: "{{ cache_payload }}"
-                                      ttl_seconds: "{{ choice_timeout }}"
-                                    response_variable: cache_state
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
                   - set_conversation_response: "{{ prompt_text }}"
             default:
               - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
@@ -973,18 +918,12 @@ actions:
                           'prompt': prompt_text,
                           'allow_force_new': allow_force_new
                         } | to_json }}
-                  - choose:
-                      - conditions: "{{ store_enabled }}"
-                        sequence:
-                          - choose:
-                              - conditions: "{{ store_enabled }}"
-                                sequence:
-                                  - service: pyscript.memory_cache_set
-                                    data:
-                                      key: "{{ store_key }}"
-                                      value: "{{ cache_payload }}"
-                                      ttl_seconds: "{{ choice_timeout }}"
-                                    response_variable: cache_state
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
                   - set_conversation_response: "{{ prompt_text }}"
               - conditions: "{{ resp_get.error == 'not_found' and (resp_get.matches | default([], true) | length) == 0 }}"
                 sequence:
@@ -1013,18 +952,12 @@ actions:
                           'entries': ns.items,
                           'prompt': prompt_text
                         } | to_json }}
-                  - choose:
-                      - conditions: "{{ store_enabled }}"
-                        sequence:
-                          - choose:
-                              - conditions: "{{ store_enabled }}"
-                                sequence:
-                                  - service: pyscript.memory_cache_set
-                                    data:
-                                      key: "{{ store_key }}"
-                                      value: "{{ cache_payload }}"
-                                      ttl_seconds: "{{ choice_timeout }}"
-                                    response_variable: cache_state
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
                   - set_conversation_response: "{{ prompt_text }}"
             default:
               - set_conversation_response: "I couldn't retrieve it right now."
@@ -1065,18 +998,12 @@ actions:
                       'query': key_phrase,
                       'prompt': prompt_text
                     } | to_json }}
-              - choose:
-                  - conditions: "{{ store_enabled }}"
-                    sequence:
-                      - choose:
-                          - conditions: "{{ store_enabled }}"
-                            sequence:
-                              - service: pyscript.memory_cache_set
-                                data:
-                                  key: "{{ store_key }}"
-                                  value: "{{ cache_payload }}"
-                                  ttl_seconds: "{{ choice_timeout }}"
-                                response_variable: cache_state
+              - service: pyscript.memory_cache_set
+                data:
+                  key: "{{ store_key }}"
+                  value: "{{ cache_payload }}"
+                  ttl_seconds: "{{ choice_timeout }}"
+                response_variable: cache_state
               - set_conversation_response: "{{ prompt_text }}"
       - conditions: "{{ trigger.id == 'forget' and key_phrase|length > 0 }}"
         sequence:
@@ -1093,18 +1020,12 @@ actions:
                           'key_phrase': key_phrase,
                           'prompt': prompt_text
                         } | to_json }}
-                  - choose:
-                      - conditions: "{{ store_enabled }}"
-                        sequence:
-                          - choose:
-                              - conditions: "{{ store_enabled }}"
-                                sequence:
-                                  - service: pyscript.memory_cache_set
-                                    data:
-                                      key: "{{ store_key }}"
-                                      value: "{{ cache_payload }}"
-                                      ttl_seconds: "{{ choice_timeout }}"
-                                    response_variable: cache_state
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
                   - set_conversation_response: "{{ prompt_text }}"
           - service: pyscript.memory_forget
             data:
@@ -1140,18 +1061,12 @@ actions:
                           'must_confirm': must_confirm_delete,
                           'prompt': prompt_text
                         } | to_json }}
-                  - choose:
-                      - conditions: "{{ store_enabled }}"
-                        sequence:
-                          - choose:
-                              - conditions: "{{ store_enabled }}"
-                                sequence:
-                                  - service: pyscript.memory_cache_set
-                                    data:
-                                      key: "{{ store_key }}"
-                                      value: "{{ cache_payload }}"
-                                      ttl_seconds: "{{ choice_timeout }}"
-                                    response_variable: cache_state
+                  - service: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
                   - set_conversation_response: "{{ prompt_text }}"
             default:
               - set_conversation_response: "I couldn't delete it right now."

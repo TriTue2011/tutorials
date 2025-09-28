@@ -4,7 +4,7 @@ blueprint:
     Local voice blueprint for a Memory Tool with strict operation mapping:
     SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,
     not_found, and expired. Candidate lists are capped to 5; SEARCH supports pagination.
-    Backend truncate candidate values to 120 chars; this blueprint also truncates to 20 for clarity.
+    Backend truncate candidate values to 120 chars; this blueprint also truncates to 15 for clarity.
   domain: automation
   homeassistant:
     min_version: 2024.10.0
@@ -48,11 +48,13 @@ blueprint:
           selector: { text: { multiple: true } }
         yes_commands:
           name: Yes / confirm phrases
+          description: Using for selection or confirmation steps.
           default: ["yes","yep","sure","ok","okay","confirm","do it"]
           selector: { text: { multiple: true } }
         no_commands:
-          name: No / cancel phrases
-          default: ["no","nope","cancel","stop","never mind"]
+          name: No phrases
+          description: Using for selection or confirmation steps.
+          default: ["no","nope", "not right now"]
           selector: { text: { multiple: true } }
         create_new_commands:
           name: Create-new phrases
@@ -60,19 +62,23 @@ blueprint:
           default: ["create new","new","make new"]
           selector: { text: { multiple: true } }
         cancel_commands:
-          name: Cancel phrases (for choice steps)
+          name: Cancel phrases
+          description: Using for selection or confirmation steps.
           default: ["cancel","stop","abort"]
           selector: { text: { multiple: true } }
         more_commands:
           name: Show-more phrases (pagination)
+          description: Using for selection or confirmation steps.
           default: ["more","next","show more"]
           selector: { text: { multiple: true } }
         restore_commands:
           name: Restore phrases (reactivate expired entry as-is)
+          description: Using for selection or confirmation steps.
           default: ["restore","reactivate","bring back"]
           selector: { text: { multiple: true } }
         update_commands:
           name: Update phrases (change value before restoring)
+          description: Using for selection or confirmation steps.
           default:
             - "change to {value}"
             - "update to {value}"
@@ -95,17 +101,17 @@ blueprint:
               mode: dropdown
         default_expiration_days:
           name: Default expiration
-          description: Days before expiry (0 = forever). Default = 180. Range 0-3650.
+          description: Days before expiry. Range 0-3650 (0 = forever).
           default: 180
           selector: { number: { min: 0, max: 3650, mode: box } }
         default_search_limit:
           name: Default search fetch limit
-          description: Default = 5. Range 1-50 (entries).
+          description: Number of entries fetched from the backend. Range 1-50 (entries).
           default: 5
           selector: { number: { min: 1, max: 50, mode: box } }
         max_list_choices:
-          name: Max entries to list per page
-          description: Default = 3. Range 1-5 (entries).
+          name: Maximum entries to display per page (pagination)
+          description: Range 1-5 (entries).
           default: 3
           selector: { number: { min: 1, max: 5, mode: box } }
         confirm_delete:
@@ -115,12 +121,12 @@ blueprint:
           selector: { boolean: {} }
         allow_force_new:
           name: Allow force_new on duplicates
-          description:  User require to explicitly says create new
+          description: User require to explicitly says create new.
           default: true
           selector: { boolean: {} }
         choice_timeout:
           name: Choice/confirmation timeout
-          description: Default = 30. Range 5-120 (seconds).
+          description: The seconds to wait before timing out. Range 5-120 (seconds).
           default: 30
           selector: { number: { min: 5, max: 120, mode: slider } }
 mode: single

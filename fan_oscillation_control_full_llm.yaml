@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Set Fan Oscillation
   author: VuLQ
   description: >-
-    # Tool for Controlling Fan Oscillation using LLM
+    # Tool for Controlling Fan Oscillation used for Voice Assistant
 
     ## Blueprint Setup
 

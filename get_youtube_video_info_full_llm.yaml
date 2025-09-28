@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Get YouTube Video Info
   author: VuLQ
   description: >-
-    # Tool gets YouTube video info using LLM
+    # Tool gets YouTube video info used for Voice Assistant
 
     ## Blueprint Setup
 

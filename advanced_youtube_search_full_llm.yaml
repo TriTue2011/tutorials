@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Perform YouTube Search
   author: VuLQ
   description: >-
-    # Tool for searching YouTube videos using LLM
+    # Tool for searching YouTube videos used for Voice Assistant
 
     ## Blueprint Setup
 

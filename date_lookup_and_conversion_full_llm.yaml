@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Convert Calendar Dates
   author: VuLQ
   description: >-
-    # Tool converts Solar date to Lunar date and vice versa using LLM
+    # Tool converts Solar date to Lunar date and vice versa used for Voice Assistant
 
     ## Blueprint Setup
 

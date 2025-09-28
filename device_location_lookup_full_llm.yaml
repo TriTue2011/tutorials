@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Get Device Location
   author: VuLQ
   description: >-
-    # Device Location Lookup Tool using LLM
+    # Device Location Lookup Tool used for Voice Assistant
 
     ## Features
 

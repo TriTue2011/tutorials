@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Perform Google Search
   author: VuLQ
   description: >-
-    # Tool for searching Google information using LLM
+    # Tool for searching Google information used for Voice Assistant
 
     ## Blueprint Setup
 

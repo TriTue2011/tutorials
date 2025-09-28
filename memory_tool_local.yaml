@@ -1,10 +1,25 @@
 blueprint:
   name: Voice - Memory Tool
   description: >
-    Local voice blueprint for a Memory Tool with strict operation mapping:
-    SET->set, GET->get, SEARCH->search, FORGET->forget. Handles duplicate_tags, ambiguous,
-    not_found, and expired. Candidate lists are capped to 5; SEARCH supports pagination.
-    Backend truncate candidate values to 120 chars; this blueprint also truncates to 15 for clarity.
+    # Fully local universal memory tool used for Voice Assistant
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * The Pyscript integration needs to be installed through HACS and properly configured.
+
+    * The `scripts/memory.py` and `scripts/common_utilities.py` scripts need to be copied into the `config/pyscript` folder.
+
+    * The mentioned dependency file(s) is/are included in the repository.
+
+    ### Optional
+
+    * Add triggers or change the existing ones.
+
+    * Adjust the tool settings to fit your needs.
+
+    * Check `sensor.memory_result` to quickly view the current status of the Memory Tool.
   domain: automation
   homeassistant:
     min_version: 2024.10.0

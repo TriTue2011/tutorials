@@ -496,7 +496,7 @@ actions:
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
-                                {{ num_aliases[c] }}
+                                {{ num_aliases[(resume_sentence | string)] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""
@@ -573,7 +573,7 @@ actions:
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
-                                {{ num_aliases[c] }}
+                                {{ num_aliases[(resume_sentence | string)] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""
@@ -656,7 +656,7 @@ actions:
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
-                                {{ num_aliases[c] }}
+                                {{ num_aliases[(resume_sentence | string)] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""
@@ -859,7 +859,7 @@ actions:
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
-                                {{ num_aliases[c] }}
+                                {{ num_aliases[(resume_sentence | string)] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""

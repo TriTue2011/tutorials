@@ -257,14 +257,14 @@ actions:
                         I found similar entries:
 
                         {% for m in matches -%}
-                        {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(20, True) }}"
+                        {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(15) }}"
 
                         {% endfor -%}
                         Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for m in matches %}
-                        {% set ns.items = ns.items + [{'key': m.key, 'value': (m.value or '') | string | truncate(20, True)}] %}
+                        {% set ns.items = ns.items + [{'key': m.key, 'value': (m.value or '') | string | truncate(15)}] %}
                         {% endfor %}
                         {{ {
                           'pending_action': 'set_duplicate_choice',
@@ -302,7 +302,7 @@ actions:
                   - variables:
                       kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
                       prompt_text: >
-                        This entry has expired{% if resp_get.value | default('', true) -%}: "{{ resp_get.value | string | truncate(20, True) }}"{% endif -%}.
+                        This entry has expired{% if resp_get.value | default('', true) -%}: "{{ resp_get.value | string | truncate(15) }}"{% endif -%}.
 
                         Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                       cache_payload: >
@@ -338,14 +338,14 @@ actions:
                         I found a few candidates:
 
                         {% for it in items -%}
-                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                         {% endfor -%}
                         Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for it in items %}
-                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(20, True)}] %}
+                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
                         {% endfor %}
                         {{ {
                           'pending_action': 'get_ambiguous_choice',
@@ -386,7 +386,7 @@ actions:
                     Results ({{ start_idx + 1 }}-{{ end_idx }} of {{ total }}):
 
                     {% for it in page_items -%}
-                    {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+                    {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                     {% endfor -%}
                     Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
@@ -446,14 +446,14 @@ actions:
                         I found a few candidates:
 
                         {% for it in itemsd -%}
-                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                         {% endfor -%}
                         Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for it in itemsd %}
-                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(20, True)}] %}
+                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
                         {% endfor %}
                         {{ {
                           'pending_action': 'forget_ambiguous_choice',
@@ -602,7 +602,7 @@ actions:
                                         sequence:
                                           - variables:
                                               expired_prompt: >
-                                                This entry has expired{% if resp_resume_get.value | default('', true) -%}: "{{ resp_resume_get.value | string | truncate(20, True) }}"{% endif -%}.
+                                                This entry has expired{% if resp_resume_get.value | default('', true) -%}: "{{ resp_resume_get.value | string | truncate(15) }}"{% endif -%}.
 
                                                 Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                                           - variables:
@@ -682,7 +682,7 @@ actions:
                                                 Results ({{ next_start + 1 }}-{{ next_end }} of {{ total_results }}):
 
                                                 {% for it in next_items -%}
-                                                {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+                                                {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                                                 {% endfor -%}
                                                 Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
@@ -732,7 +732,7 @@ actions:
                                         sequence:
                                           - variables:
                                               expired_prompt: >
-                                                This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: "{{ resp_resume_search_get.value | string | truncate(20, True) }}"{% endif -%}.
+                                                This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: "{{ resp_resume_search_get.value | string | truncate(15) }}"{% endif -%}.
 
                                                 Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                                           - variables:
@@ -806,14 +806,14 @@ actions:
                                                 I found a few candidates:
 
                                                 {% for it in itemsd -%}
-                                                {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(20, True) }}"
+                                                {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                                                 {% endfor -%}
                                                 Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
                                               cache_payload: >
                                                 {% set ns = namespace(items=[]) %}
                                                 {% for it in itemsd %}
-                                                {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(20, True)}] %}
+                                                {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
                                                 {% endfor %}
                                                 {{ {
                                                   'pending_action': 'forget_ambiguous_choice',
@@ -1035,34 +1035,6 @@ actions:
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
                                       - set_conversation_response: "{{ prompt_text }}"
-                              - conditions: "{{ trigger_id == 'resume_create_new' and resume_payload.allow_force_new }}"
-                                sequence:
-                                  - variables:
-                                      new_key: >
-                                        {% if resume_payload.key_norm | default('', true) %}
-                                        {{ resume_payload.key_norm }}
-                                        {% else %}
-                                        {{ (resume_payload.key_phrase | default('', true) | lower | replace(' ','_')) }}
-                                        {% endif %}
-                                  - service: pyscript.memory_set
-                                    data:
-                                      key: "{{ new_key }}"
-                                      value: "{{ resume_payload.value }}"
-                                      scope: "{{ resume_payload.scope }}"
-                                      expiration_days: "{{ resume_payload.expiration_days }}"
-                                      tags: "{{ resume_payload.tags }}"
-                                      force_new: true
-                                    response_variable: resp_resume_new
-                                  - choose:
-                                      - conditions: "{{ resp_resume_new.status == 'ok' }}"
-                                        sequence:
-                                          - variables:
-                                              handled: true
-                                              final_response: "Created new entry {{ resp_resume_new.key or new_key }}."
-                                    default:
-                                      - variables:
-                                          handled: true
-                                          final_response: "Unable to create a new entry right now."
                               - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
@@ -1083,7 +1055,7 @@ actions:
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                     default:
-                      - set_conversation_response: "I didn't quite catch that. Pending action is not supported by the current handler."
+                      - set_conversation_response: "I didn't quite catch that. Action {{ resume_payload.pending_action | default('') }} is not supported by the current handler."
             default:
               - set_conversation_response: "I didn't quite catch that. Could it be that the confirmation timed out?"
     default:

@@ -127,6 +127,9 @@ mode: single
 max_exceeded: silent
 
 variables:
+  version: 20250928
+  store_key: "memory_tool"
+  trigger_id: "{{ (trigger.id | string) if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
   value: "{{ trigger.slots.value | default('', true) }}"
   scope: !input default_scope
@@ -230,9 +233,6 @@ triggers:
     command: !input update_commands
 
 actions:
-  - variables:
-      store_key: "memory_tool"
-      trigger_id: "{{ (trigger.id | string) if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   - choose:
       - conditions: "{{ trigger_id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:

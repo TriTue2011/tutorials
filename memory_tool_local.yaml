@@ -47,34 +47,50 @@ blueprint:
             - "remove {key_phrase}"
           selector: { text: { multiple: true } }
         yes_commands:
-          name: Yes / confirm phrases
+          name: Yes/Confirm phrases
           description: Using for selection or confirmation steps.
-          default: ["yes","yep","sure","ok","okay","confirm","do it"]
+          default:
+            - "yes"
+            - "yep"
+            - "sure"
+            - "ok"
+            - "okay"
+            - "confirm"
+            - "do it"
           selector: { text: { multiple: true } }
         no_commands:
-          name: No phrases
+          name: No/Cancel phrases
           description: Using for selection or confirmation steps.
-          default: ["no","nope", "not right now"]
+          default:
+            - "cancel"
+            - "no"
+            - "nope"
+            - "not right now"
+            - "abort"
           selector: { text: { multiple: true } }
         create_new_commands:
           name: Create-new phrases
           description: Explicitly create a new entry despite duplicate tags.
-          default: ["create new","new","make new"]
-          selector: { text: { multiple: true } }
-        cancel_commands:
-          name: Cancel phrases
-          description: Using for selection or confirmation steps.
-          default: ["cancel","stop","abort"]
+          default:
+            - "create new"
+            - "new"
+            - "make new"
           selector: { text: { multiple: true } }
         more_commands:
           name: Show-more phrases (pagination)
           description: Using for selection or confirmation steps.
-          default: ["more","next","show more"]
+          default:
+            - "more"
+            - "next"
+            - "show more"
           selector: { text: { multiple: true } }
         restore_commands:
           name: Restore phrases (reactivate expired entry as-is)
           description: Using for selection or confirmation steps.
-          default: ["restore","reactivate","bring back"]
+          default:
+            - "restore"
+            - "reactivate"
+            - "bring back"
           selector: { text: { multiple: true } }
         update_commands:
           name: Update phrases (change value before restoring)
@@ -149,7 +165,6 @@ variables:
   yes_cmds: !input yes_commands
   no_cmds: !input no_commands
   create_new_cmds: !input create_new_commands
-  cancel_cmds: !input cancel_commands
   more_cmds: !input more_commands
   restore_cmds: !input restore_commands
   update_cmds: !input update_commands
@@ -216,9 +231,6 @@ triggers:
       - third
       - fourth
       - fifth
-  - id: resume_cancel
-    trigger: conversation
-    command: !input cancel_commands
   - id: resume_create_new
     trigger: conversation
     command: !input create_new_commands
@@ -266,7 +278,7 @@ actions:
                         {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(15) }}"
 
                         {% endfor -%}
-                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for m in matches %}
@@ -310,7 +322,7 @@ actions:
                       prompt_text: >
                         This entry has expired{% if resp_get.value | default('', true) -%}: "{{ resp_get.value | string | truncate(15) }}"{% endif -%}.
 
-                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                       cache_payload: >
                         {{ {
                           'pending_action': 'get_expired_choice',
@@ -347,7 +359,7 @@ actions:
                         {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                         {% endfor -%}
-                        Say a number to open it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                        Say a number to open it, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for it in items %}
@@ -395,7 +407,7 @@ actions:
                     {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                     {% endfor -%}
-                    Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                    Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                   cache_payload: >
                     {{ {
                       'pending_action': 'search_results',
@@ -418,7 +430,7 @@ actions:
                 sequence:
                   - variables:
                       prompt_text: >
-                        Delete "{{ key_norm or key_phrase }}". Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'no') }}?
+                        Delete "{{ key_norm or key_phrase }}". Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                       cache_payload: >
                         {{ {
                           'pending_action': 'forget_confirm_primary',
@@ -455,7 +467,7 @@ actions:
                         {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                         {% endfor -%}
-                        Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                        Say a number to delete it, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for it in itemsd %}
@@ -507,7 +519,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
+                              - conditions: "{{ trigger_id == 'resume_no' }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -584,7 +596,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
+                              - conditions: "{{ trigger_id == 'resume_no' }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -610,7 +622,7 @@ actions:
                                               expired_prompt: >
                                                 This entry has expired{% if resp_resume_get.value | default('', true) -%}: "{{ resp_resume_get.value | string | truncate(15) }}"{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -667,7 +679,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
+                              - conditions: "{{ trigger_id == 'resume_no' }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -691,7 +703,7 @@ actions:
                                                 {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                                                 {% endfor -%}
-                                                Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                                               next_payload: >
                                                 {{ {
                                                   'pending_action': 'search_results',
@@ -740,7 +752,7 @@ actions:
                                               expired_prompt: >
                                                 This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: "{{ resp_resume_search_get.value | string | truncate(15) }}"{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -815,7 +827,7 @@ actions:
                                                 {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
 
                                                 {% endfor -%}
-                                                Say a number to delete it, or say "{{ (cancel_cmds[0] if cancel_cmds else 'cancel') }}"?
+                                                Say a number to delete it, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
                                               cache_payload: >
                                                 {% set ns = namespace(items=[]) %}
                                                 {% for it in itemsd %}
@@ -838,7 +850,7 @@ actions:
                                     default:
                                       - variables:
                                           final_response: "I couldn't delete it right now."
-                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
+                              - conditions: "{{ trigger_id == 'resume_no' }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -870,7 +882,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
+                              - conditions: "{{ trigger_id == 'resume_no' }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -886,7 +898,7 @@ actions:
                                         sequence:
                                           - variables:
                                               confirm_prompt: >
-                                                Confirm delete "{{ chosen_key }}"{% if snip_value %} - "{{ snip_value }}"{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'no') }}?
+                                                Confirm delete "{{ chosen_key }}"{% if snip_value %} - "{{ snip_value }}"{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                               confirm_payload: >
                                                 {{ {
                                                   'pending_action': 'forget_confirm_secondary',
@@ -956,7 +968,7 @@ actions:
                                       - variables:
                                           handled: true
                                           final_response: "I couldn't delete it right now."
-                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
+                              - conditions: "{{ trigger_id == 'resume_no' }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -1041,7 +1053,7 @@ actions:
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
                                       - set_conversation_response: "{{ prompt_text }}"
-                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
+                              - conditions: "{{ trigger_id == 'resume_no' }}"
                                 sequence:
                                   - variables:
                                       handled: true

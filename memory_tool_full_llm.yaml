@@ -111,8 +111,6 @@ blueprint:
 
             Generate a few short, meaningful keywords in the same language as the user's input.
 
-            Output space-separated tags only, no commas or special formatting.
-
             If no clear keywords exist, use the main user phrase as a single tag.
 
             If that is not possible, reuse the key.

@@ -144,6 +144,12 @@ variables:
   more_cmds: !input more_commands
   restore_cmds: !input restore_commands
   update_cmds: !input update_commands
+  numbers:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
   num_aliases:
     one: 1
     first: 1
@@ -226,7 +232,7 @@ triggers:
 actions:
   - variables:
       store_key: "memory_tool"
-      trigger_id: "{{ trigger.id if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
+      trigger_id: "{{ (trigger.id | string) if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   - choose:
       - conditions: "{{ trigger_id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:
@@ -484,22 +490,23 @@ actions:
                       - conditions: "{{ resume_payload.pending_action == 'set_duplicate_choice' }}"
                         sequence:
                           - variables:
-                              resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
+                              resume_sentence: "{{ trigger.sentence | default('', true) | string | lower }}"
                               matches_ctx: "{{ resume_payload.matches | default([], true) }}"
                               pick_num: >
-                                {% set c = (resume_sentence | string) %}
-                                {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                                {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                                {% if (resume_sentence | int(0)) in numbers -%}
+                                {{ resume_sentence | int(0) }}
+                                {% elif (resume_sentence | string) in num_aliases -%}
+                                {{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ resume_sentence in cancel_cmds }}"
+                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
                                       handled: true
                                       final_response: "Canceled."
-                              - conditions: "{{ resume_sentence in create_new_cmds and resume_payload.allow_force_new }}"
+                              - conditions: "{{ trigger_id == 'resume_create_new' and resume_payload.allow_force_new }}"
                                 sequence:
                                   - service: pyscript.memory_set
                                     data:
@@ -563,14 +570,15 @@ actions:
                               items_ctx: "{{ resume_payload.entries | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
-                                {% set c = (resume_sentence | string) %}
-                                {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                                {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                                {% if (resume_sentence | int(0)) in numbers -%}
+                                {{ resume_sentence | int(0) }}
+                                {% elif (resume_sentence | string) in num_aliases -%}
+                                {{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ resume_sentence in cancel_cmds }}"
+                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -645,19 +653,20 @@ actions:
                               end_idx: "{{ [((page | int) * max_choices) + max_choices, (results_list | length)] | min }}"
                               page_items: "{{ results_list[start_idx:end_idx] }}"
                               pick_num: >
-                                {% set c = (resume_sentence | string) %}
-                                {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                                {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                                {% if (resume_sentence | int(0)) in numbers -%}
+                                {{ resume_sentence | int(0) }}
+                                {% elif (resume_sentence | string) in num_aliases -%}
+                                {{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ resume_sentence in cancel_cmds }}"
+                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
                                       handled: true
                                       final_response: "Canceled."
-                              - conditions: "{{ resume_sentence in more_cmds }}"
+                              - conditions: "{{ trigger_id == 'resume_more' }}"
                                 sequence:
                                   - variables:
                                       total_results: "{{ results_list | length }}"
@@ -772,7 +781,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ resume_sentence in yes_cmds }}"
+                              - conditions: "{{ trigger_id == 'resume_yes' }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -823,7 +832,7 @@ actions:
                                     default:
                                       - variables:
                                           final_response: "I couldn't delete it right now."
-                              - conditions: "{{ resume_sentence in no_cmds or resume_sentence in cancel_cmds }}"
+                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -847,14 +856,15 @@ actions:
                               items_ctx: "{{ resume_payload.entries | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
                               pick_num: >
-                                {% set c = (resume_sentence | string) %}
-                                {% if c in ['1','2','3','4','5'] -%}{{ c | int }}
-                                {% elif c in num_aliases -%}{{ num_aliases[c] }}
+                                {% if (resume_sentence | int(0)) in numbers -%}
+                                {{ resume_sentence | int(0) }}
+                                {% elif (resume_sentence | string) in num_aliases -%}
+                                {{ num_aliases[c] }}
                                 {% else -%}0{% endif -%}
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ resume_sentence in cancel_cmds }}"
+                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -924,7 +934,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ resume_sentence in yes_cmds }}"
+                              - conditions: "{{ trigger_id == 'resume_yes' }}"
                                 sequence:
                                   - service: pyscript.memory_forget
                                     data:
@@ -940,7 +950,7 @@ actions:
                                       - variables:
                                           handled: true
                                           final_response: "I couldn't delete it right now."
-                              - conditions: "{{ resume_sentence in no_cmds or resume_sentence in cancel_cmds }}"
+                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
                                       handled: true
@@ -964,7 +974,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ resume_sentence in restore_cmds }}"
+                              - conditions: "{{ trigger_id == 'resume_restore' }}"
                                 sequence:
                                   - service: pyscript.memory_set
                                     data:
@@ -984,7 +994,7 @@ actions:
                                       - variables:
                                           handled: true
                                           final_response: "Unable to restore right now."
-                              - conditions: "{{ resume_sentence in update_cmds }}"
+                              - conditions: "{{ trigger_id == 'resume_update' }}"
                                 sequence:
                                   - variables:
                                       new_val: "{{ trigger.slots.update_value | default(resume_sentence, true) }}"
@@ -1025,7 +1035,7 @@ actions:
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
                                       - set_conversation_response: "{{ prompt_text }}"
-                              - conditions: "{{ resume_sentence in create_new_cmds and resume_payload.allow_force_new }}"
+                              - conditions: "{{ trigger_id == 'resume_create_new' and resume_payload.allow_force_new }}"
                                 sequence:
                                   - variables:
                                       new_key: >
@@ -1053,7 +1063,7 @@ actions:
                                       - variables:
                                           handled: true
                                           final_response: "Unable to create a new entry right now."
-                              - conditions: "{{ resume_sentence in cancel_cmds }}"
+                              - conditions: "{{ trigger_id in ['resume_cancel', 'resume_no'] }}"
                                 sequence:
                                   - variables:
                                       handled: true

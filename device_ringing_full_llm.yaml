@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Ring Device
   author: VuLQ
   description: >-
-    # Device Ringing Tool using LLM
+    # Device Ringing Tool used for Voice Assistant
 
     ## Features
 

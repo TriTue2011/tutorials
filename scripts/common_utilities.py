@@ -1,12 +1,9 @@
 import asyncio
-import secrets
 import sqlite3
 import threading
 import time
 from pathlib import Path
 from typing import Any
-
-from homeassistant.helpers import network
 
 TTL = 300  # The Conversation ID retention period in Home Assistant is set to a fixed 5 minutes of idle time and cannot be modified.
 DB_PATH = Path("/config/cache.db")
@@ -162,28 +159,6 @@ async def _cache_delete(key: str) -> int:
     return await asyncio.to_thread(_cache_delete_sync, key)
 
 
-def _internal_url() -> str | None:
-    """Return the internal Home Assistant URL, or None when it cannot be resolved."""
-    try:
-        return network.get_url(hass, allow_external=False)
-    except network.NoURLAvailableError:
-        return None
-
-
-def _external_url() -> str | None:
-    """Return the external HTTPS Home Assistant URL when configured and reachable."""
-    try:
-        return network.get_url(
-            hass,
-            allow_internal=False,
-            allow_ip=False,
-            require_ssl=True,
-            require_standard_port=True,
-        )
-    except network.NoURLAvailableError:
-        return None
-
-
 @time_trigger("startup")
 async def initialize_cache_db() -> None:
     """Run once at startup to create the cache database and schema before services execute."""
@@ -191,112 +166,141 @@ async def initialize_cache_db() -> None:
 
 
 @service(supports_response="only")
-async def conversation_id_fetcher(chat_id: str) -> dict[str, Any]:
+async def memory_cache_get(key: str) -> dict[str, Any]:
     """
     yaml
-    name: Conversation ID Fetcher
-    description: Fetch a cached conversation ID for a given chat if one exists.
+    name: Memory Cache Get
+    description: Fetch a cached value for a given key.
     fields:
-      chat_id:
-        name: Chat ID
-        description: Unique identifier of the conversation (user or group).
+      key:
+        name: Key
+        description: Identifier for the cached entry.
         required: true
         selector:
           text:
     """
-    if not chat_id:
+    if not key:
         return {
             "status": "error",
             "op": "get",
-            "error": "Missing a required argument: chat_id",
+            "error": "Missing a required argument: key",
         }
     try:
-        conversation_id = await _cache_get(chat_id)
+        value = await _cache_get(key)
+        if value:
+            return {
+                "status": "ok",
+                "op": "get",
+                "key": key,
+                "value": value,
+            }
         return {
-            "status": "ok",
+            "status": "error",
             "op": "get",
-            "chat_id": chat_id,
-            "conversation_id": conversation_id,
+            "key": key,
+            "error": "not_found",
         }
     except Exception as error:
         return {
             "status": "error",
             "op": "get",
+            "key": key,
             "error": f"An unexpected error occurred during processing: {error}",
         }
 
 
 @service(supports_response="only")
-async def conversation_id_setter(chat_id: str, conversation_id: str) -> dict[str, Any]:
+async def memory_cache_forget(key: str) -> dict[str, Any]:
     """
     yaml
-    name: Conversation ID Setter
-    description: Store a conversation ID in cache with a five minutes idle timeout.
+    name: Memory Cache Forget
+    description: Remove a cached entry if it exists.
     fields:
-      chat_id:
-        name: Chat ID
-        description: Unique identifier of the conversation (user or group).
-        required: true
-        selector:
-          text:
-      conversation_id:
-        name: Conversation ID
-        description: Identifier to cache for the conversation.
+      key:
+        name: Key
+        description: Identifier for the cached entry.
         required: true
         selector:
           text:
     """
-    if not all([chat_id, conversation_id]):
+    if not key:
         return {
             "status": "error",
-            "op": "set",
-            "error": "Missing one or more required arguments: chat_id, conversation_id",
+            "op": "forget",
+            "error": "Missing a required argument: key",
         }
     try:
-        success = await _cache_set(chat_id, conversation_id, TTL)
+        deleted = await _cache_delete(key)
+        return {
+            "status": "ok",
+            "op": "forget",
+            "key": key,
+            "deleted": deleted,
+        }
+    except Exception as error:
+        return {
+            "status": "error",
+            "op": "forget",
+            "key": key,
+            "error": f"An unexpected error occurred during processing: {error}",
+        }
+
+
+@service(supports_response="only")
+async def memory_cache_set(
+    key: str,
+    value: str,
+    ttl_seconds: int | None = None,
+) -> dict[str, Any]:
+    """
+    yaml
+    name: Memory Cache Set
+    description: Store a value in cache for a given key.
+    fields:
+      key:
+        name: Key
+        description: Identifier for the cached entry.
+        required: true
+        selector:
+          text:
+      value:
+        name: Value
+        description: Value to cache for the provided key.
+        required: true
+        selector:
+          text:
+      ttl_seconds:
+        name: TTL Seconds
+        description: Optional override for the entry's time to live (defaults to TTL constant).
+        selector:
+          number:
+            min: 1
+            max: 86400
+            mode: box
+    """
+    ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else TTL
+    stored_value = str(value)
+    try:
+        success = await _cache_set(key, stored_value, ttl)
         if not success:
             return {
                 "status": "error",
                 "op": "set",
-                "chat_id": chat_id,
-                "conversation_id": conversation_id,
+                "key": key,
+                "value": stored_value,
                 "error": "cache_set returned False",
             }
         return {
             "status": "ok",
             "op": "set",
-            "chat_id": chat_id,
-            "conversation_id": conversation_id,
+            "key": key,
+            "value": stored_value,
+            "ttl": ttl,
         }
     except Exception as error:
         return {
             "status": "error",
             "op": "set",
+            "key": key,
             "error": f"An unexpected error occurred during processing: {error}",
         }
-
-
-@service(supports_response="only")
-def generate_webhook_id() -> dict[str, Any]:
-    """
-    yaml
-    name: Generate Webhook ID
-    description: Generate a unique URL-safe webhook ID and sample URLs.
-    """
-    webhook_id = secrets.token_urlsafe()
-    internal_url = _internal_url()
-    external_url = _external_url()
-    response = {"webhook_id": webhook_id}
-    if internal_url:
-        response["sample_internal_url"] = f"{internal_url}/api/webhook/{webhook_id}"
-    else:
-        response["sample_internal_url"] = (
-            "The internal Home Assistant URL is not found."
-        )
-    if external_url:
-        response["sample_external_url"] = f"{external_url}/api/webhook/{webhook_id}"
-    else:
-        response["sample_external_url"] = (
-            "The external Home Assistant URL is not found or incorrect."
-        )
-    return response

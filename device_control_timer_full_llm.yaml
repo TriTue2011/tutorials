@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Set Device Timer
   author: VuLQ
   description: >-
-    # Tool for controlling on/off devices with adjustable delay timing using LLM
+    # Tool for controlling on/off devices with adjustable delay timing used for Voice Assistant
 
     ## Blueprint Setup
 

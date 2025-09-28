@@ -2,7 +2,7 @@ blueprint:
   name: Voice - Check Traffic Fine
   author: VuLQ
   description: >-
-    # Tool for checking traffic fines using LLM
+    # Tool for checking traffic fines used for Voice Assistant
 
     ## Blueprint Setup
 

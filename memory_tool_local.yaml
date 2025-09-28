@@ -275,10 +275,10 @@ actions:
                         I found similar entries:
 
                         {% for m in matches -%}
-                        {{ loop.index }}. {{ m.key }} - "{{ (m.value or '') | string | truncate(15) }}"
+                        {{ loop.index }}. {{ m.key }}: {{ (m.value or '') | string | truncate(15) }}
 
                         {% endfor -%}
-                        Say a number to update that existing entry, or say "{{ (create_new_cmds[0] if create_new_cmds else 'create new') }}" to save as a new entry, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                        Say a number to update that existing entry, or say {{ (create_new_cmds[0] if create_new_cmds else 'create new') }} to save as a new entry, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for m in matches %}
@@ -320,9 +320,9 @@ actions:
                   - variables:
                       kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
                       prompt_text: >
-                        This entry has expired{% if resp_get.value | default('', true) -%}: "{{ resp_get.value | string | truncate(15) }}"{% endif -%}.
+                        This entry has expired{% if resp_get.value | default('', true) -%}: {{ resp_get.value | string | truncate(15) }}{% endif -%}.
 
-                        Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                        Say {{ (restore_cmds[0] if restore_cmds else 'restore') }} to reactivate, say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to store a new value, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                       cache_payload: >
                         {{ {
                           'pending_action': 'get_expired_choice',
@@ -356,10 +356,10 @@ actions:
                         I found a few candidates:
 
                         {% for it in items -%}
-                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
+                        {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
 
                         {% endfor -%}
-                        Say a number to open it, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                        Say a number to open it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for it in items %}
@@ -404,10 +404,10 @@ actions:
                     Results ({{ start_idx + 1 }}-{{ end_idx }} of {{ total }}):
 
                     {% for it in page_items -%}
-                    {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
+                    {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
 
                     {% endfor -%}
-                    Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                    Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                   cache_payload: >
                     {{ {
                       'pending_action': 'search_results',
@@ -430,7 +430,7 @@ actions:
                 sequence:
                   - variables:
                       prompt_text: >
-                        Delete "{{ key_norm or key_phrase }}". Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                        Delete {{ key_norm or key_phrase }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                       cache_payload: >
                         {{ {
                           'pending_action': 'forget_confirm_primary',
@@ -464,10 +464,10 @@ actions:
                         I found a few candidates:
 
                         {% for it in itemsd -%}
-                        {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
+                        {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
 
                         {% endfor -%}
-                        Say a number to delete it, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                        Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                       cache_payload: >
                         {% set ns = namespace(items=[]) %}
                         {% for it in itemsd %}
@@ -619,10 +619,10 @@ actions:
                                       - conditions: "{{ resp_resume_get.error == 'expired' }}"
                                         sequence:
                                           - variables:
-                                              expired_prompt: >
-                                                This entry has expired{% if resp_resume_get.value | default('', true) -%}: "{{ resp_resume_get.value | string | truncate(15) }}"{% endif -%}.
+                                              prompt_text: >
+                                                This entry has expired{% if resp_resume_get.value | default('', true) -%}: {{ resp_resume_get.value | string | truncate(15) }}{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                                                Say {{ (restore_cmds[0] if restore_cmds else 'restore') }} to reactivate, say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to store a new value, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -634,7 +634,7 @@ actions:
                                                   'expiration_days': exp_days,
                                                   'key_phrase': resume_payload.key_phrase | default(key_phrase, true),
                                                   'key_norm': chosen_key,
-                                                  'prompt': expired_prompt,
+                                                  'prompt': prompt_text,
                                                   'allow_force_new': allow_force_new
                                                 } | to_json }}
                                           - service: pyscript.memory_cache_set
@@ -644,7 +644,7 @@ actions:
                                               ttl_seconds: "{{ choice_timeout }}"
                                             response_variable: cache_state
                                           - variables:
-                                              final_response: "{{ expired_prompt }}"
+                                              final_response: "{{ prompt_text }}"
                                     default:
                                       - variables:
                                           final_response: "I couldn't retrieve it right now."
@@ -696,21 +696,21 @@ actions:
                                           - variables:
                                               next_end: "{{ [next_start + max_choices, total_results] | min }}"
                                               next_items: "{{ results_list[next_start:next_end] }}"
-                                              next_prompt: >
+                                              prompt_text: >
                                                 Results ({{ next_start + 1 }}-{{ next_end }} of {{ total_results }}):
 
                                                 {% for it in next_items -%}
-                                                {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
+                                                {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
 
                                                 {% endfor -%}
-                                                Say a number to open it, say "{{ (more_cmds[0] if more_cmds else 'more') }}" for next page, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                                                Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                               next_payload: >
                                                 {{ {
                                                   'pending_action': 'search_results',
                                                   'results': results_list,
                                                   'page': next_page,
                                                   'query': resume_payload.query | default(key_phrase, true),
-                                                  'prompt': next_prompt
+                                                  'prompt': prompt_text
                                                 } | to_json }}
                                           - service: pyscript.memory_cache_set
                                             data:
@@ -720,7 +720,7 @@ actions:
                                             response_variable: cache_state
                                           - variables:
                                               handled: true
-                                              final_response: "{{ next_prompt }}"
+                                              final_response: "{{ prompt_text }}"
                                     default:
                                       - service: pyscript.memory_cache_set
                                         data:
@@ -749,10 +749,10 @@ actions:
                                       - conditions: "{{ resp_resume_search_get.error == 'expired' }}"
                                         sequence:
                                           - variables:
-                                              expired_prompt: >
-                                                This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: "{{ resp_resume_search_get.value | string | truncate(15) }}"{% endif -%}.
+                                              prompt_text: >
+                                                This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: {{ resp_resume_search_get.value | string | truncate(15) }}{% endif -%}.
 
-                                                Say "{{ (restore_cmds[0] if restore_cmds else 'restore') }}" to reactivate, say "{{ (update_cmds[0] if update_cmds else 'change to {value}') }}" to store a new value, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                                                Say {{ (restore_cmds[0] if restore_cmds else 'restore') }} to reactivate, say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to store a new value, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                           - variables:
                                               expired_payload: >
                                                 {{ {
@@ -764,7 +764,7 @@ actions:
                                                   'expiration_days': exp_days,
                                                   'key_phrase': resume_payload.query | default(key_phrase, true),
                                                   'key_norm': chosen_key,
-                                                  'prompt': expired_prompt,
+                                                  'prompt': prompt_text,
                                                   'allow_force_new': allow_force_new
                                                 } | to_json }}
                                           - service: pyscript.memory_cache_set
@@ -774,7 +774,7 @@ actions:
                                               ttl_seconds: "{{ choice_timeout }}"
                                             response_variable: cache_state
                                           - variables:
-                                              final_response: "{{ expired_prompt }}"
+                                              final_response: "{{ prompt_text }}"
                                     default:
                                       - variables:
                                           final_response: "I couldn't retrieve it right now."
@@ -824,10 +824,10 @@ actions:
                                                 I found a few candidates:
 
                                                 {% for it in itemsd -%}
-                                                {{ loop.index }}. {{ it.key }} - "{{ (it.value or '') | string | truncate(15) }}"
+                                                {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
 
                                                 {% endfor -%}
-                                                Say a number to delete it, or say "{{ (no_cmds[0] if no_cmds else 'cancel') }}"?
+                                                Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                               cache_payload: >
                                                 {% set ns = namespace(items=[]) %}
                                                 {% for it in itemsd %}
@@ -897,13 +897,13 @@ actions:
                                       - conditions: "{{ resume_payload.must_confirm }}"
                                         sequence:
                                           - variables:
-                                              confirm_prompt: >
-                                                Confirm delete "{{ chosen_key }}"{% if snip_value %} - "{{ snip_value }}"{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                                              prompt_text: >
+                                                Confirm delete {{ chosen_key }}{% if snip_value %}: {{ snip_value }}{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                               confirm_payload: >
                                                 {{ {
                                                   'pending_action': 'forget_confirm_secondary',
                                                   'key': chosen_key,
-                                                  'prompt': confirm_prompt
+                                                  'prompt': prompt_text
                                                 } | to_json }}
                                           - service: pyscript.memory_cache_set
                                             data:
@@ -913,7 +913,7 @@ actions:
                                             response_variable: cache_state
                                           - variables:
                                               handled: true
-                                              final_response: "{{ confirm_prompt }}"
+                                              final_response: "{{ prompt_text }}"
                                   - choose:
                                       - conditions: "{{ not resume_payload.must_confirm }}"
                                         sequence:

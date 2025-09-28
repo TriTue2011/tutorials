@@ -74,9 +74,9 @@ blueprint:
         update_commands:
           name: Update phrases (change value before restoring)
           default:
-            - "change to {update_value}"
-            - "update to {update_value}"
-            - "edit to {update_value}"
+            - "change to {value}"
+            - "update to {value}"
+            - "edit to {value}"
           selector: { text: { multiple: true } }
     tool_settings:
       name: Tool settings
@@ -997,7 +997,7 @@ actions:
                               - conditions: "{{ trigger_id == 'resume_update' }}"
                                 sequence:
                                   - variables:
-                                      new_val: "{{ trigger.slots.update_value | default(resume_sentence, true) }}"
+                                      new_val: "{{ value | default(resume_sentence, true) }}"
                                       handled: false
                                       final_response: ""
                                   - choose:

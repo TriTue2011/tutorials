@@ -107,13 +107,14 @@ def _ensure_db() -> None:
             """
             CREATE TABLE IF NOT EXISTS mem
             (
-                key          TEXT PRIMARY KEY,
-                value        TEXT NOT NULL,
-                scope        TEXT NOT NULL,
-                tags         TEXT NOT NULL,
-                tags_search  TEXT NOT NULL,
-                created_at   TEXT NOT NULL,
-                last_used_at TEXT NOT NULL,
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                key          TEXT UNIQUE NOT NULL,
+                value        TEXT        NOT NULL,
+                scope        TEXT        NOT NULL,
+                tags         TEXT        NOT NULL,
+                tags_search  TEXT        NOT NULL,
+                created_at   TEXT        NOT NULL,
+                last_used_at TEXT        NOT NULL,
                 expires_at   TEXT
             );
             """
@@ -123,6 +124,7 @@ def _ensure_db() -> None:
             CREATE VIRTUAL TABLE IF NOT EXISTS mem_fts USING fts5(
                 key, value, tags,
                 content='mem',
+                content_rowid='id',
                 tokenize = 'unicode61 remove_diacritics 2'
             );
             """
@@ -135,7 +137,7 @@ def _ensure_db() -> None:
                 ON mem
             BEGIN
                 INSERT INTO mem_fts(rowid, key, value, tags)
-                VALUES (new.rowid,
+                VALUES (new.id,
                         new.key,
                         new.value,
                         new.tags_search);
@@ -145,16 +147,19 @@ def _ensure_db() -> None:
                 AFTER DELETE
                 ON mem
             BEGIN
-                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.rowid);
+                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
             END;
 
             CREATE TRIGGER IF NOT EXISTS mem_au
-                AFTER UPDATE
+                AFTER UPDATE OF key, value, tags_search
                 ON mem
+                WHEN (old.key IS NOT new.key)
+                    OR (old.value IS NOT new.value)
+                    OR (old.tags_search IS NOT new.tags_search)
             BEGIN
-                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.rowid);
+                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
                 INSERT INTO mem_fts(rowid, key, value, tags)
-                VALUES (new.rowid,
+                VALUES (new.id,
                         new.key,
                         new.value,
                         new.tags_search);
@@ -742,6 +747,7 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
                     CREATE VIRTUAL TABLE mem_fts USING fts5(
                         key, value, tags,
                         content='mem',
+                        content_rowid='id',
                         tokenize = 'unicode61 remove_diacritics 2'
                     );
                     """
@@ -754,24 +760,29 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
                         ON mem
                     BEGIN
                         INSERT INTO mem_fts(rowid, key, value, tags)
-                        VALUES (new.rowid,
+                        VALUES (new.id,
                                 new.key,
                                 new.value,
                                 new.tags_search);
                     END;
+
                     CREATE TRIGGER IF NOT EXISTS mem_ad
                         AFTER DELETE
                         ON mem
                     BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.rowid);
+                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
                     END;
+
                     CREATE TRIGGER IF NOT EXISTS mem_au
-                        AFTER UPDATE
+                        AFTER UPDATE OF key, value, tags_search
                         ON mem
+                        WHEN (old.key IS NOT new.key)
+                            OR (old.value IS NOT new.value)
+                            OR (old.tags_search IS NOT new.tags_search)
                     BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.rowid);
+                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
                         INSERT INTO mem_fts(rowid, key, value, tags)
-                        VALUES (new.rowid,
+                        VALUES (new.id,
                                 new.key,
                                 new.value,
                                 new.tags_search);

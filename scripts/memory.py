@@ -608,7 +608,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                             m.expires_at,
                                             bm25(mem_fts) AS rank
                             FROM mem m
-                                     JOIN mem_fts ON m.key = mem_fts.key
+                                     JOIN mem_fts fts ON m.id = fts.rowid
                             WHERE mem_fts MATCH ?
                             ORDER BY rank, m.last_used_at DESC
                             LIMIT ?;

@@ -246,12 +246,12 @@ def _condense_candidate_for_selection(
         value = value[: VALUE_PREVIEW_CHARS - 3] + "..."
     data = {
         "key": entry.get("key"),
+        "value": value,
         "scope": entry.get("scope"),
         "tags": entry.get("tags"),
         "created_at": entry.get("created_at"),
         "last_used_at": entry.get("last_used_at"),
         "expires_at": entry.get("expires_at"),
-        "value": value,
     }
     if score is not None:
         data["match_score"] = score
@@ -951,7 +951,12 @@ async def memory_set(
     """
     key_norm = _normalize_key(key)
     if not key_norm or value is None:
-        _set_result("error", op="set", key=key_norm or "", error="key_or_value_missing")
+        _set_result(
+            "error",
+            op="set",
+            key=key_norm or "",
+            error="key_or_value_missing",
+        )
         log.error("memory_set: missing key or value")
         return {
             "status": "error",
@@ -1013,7 +1018,6 @@ async def memory_set(
                     "error",
                     op="set",
                     key=key_norm,
-                    scope=scope_norm,
                     tags=tags_raw,
                     error="duplicate_tags",
                     matches=duplicate_options,
@@ -1023,7 +1027,6 @@ async def memory_set(
                     "status": "error",
                     "op": "set",
                     "key": key_norm,
-                    "scope": scope_norm,
                     "tags": tags_raw,
                     "error": "duplicate_tags",
                     "matches": duplicate_options,
@@ -1046,14 +1049,14 @@ async def memory_set(
                 "status": "error",
                 "op": "set",
                 "key": key_norm,
-                "scope": scope_norm,
                 "error": "memory_set_db returned False",
             }
 
         result_details: dict[str, Any] = {
-            "scope": scope_norm,
-            "expires_at": expires_at,
             "value": value_norm,
+            "scope": scope_norm,
+            "tags": tags_raw,
+            "expires_at": expires_at,
             "key_exists": key_exists,
             "force_new_applied": forced_duplicate_override,
         }
@@ -1066,9 +1069,10 @@ async def memory_set(
             "status": "ok",
             "op": "set",
             "key": key_norm,
-            "scope": scope_norm,
-            "expires_at": expires_at,
             "value": value_norm,
+            "scope": scope_norm,
+            "tags": tags_raw,
+            "expires_at": expires_at,
             "key_exists": key_exists,
             "force_new_applied": forced_duplicate_override,
         }

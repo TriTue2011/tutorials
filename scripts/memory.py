@@ -615,7 +615,8 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             """,
                             (mv, limit),
                         ).fetchall()
-                    except sqlite3.Error:
+                    except sqlite3.Error as error:
+                        log.error({"error": error})
                         continue
 
                     for row in fetched:

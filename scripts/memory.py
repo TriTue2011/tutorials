@@ -606,10 +606,11 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                             m.created_at,
                                             m.last_used_at,
                                             m.expires_at,
-                                            bm25(mem_fts) AS rank
-                            FROM mem m
-                                     JOIN mem_fts fts ON m.id = fts.rowid
-                            WHERE mem_fts MATCH ?
+                                            bm25(fts) AS rank
+                            FROM mem AS m
+                                     JOIN mem_fts AS fts
+                                          ON m.id = fts.rowid
+                            WHERE fts MATCH ?
                             ORDER BY rank, m.last_used_at DESC
                             LIMIT ?;
                             """,
@@ -627,7 +628,6 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             break
 
                 if not total_rows:
-                    log.error("Failed to query like.")
                     like_q = f"%{query}%"
                     total_rows = cur.execute(
                         """
@@ -640,7 +640,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                         m.last_used_at,
                                         m.expires_at,
                                         NULL AS rank
-                        FROM mem m
+                        FROM mem AS m
                         WHERE m.value LIKE ?
                            OR m.tags LIKE ?
                            OR m.tags_search LIKE ?

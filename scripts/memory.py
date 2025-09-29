@@ -615,8 +615,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             """,
                             (mv, limit),
                         ).fetchall()
-                    except sqlite3.Error as error:
-                        log.error({"error": error})
+                    except sqlite3.Error:
                         continue
 
                     for row in fetched:
@@ -628,6 +627,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             break
 
                 if not total_rows:
+                    log.error("Failed to query like.")
                     like_q = f"%{query}%"
                     total_rows = cur.execute(
                         """

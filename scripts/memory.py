@@ -147,7 +147,8 @@ def _ensure_db() -> None:
                 AFTER DELETE
                 ON mem
             BEGIN
-                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                VALUES ('delete', old.id, old.key, old.value, old.tags_search);
             END;
 
             CREATE TRIGGER IF NOT EXISTS mem_au
@@ -157,7 +158,8 @@ def _ensure_db() -> None:
                     OR (old.value IS NOT new.value)
                     OR (old.tags_search IS NOT new.tags_search)
             BEGIN
-                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                VALUES ('delete', old.id, old.key, old.value, old.tags_search);
                 INSERT INTO mem_fts(rowid, key, value, tags)
                 VALUES (new.id,
                         new.key,
@@ -606,19 +608,19 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                             m.created_at,
                                             m.last_used_at,
                                             m.expires_at,
-                                            bm25(fts) AS rank
-                            FROM mem AS m
-                                     JOIN mem_fts AS fts
-                                          ON m.id = fts.rowid
-                            WHERE fts MATCH ?
+                                            mem_fts.rank AS rank
+                            FROM mem_fts
+                                     JOIN mem AS m
+                                          ON m.id = mem_fts.rowid
+                            WHERE mem_fts MATCH ?
                             ORDER BY rank, m.last_used_at DESC
                             LIMIT ?;
                             """,
                             (mv, limit),
                         ).fetchall()
-                    except sqlite3.Error:
+                    except sqlite3.Error as error:
+                        log.warning(f"FTS variant failed: {error}")
                         continue
-
                     for row in fetched:
                         key = row["key"]
                         if key not in found_by_key:
@@ -626,7 +628,6 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             total_rows.append(row)
                         if len(found_by_key) >= limit:
                             break
-
                 if not total_rows:
                     like_q = f"%{query}%"
                     total_rows = cur.execute(
@@ -771,7 +772,8 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
                         AFTER DELETE
                         ON mem
                     BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                        INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                        VALUES ('delete', old.id, old.key, old.value, old.tags_search);
                     END;
 
                     CREATE TRIGGER IF NOT EXISTS mem_au
@@ -781,7 +783,8 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
                             OR (old.value IS NOT new.value)
                             OR (old.tags_search IS NOT new.tags_search)
                     BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                        INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                        VALUES ('delete', old.id, old.key, old.value, old.tags_search);
                         INSERT INTO mem_fts(rowid, key, value, tags)
                         VALUES (new.id,
                                 new.key,

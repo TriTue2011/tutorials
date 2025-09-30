@@ -441,7 +441,8 @@ actions:
       - conditions: "{{ trigger_id == 'forget' and key_phrase|length > 0 }}"
         sequence:
           - if:
-              - conditions: "{{ must_confirm_delete }}"
+              - condition: template
+                value_template: "{{ must_confirm_delete }}"
             then:
               - variables:
                   prompt_text: >

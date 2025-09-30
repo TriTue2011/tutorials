@@ -147,7 +147,8 @@ def _ensure_db() -> None:
                 AFTER DELETE
                 ON mem
             BEGIN
-                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                VALUES ('delete', old.id, old.key, old.value, old.tags_search);
             END;
 
             CREATE TRIGGER IF NOT EXISTS mem_au
@@ -157,7 +158,8 @@ def _ensure_db() -> None:
                     OR (old.value IS NOT new.value)
                     OR (old.tags_search IS NOT new.tags_search)
             BEGIN
-                INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                VALUES ('delete', old.id, old.key, old.value, old.tags_search);
                 INSERT INTO mem_fts(rowid, key, value, tags)
                 VALUES (new.id,
                         new.key,
@@ -246,12 +248,12 @@ def _condense_candidate_for_selection(
         value = value[: VALUE_PREVIEW_CHARS - 3] + "..."
     data = {
         "key": entry.get("key"),
+        "value": value,
         "scope": entry.get("scope"),
         "tags": entry.get("tags"),
         "created_at": entry.get("created_at"),
         "last_used_at": entry.get("last_used_at"),
         "expires_at": entry.get("expires_at"),
-        "value": value,
     }
     if score is not None:
         data["match_score"] = score
@@ -606,18 +608,19 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                             m.created_at,
                                             m.last_used_at,
                                             m.expires_at,
-                                            bm25(mem_fts) AS rank
-                            FROM mem m
-                                     JOIN mem_fts ON m.key = mem_fts.key
+                                            mem_fts.rank AS rank
+                            FROM mem_fts
+                                     JOIN mem AS m
+                                          ON m.id = mem_fts.rowid
                             WHERE mem_fts MATCH ?
                             ORDER BY rank, m.last_used_at DESC
                             LIMIT ?;
                             """,
                             (mv, limit),
                         ).fetchall()
-                    except sqlite3.Error:
+                    except sqlite3.Error as error:
+                        log.warning(f"FTS variant failed: {error}")
                         continue
-
                     for row in fetched:
                         key = row["key"]
                         if key not in found_by_key:
@@ -625,7 +628,6 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             total_rows.append(row)
                         if len(found_by_key) >= limit:
                             break
-
                 if not total_rows:
                     like_q = f"%{query}%"
                     total_rows = cur.execute(
@@ -639,7 +641,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                                         m.last_used_at,
                                         m.expires_at,
                                         NULL AS rank
-                        FROM mem m
+                        FROM mem AS m
                         WHERE m.value LIKE ?
                            OR m.tags LIKE ?
                            OR m.tags_search LIKE ?
@@ -770,7 +772,8 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
                         AFTER DELETE
                         ON mem
                     BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                        INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                        VALUES ('delete', old.id, old.key, old.value, old.tags_search);
                     END;
 
                     CREATE TRIGGER IF NOT EXISTS mem_au
@@ -780,7 +783,8 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
                             OR (old.value IS NOT new.value)
                             OR (old.tags_search IS NOT new.tags_search)
                     BEGIN
-                        INSERT INTO mem_fts(mem_fts, rowid) VALUES ('delete', old.id);
+                        INSERT INTO mem_fts(mem_fts, rowid, key, value, tags)
+                        VALUES ('delete', old.id, old.key, old.value, old.tags_search);
                         INSERT INTO mem_fts(rowid, key, value, tags)
                         VALUES (new.id,
                                 new.key,
@@ -951,7 +955,12 @@ async def memory_set(
     """
     key_norm = _normalize_key(key)
     if not key_norm or value is None:
-        _set_result("error", op="set", key=key_norm or "", error="key_or_value_missing")
+        _set_result(
+            "error",
+            op="set",
+            key=key_norm or "",
+            error="key_or_value_missing",
+        )
         log.error("memory_set: missing key or value")
         return {
             "status": "error",
@@ -978,7 +987,10 @@ async def memory_set(
     try:
         scope_norm = ("" if scope is None else str(scope).strip()).lower() or "user"
         value_norm = _normalize_value(value)
-        tags_raw = _normalize_value(tags)
+        if tags:
+            tags_raw = _normalize_value(tags)
+        else:
+            tags_raw = _normalize_value(key)
         tags_search = _normalize_tags(tags_raw)
 
         now = datetime.now(timezone.utc)
@@ -1013,7 +1025,6 @@ async def memory_set(
                     "error",
                     op="set",
                     key=key_norm,
-                    scope=scope_norm,
                     tags=tags_raw,
                     error="duplicate_tags",
                     matches=duplicate_options,
@@ -1023,7 +1034,6 @@ async def memory_set(
                     "status": "error",
                     "op": "set",
                     "key": key_norm,
-                    "scope": scope_norm,
                     "tags": tags_raw,
                     "error": "duplicate_tags",
                     "matches": duplicate_options,
@@ -1046,14 +1056,14 @@ async def memory_set(
                 "status": "error",
                 "op": "set",
                 "key": key_norm,
-                "scope": scope_norm,
                 "error": "memory_set_db returned False",
             }
 
         result_details: dict[str, Any] = {
-            "scope": scope_norm,
-            "expires_at": expires_at,
             "value": value_norm,
+            "scope": scope_norm,
+            "tags": tags_raw,
+            "expires_at": expires_at,
             "key_exists": key_exists,
             "force_new_applied": forced_duplicate_override,
         }
@@ -1066,9 +1076,10 @@ async def memory_set(
             "status": "ok",
             "op": "set",
             "key": key_norm,
-            "scope": scope_norm,
-            "expires_at": expires_at,
             "value": value_norm,
+            "scope": scope_norm,
+            "tags": tags_raw,
+            "expires_at": expires_at,
             "key_exists": key_exists,
             "force_new_applied": forced_duplicate_override,
         }

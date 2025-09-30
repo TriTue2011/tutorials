@@ -440,69 +440,71 @@ actions:
               - set_conversation_response: "{{ prompt_text }}"
       - conditions: "{{ trigger_id == 'forget' and key_phrase|length > 0 }}"
         sequence:
-          - choose:
-              - conditions: "{{ must_confirm_delete }}"
-                sequence:
-                  - variables:
-                      prompt_text: >
-                        Delete {{ key_norm or key_phrase }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                      cache_payload: >
-                        {{ {
-                          'pending_action': 'forget_confirm_primary',
-                          'key': key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')),
-                          'key_phrase': key_phrase,
-                          'prompt': prompt_text
-                        } | to_json }}
-                  - service: pyscript.memory_cache_set
-                    data:
-                      key: "{{ store_key }}"
-                      value: "{{ cache_payload }}"
-                      ttl_seconds: "{{ choice_timeout }}"
-                    response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
-          - service: pyscript.memory_forget
-            data:
-              key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
-            response_variable: resp_forget
-          - choose:
-              - conditions: "{{ resp_forget.status == 'ok' }}"
-                sequence:
-                  - set_conversation_response: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
-              - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
-                sequence:
-                  - set_conversation_response: "Nothing to delete for that entry."
-              - conditions: "{{ resp_forget.error == 'ambiguous' and (resp_forget.matches | length) > 0 }}"
-                sequence:
-                  - variables:
-                      itemsd: "{{ resp_forget.matches[:max_choices] }}"
-                      prompt_text: >
-                        I found a few candidates:
-
-                        {% for it in itemsd -%}
-                        {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
-
-                        {% endfor -%}
-                        Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                      cache_payload: >
-                        {% set ns = namespace(items=[]) %}
-                        {% for it in itemsd %}
-                        {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
-                        {% endfor %}
-                        {{ {
-                          'pending_action': 'forget_ambiguous_choice',
-                          'entries': ns.items,
-                          'must_confirm': must_confirm_delete,
-                          'prompt': prompt_text
-                        } | to_json }}
-                  - service: pyscript.memory_cache_set
-                    data:
-                      key: "{{ store_key }}"
-                      value: "{{ cache_payload }}"
-                      ttl_seconds: "{{ choice_timeout }}"
-                    response_variable: cache_state
-                  - set_conversation_response: "{{ prompt_text }}"
-            default:
-              - set_conversation_response: "I couldn't delete it right now."
+          - if:
+              - condition: template
+                value_template: "{{ must_confirm_delete }}"
+            then:
+              - variables:
+                  prompt_text: >
+                    Delete {{ key_norm or key_phrase }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                  cache_payload: >
+                    {{ {
+                      'pending_action': 'forget_confirm_primary',
+                      'key': key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')),
+                      'key_phrase': key_phrase,
+                      'prompt': prompt_text
+                    } | to_json }}
+              - service: pyscript.memory_cache_set
+                data:
+                  key: "{{ store_key }}"
+                  value: "{{ cache_payload }}"
+                  ttl_seconds: "{{ choice_timeout }}"
+                response_variable: cache_state
+              - set_conversation_response: "{{ prompt_text }}"
+            else:
+              - service: pyscript.memory_forget
+                data:
+                  key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
+                response_variable: resp_forget
+              - choose:
+                  - conditions: "{{ resp_forget.status == 'ok' }}"
+                    sequence:
+                      - set_conversation_response: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
+                  - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
+                    sequence:
+                      - set_conversation_response: "Nothing to delete for that entry."
+                  - conditions: "{{ resp_forget.error == 'ambiguous' and (resp_forget.matches | length) > 0 }}"
+                    sequence:
+                      - variables:
+                          itemsd: "{{ resp_forget.matches[:max_choices] }}"
+                          prompt_text: >
+                            I found a few candidates:
+              
+                            {% for it in itemsd -%}
+                            {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
+              
+                            {% endfor -%}
+                            Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                          cache_payload: >
+                            {% set ns = namespace(items=[]) %}
+                            {% for it in itemsd %}
+                            {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
+                            {% endfor %}
+                            {{ {
+                              'pending_action': 'forget_ambiguous_choice',
+                              'entries': ns.items,
+                              'must_confirm': must_confirm_delete,
+                              'prompt': prompt_text
+                            } | to_json }}
+                      - service: pyscript.memory_cache_set
+                        data:
+                          key: "{{ store_key }}"
+                          value: "{{ cache_payload }}"
+                          ttl_seconds: "{{ choice_timeout }}"
+                        response_variable: cache_state
+                      - set_conversation_response: "{{ prompt_text }}"
+                default:
+                  - set_conversation_response: "I couldn't delete it right now."
       - conditions: "{{ trigger_id.startswith('resume_') }}"
         sequence:
           - service: pyscript.memory_cache_get

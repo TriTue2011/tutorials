@@ -987,7 +987,10 @@ async def memory_set(
     try:
         scope_norm = ("" if scope is None else str(scope).strip()).lower() or "user"
         value_norm = _normalize_value(value)
-        tags_raw = _normalize_value(tags)
+        if tags:
+            tags_raw = _normalize_value(tags)
+        else:
+            tags_raw = _normalize_value(key)
         tags_search = _normalize_tags(tags_raw)
 
         now = datetime.now(timezone.utc)

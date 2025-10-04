@@ -1,6 +1,6 @@
 blueprint:
   name: Device Timer
-  author: VuLQ
+  author: luuquangvu
   description: >-
     # Tool for controlling on/off devices with adjustable delay timing
 

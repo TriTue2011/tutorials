@@ -1,6 +1,6 @@
 blueprint:
   name: Voice - Convert Calendar Dates
-  author: VuLQ
+  author: luuquangvu
   description: >-
     # Tool converts Solar date to Lunar date and vice versa used for Voice Assistant
 

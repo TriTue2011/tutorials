@@ -1,5 +1,6 @@
 blueprint:
   name: Traffic Fine Notification
+  author: luuquangvu
   description: >-
     # Nhận thông báo khi có thông tin phạt nguội
 

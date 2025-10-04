@@ -1,6 +1,6 @@
 blueprint:
   name: Voice - Send to Telegram
-  author: VuLQ
+  author: luuquangvu
   description: >-
     # Tool for sending content to Telegram used for Voice Assistant
 

@@ -1,5 +1,6 @@
 blueprint:
   name: Link On/Off State of Multiple Devices
+  author: luuquangvu
   description: >-
     # Link On/Off State of Multiple Devices
 

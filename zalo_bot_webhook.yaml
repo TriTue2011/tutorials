@@ -1,6 +1,6 @@
 blueprint:
   name: Zalo Bot Webhook
-  author: VuLQ
+  author: luuquangvu
   description: >-
     # A Zalo bot enabling seamless two-way communication with Home Assistant.
 

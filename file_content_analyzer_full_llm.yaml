@@ -1,6 +1,6 @@
 blueprint:
   name: Voice - File Content Analyzer
-  author: VuLQ
+  author: luuquangvu
   description: >-
     # Tool designed to analyze and extract all types of information from media and document files
 

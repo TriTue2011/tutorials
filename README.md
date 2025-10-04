@@ -1,318 +1,351 @@
 # Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
 
-* *Các bản thiết kế này đều được tinh chỉnh để chạy hiệu quả nhất với Gemini 2.5 Flash. Các model khác có thể sẽ cần tinh chỉnh thêm để có thể chạy chính xác như mong muốn.*
+*Tất cả các bản thiết kế (blueprint) trong tài liệu này đều được tinh chỉnh để hoạt động hiệu quả nhất với **Gemini 2.5 Flash**. Các mô hình khác có thể cần tinh chỉnh thêm để đạt kết quả như mong muốn.*
 
-## Bản thiết kế dùng cho Voice Assist có thể ghi nhớ mọi thông tin từ người dùng
+Biến Home Assistant thành trợ lý cá nhân thực thụ với bộ sưu tập blueprint và hướng dẫn bằng tiếng Việt. Mỗi kịch bản đều được thử nghiệm thực tế, có mô tả rõ ràng, ví dụ lệnh thoại và mẹo triển khai để bạn áp dụng ngay cho ngôi nhà thông minh của mình.
 
-* **Bản thiết kế này cho phép bạn yêu cầu Voice Assist nhớ được mọi thông tin bạn muốn.**
-  * Bạn có thể yêu cầu Voice Assist nhớ bất cứ điều gì.
-  * Bạn có thể yêu cầu Voice Assist tìm lại thông tin đã lưu bất kỳ lúc nào.
-  * Bạn có thể yêu cầu Voice Assist cập nhật lại thông tin đã lưu.
-  * Bạn có thể yêu cầu Voice Assist xóa thông tin đã lưu.
-  * Ví dụ bằng giọng nói:
-    * Lưu lại vị trí đậu xe ở XXX
-    * Xem lại vị trí đậu xe ở đâu?
-    * Ghi nhớ mật khẩu Wi-fi khách là XXX
-    * Mật khẩu Wi-fi khách là gì?
+**[English version click here](/README.en.md)**
+
+---
+
+## 🧠 Voice Assist - Ghi nhớ mọi thông tin
+
+Biến Voice Assist thành "trợ lý trí nhớ" luôn bên cạnh. Blueprint này cho phép bạn lưu trữ, cập nhật, truy xuất hoặc xoá mọi mẩu thông tin bằng giọng nói: mật khẩu Wi-Fi, vị trí đỗ xe, danh sách việc vặt... Chỉ cần hỏi, dữ liệu sẽ được đọc lại trong vài giây mà không phải mở điện thoại hay tìm kiếm thủ công.
+
+**Ví dụ lệnh thoại:**
+
+- Lưu lại vị trí đậu xe ở B2 R10
+- Tìm lại vị trí đậu xe ở đâu?
+- Ghi nhớ mật khẩu Wi-Fi khách là 123456789
+- Mật khẩu Wi-Fi khách là gì?
+
+### LLM Version
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+### Local verion
 
-## Bản thiết kế dùng cho Voice Assist "nhìn" thấy mọi thứ xung quanh
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_local.yaml)
 
-* **Bản thiết kế này cho phép bạn xem camera hoặc tìm thông tin thông qua camera bằng cách ra lệnh bằng giọng nói.**
-  * Cần chia sẻ các thực thể camera nào muốn xem với Voice Assist
-  * Đây không phải là bản thiết kế mới, mà nó đã bao gồm trong các bản thiết kế bot Telegram/Zalo tương tác 2 chiều. Nó bao gồm tính năng xem camera có thể hoạt động độc lập nên mình tách riêng cho bạn nào chỉ cần tính năng này.
-  * Ví dụ bằng giọng nói:
-    * Xem các camera xem con mèo đang ở đâu
-    * Xem cam cổng hiện tại có người nào không
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
+
+---
+
+## 👀 Voice Assist - "Nhìn" thấy xung quanh
+
+Trao cho Voice Assist khả năng truy cập các camera hoặc nguồn hình ảnh mà bạn chia sẻ. Bạn có thể yêu cầu trợ lý kiểm tra camera cụ thể, tìm thú cưng, xác nhận có người xuất hiện trước cổng hay không... tất cả đều bằng giọng nói tự nhiên và phản hồi gần như tức thì.
+
+**Ví dụ lệnh thoại:**
+
+- Xem các camera xem con mèo đang ở đâu
+- Xem cam cổng hiện tại có người nào không
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist tạo sự kiện lưu vào lịch
+---
 
-* **Bản thiết kế này cho phép bạn tạo các sự kiện lưu vào trong lịch bằng cách ra lệnh bằng giọng nói.**
-  * Cần tạo thêm tự động để nhận thông báo khi sắp có sự kiện diễn ra
-  * Có thể kết hợp với bản thiết kế tra cứu các sự kiện có trong lịch
-  * Ví dụ bằng giọng nói:
-    * Tạo lịch 2h chiều mai đi cắt tóc
-    * Lên lịch 9h sáng mai họp trong 3 tiếng
-    * Thêm lịch thứ bảy này về quê
-    * Tạo sự kiện chủ nhật tuần sau đi chơi Phú Quốc trong 1 tuần
+## 🗓️ Voice Assist - Tạo sự kiện lịch
+
+Sắp xếp lịch trình của bạn dễ dàng như đang trò chuyện. Blueprint này chuyển mọi lời nhắc, cuộc họp, chuyến du lịch thành sự kiện trong lịch, đồng thời kết hợp tuyệt vời với blueprint tra cứu sự kiện để nhắc bạn đúng thời điểm.
+
+**Ví dụ lệnh thoại:**
+
+- Tạo lịch 2h chiều mai đi cắt tóc
+- Lên lịch 9h sáng mai họp trong 3 tiếng
+- Thêm lịch thứ bảy này về quê
+- Tạo sự kiện chủ nhật tuần sau đi chơi Phú Quốc trong 1 tuần
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế tương tác 2 chiều với Zalo (Official Zalo Bot)
+---
 
-* **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**
-* Bản thiết kế này sử dụng official bot được tạo từ OA Zalo Bot Manager.
-  * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Zalo.
-  * Bạn có thể gửi ảnh từ Zalo và yêu cầu bot phân tích nội dung.
-  * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
+## 🤝 Tương tác 2 chiều với Zalo (Official Zalo Bot)
+
+Kết nối Home Assistant với Official Account trên Zalo để duy trì đối thoại tự nhiên như đang chat với một trợ lý thật. Bạn có thể điều khiển thiết bị, nhờ bot gửi ảnh kèm phân tích, hoặc để bot chủ động hỏi lại khi cần thêm thông tin trước khi thực thi hành động.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fzalo_bot_webhook.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo (Official Zalo Bot)
+---
 
-* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận trên Zalo bằng cách ra lệnh bằng giọng nói.**
-* Bản thiết kế này sử dụng official bot được tạo từ OA Zalo Bot Manager.
-  * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
-  * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
-  * Ví dụ bằng giọng nói:
-    * Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
-    * Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
+## 📩 Voice Assist → Zalo (Official Bot)
+
+Gửi nội dung đến người nhận trên Zalo chỉ bằng giọng nói. Nếu bạn nhắc tới địa điểm, blueprint tự động tạo liên kết Google Maps; với thông tin khác, đường dẫn Google Search sẽ được đính kèm để người nhận tra cứu ngay.
+
+**Ví dụ lệnh thoại:**
+
+- Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
+- Gửi địa chỉ Hoàng thành Thăng Long kèm mô tả ngắn lên Zalo
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_bot_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế tương tác 2 chiều với Zalo (Custom Zalo Bot)
+---
 
-* **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Zalo.**
-* Bản thiết kế này sử dụng custom bot từ tích hợp Zalo Bot.
-    * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Zalo.
-    * Bạn có thể gửi ảnh, video, âm thanh, hoặc tệp tài liệu từ Zalo và yêu cầu bot phân tích nội dung.
-    * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
+## 🧩 Tương tác 2 chiều với Zalo (Custom Bot)
+
+Tự xây dựng bot Zalo tùy chỉnh nhưng vẫn giữ đầy đủ khả năng hội thoại tự nhiên. Blueprint xử lý webhook, đồng bộ trạng thái và cho phép gửi/nhận đa phương tiện (ảnh, video, âm thanh, tài liệu) mà không cần tự viết lại toàn bộ logic.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fzalo_custom_bot_webhook.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Zalo (Custom Zalo Bot)
+---
 
-* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Zalo bằng cách ra lệnh bằng giọng nói.**
-* Bản thiết kế này sử dụng custom bot từ tích hợp Zalo Bot.
-    * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
-    * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
-    * Ví dụ bằng giọng nói:
-        * Tìm các quán ăn ngon ở Nha Trang và gửi chúng lên Zalo
-        * Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
+## 📬 Voice Assist → Zalo (Custom Bot)
+
+Gửi tin nhắn tới người hoặc nhóm từ bot Zalo tùy chỉnh bằng giọng nói. Nếu bạn nhắc tới địa điểm, blueprint tự động tạo liên kết Google Maps; với thông tin khác, đường dẫn Google Search sẽ được đính kèm để người nhận tra cứu ngay.
+
+**Ví dụ lệnh thoại:**
+
+- Gửi danh sách quán ăn ngon ở Nha Trang lên nhóm Zalo
+- Gửi địa chỉ Hoàng thành Thăng Long lên Zalo
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_custom_bot_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế tương tác 2 chiều với Telegram
+---
 
-* **Bản thiết kế này cho phép bạn tạo bot tương tác 2 chiều với Home Assistant từ Telegram.**
-  * Bạn có thể điều khiển mọi thiết bị trong Home Assistant từ Telegram.
-  * Bạn có thể gửi ảnh, video, âm thanh, hoặc tệp tài liệu từ Telegram và yêu cầu bot phân tích nội dung.
-  * Bot có thể nhớ ngữ cảnh cuộc trò chuyện đang diễn ra, cho phép bạn tương tác liền mạch tự nhiên.
+## 💬 Tương tác 2 chiều với Telegram
+
+Tạo bot Telegram để trò chuyện hai chiều với Home Assistant. Bạn có thể gửi lệnh điều khiển thiết bị, nhận phản hồi theo ngữ cảnh, đính kèm hình ảnh hoặc video từ camera và tiếp tục cuộc trò chuyện tự nhiên.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftelegram_bot_webhook.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist gửi thông báo lên Telegram
+---
 
-* **Bản thiết kế này cho phép bạn gửi một nội dung bất kỳ đến một người nhận hoặc một nhóm trên Telegram bằng cách ra lệnh bằng giọng nói.**
-  * Nếu là một địa điểm cụ thể, kịch bản sẽ tạo một liên kết tìm kiếm trên Google Maps, giúp bạn nhanh chóng định vị địa điểm và chỉ đường đến đó.
-  * Nếu là nội dung khác, kịch bản sẽ tạo một liên kết tìm kiếm trên Google, giúp bạn dễ dàng tìm kiếm thêm thông tin nếu cần thiết.
-  * Ví dụ bằng giọng nói:
-    * Tìm các quán ăn ngon khu vực Mỹ Đình và gửi chúng lên Telegram
-    * Gửi địa chỉ Công viên Yên Sở lên Telegram
+## ✉️ Voice Assist → Telegram
+
+Trao đổi thông tin với người thân hoặc nhóm Telegram chỉ bằng giọng nói. Nếu bạn nhắc tới địa điểm, blueprint tự động tạo liên kết Google Maps; với thông tin khác, đường dẫn Google Search sẽ được đính kèm để người nhận tra cứu ngay.
+
+**Ví dụ lệnh thoại:**
+
+- Tìm các quán ăn ngon khu vực Mỹ Đình và gửi chúng lên Telegram
+- Gửi địa chỉ Công viên Yên Sở lên Telegram
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_telegram_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist tìm kiếm thông tin trên Google
+---
 
-* **Bản thiết kế này cho phép bạn tìm kiếm mọi thông tin mới nhất trên Google bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ bằng giọng nói:
-    * Điểm chuẩn Đại học Bách khoa Hà Nội năm nay là bao nhiêu?
+## 🔍 Voice Assist - Tìm kiếm Google nâng cao
+
+Thực hiện các truy vấn Google phức tạp bằng giọng nói để nhận câu trả lời cập nhật nhất. Blueprint hỗ trợ đặt câu hỏi mở, lọc theo chủ đề và trả lại kết quả đã tóm tắt để bạn nắm bắt ngay điều quan trọng.
+
+**Ví dụ lệnh thoại:**
+
+- Điểm chuẩn Đại học Bách Khoa Hà Nội năm nay là bao nhiêu?
+- Những công nghệ AI nổi bật trong tuần này là gì?
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_google_search_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist hẹn giờ bật tắt các thiết bị
+---
 
-* **Bản thiết kế này cho phép bạn hẹn giờ bật tắt một hay nhiều thiết bị sau một khoảng thời gian được chỉ định bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ bằng giọng nói:
-    * Tắt đèn và quạt phòng khách sau 30 phút
-    * Tắt điều hòa phòng ngủ lúc 6h sáng
+## ⏱️ Voice Assist - Hẹn giờ bật/tắt thiết bị
+
+Thiết lập bộ hẹn giờ cho bất kỳ thiết bị nào bằng giọng nói, từ đèn phòng khách đến máy điều hòa. Bạn có thể hẹn một thời điểm cụ thể hoặc đếm ngược, áp dụng đồng thời cho nhiều thiết bị mà không cần tạo automation thủ công.
+
+**Ví dụ lệnh thoại:**
+
+- Tắt đèn và quạt phòng khách sau 30 phút
+- Tắt điều hòa phòng ngủ lúc 6 giờ sáng
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_timer_full_llm.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_tool.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng để gửi thông báo về điện thoại khi xe bị phạt nguội
+---
 
-* **Bản thiết kế này cho phép bạn theo dõi trạng thái phạt nguội của các xe do bạn chỉ định.**
-* **Thông báo sẽ được gửi về điện thoại ngay khi có thông tin phạt nguội trên hệ thống của Cục Cảnh sát giao thông.**
+## 🚨 Thông báo phạt nguội
+
+Theo dõi tình trạng phạt nguội của xe và nhận cảnh báo ngay khi có vi phạm mới trên hệ thống của Cục CSGT. Mọi thông báo đều được đẩy về Home Assistant để bạn xử lý kịp thời, tránh bỏ sót hạn nộp phạt.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist tra cứu phạt nguội của một xe bất kỳ
+---
 
-* **Bản thiết kế này cho phép bạn tra cứu phạt nguội của một phương tiện bất kỳ bằng cách ra lệnh bằng giọng nói.**
-* **Dữ liệu được lấy trực tiếp từ Cổng thông tin điện tử Cục Cảnh sát giao thông.**
-  * Ví dụ bằng giọng nói:
-    * Kiểm tra phạt nguội ô tô 30G12345
+## 🛑 Voice Assist - Tra cứu phạt nguội
+
+Tra cứu phạt nguội cho bất kỳ phương tiện nào bằng giọng nói, dữ liệu lấy trực tiếp từ Cổng thông tin điện tử CSGT. Bạn có thể kiểm tra biển số của người thân hoặc đối chiếu lại trước khi mua xe cũ.
+
+**Ví dụ lệnh thoại:**
+
+- Kiểm tra phạt nguội ô tô 30G12345
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Hướng dẫn cách tạo một bản chỉ dẫn hệ thống cho Voice Assist
+---
 
-* [**Hướng dẫn chi tiết**](/home_assistant_voice_instructions.md)
+## 📺 Voice Assist - Tìm kiếm và phát video YouTube
 
-## Bản thiết kế dùng cho Voice Assist tìm kiếm nội dung trên YouTube
+Tìm kiếm nội dung YouTube rồi phát lên TV hoặc thiết bị Media Player chỉ bằng lời nói. Blueprint hỗ trợ tìm theo chủ đề, nhân vật, sự kiện và tự chọn video phù hợp nhất để phát ngay.
 
-* **Bản thiết kế này cho phép bạn tìm kiếm các video nội dung bất kỳ trên YouTube và phát các video đó lên TV bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ bằng giọng nói:
-    * Tìm video về cuộc đời và sự nghiệp của ông Lê Đức Thọ
-    * Ai là nhà khoa học nữ xuất sắc nhất thế kỷ 20? Tìm video về bà ấy
+**Ví dụ lệnh thoại:**
+
+- Tìm video về cuộc đời và sự nghiệp của ông Lê Đức Thọ
+- Ai là nhà khoa học nữ xuất sắc nhất thế kỷ 20? Tìm video về bà ấy
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_youtube_search_full_llm.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist điều khiển tốc độ quạt
+---
 
-* **Bản thiết kế này cho phép bạn điều khiển tốc độ của một hay nhiều quạt bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ bằng giọng nói:
-    * Tăng tốc quạt phòng bếp
-    * Chỉnh tốc độ quạt phòng ngủ xuống 50
+## 🌬️ Voice Assist - Điều khiển tốc độ quạt
+
+Điều chỉnh tốc độ của một hoặc nhiều quạt trong nhà bằng giọng nói. Bạn có thể tăng/giảm theo phần trăm, đặt mức cụ thể hoặc đồng bộ nhiều phòng cùng lúc.
+
+**Ví dụ lệnh thoại:**
+
+- Tăng tốc quạt phòng bếp
+- Chỉnh tốc độ quạt phòng ngủ xuống 50
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist điều khiển quạt xoay
+---
 
-* **Bản thiết kế này cho phép bạn điều khiển xoay một hay nhiều quạt bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ bằng giọng nói:
-    * Cho quay quạt phòng khách và bếp
-    * Ngừng xoay quạt phòng ngủ
+## 🔄 Voice Assist - Điều khiển xoay quạt
+
+Bật/tắt chế độ xoay của nhiều quạt cùng lúc bằng giọng nói. Phù hợp khi bạn muốn luân phiên hướng gió giữa các khu vực hoặc cố định quạt vào một điểm cụ thể.
+
+**Ví dụ lệnh thoại:**
+
+- Cho quay quạt phòng khách và bếp
+- Ngừng xoay quạt phòng ngủ
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist tìm kiếm các video mới từ các kênh YouTube yêu thích
+---
 
-* **Bản thiết kế này cho phép bạn tìm kiếm video mới ra mắt gần đây của một kênh YouTube bất kỳ mà bạn yêu thích và phát các video đó lên TV bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ bằng giọng nói:
-    * Hoa Ban Food có video mới không?
-    * Phát video mới của Sang vlog lên TV
-* [**Hướng dẫn chi tiết**](/home_assistant_play_favorite_youtube_channel_videos.md)
+## 📡 Voice Assist - Phát video mới từ kênh YouTube yêu thích
+
+Tự động tìm video mới nhất từ các kênh bạn theo dõi và phát ngay trên thiết bị mong muốn. Blueprint cũng báo cho bạn biết khi có video mới để không bỏ lỡ nội dung yêu thích.
+
+**Ví dụ lệnh thoại:**
+
+- Hoa Ban Food có video mới không?
+- Phát video mới của Sang vlog lên TV
+
+[**Hướng dẫn chi tiết**](/home_assistant_play_favorite_youtube_channel_videos.md)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fget_youtube_video_info_full_llm.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist định vị vị trí các thiết bị di động
+---
 
-* **Bản thiết kế này cho phép bạn tìm kiếm vị trí các thiết bị di động bằng cách ra lệnh bằng giọng nói.**
-* **Áp dụng cho các thiết bị có cài đặt ứng dụng Home Assistant hoặc các thiết bị phát BLE như đồng hồ thông minh, smart tag.**
-  * Tìm kiếm và thông báo thiết bị đang ở phòng nào, và làm cho chúng đổ chuông.
-  * Sử dụng khi không nhớ để thiết bị ở đâu trong nhà.
-  * Ví dụ bằng giọng nói:
-    * Tìm xem mấy cái điện thoại đang nằm đâu?
-    * Tìm cái iPad và đổ chuông nó
-* [**Hướng dẫn chi tiết**](/home_assistant_device_location_lookup_guide_en.md)
+## 📍 Voice Assist - Tìm vị trí thiết bị di động
+
+Định vị điện thoại, máy tính bảng, smartwatch hoặc thẻ BLE trong nhà bằng giọng nói. Trợ lý sẽ thông báo vị trí gần nhất, đồng thời có thể kích hoạt chuông để bạn tìm thiết bị nhanh chóng.
+
+**Ví dụ lệnh thoại:**
+
+- Tìm xem mấy cái điện thoại đang nằm đâu?
+- Tìm cái iPad cho nó đổ chuông
+
+[**Hướng dẫn chi tiết**](/home_assistant_device_location_lookup_guide_en.md)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist tra cứu chuyển đổi lịch
+---
 
-* **Bản thiết kế này cho phép bạn tra cứu chuyển đổi lịch bằng cách ra lệnh bằng giọng nói.**
-* **Chuyển đổi ngày Dương lịch bất kỳ sang Âm lịch và ngược lại.**
-* **Các thông tin bao gồm:**
-  * Chi tiết ngày chuyển đổi, ngày theo Can Chi.
-  * Số ngày còn lại hoặc đã qua.
-  * Tiết khí.
-  * Giờ tốt.
-  * Ngày tốt xấu tính theo phương pháp lục diệu.
-  * Ngày tốt xấu tính theo phương pháp thập nhị trực.
-  * Ngày tốt xấu tính theo phương pháp nhị thập bát tú.
-* **Công cụ chuyển đổi lịch này hoạt động 100% offline tốc độ phản hồi cực nhanh.**
-  * Ví dụ bằng giọng nói:
-    * Chủ nhật tuần này là bao nhiêu âm?
-    * Rằm trung thu vào thứ mấy?
-    * Còn bao nhiêu ngày nữa đến Tết?
-    * Mai ngày tốt xấu thế nào?
+## 🌙 Voice Assist - Tra cứu & chuyển đổi lịch Âm
+
+Chuyển đổi nhanh giữa lịch Dương và lịch Âm, hoạt động 100% offline với tốc độ phản hồi cực nhanh. Blueprint cung cấp đầy đủ Can Chi, tiết khí, ngày tốt/xấu, giờ hoàng đạo và số ngày còn lại đến sự kiện quan trọng.
+
+**Ví dụ lệnh thoại:**
+
+- Chủ nhật tuần này là bao nhiêu âm?
+- Rằm Trung Thu vào thứ mấy?
+- Còn bao nhiêu ngày nữa đến Tết?
+- Mai ngày tốt xấu thế nào?
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng cho Voice Assist tra cứu các sự kiện có trong lịch
+---
 
-* **Bản thiết kế này cho phép bạn tra cứu tất cả các sự kiện có trong lịch bằng cách ra lệnh bằng giọng nói.**
-  * Ví dụ: Ngày sinh nhật, ngày giỗ chạp, lịch công việc, ...
-  * Ví dụ bằng giọng nói:
-    * Tuần này có lịch gì không?
-    * Tháng này có sự kiện gì không?
+## 📆 Voice Assist - Tra cứu sự kiện trong lịch
+
+Tra cứu nhanh mọi sự kiện đã có trong lịch như sinh nhật, giỗ chạp, lịch làm việc hoặc nhắc nhở cá nhân. Kết quả được đọc rõ ràng kèm thời gian giúp bạn chủ động sắp xếp.
+
+**Ví dụ lệnh thoại:**
+
+- Tuần này có lịch gì không?
+- Tháng này có sự kiện gì không?
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng để tạo các sự kiện ngày Âm lịch vào trong lịch
+---
 
-* **Bản thiết kế này cho phép bạn thêm mới các sự kiện tính theo Âm lịch vào trong lịch.**
-  * Ví dụ: Ngày giỗ chạp, ngày cưới hỏi, ...
+## 🗓️ Tạo sự kiện theo lịch Âm
+
+Tự động thêm các sự kiện tính theo lịch Âm (giỗ, kỷ niệm, cưới hỏi...) vào lịch Dương của bạn với độ chính xác cao. Không còn phải tự quy đổi hay sợ quên những ngày truyền thống quan trọng.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Bản thiết kế dùng để đồng bộ trạng thái các thiết bị
+---
 
-* **Bản thiết kế này cho phép bạn đồng bộ trạng thái nhiều thiết bị khác nhau.**
-* **Cách hoạt động tương tự công tắc 2 chiều cầu thang.**
-* **Không giới hạn chỉ ở công tắc, bản thiết kế này cho phép đồng bộ mọi thiết bị có thể bật tắt.**
+## 🔗 Đồng bộ trạng thái nhiều thiết bị
+
+Đồng bộ trạng thái bật/tắt giữa nhiều thiết bị giống như công tắc cầu thang hai chiều. Hoạt động được với bất kỳ thiết bị có thể bật/tắt, giúp các công tắc, cảm biến hoặc automation luôn nhất quán.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Flink_multiple_devices.yaml)
 
-*Vui lòng đọc kỹ mô tả của bản thiết kế.*
+*Hãy đọc kỹ mô tả của blueprint và làm theo các bước trong đó nhé.*
 
-## Hướng dẫn theo dõi cập nhật tin tức thời sự mới nhất
+---
 
-* **Cách tạo một bản tóm tắt các tin tức diễn ra trong 24h qua sử dụng AI.**
-* [**Hướng dẫn chi tiết**](/home_assistant_get_and_summary_daily_news.md)
+## 📘 Hướng dẫn / Tutorials
 
-## Hướng dẫn cài đặt nhận thông báo khi có thiết bị mất kết nối
+- [**Hướng dẫn cách tạo một bản chỉ dẫn hệ thống cho Voice Assist**](/home_assistant_voice_instructions.md)
+- [**Hướng dẫn phát video mới từ kênh YouTube yêu thích**](/home_assistant_play_favorite_youtube_channel_videos.md)
+- [**Hướng dẫn theo dõi cập nhật tin tức thời sự mới nhất**](/home_assistant_get_and_summary_daily_news.md)
+- [**Hướng dẫn cài đặt nhận thông báo khi có thiết bị mất kết nối**](/home_assistant_unavailable_devices.md)
+- [**Hướng dẫn cài đặt iOS Themes**](/home_assistant_ios_themes.md)
+- [**Hướng dẫn tra cứu vị trí thiết bị di động**](/home_assistant_device_location_lookup_guide_en.md)
 
-* **Giám sát và cảnh báo sớm khi có bất kỳ thiết bị nào bị mất kết nối.**
-* [**Hướng dẫn chi tiết**](/home_assistant_unavailable_devices.md)
+---
 
-## Hướng dẫn cài đặt iOS Themes
-
-* **Giao diện Home Assistant sẽ tự động đổi ngẫu nhiên vào mỗi buổi sáng và tối.**
-* [**Hướng dẫn chi tiết**](/home_assistant_ios_themes.md)
-
-### **Nếu bạn thích những tính năng này, hãy chia sẻ chúng để nhiều người cùng biết đến, cũng như theo dõi để đón chờ thêm những tính năng mới độc đáo hơn nữa nhé**
-
-#### ***Nếu bạn gặp lỗi trong quá trình cài đặt hay sử dụng, hoặc bạn có những ý tưởng muốn đưa chúng lên Home Assistant, nhắn cho mình nhé***
-
-![image](images/zl.jpg)
+**Nếu bạn thấy những tính năng này hữu ích, hãy chia sẻ để nhiều người cùng biết và theo dõi để cập nhật thêm những blueprint độc đáo trong tương lai nhé!**

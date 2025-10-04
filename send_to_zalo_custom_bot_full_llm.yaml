@@ -1,6 +1,6 @@
 blueprint:
   name: Voice - Send to Zalo
-  author: VuLQ
+  author: luuquangvu
   description: >-
     # Tool for sending content to Zalo used for Voice Assistant
 

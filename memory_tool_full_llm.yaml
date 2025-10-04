@@ -1,5 +1,6 @@
 blueprint:
   name: Voice - Memory Tool
+  author: luuquangvu
   description: >-
     # Universal memory tool used for Voice Assistant
 

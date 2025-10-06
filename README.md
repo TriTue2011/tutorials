@@ -19,11 +19,11 @@ Biến Voice Assist thành "trợ lý trí nhớ" luôn túc trực. Blueprint c
 - Ghi nhớ mật khẩu Wi-Fi khách là 123456789
 - Mật khẩu Wi-Fi khách là gì?
 
-### Phiên bản LLM
+### Phiên bản LLM (Đa ngôn ngữ)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_full_llm.yaml)
 
-### Phiên bản Local
+### Phiên bản Local (Chỉ tiếng Anh)
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_local.yaml)
 

@@ -230,7 +230,9 @@ actions:
               type: "{{ trigger.json.type }}"
               quote:
                 content: "{{ trigger.json.data.content }}"
+                msgType: "{{ trigger.json.data.msgType }}"
                 uidFrom: "{{ trigger.json.data.uidFrom }}"
+                cliMsgId: "{{ trigger.json.data.cliMsgId }}"
     default:
       - action: zalo_bot.send_message
         data:

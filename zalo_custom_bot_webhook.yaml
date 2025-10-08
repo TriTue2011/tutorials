@@ -231,7 +231,7 @@ actions:
               quote:
                 content:
                   text: "{{ trigger.json.data.content }}"
-                msgType: "{{ trigger.json.data.msgType }}"
+                
                 uidFrom: "{{ trigger.json.data.uidFrom }}"
                 cliMsgId: "{{ trigger.json.data.cliMsgId }}"
     default:

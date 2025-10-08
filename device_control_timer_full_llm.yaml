@@ -21,12 +21,12 @@ blueprint:
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
-      - trigger:
-          - platform: homeassistant
+      - triggers:
+          - trigger: homeassistant
             event: start
           - trigger: event
             event_type: event_template_reloaded
-        action:
+        actions:
           - action: shell_command.get_entity_alias
             response_variable: response
         sensor:

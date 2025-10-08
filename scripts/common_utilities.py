@@ -275,7 +275,7 @@ async def memory_cache_set(
         selector:
           number:
             min: 1
-            max: 86400
+            max: 2592000
             mode: box
     """
     ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else TTL

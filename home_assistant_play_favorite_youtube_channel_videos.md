@@ -115,12 +115,12 @@ shell_command:
 
 ```yaml
 template:
-  - trigger:
-      - platform: homeassistant
+  - triggers:
+      - trigger: homeassistant
         event: start
       - trigger: event
         event_type: event_template_reloaded
-    action:
+    actions:
       - action: shell_command.get_entity_alias
         response_variable: response
     sensor:

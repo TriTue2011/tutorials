@@ -229,7 +229,8 @@ actions:
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
               quote:
-                content: "{{ trigger.json.data.content }}"
+                content: 
+                  text: "{{ trigger.json.data.content }}"
                 msgType: "{{ trigger.json.data.msgType }}"
                 uidFrom: "{{ trigger.json.data.uidFrom }}"
                 cliMsgId: "{{ trigger.json.data.cliMsgId }}"

@@ -228,6 +228,9 @@ actions:
               message: "{{ response | trim }}"
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
+              quote:
+                content: "{{ trigger.json.data.content }}"
+                uidFrom: "{{ trigger.json.data.uidFrom }}"
     default:
       - action: zalo_bot.send_message
         data:

@@ -74,6 +74,14 @@ blueprint:
             text:
               multiple: true
           default:
+        ttl:
+          name: TTL
+          description: Message auto-recall time in milliseconds. Default is 0 (no auto-recall).
+          selector:
+            number:
+              min: 0
+              step: 1
+          default: 0
     agent_settings:
       name: Settings for Conversation Agent
       icon: mdi:robot-outline
@@ -228,6 +236,7 @@ actions:
               message: "{{ response | trim }}"
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
+              ttl: !input ttl
               quote: >
                 {% if trigger.json.data.msgType == 'webchat' %}
                   {{ {'content': trigger.json.data.content, 'uidFrom': trigger.json.data.uidFrom, 'cliMsgId': trigger.json.data.cliMsgId} }}

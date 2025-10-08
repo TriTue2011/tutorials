@@ -74,6 +74,14 @@ blueprint:
             text:
               multiple: true
           default:
+        ttl:
+          name: TTL
+          description: Message auto-recall time in milliseconds. Default is 0 (no auto-recall).
+          selector:
+            number:
+              min: 0
+              step: 1
+          default: 0
     agent_settings:
       name: Settings for Conversation Agent
       icon: mdi:robot-outline
@@ -228,9 +236,13 @@ actions:
               message: "{{ response | trim }}"
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
-              quote:
-                content: "{{ trigger.json.data.content }}"
-                uidFrom: "{{ trigger.json.data.uidFrom }}"
+              ttl: !input ttl
+              quote: >
+                {% if trigger.json.data.msgType == 'webchat' %}
+                  {{ {'content': trigger.json.data.content, 'uidFrom': trigger.json.data.uidFrom, 'cliMsgId': trigger.json.data.cliMsgId} }}
+                {% else %}
+                  {{ {'content': trigger.json.data.content, 'msgType': trigger.json.data.msgType, 'uidFrom': trigger.json.data.uidFrom, 'cliMsgId': trigger.json.data.cliMsgId} }}
+                {% endif %}
     default:
       - action: zalo_bot.send_message
         data:

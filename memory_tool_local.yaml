@@ -282,7 +282,7 @@ actions:
           - choose:
               - conditions: "{{ resp_set.status == 'ok' }}"
                 sequence:
-                  - set_conversation_response: "Saved {{ (resp_set.key or (key_norm or key_phrase)) | replace('_',' ') }}."
+                  - set_conversation_response: "Saved {{ (resp_set.key or (key_norm or key_phrase)) | replace('_', ' ') }}."
               - conditions: "{{ resp_set.error == 'duplicate_tags' and (resp_set.matches | length) > 0 }}"
                 sequence:
                   - variables:
@@ -291,7 +291,7 @@ actions:
                         I found similar entries:
 
                         {% for m in matches -%}
-                        {{ loop.index }}. {{ m.key | replace('_',' ') }}: {{ (m.value or '') | string | truncate(15) }}
+                        {{ loop.index }}. {{ m.key | replace('_', ' ') }}: {{ (m.value or '') | string | truncate(15) }}
 
                         {% endfor -%}
                         Say a number to update that existing entry, or say {{ (create_new_cmds[0] if create_new_cmds else 'create new') }} to save as a new entry, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -372,7 +372,7 @@ actions:
                         I found a few candidates:
 
                         {% for it in items -%}
-                        {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
+                        {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                         {% endfor -%}
                         Say a number to open it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -420,7 +420,7 @@ actions:
                     Results ({{ start_idx + 1 }}-{{ end_idx }} of {{ total }}):
 
                     {% for it in page_items -%}
-                    {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
+                    {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                     {% endfor -%}
                     Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -447,7 +447,7 @@ actions:
             then:
               - variables:
                   prompt_text: >
-                    Delete {{ (key_norm or key_phrase) | replace('_',' ') }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                    Delete {{ (key_norm or key_phrase) | replace('_', ' ') }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                   cache_payload: >
                     {{ {
                       'pending_action': 'forget_confirm_primary',
@@ -470,7 +470,7 @@ actions:
               - choose:
                   - conditions: "{{ resp_forget.status == 'ok' }}"
                     sequence:
-                      - set_conversation_response: "Deleted {{ (resp_forget.key or (key_norm or key_phrase)) | replace('_',' ') }}."
+                      - set_conversation_response: "Deleted {{ (resp_forget.key or (key_norm or key_phrase)) | replace('_', ' ') }}."
                   - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
                     sequence:
                       - set_conversation_response: "Nothing to delete for that entry."
@@ -482,7 +482,7 @@ actions:
                             I found a few candidates:
               
                             {% for it in itemsd -%}
-                            {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
+                            {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
               
                             {% endfor -%}
                             Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -559,7 +559,7 @@ actions:
                                       - conditions: "{{ resp_force_new.status == 'ok' }}"
                                         sequence:
                                           - variables:
-                                              final_response: "Created new entry {{ (resp_force_new.key or (resume_payload.key_norm or resume_payload.key_phrase)) | replace('_',' ') }}."
+                                              final_response: "Created new entry {{ (resp_force_new.key or (resume_payload.key_norm or resume_payload.key_phrase)) | replace('_', ' ') }}."
                                     default:
                                       - variables:
                                           final_response: "Unable to create a new entry right now."
@@ -581,7 +581,7 @@ actions:
                                       - conditions: "{{ resp_update_existing.status == 'ok' }}"
                                         sequence:
                                           - variables:
-                                              final_response: "Updated {{ chosen_key | replace('_',' ') }}."
+                                              final_response: "Updated {{ chosen_key | replace('_', ' ') }}."
                                     default:
                                       - variables:
                                           final_response: "Unable to update right now."
@@ -718,7 +718,7 @@ actions:
                                                 Results ({{ next_start + 1 }}-{{ next_end }} of {{ total_results }}):
 
                                                 {% for it in next_items -%}
-                                                {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
+                                                {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                                                 {% endfor -%}
                                                 Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -829,7 +829,7 @@ actions:
                                       - conditions: "{{ resp_forget_confirm.status == 'ok' }}"
                                         sequence:
                                           - variables:
-                                              final_response: "Deleted {{ (resp_forget_confirm.key or target_key) | replace('_',' ') }}."
+                                              final_response: "Deleted {{ (resp_forget_confirm.key or target_key) | replace('_', ' ') }}."
                                       - conditions: "{{ resp_forget_confirm.error == 'not_found' and (resp_forget_confirm.matches | default([], true) | length) == 0 }}"
                                         sequence:
                                           - variables:
@@ -842,7 +842,7 @@ actions:
                                                 I found a few candidates:
 
                                                 {% for it in itemsd -%}
-                                                {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
+                                                {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                                                 {% endfor -%}
                                                 Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -916,7 +916,7 @@ actions:
                                         sequence:
                                           - variables:
                                               prompt_text: >
-                                                Confirm delete {{ chosen_key | replace('_',' ') }}{% if snip_value %}: {{ snip_value }}{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                                                Confirm delete {{ chosen_key | replace('_', ' ') }}{% if snip_value %}: {{ snip_value }}{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                               confirm_payload: >
                                                 {{ {
                                                   'pending_action': 'forget_confirm_secondary',
@@ -945,7 +945,7 @@ actions:
                                               - conditions: "{{ resp_forget_choice.status == 'ok' }}"
                                                 sequence:
                                                   - variables:
-                                                      final_response: "Deleted {{ chosen_key | replace('_',' ') }}."
+                                                      final_response: "Deleted {{ chosen_key | replace('_', ' ') }}."
                                             default:
                                               - variables:
                                                   final_response: "I couldn't delete it right now."
@@ -981,7 +981,7 @@ actions:
                                         sequence:
                                           - variables:
                                               handled: true
-                                              final_response: "Deleted {{ target_key | replace('_',' ') }}."
+                                              final_response: "Deleted {{ target_key | replace('_', ' ') }}."
                                     default:
                                       - variables:
                                           handled: true
@@ -1025,7 +1025,7 @@ actions:
                                         sequence:
                                           - variables:
                                               handled: true
-                                              final_response: "Restored {{ resume_payload.key | replace('_',' ') }}."
+                                              final_response: "Restored {{ resume_payload.key | replace('_', ' ') }}."
                                     default:
                                       - variables:
                                           handled: true
@@ -1052,7 +1052,7 @@ actions:
                                                 sequence:
                                                   - variables:
                                                       handled: true
-                                                      final_response: "Updated and restored {{ resume_payload.key | replace('_',' ') }}."
+                                                      final_response: "Updated and restored {{ resume_payload.key | replace('_', ' ') }}."
                                             default:
                                               - variables:
                                                   handled: true

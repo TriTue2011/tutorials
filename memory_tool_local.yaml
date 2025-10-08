@@ -270,7 +270,7 @@ actions:
   - choose:
       - conditions: "{{ trigger_id == 'set' and key_phrase|length > 0 and value|length > 0 }}"
         sequence:
-          - service: pyscript.memory_set
+          - action: pyscript.memory_set
             data:
               key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
               value: "{{ value }}"
@@ -282,7 +282,7 @@ actions:
           - choose:
               - conditions: "{{ resp_set.status == 'ok' }}"
                 sequence:
-                  - set_conversation_response: "Saved {{ resp_set.key or (key_norm or key_phrase) }}."
+                  - set_conversation_response: "Saved {{ (resp_set.key or (key_norm or key_phrase)) | replace('_',' ') }}."
               - conditions: "{{ resp_set.error == 'duplicate_tags' and (resp_set.matches | length) > 0 }}"
                 sequence:
                   - variables:
@@ -291,7 +291,7 @@ actions:
                         I found similar entries:
 
                         {% for m in matches -%}
-                        {{ loop.index }}. {{ m.key }}: {{ (m.value or '') | string | truncate(15) }}
+                        {{ loop.index }}. {{ m.key | replace('_',' ') }}: {{ (m.value or '') | string | truncate(15) }}
 
                         {% endfor -%}
                         Say a number to update that existing entry, or say {{ (create_new_cmds[0] if create_new_cmds else 'create new') }} to save as a new entry, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -312,7 +312,7 @@ actions:
                           'prompt': prompt_text,
                           'allow_force_new': allow_force_new
                         } | to_json }}
-                  - service: pyscript.memory_cache_set
+                  - action: pyscript.memory_cache_set
                     data:
                       key: "{{ store_key }}"
                       value: "{{ cache_payload }}"
@@ -323,7 +323,7 @@ actions:
               - set_conversation_response: "I couldn't save due to an error. Would you like to try again?"
       - conditions: "{{ trigger_id == 'get' and key_phrase|length > 0 }}"
         sequence:
-          - service: pyscript.memory_get
+          - action: pyscript.memory_get
             data:
               key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
             response_variable: resp_get
@@ -352,7 +352,7 @@ actions:
                           'prompt': prompt_text,
                           'allow_force_new': allow_force_new
                         } | to_json }}
-                  - service: pyscript.memory_cache_set
+                  - action: pyscript.memory_cache_set
                     data:
                       key: "{{ store_key }}"
                       value: "{{ cache_payload }}"
@@ -372,7 +372,7 @@ actions:
                         I found a few candidates:
 
                         {% for it in items -%}
-                        {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
+                        {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                         {% endfor -%}
                         Say a number to open it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -386,7 +386,7 @@ actions:
                           'entries': ns.items,
                           'prompt': prompt_text
                         } | to_json }}
-                  - service: pyscript.memory_cache_set
+                  - action: pyscript.memory_cache_set
                     data:
                       key: "{{ store_key }}"
                       value: "{{ cache_payload }}"
@@ -397,7 +397,7 @@ actions:
               - set_conversation_response: "I couldn't retrieve it right now."
       - conditions: "{{ trigger_id == 'search' and key_phrase|length > 0 }}"
         sequence:
-          - service: pyscript.memory_search
+          - action: pyscript.memory_search
             data:
               query: "{{ key_phrase }}"
               limit: "{{ s_limit }}"
@@ -420,7 +420,7 @@ actions:
                     Results ({{ start_idx + 1 }}-{{ end_idx }} of {{ total }}):
 
                     {% for it in page_items -%}
-                    {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
+                    {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                     {% endfor -%}
                     Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -432,7 +432,7 @@ actions:
                       'query': key_phrase,
                       'prompt': prompt_text
                     } | to_json }}
-              - service: pyscript.memory_cache_set
+              - action: pyscript.memory_cache_set
                 data:
                   key: "{{ store_key }}"
                   value: "{{ cache_payload }}"
@@ -447,7 +447,7 @@ actions:
             then:
               - variables:
                   prompt_text: >
-                    Delete {{ key_norm or key_phrase }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                    Delete {{ (key_norm or key_phrase) | replace('_',' ') }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                   cache_payload: >
                     {{ {
                       'pending_action': 'forget_confirm_primary',
@@ -455,7 +455,7 @@ actions:
                       'key_phrase': key_phrase,
                       'prompt': prompt_text
                     } | to_json }}
-              - service: pyscript.memory_cache_set
+              - action: pyscript.memory_cache_set
                 data:
                   key: "{{ store_key }}"
                   value: "{{ cache_payload }}"
@@ -463,14 +463,14 @@ actions:
                 response_variable: cache_state
               - set_conversation_response: "{{ prompt_text }}"
             else:
-              - service: pyscript.memory_forget
+              - action: pyscript.memory_forget
                 data:
                   key: "{{ key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')) }}"
                 response_variable: resp_forget
               - choose:
                   - conditions: "{{ resp_forget.status == 'ok' }}"
                     sequence:
-                      - set_conversation_response: "Deleted {{ resp_forget.key or (key_norm or key_phrase) }}."
+                      - set_conversation_response: "Deleted {{ (resp_forget.key or (key_norm or key_phrase)) | replace('_',' ') }}."
                   - conditions: "{{ resp_forget.error == 'not_found' and (resp_forget.matches | default([], true) | length) == 0 }}"
                     sequence:
                       - set_conversation_response: "Nothing to delete for that entry."
@@ -482,7 +482,7 @@ actions:
                             I found a few candidates:
               
                             {% for it in itemsd -%}
-                            {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
+                            {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
               
                             {% endfor -%}
                             Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -497,7 +497,7 @@ actions:
                               'must_confirm': must_confirm_delete,
                               'prompt': prompt_text
                             } | to_json }}
-                      - service: pyscript.memory_cache_set
+                      - action: pyscript.memory_cache_set
                         data:
                           key: "{{ store_key }}"
                           value: "{{ cache_payload }}"
@@ -508,7 +508,7 @@ actions:
                   - set_conversation_response: "I couldn't delete it right now."
       - conditions: "{{ trigger_id.startswith('resume_') }}"
         sequence:
-          - service: pyscript.memory_cache_get
+          - action: pyscript.memory_cache_get
             data:
               key: "{{ store_key }}"
             response_variable: resume_cache
@@ -518,7 +518,7 @@ actions:
                   - variables:
                       resume_original: "{{ resume_cache.value }}"
                       resume_payload: "{{ resume_cache.value | from_json }}"
-                  - service: pyscript.memory_cache_forget
+                  - action: pyscript.memory_cache_forget
                     data:
                       key: "{{ store_key }}"
                     response_variable: forget_cache
@@ -544,7 +544,7 @@ actions:
                                       final_response: "Canceled."
                               - conditions: "{{ trigger_id == 'resume_create_new' and resume_payload.allow_force_new }}"
                                 sequence:
-                                  - service: pyscript.memory_set
+                                  - action: pyscript.memory_set
                                     data:
                                       key: "{{ resume_payload.key_norm or resume_payload.key_phrase }}"
                                       value: "{{ resume_payload.value }}"
@@ -559,7 +559,7 @@ actions:
                                       - conditions: "{{ resp_force_new.status == 'ok' }}"
                                         sequence:
                                           - variables:
-                                              final_response: "Created new entry {{ resp_force_new.key or (resume_payload.key_norm or resume_payload.key_phrase) }}."
+                                              final_response: "Created new entry {{ (resp_force_new.key or (resume_payload.key_norm or resume_payload.key_phrase)) | replace('_',' ') }}."
                                     default:
                                       - variables:
                                           final_response: "Unable to create a new entry right now."
@@ -569,7 +569,7 @@ actions:
                                       chosen_item: "{{ matches_ctx[pick_num - 1] }}"
                                       chosen_key: "{{ chosen_item.key }}"
                                       handled: true
-                                  - service: pyscript.memory_set
+                                  - action: pyscript.memory_set
                                     data:
                                       key: "{{ chosen_key }}"
                                       value: "{{ resume_payload.value }}"
@@ -581,7 +581,7 @@ actions:
                                       - conditions: "{{ resp_update_existing.status == 'ok' }}"
                                         sequence:
                                           - variables:
-                                              final_response: "Updated {{ chosen_key }}."
+                                              final_response: "Updated {{ chosen_key | replace('_',' ') }}."
                                     default:
                                       - variables:
                                           final_response: "Unable to update right now."
@@ -592,7 +592,7 @@ actions:
                             default:
                               - variables:
                                   prompt_text: "{{ resume_payload.prompt }}"
-                              - service: pyscript.memory_cache_set
+                              - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
                                   value: "{{ resume_original }}"
@@ -625,7 +625,7 @@ actions:
                                       chosen_item: "{{ items_ctx[pick_num - 1] }}"
                                       chosen_key: "{{ chosen_item.key }}"
                                       handled: true
-                                  - service: pyscript.memory_get
+                                  - action: pyscript.memory_get
                                     data:
                                       key: "{{ chosen_key }}"
                                     response_variable: resp_resume_get
@@ -655,7 +655,7 @@ actions:
                                                   'prompt': prompt_text,
                                                   'allow_force_new': allow_force_new
                                                 } | to_json }}
-                                          - service: pyscript.memory_cache_set
+                                          - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
                                               value: "{{ expired_payload }}"
@@ -671,7 +671,7 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - service: pyscript.memory_cache_set
+                              - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
                                   value: "{{ resume_original }}"
@@ -718,7 +718,7 @@ actions:
                                                 Results ({{ next_start + 1 }}-{{ next_end }} of {{ total_results }}):
 
                                                 {% for it in next_items -%}
-                                                {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
+                                                {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                                                 {% endfor -%}
                                                 Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -730,7 +730,7 @@ actions:
                                                   'query': resume_payload.query | default(key_phrase, true),
                                                   'prompt': prompt_text
                                                 } | to_json }}
-                                          - service: pyscript.memory_cache_set
+                                          - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
                                               value: "{{ next_payload }}"
@@ -740,7 +740,7 @@ actions:
                                               handled: true
                                               final_response: "{{ prompt_text }}"
                                     default:
-                                      - service: pyscript.memory_cache_set
+                                      - action: pyscript.memory_cache_set
                                         data:
                                           key: "{{ store_key }}"
                                           value: "{{ resume_original }}"
@@ -755,7 +755,7 @@ actions:
                                       chosen_item: "{{ page_items[pick_num - 1] }}"
                                       chosen_key: "{{ chosen_item.key }}"
                                       handled: true
-                                  - service: pyscript.memory_get
+                                  - action: pyscript.memory_get
                                     data:
                                       key: "{{ chosen_key }}"
                                     response_variable: resp_resume_search_get
@@ -785,7 +785,7 @@ actions:
                                                   'prompt': prompt_text,
                                                   'allow_force_new': allow_force_new
                                                 } | to_json }}
-                                          - service: pyscript.memory_cache_set
+                                          - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
                                               value: "{{ expired_payload }}"
@@ -801,7 +801,7 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - service: pyscript.memory_cache_set
+                              - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
                                   value: "{{ resume_original }}"
@@ -821,7 +821,7 @@ actions:
                                 sequence:
                                   - variables:
                                       handled: true
-                                  - service: pyscript.memory_forget
+                                  - action: pyscript.memory_forget
                                     data:
                                       key: "{{ target_key }}"
                                     response_variable: resp_forget_confirm
@@ -829,7 +829,7 @@ actions:
                                       - conditions: "{{ resp_forget_confirm.status == 'ok' }}"
                                         sequence:
                                           - variables:
-                                              final_response: "Deleted {{ resp_forget_confirm.key or target_key }}."
+                                              final_response: "Deleted {{ (resp_forget_confirm.key or target_key) | replace('_',' ') }}."
                                       - conditions: "{{ resp_forget_confirm.error == 'not_found' and (resp_forget_confirm.matches | default([], true) | length) == 0 }}"
                                         sequence:
                                           - variables:
@@ -842,7 +842,7 @@ actions:
                                                 I found a few candidates:
 
                                                 {% for it in itemsd -%}
-                                                {{ loop.index }}. {{ it.key }}: {{ (it.value or '') | string | truncate(15) }}
+                                                {{ loop.index }}. {{ it.key | replace('_',' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                                                 {% endfor -%}
                                                 Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
@@ -857,7 +857,7 @@ actions:
                                                   'must_confirm': must_confirm_delete,
                                                   'prompt': prompt_text
                                                 } | to_json }}
-                                          - service: pyscript.memory_cache_set
+                                          - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
                                               value: "{{ cache_payload }}"
@@ -878,7 +878,7 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - service: pyscript.memory_cache_set
+                              - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
                                   value: "{{ resume_original }}"
@@ -916,14 +916,14 @@ actions:
                                         sequence:
                                           - variables:
                                               prompt_text: >
-                                                Confirm delete {{ chosen_key }}{% if snip_value %}: {{ snip_value }}{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                                                Confirm delete {{ chosen_key | replace('_',' ') }}{% if snip_value %}: {{ snip_value }}{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                               confirm_payload: >
                                                 {{ {
                                                   'pending_action': 'forget_confirm_secondary',
                                                   'key': chosen_key,
                                                   'prompt': prompt_text
                                                 } | to_json }}
-                                          - service: pyscript.memory_cache_set
+                                          - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
                                               value: "{{ confirm_payload }}"
@@ -937,7 +937,7 @@ actions:
                                         sequence:
                                           - variables:
                                               handled: true
-                                          - service: pyscript.memory_forget
+                                          - action: pyscript.memory_forget
                                             data:
                                               key: "{{ chosen_key }}"
                                             response_variable: resp_forget_choice
@@ -945,7 +945,7 @@ actions:
                                               - conditions: "{{ resp_forget_choice.status == 'ok' }}"
                                                 sequence:
                                                   - variables:
-                                                      final_response: "Deleted {{ chosen_key }}."
+                                                      final_response: "Deleted {{ chosen_key | replace('_',' ') }}."
                                             default:
                                               - variables:
                                                   final_response: "I couldn't delete it right now."
@@ -954,7 +954,7 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - service: pyscript.memory_cache_set
+                              - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
                                   value: "{{ resume_original }}"
@@ -972,7 +972,7 @@ actions:
                           - choose:
                               - conditions: "{{ trigger_id == 'resume_yes' }}"
                                 sequence:
-                                  - service: pyscript.memory_forget
+                                  - action: pyscript.memory_forget
                                     data:
                                       key: "{{ target_key }}"
                                     response_variable: resp_forget_secondary
@@ -981,7 +981,7 @@ actions:
                                         sequence:
                                           - variables:
                                               handled: true
-                                              final_response: "Deleted {{ target_key }}."
+                                              final_response: "Deleted {{ target_key | replace('_',' ') }}."
                                     default:
                                       - variables:
                                           handled: true
@@ -996,7 +996,7 @@ actions:
                                 sequence:
                                   - set_conversation_response: "{{ final_response if final_response | length > 0 else 'Okay.' }}"
                             default:
-                              - service: pyscript.memory_cache_set
+                              - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
                                   value: "{{ resume_original }}"
@@ -1012,7 +1012,7 @@ actions:
                           - choose:
                               - conditions: "{{ trigger_id == 'resume_restore' }}"
                                 sequence:
-                                  - service: pyscript.memory_set
+                                  - action: pyscript.memory_set
                                     data:
                                       key: "{{ resume_payload.key }}"
                                       value: "{{ resume_payload.value }}"
@@ -1025,7 +1025,7 @@ actions:
                                         sequence:
                                           - variables:
                                               handled: true
-                                              final_response: "Restored {{ resume_payload.key }}."
+                                              final_response: "Restored {{ resume_payload.key | replace('_',' ') }}."
                                     default:
                                       - variables:
                                           handled: true
@@ -1039,7 +1039,7 @@ actions:
                                   - choose:
                                       - conditions: "{{ new_val | default('', true) | length > 0 }}"
                                         sequence:
-                                          - service: pyscript.memory_set
+                                          - action: pyscript.memory_set
                                             data:
                                               key: "{{ resume_payload.key }}"
                                               value: "{{ new_val }}"
@@ -1052,7 +1052,7 @@ actions:
                                                 sequence:
                                                   - variables:
                                                       handled: true
-                                                      final_response: "Updated and restored {{ resume_payload.key }}."
+                                                      final_response: "Updated and restored {{ resume_payload.key | replace('_',' ') }}."
                                             default:
                                               - variables:
                                                   handled: true
@@ -1064,7 +1064,7 @@ actions:
                                         sequence:
                                           - set_conversation_response: "{{ final_response if final_response | length > 0 else prompt_text }}"
                                     default:
-                                      - service: pyscript.memory_cache_set
+                                      - action: pyscript.memory_cache_set
                                         data:
                                           key: "{{ store_key }}"
                                           value: "{{ resume_original }}"
@@ -1083,7 +1083,7 @@ actions:
                             default:
                               - variables:
                                   prompt_text: "{{ resume_payload.prompt }}"
-                              - service: pyscript.memory_cache_set
+                              - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
                                   value: "{{ resume_original }}"

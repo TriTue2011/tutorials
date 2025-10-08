@@ -247,7 +247,7 @@ sequence:
           - choose:
               - conditions: "{{ key_t|length > 0 and value_t|length > 0 }}"
                 sequence:
-                  - service: pyscript.memory_set
+                  - action: pyscript.memory_set
                     data:
                       key: "{{ key_t }}"
                       value: "{{ value_t }}"
@@ -270,7 +270,7 @@ sequence:
           - choose:
               - conditions: "{{ key_t|length > 0 }}"
                 sequence:
-                  - service: pyscript.memory_get
+                  - action: pyscript.memory_get
                     data:
                       key: "{{ key_t }}"
                     response_variable: response
@@ -287,7 +287,7 @@ sequence:
           - choose:
               - conditions: "{{ query_t|length > 0 }}"
                 sequence:
-                  - service: pyscript.memory_search
+                  - action: pyscript.memory_search
                     data:
                       query: "{{ query_t }}"
                       limit: "{{ in_limit | int(5) }}"
@@ -305,7 +305,7 @@ sequence:
           - choose:
               - conditions: "{{ key_t|length > 0 }}"
                 sequence:
-                  - service: pyscript.memory_forget
+                  - action: pyscript.memory_forget
                     data:
                       key: "{{ key_t }}"
                     response_variable: response

@@ -256,7 +256,7 @@ sequence:
           data: { key: "{{ _prefix }}{{ repeat.item }}" }
           response_variable: _ar
         - variables:
-            _ar_data: "{{ (_ar.value | default('{}')) | from_json(default=[]) if _ar.status == 'ok' else {} }}"
+            _ar_data: "{{ ((_ar.value | default({}, true)) | to_json) | from_json(default={}) if _ar.status == 'ok' else {} }}"
         - choose:
             - conditions: "{{ _ar.status == 'ok' and (_ar_data.status|string|lower) in ['running','paused'] }}"
               sequence:
@@ -722,7 +722,7 @@ sequence:
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
             response_variable: _cancel_timer
           - variables:
-              _cancel_timer_data: "{{ (_cancel_timer.value | default('{}')) | from_json(default=[]) if _cancel_timer.status == 'ok' else {} }}"
+              _cancel_timer_data: "{{ ((_cancel_timer.value | default({}, true)) | to_json) | from_json(default={}) if _cancel_timer.status == 'ok' else {} }}"
               _T: "{{ _cancel_timer_data if _cancel_timer.status == 'ok' else {'id': _id_resolved} }}"
               _cancel_remaining: >-
                 {% if _cancel_timer.status == 'ok' %}
@@ -799,7 +799,7 @@ sequence:
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
             response_variable: _tres
           - variables:
-              _tres_data: "{{ (_tres.value | default('{}')) | from_json(default=[]) if _tres.status == 'ok' else {} }}"
+              _tres_data: "{{ ((_tres.value | default({}, true)) | to_json) | from_json(default={}) if _tres.status == 'ok' else {} }}"
           - condition: template
             value_template: "{{ _tres.status == 'ok' and (_tres_data.status|string|lower) in ['running','paused'] }}"
           - variables:
@@ -845,7 +845,7 @@ sequence:
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
             response_variable: _tres
           - variables:
-              _tres_data: "{{ (_tres.value | default('{}')) | from_json(default=[]) if _tres.status == 'ok' else {} }}"
+              _tres_data: "{{ ((_tres.value | default({}, true)) | to_json) | from_json(default={}) if _tres.status == 'ok' else {} }}"
           - condition: template
             value_template: "{{ _tres.status == 'ok' and (_tres_data.status|string|lower) == 'running' }}"
           - variables:
@@ -878,7 +878,7 @@ sequence:
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
             response_variable: _tres
           - variables:
-              _tres_data: "{{ (_tres.value | default('{}')) | from_json(default=[]) if _tres.status == 'ok' else {} }}"
+              _tres_data: "{{ ((_tres.value | default({}, true)) | to_json) | from_json(default={}) if _tres.status == 'ok' else {} }}"
           - condition: template
             value_template: "{{ _tres.status == 'ok' and (_tres_data.status|string|lower) == 'paused' and (_tres_data.remaining|int) > 0 }}"
           - variables:
@@ -989,7 +989,7 @@ sequence:
             data: { key: "{{ _index_key }}" }
             response_variable: _idx2
           - variables:
-              __IDX: "{{ (_idx2.value | default('[]')) | from_json(default=[]) if _idx2.status == 'ok' else [] }}"
+              __IDX: "{{ ((_idx2.value | default([], true)) | to_json) | from_json(default=[]) if _idx2.status == 'ok' else [] }}"
               __IDX2: >
                 {% set ids = [] %}
                 {% for existing in __IDX %}
@@ -1043,7 +1043,7 @@ sequence:
                   data: { key: "{{ _prefix }}{{ repeat.item }}" }
                   response_variable: _lr
                 - variables:
-                    _lr_data: "{{ (_lr.value | default('{}')) | from_json(default=[]) if _lr.status == 'ok' else {} }}"
+                    _lr_data: "{{ ((_lr.value | default({}, true)) | to_json) | from_json(default={}) if _lr.status == 'ok' else {} }}"
                 - choose:
                     - conditions: "{{ _lr.status == 'ok' }}"
                       sequence:

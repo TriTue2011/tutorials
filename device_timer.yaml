@@ -550,51 +550,51 @@ sequence:
                   - stop: "canceled_wait"
 
           # Expired: run action (if any) + mark expired + remove from index
-      - variables:
-          _run_actions: "{{ (_item.actions | default([])) | selectattr('action','defined') | list }}"
-      - choose:
-          - conditions: "{{ _run_actions | count > 0 }}"
-            sequence:
-              - repeat:
-                  for_each: "{{ _run_actions }}"
-                  sequence:
-                    - action: "{{ repeat.item.action }}"
-                      target: "{{ repeat.item.target | default({}) }}"
-                      data: "{{ repeat.item.data | default({}) }}"
-      - action: pyscript.memory_cache_get
-        data: { key: "{{ _index_key }}" }
-        response_variable: _idx_expired_event
-      - variables:
-          _IDX_EXPIRED_EVENT: >
-            {% set idx_raw = _idx_expired_event.value if _idx_expired_event.status == 'ok' else [] %}
-            {% if idx_raw is sequence %}
-              {{ idx_raw }}
-            {% else %}
-              {{ [] }}
-            {% endif %}
-          _IDX7: >
-            {% set ns = namespace(out=[]) %}
-            {% set expired_list = _IDX_EXPIRED_EVENT if _IDX_EXPIRED_EVENT is sequence else [] %}
-            {% for existing in expired_list %}
-              {% if existing != _id and existing not in ns.out %}
-                {% set ns.out = ns.out + [existing] %}
-              {% endif %}
-            {% endfor %}
-            {{ ns.out }}
-          _IDX_ALIVE: "{{ _IDX7 if _IDX7 is sequence else [] }}"
-      - action: pyscript.memory_cache_set
-        data:
-          key: "{{ _index_key }}"
-          value: "{{ _IDX7 if _IDX7 is sequence else [] }}"
-          ttl_seconds: 2592000
-        response_variable: cache_set_index
-      - action: pyscript.memory_cache_set
-        data:
-          key: "{{ _prefix }}{{ _id }}"
-          value: >
-            {{ dict(_item, **{'status':'expired','expired_at': now().isoformat(),'remaining':0}) }}
-          ttl_seconds: "{{ _buf|int }}"
-        response_variable: cache_set_timer_id
+          - variables:
+              _run_actions: "{{ (_item.actions | default([])) | selectattr('action','defined') | list }}"
+          - choose:
+              - conditions: "{{ _run_actions | count > 0 }}"
+                sequence:
+                  - repeat:
+                      for_each: "{{ _run_actions }}"
+                      sequence:
+                        - action: "{{ repeat.item.action }}"
+                          target: "{{ repeat.item.target | default({}) }}"
+                          data: "{{ repeat.item.data | default({}) }}"
+          - action: pyscript.memory_cache_get
+            data: { key: "{{ _index_key }}" }
+            response_variable: _idx_expired_event
+          - variables:
+              _IDX_EXPIRED_EVENT: >
+                {% set idx_raw = _idx_expired_event.value if _idx_expired_event.status == 'ok' else [] %}
+                {% if idx_raw is sequence %}
+                  {{ idx_raw }}
+                {% else %}
+                  {{ [] }}
+                {% endif %}
+              _IDX7: >
+                {% set ns = namespace(out=[]) %}
+                {% set expired_list = _IDX_EXPIRED_EVENT if _IDX_EXPIRED_EVENT is sequence else [] %}
+                {% for existing in expired_list %}
+                  {% if existing != _id and existing not in ns.out %}
+                    {% set ns.out = ns.out + [existing] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.out }}
+              _IDX_ALIVE: "{{ _IDX7 if _IDX7 is sequence else [] }}"
+          - action: pyscript.memory_cache_set
+            data:
+              key: "{{ _index_key }}"
+              value: "{{ _IDX7 if _IDX7 is sequence else [] }}"
+              ttl_seconds: 2592000
+            response_variable: cache_set_index
+          - action: pyscript.memory_cache_set
+            data:
+              key: "{{ _prefix }}{{ _id }}"
+              value: >
+                {{ dict(_item, **{'status':'expired','expired_at': now().isoformat(),'remaining':0}) }}
+              ttl_seconds: "{{ _buf|int }}"
+            response_variable: cache_set_timer_id
 
       #######################################################################
       # CANCEL (by id or latest by entity)

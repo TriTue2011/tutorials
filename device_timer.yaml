@@ -123,10 +123,19 @@ sequence:
     data: { key: "{{ _index_key }}" }
     response_variable: _idx_res
   - variables:
-      _IDX: "{{ (_idx_res.value | default('[]')) | from_json(default=[]) if _idx_res.status == 'ok' else [] }}"
+      _IDX_LIST: >
+        {% set idx_raw = _idx_res.value if _idx_res.status == 'ok' else [] %}
+        {% if idx_raw is string %}
+          {{ idx_raw }}
+        {% elif idx_raw is sequence %}
+          {{ idx_raw | to_json }}
+        {% else %}
+          {{ [] | to_json }}
+        {% endif %}
+      _IDX_COUNT: "{{ ((_IDX_LIST | from_json(default=[])) | length) }}"
       _IDX_ALIVE: "[]"
   - repeat:
-      for_each: "{{ _IDX }}"
+      for_each: "{{ (_IDX_LIST | from_json(default=[])) }}"
       sequence:
         - action: pyscript.memory_cache_get
           data: { key: "{{ _prefix }}{{ repeat.item }}" }
@@ -167,7 +176,13 @@ sequence:
         {% if alive is none %}
           {% set alive = [] %}
         {% endif %}
-        {% for existing in _IDX %}
+        {% set idx_raw = _IDX_LIST | default('[]') %}
+        {% if idx_raw is string %}
+          {% set idx_list = idx_raw | from_json(default=[]) %}
+        {% else %}
+          {% set idx_list = idx_raw | default([]) %}
+        {% endif %}
+        {% for existing in idx_list %}
           {% if existing not in alive %}
             {% set stale = stale + [existing] %}
           {% endif %}
@@ -177,7 +192,15 @@ sequence:
     data: { key: "{{ _index_key }}" }
     response_variable: _idx_latest_compact
   - variables:
-      _IDX_LATEST_COMPACT: "{{ (_idx_latest_compact.value | default('[]')) | from_json(default=[]) if _idx_latest_compact.status == 'ok' else [] }}"
+      _IDX_LATEST_COMPACT: >
+        {% set idx_raw = _idx_latest_compact.value if _idx_latest_compact.status == 'ok' else [] %}
+        {% if idx_raw is string %}
+          {{ idx_raw }}
+        {% elif idx_raw is sequence %}
+          {{ idx_raw | to_json }}
+        {% else %}
+          {{ [] | to_json }}
+        {% endif %}
       _IDX_COMPACTED: >
         {% set stale_raw = _IDX_STALE | default('[]') %}
         {% if stale_raw is string %}
@@ -198,7 +221,13 @@ sequence:
           {% set current_alive = [] %}
         {% endif %}
         {% set ns = namespace(out=[]) %}
-        {% for existing in _IDX_LATEST_COMPACT %}
+        {% set compact_raw = _IDX_LATEST_COMPACT | default('[]') %}
+        {% if compact_raw is string %}
+          {% set compact = compact_raw | from_json(default=[]) %}
+        {% else %}
+          {% set compact = compact_raw | default([]) %}
+        {% endif %}
+        {% for existing in compact %}
           {% if existing not in stale and existing not in ns.out %}
             {% set ns.out = ns.out + [existing] %}
           {% endif %}
@@ -210,21 +239,18 @@ sequence:
         {% endfor %}
         {{ ns.out | to_json }}
       _IDX_ALIVE: "{{ _IDX_COMPACTED }}"
-  - choose:
-      - conditions: "{{ _mode != 'list' }}"
-        sequence:
-          - action: pyscript.memory_cache_set
-            data:
-              key: "{{ _index_key }}"
-              value: "{{ _IDX_ALIVE }}"
-              ttl_seconds: 2592000  # 30 days
-            response_variable: cache_set_index
+  - action: pyscript.memory_cache_set
+    data:
+      key: "{{ _index_key }}"
+      value: "{{ _IDX_ALIVE }}"
+      ttl_seconds: 2592000  # 30 days
+    response_variable: cache_set_index
 
   # Gather active timers for dedupe checks
   - variables:
       _ACTIVE: "[]"
   - repeat:
-      for_each: "{{ (_IDX_ALIVE | default('[]')) | from_json(default=[]) }}"
+      for_each: "{{ (_IDX_ALIVE | from_json(default=[])) }}"
       sequence:
         - action: pyscript.memory_cache_get
           data: { key: "{{ _prefix }}{{ repeat.item }}" }
@@ -353,7 +379,7 @@ sequence:
               - conditions: "{{ _dedupe_mode == 'cancel_existing' and _is_dup }}"
                 sequence:
                   - repeat:
-                      for_each: "{{ (_ACTIVE | default('[]')) | from_json(default=[]) }}"
+                      for_each: "{{ (_ACTIVE | from_json(default=[])) }}"
                       sequence:
                         - variables:
                             _match_entity: "{{ (repeat.item.entity_id | default('') | string | trim | lower) == _entity_norm }}"
@@ -433,7 +459,15 @@ sequence:
             data: { key: "{{ _index_key }}" }
             response_variable: _idx_latest_start
           - variables:
-              _IDX_LATEST_START: "{{ (_idx_latest_start.value | default('[]')) | from_json(default=[]) if _idx_latest_start.status == 'ok' else [] }}"
+              _IDX_LATEST_START: >
+                {% set idx_raw = _idx_latest_start.value if _idx_latest_start.status == 'ok' else [] %}
+                {% if idx_raw is string %}
+                  {{ idx_raw }}
+                {% elif idx_raw is sequence %}
+                  {{ idx_raw | to_json }}
+                {% else %}
+                  {{ [] | to_json }}
+                {% endif %}
               _IDX_ALIVE_PRE: "{{ (_IDX_ALIVE | default('[]')) | from_json(default=[]) }}"
               _IDX_ALIVE: >
                 {% set removed_raw = _IDX_DEDUPE_REMOVALS | default('[]') %}
@@ -442,7 +476,13 @@ sequence:
                   {% set removed = [] %}
                 {% endif %}
                 {% set ns = namespace(out=[]) %}
-                {% for existing in _IDX_LATEST_START %}
+                {% set latest_raw = _IDX_LATEST_START | default('[]') %}
+                {% if latest_raw is string %}
+                  {% set latest = latest_raw | from_json(default=[]) %}
+                {% else %}
+                  {% set latest = latest_raw | default([]) %}
+                {% endif %}
+                {% for existing in latest %}
                   {% if existing not in removed and existing not in ns.out %}
                     {% set ns.out = ns.out + [existing] %}
                   {% endif %}
@@ -507,10 +547,24 @@ sequence:
             data: { key: "{{ _index_key }}" }
             response_variable: _idx_latest_append
           - variables:
-              _IDX_LATEST_APPEND: "{{ (_idx_latest_append.value | default('[]')) | from_json(default=[]) if _idx_latest_append.status == 'ok' else [] }}"
+              _IDX_LATEST_APPEND: >
+                {% set idx_raw = _idx_latest_append.value if _idx_latest_append.status == 'ok' else [] %}
+                {% if idx_raw is string %}
+                  {{ idx_raw }}
+                {% elif idx_raw is sequence %}
+                  {{ idx_raw | to_json }}
+                {% else %}
+                  {{ [] | to_json }}
+                {% endif %}
               _IDX3: >
                 {% set ns = namespace(out=[]) %}
-                {% for existing in _IDX_LATEST_APPEND %}
+                {% set append_raw = _IDX_LATEST_APPEND | default('[]') %}
+                {% if append_raw is string %}
+                  {% set append_list = append_raw | from_json(default=[]) %}
+                {% else %}
+                  {% set append_list = append_raw | default([]) %}
+                {% endif %}
+                {% for existing in append_list %}
                   {% if existing not in ns.out %}
                     {% set ns.out = ns.out + [existing] %}
                   {% endif %}
@@ -558,10 +612,24 @@ sequence:
                     data: { key: "{{ _index_key }}" }
                     response_variable: _idx_cancel_event
                   - variables:
-                      _IDX_CANCEL_EVENT: "{{ (_idx_cancel_event.value | default('[]')) | from_json(default=[]) if _idx_cancel_event.status == 'ok' else [] }}"
+                      _IDX_CANCEL_EVENT: >
+                        {% set idx_raw = _idx_cancel_event.value if _idx_cancel_event.status == 'ok' else [] %}
+                        {% if idx_raw is string %}
+                          {{ idx_raw }}
+                        {% elif idx_raw is sequence %}
+                          {{ idx_raw | to_json }}
+                        {% else %}
+                          {{ [] | to_json }}
+                        {% endif %}
                       _IDX5: >
                         {% set ns = namespace(out=[]) %}
-                        {% for existing in _IDX_CANCEL_EVENT %}
+                        {% set cancel_raw = _IDX_CANCEL_EVENT | default('[]') %}
+                        {% if cancel_raw is string %}
+                          {% set cancel_list = cancel_raw | from_json(default=[]) %}
+                        {% else %}
+                          {% set cancel_list = cancel_raw | default([]) %}
+                        {% endif %}
+                        {% for existing in cancel_list %}
                           {% if existing != _id and existing not in ns.out %}
                             {% set ns.out = ns.out + [existing] %}
                           {% endif %}
@@ -600,10 +668,24 @@ sequence:
             data: { key: "{{ _index_key }}" }
             response_variable: _idx_expired_event
           - variables:
-              _IDX_EXPIRED_EVENT: "{{ (_idx_expired_event.value | default('[]')) | from_json(default=[]) if _idx_expired_event.status == 'ok' else [] }}"
+              _IDX_EXPIRED_EVENT: >
+                {% set idx_raw = _idx_expired_event.value if _idx_expired_event.status == 'ok' else [] %}
+                {% if idx_raw is string %}
+                  {{ idx_raw }}
+                {% elif idx_raw is sequence %}
+                  {{ idx_raw | to_json }}
+                {% else %}
+                  {{ [] | to_json }}
+                {% endif %}
               _IDX7: >
                 {% set ns = namespace(out=[]) %}
-                {% for existing in _IDX_EXPIRED_EVENT %}
+                {% set expired_raw = _IDX_EXPIRED_EVENT | default('[]') %}
+                {% if expired_raw is string %}
+                  {% set expired_list = expired_raw | from_json(default=[]) %}
+                {% else %}
+                  {% set expired_list = expired_raw | default([]) %}
+                {% endif %}
+                {% for existing in expired_list %}
                   {% if existing != _id and existing not in ns.out %}
                     {% set ns.out = ns.out + [existing] %}
                   {% endif %}
@@ -659,10 +741,24 @@ sequence:
             data: { key: "{{ _index_key }}" }
             response_variable: _idx_cancel_mode
           - variables:
-              _IDX_CANCEL_MODE: "{{ (_idx_cancel_mode.value | default('[]')) | from_json(default=[]) if _idx_cancel_mode.status == 'ok' else [] }}"
+              _IDX_CANCEL_MODE: >
+                {% set idx_raw = _idx_cancel_mode.value if _idx_cancel_mode.status == 'ok' else [] %}
+                {% if idx_raw is string %}
+                  {{ idx_raw }}
+                {% elif idx_raw is sequence %}
+                  {{ idx_raw | to_json }}
+                {% else %}
+                  {{ [] | to_json }}
+                {% endif %}
               _IDX3: >
                 {% set ns = namespace(out=[]) %}
-                {% for existing in _IDX_CANCEL_MODE %}
+                {% set cancel_mode_raw = _IDX_CANCEL_MODE | default('[]') %}
+                {% if cancel_mode_raw is string %}
+                  {% set cancel_mode = cancel_mode_raw | from_json(default=[]) %}
+                {% else %}
+                  {% set cancel_mode = cancel_mode_raw | default([]) %}
+                {% endif %}
+                {% for existing in cancel_mode %}
                   {% if existing != _id_resolved and existing not in ns.out %}
                     {% set ns.out = ns.out + [existing] %}
                   {% endif %}
@@ -821,10 +917,24 @@ sequence:
                     data: { key: "{{ _index_key }}" }
                     response_variable: _idx_resume_cancel
                   - variables:
-                      _IDX_RESUME_CURRENT: "{{ (_idx_resume_cancel.value | default('[]')) | from_json(default=[]) if _idx_resume_cancel.status == 'ok' else [] }}"
+                      _IDX_RESUME_CURRENT: >
+                        {% set idx_raw = _idx_resume_cancel.value if _idx_resume_cancel.status == 'ok' else [] %}
+                        {% if idx_raw is string %}
+                          {{ idx_raw }}
+                        {% elif idx_raw is sequence %}
+                          {{ idx_raw | to_json }}
+                        {% else %}
+                          {{ [] | to_json }}
+                        {% endif %}
                       _IDX_RESUME2: >
                         {% set ns = namespace(out=[]) %}
-                        {% for existing in _IDX_RESUME_CURRENT %}
+                        {% set resume_current_raw = _IDX_RESUME_CURRENT | default('[]') %}
+                        {% if resume_current_raw is string %}
+                          {% set resume_current = resume_current_raw | from_json(default=[]) %}
+                        {% else %}
+                          {% set resume_current = resume_current_raw | default([]) %}
+                        {% endif %}
+                        {% for existing in resume_current %}
                           {% if existing != _id_resolved and existing not in ns.out %}
                             {% set ns.out = ns.out + [existing] %}
                           {% endif %}
@@ -905,10 +1015,29 @@ sequence:
             data: { key: "{{ _index_key }}" }
             response_variable: _idx3
           - variables:
-              _IDS: "{{ (_idx3.value | default('[]')) | from_json(default=[]) if _idx3.status == 'ok' else [] }}"
+              _IDS_RAW: >
+                {% set ids_raw = _idx3.value if _idx3.status == 'ok' else [] %}
+                {% if ids_raw is string %}
+                  {{ ids_raw }}
+                {% elif ids_raw is sequence %}
+                  {{ ids_raw | to_json }}
+                {% else %}
+                  {{ [] | to_json }}
+                {% endif %}
+              _IDS_JSON: >
+                {% set ids_raw = _IDS_RAW | default('[]') %}
+                {% if ids_raw is string %}
+                  {% set parsed = ids_raw | from_json(default=[]) %}
+                {% elif ids_raw is sequence %}
+                  {% set parsed = ids_raw %}
+                {% else %}
+                  {% set parsed = [] %}
+                {% endif %}
+                {{ parsed | to_json }}
+              _IDS_COUNT: "{{ ((_IDS_JSON | from_json(default=[])) | length) }}"
               _ALIVE: "[]"
           - repeat:
-              for_each: "{{ _IDS }}"
+              for_each: "{{ (_IDS_JSON | from_json(default=[])) }}"
               sequence:
                 - action: pyscript.memory_cache_get
                   data: { key: "{{ _prefix }}{{ repeat.item }}" }
@@ -961,7 +1090,14 @@ sequence:
                   {% endif %}
                 {% endfor %}
                 {{ (ns.items | sort(attribute='created_at') | reverse | list) | to_json }}
-              _count: "{{ (((_ACTIVE_LIST | default('[]')) | from_json(default=[])) | count) }}"
+              _ACTIVE_LIST_JSON: >
+                {% set list_raw = _ACTIVE_LIST | default('[]') %}
+                {% if list_raw is string %}
+                  {{ list_raw }}
+                {% else %}
+                  {{ list_raw | to_json }}
+                {% endif %}
+              _count: "{{ (((_ACTIVE_LIST_JSON | from_json(default=[])) | length) if _ACTIVE_LIST_JSON is string else (_ACTIVE_LIST_JSON | length)) }}"
           - variables:
               _summary: >
                 {% if _count == 0 %}
@@ -974,7 +1110,7 @@ sequence:
                   dict(
                     count=_count | int,
                     entity_filter=_filter,
-                    timers=(((_ACTIVE_LIST | default('[]')) | from_json(default=[]))),
+                    timers=(((_ACTIVE_LIST_JSON | default('[]')) | from_json(default=[]))),
                     summary=_summary
                   )
                 }}

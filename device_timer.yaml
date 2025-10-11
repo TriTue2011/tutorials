@@ -1,76 +1,107 @@
 blueprint:
   name: Device Timer Plus
   author: luuquangvu
-  description: >
-    Multi-timer using per-key cache via Pyscript.
-    Modes: start / cancel / extend / pause / resume / list.
-    - Each timer is stored under its own key: voice_timer:<id> (with individual TTL = remaining + buffer)
-    - Index of all timer IDs: voice_timer_index (auto-compacted on start/list)
+  description: >-
+    # Voice-assistant friendly multi-device timer controller
+
+    - Manages per-entity timers with caching and deduplication.
+
+    - Supports start / cancel / extend / pause / resume / list modes.
+
+    - Each timer is stored under its own key: voice_timer:<id> (TTL = remaining + buffer).
+
+    - Maintains a global index: voice_timer_index (auto-compacted on start/list).
+
     - De-duplication: cancel_existing | reuse_existing | error | none; match by: entity | actions | both
+
+    ## Blueprint Setup
+
+    ### Note
+
+    * This blueprint is a dependency for the `device_timer_full_llm.yaml` blueprint.
+
+    * The mentioned dependency file(s) is/are included in the repository.
+
+    * Do not alter the default script name.
   domain: script
   homeassistant:
     min_version: 2024.10.0
   input:
-    dedupe_mode:
-      name: Dedupe mode
-      description: How to handle duplicate timers with the same identification (cancel_existing | reuse_existing | error | none)
-      default: cancel_existing
-      selector:
-        select:
-          options: [cancel_existing, reuse_existing, error, none]
-    dedupe_match:
-      name: Dedupe match by
-      description: What to compare when checking for duplicates (entity | actions | both)
-      default: both
-      selector:
-        select:
-          options: [entity, actions, both]
-    registry_index_key:
-      name: Index Key
-      description: Cache key used to store the timer index (list of timer IDs)
-      default: voice_timer_index
-      selector:
-        text:
-    registry_timer_prefix:
-      name: Timer Key Prefix
-      description: Cache key prefix for individual timers (one per timer)
-      default: "voice_timer:"
-      selector:
-        text:
-    ttl_buffer_seconds:
-      name: TTL buffer (seconds)
-      description: Extra seconds appended to each timer's remaining duration when storing in cache
-      default: 60
-      selector:
-        number:
-          min: 60
-          max: 3600
-          unit_of_measurement: s
-          mode: box
+    advanced_settings:
+      name: Advanced settings
+      icon: mdi:tools
+      description: Configure optional global parameters (timer limits, dedupe behavior, cache keys, TTL buffer).
+      collapsed: true
+      input:
+        simultaneous:
+          name: Maximum simultaneous timers
+          description: Highest number of timers allowed to run in parallel.
+          selector:
+            number:
+              min: 20
+              max: 200
+          default: 100
+        dedupe_mode:
+          name: Duplicate handling mode
+          description: Controls behavior when a matching timer already exists (cancel_existing | reuse_existing | error | none)
+          default: cancel_existing
+          selector:
+            select:
+              options: [cancel_existing, reuse_existing, error, none]
+        dedupe_match:
+          name: Duplicate match criteria
+          description: Attributes used to determine duplicates (entity | actions | both)
+          default: both
+          selector:
+            select:
+              options: [entity, actions, both]
+        registry_index_key:
+          name: Cache index key
+          description: Cache key that stores the full list of timer IDs
+          default: voice_timer_index
+          selector:
+            text:
+        registry_timer_prefix:
+          name: Per-timer cache key prefix
+          description: Prefix prepended to each individual timer key in cache
+          default: "voice_timer:"
+          selector:
+            text:
+        ttl_buffer_seconds:
+          name: TTL buffer (seconds)
+          description: Seconds added to each timer's remaining duration when writing to cache
+          default: 120
+          selector:
+            number:
+              min: 60
+              max: 3600
+              unit_of_measurement: s
+              mode: box
 
 mode: parallel
-max: 200
+max: !input simultaneous
+max_exceeded: silent
 
 fields:
   mode:
-    name: Mode
+    name: Operation mode
     required: true
     selector:
       select:
         options: [start, cancel, extend, pause, resume, list]
-    description: Choose the operation to run for this invocation
+    description: Required. Choose which action this script call should perform
   timer_id:
     name: Timer ID
-    description: Optional. Provide when referencing an existing timer (leave blank on start to auto-generate)
+    description: Optional. Supply when acting on an existing timer (auto-generated during start if omitted)
     selector:
       text:
   target_entity:
-    name: Target Entity
-    description: Optional. Used by start/extend/pause/resume/cancel for identification and de-duplication
+    name: Target entity_id
+    description: Optional. Used by start/extend/pause/resume/cancel to identify and deduplicate timers
     selector:
       text:
   duration_seconds:
-    name: Duration (seconds) on START
+    name: Timer duration (START)
     description: Required when mode = start; ignored for other modes
     selector:
       number:
@@ -79,13 +110,13 @@ fields:
         unit_of_measurement: s
         mode: box
   expire_actions:
-    name: Actions on expire
-    description: Optional. Only used when mode = start (stored so resume can execute them later; referenced by resume)
+    name: Expire actions (START)
+    description: Optional. Only used when mode = start; executed on completion and reused by resume
     selector:
       action: {}
   extend_seconds:
-    name: Seconds to extend (EXTEND)
-    description: Required when mode = extend; adds this many seconds to the timer
+    name: Additional seconds (EXTEND)
+    description: Required when mode = extend; number of seconds to add to the timer
     selector:
       number:
         min: 1
@@ -93,8 +124,8 @@ fields:
         unit_of_measurement: s
         mode: box
   list_entity_filter:
-    name: Filter list by entity (optional)
-    description: Optional. Only used when mode = list; filters results by entity_id
+    name: Entity filter (LIST)
+    description: Optional. Only used when mode = list; limits results to a specific entity_id
     selector:
       text:
 

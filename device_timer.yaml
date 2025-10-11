@@ -382,7 +382,7 @@ sequence:
                             message="reuse_existing: timer already active for " ~ (_entity_norm | default('unknown entity', true))
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
 
               # C) error - abort the new timer
@@ -400,7 +400,7 @@ sequence:
                             message="duplicate timer (" ~ (_dedupe_match | default('unknown', true)) ~ ") - aborting"
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
 
           - action: pyscript.memory_cache_get
@@ -451,7 +451,7 @@ sequence:
                             requested_duration=_dur
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - variables:
               _id: >-
@@ -554,7 +554,7 @@ sequence:
                             message="timer " ~ (_id | default('unknown', true)) ~ " paused via signal"
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
               - conditions: "{{ _wait_is_event }}"
                 sequence:
@@ -606,7 +606,7 @@ sequence:
                             message="timer " ~ (_id | default('unknown', true)) ~ " stopped via signal (reason: " ~ (_wait_reason | default('cancel', true)) ~ ")"
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
 
           # Expired: run action (if any) + mark expired + remove from index
@@ -668,7 +668,7 @@ sequence:
                     actions=_item.actions | default([])
                   )
                 }}
-          - stop: "{{ _stop_result }}"
+          - stop: ""
             response_variable: _stop_result
 
       #######################################################################
@@ -700,7 +700,7 @@ sequence:
                             entity=_entity_norm
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - action: pyscript.memory_cache_get
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
@@ -770,7 +770,7 @@ sequence:
                     seconds_remaining=_cancel_remaining
                   )
                 }}
-          - stop: "{{ _stop_result }}"
+          - stop: ""
             response_variable: _stop_result
 
       #######################################################################
@@ -802,7 +802,7 @@ sequence:
                             entity=_entity_norm
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - action: pyscript.memory_cache_get
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
@@ -823,7 +823,7 @@ sequence:
                             entity=_entity_norm
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - variables:
               _T: "{{ _tres_data }}"
@@ -864,7 +864,7 @@ sequence:
                     new_remaining_seconds=_new_remaining
                   )
                 }}
-          - stop: "{{ _stop_result }}"
+          - stop: ""
             response_variable: _stop_result
 
       #######################################################################
@@ -896,7 +896,7 @@ sequence:
                             entity=_entity_norm
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - action: pyscript.memory_cache_get
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
@@ -917,7 +917,7 @@ sequence:
                             entity=_entity_norm
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - variables:
               _T: "{{ _tres_data }}"
@@ -943,7 +943,7 @@ sequence:
                     remaining_seconds=_remain2
                   )
                 }}
-          - stop: "{{ _stop_result }}"
+          - stop: ""
             response_variable: _stop_result
 
       #######################################################################
@@ -975,7 +975,7 @@ sequence:
                             entity=_entity_norm
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - action: pyscript.memory_cache_get
             data: { key: "{{ _prefix }}{{ _id_resolved }}" }
@@ -997,7 +997,7 @@ sequence:
                             entity=_entity_norm
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           - variables:
               _T: "{{ _tres_data }}"
@@ -1038,7 +1038,7 @@ sequence:
                             message="resume paused by signal for timer " ~ (_id_resolved | default('unknown', true))
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
               - conditions: "{{ wait.trigger and wait.trigger.trigger == 'event' }}"
                 sequence:
@@ -1096,7 +1096,7 @@ sequence:
                             message="resume canceled for timer " ~ (_id_resolved | default('unknown', true)) ~ " (reason: " ~ (wait.trigger.event.data.reason | default('cancel', true)) ~ ")"
                           )
                         }}
-                  - stop: "{{ _stop_result }}"
+                  - stop: ""
                     response_variable: _stop_result
           # Expired on resume - run stored action
           - variables:
@@ -1155,7 +1155,7 @@ sequence:
                     actions_executed=_resume_actions | default([])
                   )
                 }}
-          - stop: "{{ _stop_result }}"
+          - stop: ""
             response_variable: _stop_result
 
       #######################################################################
@@ -1240,5 +1240,5 @@ sequence:
                     timers=(_ACTIVE_LIST if _ACTIVE_LIST is sequence else [])
                   )
                 }}
-          - stop: "{{ _stop_result }}"
+          - stop: ""
             response_variable: _stop_result

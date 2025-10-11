@@ -11,36 +11,35 @@ blueprint:
   homeassistant:
     min_version: 2024.10.0
   input:
-    # De-duplication
     dedupe_mode:
       name: Dedupe mode
-      description: cancel_existing | reuse_existing | error | none
+      description: How to handle duplicate timers with the same identification (cancel_existing | reuse_existing | error | none)
       default: cancel_existing
       selector:
         select:
           options: [cancel_existing, reuse_existing, error, none]
     dedupe_match:
       name: Dedupe match by
-      description: entity | actions | both
+      description: What to compare when checking for duplicates (entity | actions | both)
       default: both
       selector:
         select:
           options: [entity, actions, both]
-
-    # Registry keys & TTL
     registry_index_key:
       name: Index Key
+      description: Cache key used to store the timer index (list of timer IDs)
       default: voice_timer_index
       selector:
         text:
     registry_timer_prefix:
       name: Timer Key Prefix
+      description: Cache key prefix for individual timers (one per timer)
       default: "voice_timer:"
       selector:
         text:
     ttl_buffer_seconds:
       name: TTL buffer (seconds)
-      description: Added to remaining when setting per-timer TTL
+      description: Extra seconds appended to each timer's remaining duration when storing in cache
       default: 60
       selector:
         number:
@@ -59,22 +58,20 @@ fields:
     selector:
       select:
         options: [start, cancel, extend, pause, resume, list]
-
-  # Identification
+    description: Choose the operation to run for this invocation
   timer_id:
     name: Timer ID
-    description: Leave empty on start to auto-generate from entity_id + timestamp
+    description: Optional. Provide when referencing an existing timer (leave blank on start to auto-generate)
     selector:
       text:
   target_entity:
     name: Target Entity
-    description: Device entity_id used for identification and de-duplication
+    description: Optional. Used by start/extend/pause/resume/cancel for identification and de-duplication
     selector:
       text:
-
-  # Start
   duration_seconds:
     name: Duration (seconds) on START
+    description: Required when mode = start; ignored for other modes
     selector:
       number:
         min: 1
@@ -83,23 +80,21 @@ fields:
         mode: box
   expire_actions:
     name: Actions on expire
-    description: Runs when timer completes (stored for resume after pause)
+    description: Optional. Only used when mode = start (stored so resume can execute them later; referenced by resume)
     selector:
       action: {}
-
-  # Extend / Pause / Resume
   extend_seconds:
     name: Seconds to extend (EXTEND)
+    description: Required when mode = extend; adds this many seconds to the timer
     selector:
       number:
         min: 1
         max: 604800
         unit_of_measurement: s
         mode: box
-
-    # List
   list_entity_filter:
     name: Filter list by entity (optional)
+    description: Optional. Only used when mode = list; filters results by entity_id
     selector:
       text:
 
@@ -1159,7 +1154,7 @@ sequence:
             response_variable: _stop_result
 
       #######################################################################
-      # LIST (LLM-friendly payload)
+      # LIST
       #######################################################################
       - conditions: "{{ _mode == 'list' }}"
         sequence:

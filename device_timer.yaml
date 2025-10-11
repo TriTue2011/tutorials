@@ -984,9 +984,9 @@ sequence:
                 {{
                   dict(
                     count=_count | int,
+                    summary=_summary,
                     entity_filter=_filter,
-                    timers=(_ACTIVE_LIST if _ACTIVE_LIST is sequence else []),
-                    summary=_summary
+                    timers=(_ACTIVE_LIST if _ACTIVE_LIST is sequence else [])
                   )
                 }}
           - stop: ""

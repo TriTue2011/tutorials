@@ -1,4 +1,5 @@
 import asyncio
+import json
 import sqlite3
 import threading
 import time
@@ -186,8 +187,9 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
             "error": "Missing a required argument: key",
         }
     try:
-        value = await _cache_get(key)
-        if value:
+        raw_value = await _cache_get(key)
+        if raw_value:
+            value = json.loads(raw_value)
             return {
                 "status": "ok",
                 "op": "get",
@@ -249,7 +251,7 @@ async def memory_cache_forget(key: str) -> dict[str, Any]:
 @service(supports_response="only")
 async def memory_cache_set(
     key: str,
-    value: str,
+    value: Any,
     ttl_seconds: int | None = None,
 ) -> dict[str, Any]:
     """
@@ -265,7 +267,7 @@ async def memory_cache_set(
           text:
       value:
         name: Value
-        description: Value to cache for the provided key.
+        description: JSON-serializable value to cache for the provided key (string, number, list, dict, etc.).
         required: true
         selector:
           text:
@@ -279,7 +281,7 @@ async def memory_cache_set(
             mode: box
     """
     ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else TTL
-    stored_value = str(value)
+    stored_value = json.dumps(value, ensure_ascii=False)
     try:
         success = await _cache_set(key, stored_value, ttl)
         if not success:
@@ -287,14 +289,14 @@ async def memory_cache_set(
                 "status": "error",
                 "op": "set",
                 "key": key,
-                "value": stored_value,
+                "value": value,
                 "error": "cache_set returned False",
             }
         return {
             "status": "ok",
             "op": "set",
             "key": key,
-            "value": stored_value,
+            "value": value,
             "ttl": ttl,
         }
     except Exception as error:

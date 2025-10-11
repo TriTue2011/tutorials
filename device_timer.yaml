@@ -1231,7 +1231,7 @@ sequence:
                 {% else %}
                   {{ "There " ~ ("is" if _count==1 else "are") ~ " " ~ _count ~ " active timer" ~ ("" if _count==1 else "s") ~ "." }}
                 {% endif %}
-              _payload: >
+              _stop_result: >
                 {{
                   dict(
                     count=_count | int,
@@ -1240,5 +1240,5 @@ sequence:
                     timers=(_ACTIVE_LIST if _ACTIVE_LIST is sequence else [])
                   )
                 }}
-          - stop: ""
-            response_variable: _payload
+          - stop: "{{ _stop_result }}"
+            response_variable: _stop_result

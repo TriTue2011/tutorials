@@ -504,50 +504,50 @@ sequence:
               _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
               _wait_reason: "{{ wait.trigger.event.data.reason | default('cancel') if wait.trigger is not none and wait.trigger.platform == 'event' else '' }}"
 
-      # React to external signals
-      - choose:
-          - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
-            sequence:
-              - stop: "paused_wait"
-          - conditions: "{{ _wait_is_event }}"
-            sequence:
-              # Remove from index
-              - action: pyscript.memory_cache_get
-                data: { key: "{{ _index_key }}" }
-                response_variable: _idx_cancel_event
-              - variables:
-                  _IDX_CANCEL_EVENT: >
-                    {% set idx_raw = _idx_cancel_event.value if _idx_cancel_event.status == 'ok' else [] %}
-                    {% if idx_raw is sequence %}
-                      {{ idx_raw }}
-                    {% else %}
-                      {{ [] }}
-                    {% endif %}
-                  _IDX5: >
-                    {% set ns = namespace(out=[]) %}
-                    {% set cancel_list = _IDX_CANCEL_EVENT if _IDX_CANCEL_EVENT is sequence else [] %}
-                    {% for existing in cancel_list %}
-                      {% if existing != _id and existing not in ns.out %}
-                        {% set ns.out = ns.out + [existing] %}
-                      {% endif %}
-                    {% endfor %}
-                    {{ ns.out }}
-                  _IDX_ALIVE: "{{ _IDX5 if _IDX5 is sequence else [] }}"
-              - action: pyscript.memory_cache_set
-                data:
-                  key: "{{ _index_key }}"
-                  value: "{{ _IDX5 if _IDX5 is sequence else [] }}"
-                  ttl_seconds: 2592000
-                response_variable: cache_set_index
-              # Mark canceled + short TTL
-              - action: pyscript.memory_cache_set
-                data:
-                  key: "{{ _prefix }}{{ _id }}"
-                  value: >
-                    {{ dict(_item, **{'status':'canceled','canceled_at': now().isoformat()}) }}
-                  ttl_seconds: "{{ _buf|int }}"
-                response_variable: cache_set_timer_id
-              - stop: "canceled_wait"
+          # React to external signals
+          - choose:
+              - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
+                sequence:
+                  - stop: "paused_wait"
+              - conditions: "{{ _wait_is_event }}"
+                sequence:
+                  # Remove from index
+                  - action: pyscript.memory_cache_get
+                    data: { key: "{{ _index_key }}" }
+                    response_variable: _idx_cancel_event
+                  - variables:
+                      _IDX_CANCEL_EVENT: >
+                        {% set idx_raw = _idx_cancel_event.value if _idx_cancel_event.status == 'ok' else [] %}
+                        {% if idx_raw is sequence %}
+                          {{ idx_raw }}
+                        {% else %}
+                          {{ [] }}
+                        {% endif %}
+                      _IDX5: >
+                        {% set ns = namespace(out=[]) %}
+                        {% set cancel_list = _IDX_CANCEL_EVENT if _IDX_CANCEL_EVENT is sequence else [] %}
+                        {% for existing in cancel_list %}
+                          {% if existing != _id and existing not in ns.out %}
+                            {% set ns.out = ns.out + [existing] %}
+                          {% endif %}
+                        {% endfor %}
+                        {{ ns.out }}
+                      _IDX_ALIVE: "{{ _IDX5 if _IDX5 is sequence else [] }}"
+                  - action: pyscript.memory_cache_set
+                    data:
+                      key: "{{ _index_key }}"
+                      value: "{{ _IDX5 if _IDX5 is sequence else [] }}"
+                      ttl_seconds: 2592000
+                    response_variable: cache_set_index
+                  # Mark canceled + short TTL
+                  - action: pyscript.memory_cache_set
+                    data:
+                      key: "{{ _prefix }}{{ _id }}"
+                      value: >
+                        {{ dict(_item, **{'status':'canceled','canceled_at': now().isoformat()}) }}
+                      ttl_seconds: "{{ _buf|int }}"
+                    response_variable: cache_set_timer_id
+                  - stop: "canceled_wait"
 
           # Expired: run action (if any) + mark expired + remove from index
       - variables:
@@ -873,39 +873,39 @@ sequence:
                         - action: "{{ repeat.item.action }}"
                           target: "{{ repeat.item.target | default({}) }}"
                           data: "{{ repeat.item.data | default({}) }}"
-      - action: pyscript.memory_cache_set
-        data:
-          key: "{{ _prefix }}{{ _id_resolved }}"
-          value: >
-            {{ dict(_T, **{'status':'expired','expired_at': now().isoformat(),'end': _new_end_iso,'remaining':0}) }}
-          ttl_seconds: "{{ _buf|int }}"
-        response_variable: cache_set_timer_id
-      # Remove from index
-      - action: pyscript.memory_cache_get
-        data: { key: "{{ _index_key }}" }
-        response_variable: _idx2
-      - variables:
-          __IDX: >
-            {% set idx_raw = _idx2.value if _idx2.status == 'ok' else [] %}
-            {% if idx_raw is sequence %}
-              {{ idx_raw }}
-            {% else %}
-              {{ [] }}
-            {% endif %}
-          __IDX2: >
-            {% set ids = [] %}
-            {% for existing in __IDX %}
-              {% if existing != _id_resolved %}
-                {% set ids = ids + [existing] %}
-              {% endif %}
-            {% endfor %}
-            {{ ids }}
-      - action: pyscript.memory_cache_set
-        data:
-          key: "{{ _index_key }}"
-          value: "{{ __IDX2 if __IDX2 is sequence else [] }}"
-          ttl_seconds: 2592000
-        response_variable: cache_set_index
+          - action: pyscript.memory_cache_set
+            data:
+              key: "{{ _prefix }}{{ _id_resolved }}"
+              value: >
+                {{ dict(_T, **{'status':'expired','expired_at': now().isoformat(),'end': _new_end_iso,'remaining':0}) }}
+              ttl_seconds: "{{ _buf|int }}"
+            response_variable: cache_set_timer_id
+          # Remove from index
+          - action: pyscript.memory_cache_get
+            data: { key: "{{ _index_key }}" }
+            response_variable: _idx2
+          - variables:
+              __IDX: >
+                {% set idx_raw = _idx2.value if _idx2.status == 'ok' else [] %}
+                {% if idx_raw is sequence %}
+                  {{ idx_raw }}
+                {% else %}
+                  {{ [] }}
+                {% endif %}
+              __IDX2: >
+                {% set ids = [] %}
+                {% for existing in __IDX %}
+                  {% if existing != _id_resolved %}
+                    {% set ids = ids + [existing] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ids }}
+          - action: pyscript.memory_cache_set
+            data:
+              key: "{{ _index_key }}"
+              value: "{{ __IDX2 if __IDX2 is sequence else [] }}"
+              ttl_seconds: 2592000
+            response_variable: cache_set_index
 
       #######################################################################
       # LIST (LLM-friendly payload)

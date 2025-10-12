@@ -56,11 +56,6 @@ max_exceeded: silent
 triggers:
   - trigger: homeassistant
     event: start
-  - trigger: event
-    event_type: call_service
-    event_data:
-      domain: script
-      service: reload
 
 conditions: []
 

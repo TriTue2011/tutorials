@@ -141,52 +141,52 @@ actions:
                                       timer_id: "{{ repeat.item }}"
                                       target_entity: "{{ _timer_data.entity_id | default('') }}"
 
-                    - default:
-                        - variables:
-                            _actions_list: >
-                              {% set raw = _timer_data.actions | default([]) %}
-                              {% if raw is sequence %}
-                                {{ raw }}
-                              {% else %}
-                                {{ [] }}
-                              {% endif %}
+                  default:
+                    - variables:
+                        _actions_list: >
+                          {% set raw = _timer_data.actions | default([]) %}
+                          {% if raw is sequence %}
+                            {{ raw }}
+                          {% else %}
+                            {{ [] }}
+                          {% endif %}
 
-                        - choose:
-                            - conditions: "{{ _actions_list | count > 0 }}"
-                              sequence:
-                                - repeat:
-                                    for_each: "{{ _actions_list }}"
-                                    sequence:
-                                      - choose:
-                                          - conditions: "{{ repeat.item.action is defined and repeat.item.action | string | length > 0 }}"
-                                            sequence:
-                                              - service: "{{ repeat.item.action }}"
-                                                target: "{{ repeat.item.target | default({}) }}"
-                                                data: "{{ repeat.item.data | default({}) }}"
+                    - choose:
+                        - conditions: "{{ _actions_list | count > 0 }}"
+                          sequence:
+                            - repeat:
+                                for_each: "{{ _actions_list }}"
+                                sequence:
+                                  - choose:
+                                      - conditions: "{{ repeat.item.action is defined and repeat.item.action | string | length > 0 }}"
+                                        sequence:
+                                          - service: "{{ repeat.item.action }}"
+                                            target: "{{ repeat.item.target | default({}) }}"
+                                            data: "{{ repeat.item.data | default({}) }}"
 
-                        - variables:
-                            _expired_payload: >
-                              {{
-                                dict(
-                                  _timer_data,
-                                  **{
-                                    'status': 'expired',
-                                    'expired_at': now().isoformat(),
-                                    'remaining': 0
-                                  }
-                                )
-                              }}
+                    - variables:
+                        _expired_payload: >
+                          {{
+                            dict(
+                              _timer_data,
+                              **{
+                                'status': 'expired',
+                                'expired_at': now().isoformat(),
+                                'remaining': 0
+                              }
+                            )
+                          }}
 
-                        - action: pyscript.memory_cache_set
-                          data:
-                            key: "{{ _prefix }}{{ repeat.item }}"
-                            value: "{{ _expired_payload }}"
-                            ttl_seconds: "{{ _buf }}"
+                    - action: pyscript.memory_cache_set
+                      data:
+                        key: "{{ _prefix }}{{ repeat.item }}"
+                        value: "{{ _expired_payload }}"
+                        ttl_seconds: "{{ _buf }}"
 
-                        - variables:
-                            _ids_to_remove: >
-                              {% set current = _ids_to_remove if _ids_to_remove is sequence else [] %}
-                              {{ current + [repeat.item] }}
+                    - variables:
+                        _ids_to_remove: >
+                          {% set current = _ids_to_remove if _ids_to_remove is sequence else [] %}
+                          {{ current + [repeat.item] }}
 
   - variables:
       _updated_index: >

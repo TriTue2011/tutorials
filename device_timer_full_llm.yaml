@@ -53,21 +53,33 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). You may provide friendly names or entity_ids; separate multiple entries with semicolons. Leave empty when listing all timers.
+            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). Provide one or more friendly names or entity_ids and separate multiple entries with semicolons. Leave this field empty only when listing every timer.
         mode_prompt:
           name: Mode prompt
           selector:
             text:
               multiline: true
           default: >-
-            Required. Choose one of: start, cancel, extend, pause, resume, list.
+            Required. Choose exactly one mode:
+
+            - start: create a new timer for the provided device(s) and run the specified expire action when it ends.
+
+            - cancel: stop the active timer for each listed device immediately.
+
+            - extend: add the given duration to the current timer for each listed device.
+
+            - pause: freeze the running timer for each listed device, preserving remaining time.
+
+            - resume: restart a paused timer for each listed device.
+
+            - list: return active timers (leave entities blank for all, or provide a device to filter).
         action_prompt:
           name: Action prompt
           selector:
             text:
               multiline: true
           default: >-
-            Required when mode = start. Use 'turn_on' to power the device on when the timer expires, or 'turn_off' to power it off.
+            Required only when mode = start. Use 'turn_on' to run the turn on service when the timer expires, or 'turn_off' to run the turn off service. Ignore for other modes.
         duration_prompt:
           name: Duration prompt
           selector:

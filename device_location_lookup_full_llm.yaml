@@ -32,7 +32,7 @@ blueprint:
 
     * The `device_ringing_full_llm.yaml` blueprint needs to be installed.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
     * Consider adding entity aliases to make them easier to remember if needed.
 

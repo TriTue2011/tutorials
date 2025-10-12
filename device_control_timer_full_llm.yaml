@@ -10,7 +10,7 @@ blueprint:
 
     * The `device_control_tool.yaml` blueprint needs to be installed.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
     * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`.
 

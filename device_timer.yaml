@@ -648,9 +648,9 @@ sequence:
                               }}
                         - stop: ""
                           response_variable: _stop_result
-                    - default:
-                        - variables:
-                            _wait_loop_active: false
+                  default:
+                    - variables:
+                        _wait_loop_active: false
 
           # Expired: run action (if any) + mark expired + remove from index
           - variables:
@@ -1165,9 +1165,9 @@ sequence:
                               }}
                         - stop: ""
                           response_variable: _stop_result
-                    - default:
-                        - variables:
-                            _wait_loop_active: false
+                  default:
+                    - variables:
+                        _wait_loop_active: false
           # Expired on resume - run stored action
           - variables:
               _resume_actions: "{{ (_T.actions | default([])) | selectattr('action','defined') | list }}"

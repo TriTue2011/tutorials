@@ -551,89 +551,106 @@ sequence:
               ttl_seconds: 2592000
             response_variable: cache_set_index
 
-          # Wait for expire or cancel/pause signals
-          - wait_for_trigger:
-              - trigger: template
-                value_template: "{{ now() >= as_datetime(_end_iso) }}"
-              - trigger: event
-                event_type: device_timer_signal
-                event_data: { timer_id: "{{ _id }}" }
-            timeout: "{{ (as_datetime(_end_iso) - now()).total_seconds()|int + 5 }}"
-            continue_on_timeout: true
+          # Wait for expire, extend, cancel, or pause signals
           - variables:
-              _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
-              _wait_reason: "{{ wait.trigger.event.data.reason | default('cancel') if wait.trigger is not none and wait.trigger.platform == 'event' else '' }}"
-
-          # React to external signals
-          - choose:
-              - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
-                sequence:
-                  - variables:
-                      _stop_result: >
-                        {{
-                          dict(
-                            mode=_mode,
-                            status='paused_by_signal',
-                            timer_id=_id,
-                            entity=_entity_norm,
-                            signal_reason='pause',
-                            message="timer " ~ (_id | default('unknown', true)) ~ " paused via signal"
-                          )
-                        }}
-                  - stop: ""
-                    response_variable: _stop_result
-              - conditions: "{{ _wait_is_event }}"
-                sequence:
-                  # Remove from index
-                  - action: pyscript.memory_cache_get
-                    data: { key: "{{ _index_key }}" }
-                    response_variable: _idx_cancel_event
-                  - variables:
-                      _IDX_CANCEL_EVENT: >
-                        {% set idx_raw = _idx_cancel_event.value if _idx_cancel_event.status == 'ok' else [] %}
-                        {% if idx_raw is sequence %}
-                          {{ idx_raw }}
-                        {% else %}
-                          {{ [] }}
-                        {% endif %}
-                      _IDX5: >
-                        {% set ns = namespace(out=[]) %}
-                        {% set cancel_list = _IDX_CANCEL_EVENT if _IDX_CANCEL_EVENT is sequence else [] %}
-                        {% for existing in cancel_list %}
-                          {% if existing != _id and existing not in ns.out %}
-                            {% set ns.out = ns.out + [existing] %}
-                          {% endif %}
-                        {% endfor %}
-                        {{ ns.out }}
-                      _IDX_ALIVE: "{{ _IDX5 if _IDX5 is sequence else [] }}"
-                  - action: pyscript.memory_cache_set
-                    data:
-                      key: "{{ _index_key }}"
-                      value: "{{ _IDX5 if _IDX5 is sequence else [] }}"
-                      ttl_seconds: 2592000
-                    response_variable: cache_set_index
-                  # Mark canceled + short TTL
-                  - action: pyscript.memory_cache_set
-                    data:
-                      key: "{{ _prefix }}{{ _id }}"
-                      value: >
-                        {{ dict(_item, **{'status':'canceled','canceled_at': now().isoformat()}) }}
-                      ttl_seconds: "{{ _buf|int }}"
-                    response_variable: cache_set_timer_id
-                  - variables:
-                      _stop_result: >
-                        {{
-                          dict(
-                            mode=_mode,
-                            status='stopped_by_signal',
-                            timer_id=_id,
-                            entity=_entity_norm,
-                            signal_reason=_wait_reason | default('cancel', true),
-                            message="timer " ~ (_id | default('unknown', true)) ~ " stopped via signal (reason: " ~ (_wait_reason | default('cancel', true)) ~ ")"
-                          )
-                        }}
-                  - stop: ""
-                    response_variable: _stop_result
+              _wait_loop_active: true
+          - repeat:
+              while: "{{ _wait_loop_active }}"
+              sequence:
+                - wait_for_trigger:
+                    - trigger: template
+                      value_template: "{{ now() >= as_datetime(_end_iso) }}"
+                    - trigger: event
+                      event_type: device_timer_signal
+                      event_data: { timer_id: "{{ _id }}" }
+                  timeout: "{{ (as_datetime(_end_iso) - now()).total_seconds()|int + 5 }}"
+                  continue_on_timeout: true
+                - variables:
+                    _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
+                    _wait_reason: "{{ wait.trigger.event.data.reason | default('cancel') if _wait_is_event else '' }}"
+                - choose:
+                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'extend' }}"
+                      sequence:
+                        - variables:
+                            _wait_new_end: "{{ wait.trigger.event.data.new_end | default(_item.end, true) }}"
+                            _wait_new_remaining: "{{ (wait.trigger.event.data.new_remaining | default(_item.remaining, true)) | int }}"
+                            _item: >
+                              {{ dict(_item, **{'end': _wait_new_end, 'remaining': _wait_new_remaining}) }}
+                            _end_iso: "{{ _wait_new_end }}"
+                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
+                      sequence:
+                        - variables:
+                            _wait_loop_active: false
+                            _stop_result: >
+                              {{
+                                dict(
+                                  mode=_mode,
+                                  status='paused_by_signal',
+                                  timer_id=_id,
+                                  entity=_entity_norm,
+                                  signal_reason='pause',
+                                  message="timer " ~ (_id | default('unknown', true)) ~ " paused via signal"
+                                )
+                              }}
+                        - stop: ""
+                          response_variable: _stop_result
+                    - conditions: "{{ _wait_is_event }}"
+                      sequence:
+                        - variables:
+                            _wait_loop_active: false
+                        # Remove from index
+                        - action: pyscript.memory_cache_get
+                          data: { key: "{{ _index_key }}" }
+                          response_variable: _idx_cancel_event
+                        - variables:
+                            _IDX_CANCEL_EVENT: >
+                              {% set idx_raw = _idx_cancel_event.value if _idx_cancel_event.status == 'ok' else [] %}
+                              {% if idx_raw is sequence %}
+                                {{ idx_raw }}
+                              {% else %}
+                                {{ [] }}
+                              {% endif %}
+                            _IDX5: >
+                              {% set ns = namespace(out=[]) %}
+                              {% set cancel_list = _IDX_CANCEL_EVENT if _IDX_CANCEL_EVENT is sequence else [] %}
+                              {% for existing in cancel_list %}
+                                {% if existing != _id and existing not in ns.out %}
+                                  {% set ns.out = ns.out + [existing] %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ ns.out }}
+                            _IDX_ALIVE: "{{ _IDX5 if _IDX5 is sequence else [] }}"
+                        - action: pyscript.memory_cache_set
+                          data:
+                            key: "{{ _index_key }}"
+                            value: "{{ _IDX5 if _IDX5 is sequence else [] }}"
+                            ttl_seconds: 2592000
+                          response_variable: cache_set_index
+                        # Mark canceled + short TTL
+                        - action: pyscript.memory_cache_set
+                          data:
+                            key: "{{ _prefix }}{{ _id }}"
+                            value: >
+                              {{ dict(_item, **{'status':'canceled','canceled_at': now().isoformat()}) }}
+                            ttl_seconds: "{{ _buf|int }}"
+                          response_variable: cache_set_timer_id
+                        - variables:
+                            _stop_result: >
+                              {{
+                                dict(
+                                  mode=_mode,
+                                  status='stopped_by_signal',
+                                  timer_id=_id,
+                                  entity=_entity_norm,
+                                  signal_reason=_wait_reason | default('cancel', true),
+                                  message="timer " ~ (_id | default('unknown', true)) ~ " stopped via signal (reason: " ~ (_wait_reason | default('cancel', true)) ~ ")"
+                                )
+                              }}
+                        - stop: ""
+                          response_variable: _stop_result
+                    - default:
+                        - variables:
+                            _wait_loop_active: false
 
           # Expired: run action (if any) + mark expired + remove from index
           - variables:
@@ -877,6 +894,12 @@ sequence:
                 {{ dict(_T, **{'end': _new_end, 'remaining': _new_remaining}) }}
               ttl_seconds: "{{ (_new_remaining|int) + (_buf|int) }}"
             response_variable: cache_set_timer_id
+          - event: device_timer_signal
+            event_data:
+              timer_id: "{{ _id_resolved }}"
+              reason: "extend"
+              new_end: "{{ _new_end }}"
+              new_remaining: "{{ _new_remaining }}"
           - variables:
               _stop_result: >
                 {{
@@ -1041,89 +1064,110 @@ sequence:
             response_variable: cache_set_timer_id
           - variables:
               _T: "{{ _T_running }}"
-          - wait_for_trigger:
-              - trigger: template
-                value_template: "{{ now() >= as_datetime(_new_end_iso) }}"
-              - trigger: event
-                event_type: device_timer_signal
-                event_data: { timer_id: "{{ _id_resolved }}" }
-            timeout: "{{ (as_datetime(_new_end_iso) - now()).total_seconds()|int + 5 }}"
-            continue_on_timeout: true
-          - choose:
-              - conditions: "{{ wait.trigger and wait.trigger.trigger == 'event' and (wait.trigger.event.data.reason | default('cancel') | lower) == 'pause' }}"
-                sequence:
-                  - variables:
-                      _stop_result: >
-                        {{
-                          dict(
-                            mode='resume',
-                            status='paused_by_signal',
-                            timer_id=_id_resolved,
-                            entity=_entity_norm,
-                            signal_reason=wait.trigger.event.data.reason | default('pause', true),
-                            message="resume paused by signal for timer " ~ (_id_resolved | default('unknown', true))
-                          )
-                        }}
-                  - stop: ""
-                    response_variable: _stop_result
-              - conditions: "{{ wait.trigger and wait.trigger.trigger == 'event' }}"
-                sequence:
-                  - variables:
-                      _IDX_RESUME: "{{ _IDX_ALIVE }}"
-                  - action: pyscript.memory_cache_get
-                    data: { key: "{{ _index_key }}" }
-                    response_variable: _idx_resume_cancel
-                  - variables:
-                      _IDX_RESUME_CURRENT: >
-                        {% set idx_raw = _idx_resume_cancel.value if _idx_resume_cancel.status == 'ok' else [] %}
-                        {% if idx_raw is sequence %}
-                          {{ idx_raw }}
-                        {% else %}
-                          {{ [] }}
-                        {% endif %}
-                      _IDX_RESUME2: >
-                        {% set ns = namespace(out=[]) %}
-                        {% set resume_current = _IDX_RESUME_CURRENT if _IDX_RESUME_CURRENT is sequence else [] %}
-                        {% for existing in resume_current %}
-                          {% if existing != _id_resolved and existing not in ns.out %}
-                            {% set ns.out = ns.out + [existing] %}
-                          {% endif %}
-                        {% endfor %}
-                        {% set resume = _IDX_RESUME if _IDX_RESUME is sequence else [] %}
-                        {% for existing in resume %}
-                          {% if existing != _id_resolved and existing not in ns.out %}
-                            {% set ns.out = ns.out + [existing] %}
-                          {% endif %}
-                        {% endfor %}
-                        {{ ns.out }}
-                      _IDX_ALIVE: "{{ _IDX_RESUME2 if _IDX_RESUME2 is sequence else [] }}"
-                  - action: pyscript.memory_cache_set
-                    data:
-                      key: "{{ _index_key }}"
-                      value: "{{ _IDX_RESUME2 if _IDX_RESUME2 is sequence else [] }}"
-                      ttl_seconds: 2592000
-                    response_variable: cache_set_index
-                  - action: pyscript.memory_cache_set
-                    data:
-                      key: "{{ _prefix }}{{ _id_resolved }}"
-                      value: >
-                        {{ dict(_T, **{'status':'canceled','canceled_at': now().isoformat(),'remaining':0}) }}
-                      ttl_seconds: "{{ _buf|int }}"
-                    response_variable: cache_set_timer_id
-                  - variables:
-                      _stop_result: >
-                        {{
-                          dict(
-                            mode='resume',
-                            status='canceled_by_signal',
-                            timer_id=_id_resolved,
-                            entity=_entity_norm,
-                            signal_reason=wait.trigger.event.data.reason | default('cancel', true),
-                            message="resume canceled for timer " ~ (_id_resolved | default('unknown', true)) ~ " (reason: " ~ (wait.trigger.event.data.reason | default('cancel', true)) ~ ")"
-                          )
-                        }}
-                  - stop: ""
-                    response_variable: _stop_result
+              _current_end_iso: "{{ _new_end_iso }}"
+              _wait_loop_active: true
+          - repeat:
+              while: "{{ _wait_loop_active }}"
+              sequence:
+                - wait_for_trigger:
+                    - trigger: template
+                      value_template: "{{ now() >= as_datetime(_current_end_iso) }}"
+                    - trigger: event
+                      event_type: device_timer_signal
+                      event_data: { timer_id: "{{ _id_resolved }}" }
+                  timeout: "{{ (as_datetime(_current_end_iso) - now()).total_seconds()|int + 5 }}"
+                  continue_on_timeout: true
+                - variables:
+                    _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
+                    _wait_reason: "{{ wait.trigger.event.data.reason | default('cancel') if _wait_is_event else '' }}"
+                - choose:
+                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'extend' }}"
+                      sequence:
+                        - variables:
+                            _wait_new_end: "{{ wait.trigger.event.data.new_end | default(_T.end, true) }}"
+                            _wait_new_remaining: "{{ (wait.trigger.event.data.new_remaining | default(_T.remaining, true)) | int }}"
+                            _T: >
+                              {{ dict(_T, **{'end': _wait_new_end, 'remaining': _wait_new_remaining}) }}
+                            _current_end_iso: "{{ _wait_new_end }}"
+                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
+                      sequence:
+                        - variables:
+                            _wait_loop_active: false
+                            _stop_result: >
+                              {{
+                                dict(
+                                  mode='resume',
+                                  status='paused_by_signal',
+                                  timer_id=_id_resolved,
+                                  entity=_entity_norm,
+                                  signal_reason='pause',
+                                  message="resume paused by signal for timer " ~ (_id_resolved | default('unknown', true))
+                                )
+                              }}
+                        - stop: ""
+                          response_variable: _stop_result
+                    - conditions: "{{ _wait_is_event }}"
+                      sequence:
+                        - variables:
+                            _wait_loop_active: false
+                            _IDX_RESUME: "{{ _IDX_ALIVE }}"
+                        - action: pyscript.memory_cache_get
+                          data: { key: "{{ _index_key }}" }
+                          response_variable: _idx_resume_cancel
+                        - variables:
+                            _IDX_RESUME_CURRENT: >
+                              {% set idx_raw = _idx_resume_cancel.value if _idx_resume_cancel.status == 'ok' else [] %}
+                              {% if idx_raw is sequence %}
+                                {{ idx_raw }}
+                              {% else %}
+                                {{ [] }}
+                              {% endif %}
+                            _IDX_RESUME2: >
+                              {% set ns = namespace(out=[]) %}
+                              {% set resume_current = _IDX_RESUME_CURRENT if _IDX_RESUME_CURRENT is sequence else [] %}
+                              {% for existing in resume_current %}
+                                {% if existing != _id_resolved and existing not in ns.out %}
+                                  {% set ns.out = ns.out + [existing] %}
+                                {% endif %}
+                              {% endfor %}
+                              {% set resume = _IDX_RESUME if _IDX_RESUME is sequence else [] %}
+                              {% for existing in resume %}
+                                {% if existing != _id_resolved and existing not in ns.out %}
+                                  {% set ns.out = ns.out + [existing] %}
+                                {% endif %}
+                              {% endfor %}
+                              {{ ns.out }}
+                            _IDX_ALIVE: "{{ _IDX_RESUME2 if _IDX_RESUME2 is sequence else [] }}"
+                        - action: pyscript.memory_cache_set
+                          data:
+                            key: "{{ _index_key }}"
+                            value: "{{ _IDX_RESUME2 if _IDX_RESUME2 is sequence else [] }}"
+                            ttl_seconds: 2592000
+                          response_variable: cache_set_index
+                        - action: pyscript.memory_cache_set
+                          data:
+                            key: "{{ _prefix }}{{ _id_resolved }}"
+                            value: >
+                              {{ dict(_T, **{'status':'canceled','canceled_at': now().isoformat(),'remaining':0}) }}
+                            ttl_seconds: "{{ _buf|int }}"
+                          response_variable: cache_set_timer_id
+                        - variables:
+                            _stop_result: >
+                              {{
+                                dict(
+                                  mode='resume',
+                                  status='canceled_by_signal',
+                                  timer_id=_id_resolved,
+                                  entity=_entity_norm,
+                                  signal_reason=wait.trigger.event.data.reason | default('cancel', true),
+                                  message="resume canceled for timer " ~ (_id_resolved | default('unknown', true)) ~ " (reason: " ~ (wait.trigger.event.data.reason | default('cancel', true)) ~ ")"
+                                )
+                              }}
+                        - stop: ""
+                          response_variable: _stop_result
+                    - default:
+                        - variables:
+                            _wait_loop_active: false
           # Expired on resume - run stored action
           - variables:
               _resume_actions: "{{ (_T.actions | default([])) | selectattr('action','defined') | list }}"
@@ -1140,7 +1184,7 @@ sequence:
             data:
               key: "{{ _prefix }}{{ _id_resolved }}"
               value: >
-                {{ dict(_T, **{'status':'expired','expired_at': now().isoformat(),'end': _new_end_iso,'remaining':0}) }}
+                {{ dict(_T, **{'status':'expired','expired_at': now().isoformat(),'end': _current_end_iso,'remaining':0}) }}
               ttl_seconds: "{{ _buf|int }}"
             response_variable: cache_set_timer_id
           # Remove from index

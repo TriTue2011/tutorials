@@ -272,10 +272,9 @@ sequence:
               sequence:
                 - service: "{{ _timer_script }}"
                   data:
-                    variables:
-                      mode: extend
-                      target_entity: "{{ repeat.item }}"
-                      extend_seconds: "{{ _duration_seconds }}"
+                    mode: extend
+                    target_entity: "{{ repeat.item }}"
+                    extend_seconds: "{{ _duration_seconds }}"
                   response_variable: _call_result
                 - variables:
                     _responses: "{{ (_responses | default([])) + [_call_result] }}"
@@ -296,9 +295,8 @@ sequence:
               sequence:
                 - service: "{{ _timer_script }}"
                   data:
-                    variables:
-                      mode: "{{ _mode }}"
-                      target_entity: "{{ repeat.item }}"
+                    mode: "{{ _mode }}"
+                    target_entity: "{{ repeat.item }}"
                   response_variable: _call_result
                 - variables:
                     _responses: "{{ (_responses | default([])) + [_call_result] }}"
@@ -321,17 +319,15 @@ sequence:
                       sequence:
                         - service: "{{ _timer_script }}"
                           data:
-                            variables:
-                              mode: list
-                              list_entity_filter: "{{ repeat.item }}"
+                            mode: list
+                            list_entity_filter: "{{ repeat.item }}"
                           response_variable: _call_result
                         - variables:
                             _responses: "{{ (_responses | default([])) + [_call_result] }}"
             default:
               - service: "{{ _timer_script }}"
                 data:
-                  variables:
-                    mode: list
+                  mode: list
                 response_variable: _call_result
               - variables:
                   _responses: "{{ [_call_result] }}"

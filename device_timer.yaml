@@ -420,8 +420,8 @@ sequence:
                           dict(
                             mode='start',
                             status='error',
-                            reason='duplicate_timer',
                             entity=_entity_norm,
+                            reason='duplicate_timer',
                             match_policy=_dedupe_match,
                             message="duplicate timer (" ~ (_dedupe_match | default('unknown', true)) ~ ") - aborting"
                           )
@@ -862,8 +862,8 @@ sequence:
                             mode='extend',
                             status='invalid_state',
                             timer_id=_id_resolved,
-                            timer_status=_tres_data.status | default('unknown'),
-                            entity=_entity_norm
+                            entity=_entity_norm,
+                            timer_status=_tres_data.status | default('unknown')
                           )
                         }}
                   - stop: ""
@@ -962,8 +962,8 @@ sequence:
                             mode='pause',
                             status='invalid_state',
                             timer_id=_id_resolved,
-                            timer_status=_tres_data.status | default('unknown'),
-                            entity=_entity_norm
+                            entity=_entity_norm,
+                            timer_status=_tres_data.status | default('unknown')
                           )
                         }}
                   - stop: ""
@@ -1041,9 +1041,9 @@ sequence:
                             mode='resume',
                             status='invalid_state',
                             timer_id=_id_resolved,
+                            entity=_entity_norm,
                             timer_status=_tres_data.status | default('unknown'),
-                            remaining=_tres_data.remaining | default(0),
-                            entity=_entity_norm
+                            remaining=_tres_data.remaining | default(0)
                           )
                         }}
                   - stop: ""
@@ -1221,8 +1221,9 @@ sequence:
                     status='completed',
                     timer_id=_id_resolved,
                     entity=_entity_norm,
-                    final_end=_new_end_iso,
-                    actions_executed=_resume_actions | default([])
+                    created_at=_T.created_at | default('', true),
+                    end=_T.end | default('', true),
+                    actions=_resume_actions | default([])
                   )
                 }}
           - stop: ""
@@ -1285,9 +1286,9 @@ sequence:
                       id=t['id'],
                       entity_id=entity_id,
                       status=st,
+                      created_at=t['created_at'] | default(''),
                       end=t['end'],
                       remaining=remain_calc,
-                      created_at=t['created_at'] | default(''),
                       actions=t['actions'] | default([])
                     )] %}
                   {% endif %}

@@ -303,14 +303,14 @@ sequence:
                           response_variable: _call_result
                         - variables:
                             _responses: "{{ (_responses | default([])) + [_call_result] }}"
-              - default:
-                  - service: "{{ _timer_service }}"
-                    data:
-                      variables:
-                        mode: list
-                    response_variable: _call_result
-                  - variables:
-                      _responses: "{{ [_call_result] }}"
+            default:
+              - service: "{{ _timer_service }}"
+                data:
+                  variables:
+                    mode: list
+                response_variable: _call_result
+              - variables:
+                  _responses: "{{ [_call_result] }}"
           - variables:
               response: >
                 {{
@@ -321,17 +321,17 @@ sequence:
                   )
                 }}
 
-      - default:
-          - variables:
-              response: >
-                {{
-                  dict(
-                    error='Unsupported mode requested: ' ~ _mode,
-                    mode=_mode
-                  )
-                }}
-          - stop: "Unsupported mode requested: {{ _mode }}"
-            response_variable: response
+    default:
+      - variables:
+          response: >
+            {{
+              dict(
+                error='Unsupported mode requested: ' ~ _mode,
+                mode=_mode
+              )
+            }}
+      - stop: "Unsupported mode requested: {{ _mode }}"
+        response_variable: response
 
   - stop: ""
     response_variable: response

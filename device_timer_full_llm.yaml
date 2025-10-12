@@ -1,0 +1,337 @@
+blueprint:
+  name: Voice - Device Timer
+  author: luuquangvu
+  description: >-
+    # Device timer controller used for Voice Assistant
+
+    - Uses the Device Timer script to manage per-device timers (start / cancel / extend / pause / resume / list).
+
+    - Accepts friendly names from the LLM, resolves them to entity_ids via the provided alias sensor, and can operate on multiple devices in one request.
+
+    - For `start`, the blueprint dispatches timers via `script.turn_on` with on-completion actions to turn the device on/off. Other modes call the Device Timer script directly to receive structured responses.
+
+    ## Blueprint Setup
+
+    * Install and expose the `device_timer.yaml` blueprint as a script (select it below).
+
+    * Configure a template sensor that lists entity aliases (see repository docs); the sensor is required for friendly-name lookup.
+
+    * Expose this script to Assist so the LLM can invoke it.
+  domain: script
+  homeassistant:
+    min_version: 2024.10.0
+  input:
+    required_settings:
+      name: Required settings
+      icon: mdi:script-text
+      description: Select the dependencies used by this blueprint.
+      input:
+        timer_script:
+          name: Device Timer script entity
+          description: Script entity created from the Device Timer blueprint.
+          selector:
+            entity:
+              filter:
+                - domain: script
+        entity_aliases:
+          name: Entity aliases sensor
+          description: Template sensor attribute that lists exposed entities with friendly-name aliases.
+          selector:
+            entity:
+              filter:
+                - domain: sensor
+                  integration: template
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description: Optional prompt overrides used by the LLM when collecting arguments.
+      collapsed: true
+      input:
+        entities_prompt:
+          name: Entities prompt
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). Supply one or more friendly names; separate multiple devices with semicolons. Leave empty when listing all timers.
+        mode_prompt:
+          name: Mode prompt
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Required. Choose one of: start, cancel, extend, pause, resume, list.
+        action_prompt:
+          name: Action prompt
+          selector:
+            text:
+              multiline: true
+          default: >-
+            Required when mode = start. Use 'turn_on' to power the device on when the timer expires, or 'turn_off' to power it off.
+        duration_prompt:
+          name: Duration prompt
+          selector:
+            text:
+              multiline: true
+          default: >-
+            This argument is required when the mode is start or extend.
+
+            Provide the delay using the HH:MM:SS format (relative to now). For extend, use the same format to indicate how much time to add (e.g., 00:05:00 adds five minutes).
+mode: parallel
+max_exceeded: silent
+fields:
+  mode:
+    name: Mode
+    description: !input mode_prompt
+    required: true
+    selector:
+      select:
+        options: [start, cancel, extend, pause, resume, list]
+  entities:
+    name: Entities
+    description: !input entities_prompt
+    selector:
+      text:
+  action:
+    name: Expire action
+    description: !input action_prompt
+    selector:
+      select:
+        options:
+          - label: Turn on
+            value: turn_on
+          - label: Turn off
+            value: turn_off
+  duration:
+    name: Duration (HH:MM:SS)
+    description: !input duration_prompt
+    selector:
+      text:
+sequence:
+  - variables:
+      _timer_script: !input timer_script
+      _timer_service: "{{ _timer_script }}"
+      _entity_aliases: !input entity_aliases
+      _mode: "{{ (mode | default('start')) | string | lower | trim }}"
+      _entities_raw: "{{ entities | default('') }}"
+      _action_raw: "{{ action | default('turn_on') }}"
+      _duration_raw: "{{ duration | default('00:00:00') }}"
+      _entity_names: >
+        {% set ns = namespace(items=[]) %}
+        {% for name in _entities_raw.split(';') %}
+          {% set trimmed = name.strip() %}
+          {% if trimmed|length > 0 %}
+            {% set ns.items = ns.items + [trimmed] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items }}
+      _alias_list: "{{ state_attr(_entity_aliases, 'entities') | default([]) }}"
+      _missing_entities: >
+        {% set ns = namespace(items=[]) %}
+        {% set alias_list = _alias_list if _alias_list is sequence else [] %}
+        {% for name in _entity_names %}
+          {% set friendly = states | selectattr('attributes.friendly_name', 'equalto', name) | list %}
+          {% set alias_matches = alias_list | selectattr('aliases', 'contains', name) | list %}
+          {% if friendly | count == 0 and alias_matches | count == 0 %}
+            {% set ns.items = ns.items + [name] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items }}
+      _resolved_entities: >
+        {% set ns = namespace(items=[]) %}
+        {% set alias_list = _alias_list if _alias_list is sequence else [] %}
+        {% for name in _entity_names %}
+          {% set friendly = states | selectattr('attributes.friendly_name', 'equalto', name) | map(attribute='entity_id') | list %}
+          {% if friendly | count > 0 %}
+            {% for ent in friendly %}
+              {% if ent not in ns.items %}
+                {% set ns.items = ns.items + [ent] %}
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% set alias_devices = alias_list | selectattr('aliases', 'contains', name) | map(attribute='entity_id') | list %}
+            {% for ent in alias_devices %}
+              {% if ent not in ns.items %}
+                {% set ns.items = ns.items + [ent] %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items }}
+      _duration_td: "{{ as_timedelta(_duration_raw) }}"
+      _duration_seconds: "{{ (_duration_td.total_seconds() | round(0) | int) if _duration_td else 0 }}"
+      _action_normalized: >
+        {% set raw = (_action_raw | string | lower | trim) %}
+        {% if raw in ['turn_off', 'off', 'false', '0', 'no'] %}
+          turn_off
+        {% else %}
+          turn_on
+        {% endif %}
+      _action_service: "{{ 'homeassistant.' ~ _action_normalized }}"
+      _responses: []
+
+  - choose:
+      - conditions: "{{ _entity_names | count > 0 and (_missing_entities | count) > 0 }}"
+        sequence:
+          - variables:
+              response: >
+                {{
+                  dict(
+                    error='Unknown device name(s): ' ~ (_missing_entities | join(', ')),
+                    mode=_mode
+                  )
+                }}
+          - stop: "Unknown device name(s): {{ _missing_entities | join(', ') }}"
+            response_variable: response
+
+      - conditions: "{{ _mode in ['start','cancel','extend','pause','resume'] and (_resolved_entities | count) == 0 }}"
+        sequence:
+          - variables:
+              response: >
+                {{
+                  dict(
+                    error='No controllable devices were resolved for the request.',
+                    mode=_mode
+                  )
+                }}
+          - stop: "No controllable devices were resolved for the request."
+            response_variable: response
+
+      - conditions: "{{ _mode in ['start', 'extend'] and _duration_seconds <= 0 }}"
+        sequence:
+          - variables:
+              response: >
+                {{
+                  dict(
+                    error='Duration must be greater than zero seconds for this mode.',
+                    mode=_mode
+                  )
+                }}
+          - stop: "Duration must be greater than zero seconds."
+            response_variable: response
+
+  - choose:
+
+      - conditions: "{{ _mode == 'start' }}"
+        sequence:
+          - repeat:
+              for_each: "{{ _resolved_entities }}"
+              sequence:
+                - service: script.turn_on
+                  target:
+                    entity_id: "{{ _timer_script }}"
+                  data:
+                    variables:
+                      mode: start
+                      target_entity: "{{ repeat.item }}"
+                      duration_seconds: "{{ _duration_seconds }}"
+                      expire_actions:
+                        - action: "{{ _action_service }}"
+                - variables:
+                    _responses: "{{ (_responses | default([])) + [dict(mode='start', entity=repeat.item, status='queued', duration_seconds=_duration_seconds, action=_action_normalized)] }}"
+          - variables:
+              response: >
+                {{
+                  dict(
+                    mode='start',
+                    action=_action_normalized,
+                    duration_seconds=_duration_seconds,
+                    targets=_resolved_entities,
+                    dispatched=_responses
+                  )
+                }}
+
+      - conditions: "{{ _mode == 'extend' }}"
+        sequence:
+          - repeat:
+              for_each: "{{ _resolved_entities }}"
+              sequence:
+                - service: "{{ _timer_service }}"
+                  data:
+                    variables:
+                      mode: extend
+                      target_entity: "{{ repeat.item }}"
+                      extend_seconds: "{{ _duration_seconds }}"
+                  response_variable: _call_result
+                - variables:
+                    _responses: "{{ (_responses | default([])) + [_call_result] }}"
+          - variables:
+              response: >
+                {{
+                  dict(
+                    mode='extend',
+                    extend_seconds=_duration_seconds,
+                    results=_responses
+                  )
+                }}
+
+      - conditions: "{{ _mode in ['cancel', 'pause', 'resume'] }}"
+        sequence:
+          - repeat:
+              for_each: "{{ _resolved_entities }}"
+              sequence:
+                - service: "{{ _timer_service }}"
+                  data:
+                    variables:
+                      mode: "{{ _mode }}"
+                      target_entity: "{{ repeat.item }}"
+                  response_variable: _call_result
+                - variables:
+                    _responses: "{{ (_responses | default([])) + [_call_result] }}"
+          - variables:
+              response: >
+                {{
+                  dict(
+                    mode=_mode,
+                    results=_responses
+                  )
+                }}
+
+      - conditions: "{{ _mode == 'list' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ _resolved_entities | count > 0 }}"
+                sequence:
+                  - repeat:
+                      for_each: "{{ _resolved_entities }}"
+                      sequence:
+                        - service: "{{ _timer_service }}"
+                          data:
+                            variables:
+                              mode: list
+                              list_entity_filter: "{{ repeat.item }}"
+                          response_variable: _call_result
+                        - variables:
+                            _responses: "{{ (_responses | default([])) + [_call_result] }}"
+              - default:
+                  - service: "{{ _timer_service }}"
+                    data:
+                      variables:
+                        mode: list
+                    response_variable: _call_result
+                  - variables:
+                      _responses: "{{ [_call_result] }}"
+          - variables:
+              response: >
+                {{
+                  dict(
+                    mode='list',
+                    targets=_resolved_entities,
+                    results=_responses
+                  )
+                }}
+
+      - default:
+          - variables:
+              response: >
+                {{
+                  dict(
+                    error='Unsupported mode requested: ' ~ _mode,
+                    mode=_mode
+                  )
+                }}
+          - stop: "Unsupported mode requested: {{ _mode }}"
+            response_variable: response
+
+  - stop: ""
+    response_variable: response

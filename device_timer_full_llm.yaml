@@ -117,7 +117,8 @@ sequence:
       _duration_raw: "{{ duration | default('00:00:00') }}"
       _entity_names: >
         {% set ns = namespace(items=[]) %}
-        {% for name in _entities_raw.split(';') %}
+        {% set source = _entities_raw %}
+        {% for name in source.split(';') %}
           {% set trimmed = name.strip() %}
           {% if trimmed|length > 0 %}
             {% set ns.items = ns.items + [trimmed] %}
@@ -129,10 +130,13 @@ sequence:
         {% set ns = namespace(items=[]) %}
         {% set alias_list = _alias_list if _alias_list is sequence else [] %}
         {% for name in _entity_names %}
-          {% set friendly = states | selectattr('attributes.friendly_name', 'equalto', name) | list %}
-          {% set alias_matches = alias_list | selectattr('aliases', 'contains', name) | list %}
-          {% if friendly | count == 0 and alias_matches | count == 0 %}
-            {% set ns.items = ns.items + [name] %}
+          {% set direct = states | selectattr('entity_id', 'equalto', name) | list %}
+          {% if direct | count == 0 %}
+            {% set friendly = states | selectattr('attributes.friendly_name', 'equalto', name) | list %}
+            {% set alias_matches = alias_list | selectattr('aliases', 'contains', name) | list %}
+            {% if friendly | count == 0 and alias_matches | count == 0 %}
+              {% set ns.items = ns.items + [name] %}
+            {% endif %}
           {% endif %}
         {% endfor %}
         {{ ns.items }}
@@ -140,20 +144,29 @@ sequence:
         {% set ns = namespace(items=[]) %}
         {% set alias_list = _alias_list if _alias_list is sequence else [] %}
         {% for name in _entity_names %}
-          {% set friendly = states | selectattr('attributes.friendly_name', 'equalto', name) | map(attribute='entity_id') | list %}
-          {% if friendly | count > 0 %}
-            {% for ent in friendly %}
+          {% set direct = states | selectattr('entity_id', 'equalto', name) | map(attribute='entity_id') | list %}
+          {% if direct | count > 0 %}
+            {% for ent in direct %}
               {% if ent not in ns.items %}
                 {% set ns.items = ns.items + [ent] %}
               {% endif %}
             {% endfor %}
           {% else %}
-            {% set alias_devices = alias_list | selectattr('aliases', 'contains', name) | map(attribute='entity_id') | list %}
-            {% for ent in alias_devices %}
-              {% if ent not in ns.items %}
-                {% set ns.items = ns.items + [ent] %}
-              {% endif %}
-            {% endfor %}
+            {% set friendly = states | selectattr('attributes.friendly_name', 'equalto', name) | map(attribute='entity_id') | list %}
+            {% if friendly | count > 0 %}
+              {% for ent in friendly %}
+                {% if ent not in ns.items %}
+                  {% set ns.items = ns.items + [ent] %}
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              {% set alias_devices = alias_list | selectattr('aliases', 'contains', name) | map(attribute='entity_id') | list %}
+              {% for ent in alias_devices %}
+                {% if ent not in ns.items %}
+                  {% set ns.items = ns.items + [ent] %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
           {% endif %}
         {% endfor %}
         {{ ns.items }}

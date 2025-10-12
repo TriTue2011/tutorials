@@ -2,11 +2,11 @@ blueprint:
   name: Device Timer Restart Handler
   author: luuquangvu
   description: >-
-    # Restore Device Timer timers after restart or script.reload
+    # Device Timer restart companion
 
-    - Triggered on `homeassistant_start` and whenever the `script.reload` service runs.
+    - Runs automatically when Home Assistant comes back online.
 
-    - Reads the Device Timer cache, resuming timers with remaining time and executing actions for overdue timers.
+    - Restores cached timers created by the Device Timer script, resuming ones still active and executing actions for any that expired while offline.
   domain: automation
   input:
     required_settings:

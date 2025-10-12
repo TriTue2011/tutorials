@@ -128,6 +128,7 @@ actions:
                             key: "{{ _prefix }}{{ repeat.item }}"
                             value: "{{ _paused_payload }}"
                             ttl_seconds: "{{ _ttl_seconds }}"
+                          response_variable: cache_set_timer_id
 
                         - choose:
                             - conditions: "{{ _script_entity | length > 0 }}"
@@ -182,6 +183,7 @@ actions:
                         key: "{{ _prefix }}{{ repeat.item }}"
                         value: "{{ _expired_payload }}"
                         ttl_seconds: "{{ _buf }}"
+                      response_variable: cache_set_timer_id
 
                     - variables:
                         _ids_to_remove: >
@@ -205,3 +207,4 @@ actions:
       key: "{{ _index_key }}"
       value: "{{ _updated_index }}"
       ttl_seconds: 2592000
+    response_variable: cache_set_index

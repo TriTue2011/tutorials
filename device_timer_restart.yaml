@@ -2,20 +2,20 @@ blueprint:
   name: Device Timer Restart Handler
   author: luuquangvu
   description: >-
-    # Restore Device Timer Plus timers after restart or script.reload
+    # Restore Device Timer timers after restart or script.reload
 
     - Triggered on `homeassistant_start` and whenever the `script.reload` service runs.
 
-    - Reads the Device Timer Plus cache, resuming timers with remaining time and executing actions for overdue timers.
+    - Reads the Device Timer cache, resuming timers with remaining time and executing actions for overdue timers.
   domain: automation
   input:
-    custom_settings:
+    required_settings:
       name: Required settings
       icon: mdi:script
-      description: Select the Device Timer Plus script entity to resume timers for.
+      description: Select the Device Timer script entity to resume timers for.
       timer_script:
         name: Device Timer script entity
-        description: Script entity created from the Device Timer Plus blueprint
+        description: Script entity created from the Device Timer blueprint
         selector:
           entity:
             filter:
@@ -23,7 +23,7 @@ blueprint:
     advanced_settings:
       name: Advanced settings
       icon: mdi:tools
-      description: Optional cache parameters (index key, timer prefix, TTL buffer). Only change if you customized them in Device Timer Plus.
+      description: Optional cache parameters (index key, timer prefix, TTL buffer). Only change if you customized them in Device Timer.
       collapsed: true
       input:
         registry_index_key:
@@ -60,7 +60,6 @@ triggers:
     event_data:
       domain: script
       service: reload
-
 
 conditions: []
 

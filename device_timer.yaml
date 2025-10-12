@@ -1,5 +1,5 @@
 blueprint:
-  name: Device Timer Plus
+  name: Device Timer
   author: luuquangvu
   description: >-
     # Voice-assistant friendly multi-device timer controller
@@ -18,9 +18,9 @@ blueprint:
 
     ### Note
 
-    * This blueprint is a dependency for the `device_timer_full_llm.yaml` blueprint.
+    * This blueprint is a dependency for the `device_timer_full_llm.yaml` and the `device_timer_restart.yaml` blueprints.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
     * Do not alter the default script name.
   domain: script

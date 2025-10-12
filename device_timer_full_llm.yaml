@@ -53,7 +53,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). Supply one or more friendly names; separate multiple devices with semicolons. Leave empty when listing all timers.
+            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). You may provide friendly names or entity_ids; separate multiple entries with semicolons. Leave empty when listing all timers.
         mode_prompt:
           name: Mode prompt
           selector:

@@ -11,15 +11,16 @@ blueprint:
   input:
     required_settings:
       name: Required settings
-      icon: mdi:script
+      icon: mdi:script-text
       description: Select the Device Timer script entity to resume timers for.
-      timer_script:
-        name: Device Timer script entity
-        description: Script entity created from the Device Timer blueprint
-        selector:
-          entity:
-            filter:
-              - domain: script
+      input:
+        timer_script:
+          name: Device Timer script entity
+          description: Script entity created from the Device Timer blueprint
+          selector:
+            entity:
+              filter:
+                - domain: script
     advanced_settings:
       name: Advanced settings
       icon: mdi:tools

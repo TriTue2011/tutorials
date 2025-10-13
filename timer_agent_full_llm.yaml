@@ -44,22 +44,6 @@ blueprint:
 
     ```
 
-    * Add the following instruction to the script description when saving.
-
-    ```
-
-    Manage smart device timers handled by the Voice Timer Agent.
-
-    Use this tool when the user request involves a controllable device (fan, lamp, heater, etc.) that should perform an action when the timer ends.
-
-    Do not use this tool for Home Assistant's built-in timers or generic countdowns with no device target. Delegate those to the default timer tools.
-
-    Supported modes: start, cancel, cancel_all, extend, pause, resume, list.
-
-    Example intents: "set a 10-minute timer for the bedroom fan", "pause the desk lamp timer", "resume the heater timer", "cancel all lamp timers".
-
-    ```
-
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.

@@ -1,8 +1,8 @@
 blueprint:
-  name: Timer Agent
+  name: Devices Timer
   author: luuquangvu
   description: >-
-    # Voice-assistant friendly multi-device timer controller
+    # Voice assistant friendly multi-device timer controller
 
     - Manages per-entity timers with caching and deduplication.
 
@@ -18,7 +18,7 @@ blueprint:
 
     ### Note
 
-    * This blueprint is a dependency for the `timer_agent_full_llm.yaml` and the `timer_agent_restart.yaml` blueprints.
+    * This blueprint is a dependency for the `devices_timer_full_llm.yaml` and the `devices_timer_restart_handler.yaml` blueprints.
 
     * The mentioned file(s) is/are included in the repository.
 

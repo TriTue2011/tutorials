@@ -4,7 +4,7 @@ blueprint:
   description: >-
     # Timer Agent controller used for Voice Assistant
 
-    - Uses the Timer Agent script to manage per-device timers (start / cancel / extend / pause / resume / list).
+    - Uses the Timer Agent script to manage per-device timers (start / cancel / cancel_all / extend / pause / resume / list).
 
     - Accepts friendly names from the LLM, resolves them to entity_ids via the provided alias sensor, and can operate on multiple devices in one request.
 
@@ -53,7 +53,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). Provide one or more friendly names or entity_ids and separate multiple entries with semicolons. Leave this field empty only when listing every timer.
+            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). Provide one or more friendly names or entity_ids and separate multiple entries with semicolons. For cancel_all, supply devices to limit the cancellation or leave this field empty to cancel every active timer. Leave it empty to list every timer.
         mode_prompt:
           name: Mode prompt
           selector:
@@ -65,6 +65,8 @@ blueprint:
             - start: create a new timer for the provided device(s) and run the specified expire action when it ends.
 
             - cancel: stop the active timer for each listed device immediately.
+
+            - cancel_all: cancel every active timer (limit by listing device names, or leave empty to cancel everything).
 
             - extend: add the given duration to the current timer for each listed device.
 
@@ -98,7 +100,7 @@ fields:
     required: true
     selector:
       select:
-        options: [start, cancel, extend, pause, resume, list]
+        options: [start, cancel, cancel_all, extend, pause, resume, list]
   entities:
     name: Entities
     description: !input entities_prompt
@@ -287,6 +289,38 @@ sequence:
                     duration_seconds=_duration_seconds,
                     targets=_resolved_entities,
                     dispatched=_responses
+                  )
+                }}
+
+      - conditions: "{{ _mode == 'cancel_all' }}"
+        sequence:
+          - choose:
+              - conditions: "{{ _resolved_entities | count > 0 }}"
+                sequence:
+                  - repeat:
+                      for_each: "{{ _resolved_entities }}"
+                      sequence:
+                        - service: "{{ _timer_script }}"
+                          data:
+                            mode: cancel_all
+                            target_entity: "{{ repeat.item }}"
+                          response_variable: _call_result
+                        - variables:
+                            _responses: "{{ (_responses | default([])) + [_call_result] }}"
+            default:
+              - service: "{{ _timer_script }}"
+                data:
+                  mode: cancel_all
+                response_variable: _call_result
+              - variables:
+                  _responses: "{{ [_call_result] }}"
+          - variables:
+              response: >
+                {{
+                  dict(
+                    mode='cancel_all',
+                    targets=_resolved_entities,
+                    results=_responses
                   )
                 }}
 

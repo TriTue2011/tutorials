@@ -1,5 +1,5 @@
 blueprint:
-  name: Device Timer
+  name: Timer Agent
   author: luuquangvu
   description: >-
     # Voice-assistant friendly multi-device timer controller
@@ -18,7 +18,7 @@ blueprint:
 
     ### Note
 
-    * This blueprint is a dependency for the `device_timer_full_llm.yaml` and the `device_timer_restart.yaml` blueprints.
+    * This blueprint is a dependency for the `timer_agent_full_llm.yaml` and the `timer_agent_restart.yaml` blueprints.
 
     * The mentioned file(s) is/are included in the repository.
 

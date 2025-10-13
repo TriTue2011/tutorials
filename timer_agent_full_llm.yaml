@@ -1,18 +1,18 @@
 blueprint:
-  name: Voice - Device Timer
+  name: Voice - Timer Agent
   author: luuquangvu
   description: >-
-    # Device timer controller used for Voice Assistant
+    # Timer Agent controller used for Voice Assistant
 
-    - Uses the Device Timer script to manage per-device timers (start / cancel / extend / pause / resume / list).
+    - Uses the Timer Agent script to manage per-device timers (start / cancel / extend / pause / resume / list).
 
     - Accepts friendly names from the LLM, resolves them to entity_ids via the provided alias sensor, and can operate on multiple devices in one request.
 
-    - For `start`, the blueprint dispatches timers via `script.turn_on` with on-completion actions to turn the device on/off. Other modes call the Device Timer script directly to receive structured responses.
+    - For `start`, the blueprint dispatches timers via `script.turn_on` with on-completion actions to turn the device on/off. Other modes call the Timer Agent script directly to receive structured responses.
 
     ## Blueprint Setup
 
-    * Install and expose the `device_timer.yaml` blueprint as a script (select it below).
+    * Install and expose the `timer_agent.yaml` blueprint as a script (select it below).
 
     * Configure a template sensor that lists entity aliases (see repository docs); the sensor is required for friendly-name lookup.
 
@@ -27,8 +27,8 @@ blueprint:
       description: Select the dependencies used by this blueprint.
       input:
         timer_script:
-          name: Device Timer script entity
-          description: Script entity created from the Device Timer blueprint.
+          name: Timer Agent script entity
+          description: Script entity created from the Timer Agent blueprint.
           selector:
             entity:
               filter:

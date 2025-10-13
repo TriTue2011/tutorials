@@ -1,22 +1,22 @@
 blueprint:
-  name: Device Timer Restart Handler
+  name: Timer Agent Restart Handler
   author: luuquangvu
   description: >-
-    # Device Timer restart companion
+    # Timer Agent restart companion
 
     - Runs automatically when Home Assistant comes back online.
 
-    - Restores cached timers created by the Device Timer script, resuming ones still active and executing actions for any that expired while offline.
+    - Restores cached timers created by the Timer Agent script, resuming ones still active and executing actions for any that expired while offline.
   domain: automation
   input:
     required_settings:
       name: Required settings
       icon: mdi:script-text
-      description: Select the Device Timer script entity to resume timers for.
+      description: Select the Timer Agent script entity to resume timers for.
       input:
         timer_script:
-          name: Device Timer script entity
-          description: Script entity created from the Device Timer blueprint
+          name: Timer Agent script entity
+          description: Script entity created from the Timer Agent blueprint
           selector:
             entity:
               filter:
@@ -24,7 +24,7 @@ blueprint:
     advanced_settings:
       name: Advanced settings
       icon: mdi:tools
-      description: Optional cache parameters (index key, timer prefix, TTL buffer). Only change if you customized them in Device Timer.
+      description: Optional cache parameters (index key, timer prefix, TTL buffer). Only change if you customized them in Timer Agent.
       collapsed: true
       input:
         registry_index_key:

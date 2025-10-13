@@ -6,7 +6,7 @@ blueprint:
 
     - Manages per-entity timers with caching and deduplication.
 
-    - Supports start / cancel / extend / pause / resume / list modes.
+    - Supports start / cancel / cancel_all / extend / pause / resume / list modes.
 
     - Each timer is stored under its own key: voice_timer:<id> (TTL = remaining + buffer).
 
@@ -88,7 +88,7 @@ fields:
     required: true
     selector:
       select:
-        options: [start, cancel, extend, pause, resume, list]
+        options: [start, cancel, cancel_all, extend, pause, resume, list]
     description: Required. Choose which action this script call should perform
   timer_id:
     name: Timer ID
@@ -97,7 +97,7 @@ fields:
       text:
   target_entity:
     name: Target entity_id
-    description: Optional. Used by start/extend/pause/resume/cancel to identify and deduplicate timers
+    description: Optional. Used by start/extend/pause/resume/cancel/cancel_all to identify and deduplicate timers
     selector:
       text:
   duration_seconds:
@@ -811,6 +811,145 @@ sequence:
                     timer_id=_id_resolved,
                     entity=_entity_norm,
                     seconds_remaining=_cancel_remaining
+                  )
+                }}
+          - stop: ""
+            response_variable: _stop_result
+
+      #######################################################################
+      # CANCEL ALL (optionally filtered by entity)
+      #######################################################################
+      - conditions: "{{ _mode == 'cancel_all' }}"
+        sequence:
+          - variables:
+              _cancel_all_candidates: >
+                {% set active = _ACTIVE if _ACTIVE is sequence else [] %}
+                {% if _entity_norm|length > 0 %}
+                  {% set filtered = [] %}
+                  {% for item in active %}
+                    {% set entity = item.entity_id | default('') | string | trim | lower %}
+                    {% if entity == _entity_norm %}
+                      {% set filtered = filtered + [item] %}
+                    {% endif %}
+                  {% endfor %}
+                  {{ filtered }}
+                {% else %}
+                  {{ active }}
+                {% endif %}
+              _cancel_all_count: "{{ _cancel_all_candidates | length if _cancel_all_candidates is sequence else 0 }}"
+          - choose:
+              - conditions: "{{ _cancel_all_count == 0 }}"
+                sequence:
+                  - variables:
+                      _stop_result: >
+                        {{
+                          dict(
+                            mode='cancel_all',
+                            status='nothing_to_cancel',
+                            entity=_entity_norm,
+                            count=0
+                          )
+                        }}
+                  - stop: ""
+                    response_variable: _stop_result
+          - variables:
+              _cancel_all_ids: >
+                {% set candidates = _cancel_all_candidates if _cancel_all_candidates is sequence else [] %}
+                {% set ns = namespace(ids=[]) %}
+                {% for item in candidates %}
+                  {% set tid = item.id | default('') %}
+                  {% if tid|length > 0 and tid not in ns.ids %}
+                    {% set ns.ids = ns.ids + [tid] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.ids }}
+          - action: pyscript.memory_cache_get
+            data: { key: "{{ _index_key }}" }
+            response_variable: _idx_cancel_all
+          - variables:
+              _IDX_CANCEL_ALL: >
+                {% set idx_raw = _idx_cancel_all.value if _idx_cancel_all.status == 'ok' else [] %}
+                {% if idx_raw is sequence %}
+                  {{ idx_raw }}
+                {% else %}
+                  {{ [] }}
+                {% endif %}
+              _IDX_AFTER_CANCEL_ALL: >
+                {% set idx = _IDX_CANCEL_ALL if _IDX_CANCEL_ALL is sequence else [] %}
+                {% set ids = _cancel_all_ids if _cancel_all_ids is sequence else [] %}
+                {% set ns = namespace(out=[]) %}
+                {% for existing in idx %}
+                  {% if existing not in ids and existing not in ns.out %}
+                    {% set ns.out = ns.out + [existing] %}
+                  {% endif %}
+                {% endfor %}
+                {{ ns.out }}
+          - action: pyscript.memory_cache_set
+            data:
+              key: "{{ _index_key }}"
+              value: "{{ _IDX_AFTER_CANCEL_ALL if _IDX_AFTER_CANCEL_ALL is sequence else [] }}"
+              ttl_seconds: 2592000
+            response_variable: cache_set_index
+          - variables:
+              _IDX_ALIVE: "{{ _IDX_AFTER_CANCEL_ALL if _IDX_AFTER_CANCEL_ALL is sequence else [] }}"
+              _CANCELLED: []
+          - repeat:
+              for_each: "{{ _cancel_all_candidates if _cancel_all_candidates is sequence else [] }}"
+              sequence:
+                - variables:
+                    _cancel_all_id: "{{ repeat.item.id | default('') }}"
+                - choose:
+                    - conditions: "{{ _cancel_all_id|length > 0 }}"
+                      sequence:
+                        - action: pyscript.memory_cache_get
+                          data: { key: "{{ _prefix }}{{ _cancel_all_id }}" }
+                          response_variable: _cancel_all_item
+                        - variables:
+                            _cancel_all_raw: "{{ _cancel_all_item.value | default({}) if _cancel_all_item.status == 'ok' else repeat.item }}"
+                            _cancel_all_entity: "{{ (_cancel_all_raw.entity_id | default(repeat.item.entity_id | default(''))) | string | trim | lower }}"
+                            _cancel_all_remaining: >-
+                              {% if _cancel_all_item.status == 'ok' %}
+                                {% if (_cancel_all_raw.status|string|lower) == 'running' and (_cancel_all_raw.end is defined) %}
+                                  {{ (as_timestamp(as_datetime(_cancel_all_raw.end)) - as_timestamp(now())) | int(0) }}
+                                {% else %}
+                                  {{ _cancel_all_raw.remaining | default(0) | int(0) }}
+                                {% endif %}
+                              {% else %}
+                                {{ repeat.item.remaining | default(0) | int(0) }}
+                              {% endif %}
+                            _cancel_all_remaining_safe: "{{ _cancel_all_remaining if _cancel_all_remaining > 0 else 0 }}"
+                            _cancel_all_updated: >
+                              {{ dict(_cancel_all_raw, **{
+                                'entity_id': _cancel_all_entity,
+                                'status': 'canceled',
+                                'canceled_at': now().isoformat(),
+                                'remaining': _cancel_all_remaining_safe
+                              }) }}
+                        - action: pyscript.memory_cache_set
+                          data:
+                            key: "{{ _prefix }}{{ _cancel_all_id }}"
+                            value: "{{ _cancel_all_updated }}"
+                            ttl_seconds: "{{ _buf|int }}"
+                          response_variable: cache_set_timer_id
+                        - event: device_timer_signal
+                          event_data: { timer_id: "{{ _cancel_all_id }}", reason: "cancel" }
+                        - variables:
+                            _CANCELLED: >
+                              {% set current = (_CANCELLED | list) if _CANCELLED is sequence else [] %}
+                              {{ current + [dict(
+                                id=_cancel_all_id,
+                                entity_id=_cancel_all_entity,
+                                seconds_remaining=_cancel_all_remaining_safe
+                              )] }}
+          - variables:
+              _stop_result: >
+                {{
+                  dict(
+                    mode='cancel_all',
+                    status='success',
+                    entity=_entity_norm,
+                    count=_cancel_all_count | int,
+                    canceled=_CANCELLED if _CANCELLED is sequence else []
                   )
                 }}
           - stop: ""

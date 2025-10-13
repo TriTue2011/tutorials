@@ -1,5 +1,5 @@
 blueprint:
-  name: Devices Timer
+  name: Devices Schedule
   author: luuquangvu
   description: >-
     # Voice assistant friendly multi-device timer controller
@@ -18,7 +18,7 @@ blueprint:
 
     ### Note
 
-    * This blueprint is a dependency for the `devices_timer_full_llm.yaml` and the `devices_timer_restart_handler.yaml` blueprints.
+    * This blueprint is a dependency for the `devices_schedule_full_llm.yaml` and the `devices_schedule_restart_handler.yaml` blueprints.
 
     * The mentioned file(s) is/are included in the repository.
 

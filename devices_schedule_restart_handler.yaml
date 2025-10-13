@@ -1,22 +1,22 @@
 blueprint:
-  name: Devices Timer Restart Handler
+  name: Devices Schedule Restart Handler
   author: luuquangvu
   description: >-
-    # Devices Timer Restart Handler
+    # Devices Schedule Restart Handler
 
     - Runs automatically when Home Assistant comes back online.
 
-    - Restores cached timers created by the Devices Timer script, resuming ones still active and executing actions for any that expired while offline.
+    - Restores cached timers created by the Devices Schedule script, resuming ones still active and executing actions for any that expired while offline.
   domain: automation
   input:
     required_settings:
       name: Required settings
       icon: mdi:script-text
-      description: Select the Devices Timer script entity to resume timers for.
+      description: Select the Devices Schedule script entity to resume timers for.
       input:
         timer_script:
-          name: Devices Timer script entity
-          description: Script entity created from the Devices Timer blueprint
+          name: Devices Schedule script entity
+          description: Script entity created from the Devices Schedule blueprint
           selector:
             entity:
               filter:
@@ -24,7 +24,7 @@ blueprint:
     advanced_settings:
       name: Advanced settings
       icon: mdi:tools
-      description: Optional cache parameters (index key, timer prefix, TTL buffer). Only change if you customized them in Devices Timer.
+      description: Optional cache parameters (index key, timer prefix, TTL buffer). Only change if you customized them in Devices Schedule.
       collapsed: true
       input:
         registry_index_key:

@@ -2,7 +2,7 @@ blueprint:
   name: Devices Timer Restart Handler
   author: luuquangvu
   description: >-
-    # Devices Timer restart companion
+    # Devices Timer Restart Handler
 
     - Runs automatically when Home Assistant comes back online.
 

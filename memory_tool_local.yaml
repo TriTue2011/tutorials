@@ -479,10 +479,10 @@ actions:
                           itemsd: "{{ resp_forget.matches[:max_choices] }}"
                           prompt_text: >
                             I found a few candidates:
-              
+
                             {% for it in itemsd -%}
                             {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
-              
+
                             {% endfor -%}
                             Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                           cache_payload: >

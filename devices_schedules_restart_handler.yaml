@@ -212,9 +212,9 @@ actions:
         {% endfor %}
         {{ ns.out }}
 
-  - action: pyscript.memory_cache_set
+  - action: pyscript.memory_cache_index_update
     data:
-      key: "{{ _index_key }}"
-      value: "{{ _updated_index }}"
+      index_key: "{{ _index_key }}"
+      replace: "{{ _updated_index }}"
       ttl_seconds: 2592000
     response_variable: cache_set_index

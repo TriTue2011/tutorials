@@ -1,4 +1,4 @@
-﻿# Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
+# Các bản thiết kế và hướng dẫn độc đáo dành cho Home Assistant
 
 *Tất cả các bản thiết kế (blueprint) trong tài liệu này đều được tinh chỉnh để hoạt động hiệu quả nhất với **Gemini 2.5 Flash**. Các mô hình khác có thể cần điều chỉnh nhẹ để đạt kết quả tối ưu.*
 
@@ -8,16 +8,66 @@ Biến Home Assistant thành trợ lý cá nhân thực thụ với bộ sưu t�
 
 ---
 
-## 🧠 Voice Assist - Ghi nhớ mọi thông tin
+## Voice Assist - Điều khiển lịch trình thiết bị thông minh (Smart Device Schedule Controller)
 
-Biến Voice Assist thành "trợ lý trí nhớ" luôn túc trực. Blueprint cho phép lưu trữ, cập nhật, đọc lại hoặc xoá bất kỳ mẩu thông tin nào bằng giọng nói: mật khẩu Wi-Fi, vị trí đỗ xe, danh sách việc vặt... Chỉ cần hỏi, dữ liệu sẽ được phản hồi sau vài giây mà không phải mở điện thoại hay tìm kiếm thủ công.
+Tự động tạo, gia hạn, tạm dừng, tiếp tục hoặc hủy **lịch trình điều khiển thiết bị** bằng giọng nói tự nhiên.
+Mỗi lịch trình có thể gắn với một hoặc nhiều thiết bị thông minh (như đèn, quạt, điều hòa...) và sẽ tự động **khôi phục sau khi Home Assistant khởi động lại**.
 
-**Ví dụ lệnh thoại:**
+Khác với công cụ hẹn giờ mặc định của Home Assistant, tiện ích này **quản lý lịch trình riêng cho từng thiết bị**, hỗ trợ **nhiều lịch trình chạy song song** và **thực hiện hành động tự động** (bật hoặc tắt thiết bị khi lịch trình kết thúc).
+Bạn chỉ cần nói tự nhiên - Voice Assist (LLM như Gemini/GPT) sẽ tự động hiểu, tạo và theo dõi các lịch trình này.
 
-- Lưu lại vị trí đậu xe ở B2 R10
-- Tìm lại vị trí đậu xe ở đâu?
-- Ghi nhớ mật khẩu Wi-Fi khách là 123456789
-- Mật khẩu Wi-Fi khách là gì?
+### Tính năng nổi bật
+
+- Hỗ trợ đầy đủ các chế độ: **start**, **extend**, **pause**, **resume**, **cancel**, **cancel_all**, **list**
+- Quản lý **nhiều thiết bị và nhiều lịch trình cùng lúc**
+- **Tự động khôi phục** sau khi Home Assistant khởi động lại
+- **Tích hợp với Voice Assist (LLM)** để hiểu và xử lý lệnh thoại đa ngôn ngữ
+- Hỗ trợ tùy chỉnh hành động khi kết thúc lịch trình: bật/tắt thiết bị, gửi thông báo, hoặc kích hoạt script khác
+
+### Ví dụ lệnh thoại
+
+- "Đặt lịch tắt quạt phòng khách sau 15 phút."
+- "Gia hạn lịch tắt đèn phòng bếp thêm 10 phút."
+- "Thêm lịch tắt điều hòa phòng ngủ lúc 6 giờ sáng."
+- "Hủy tất cả lịch điều khiển thiết bị."
+- "Có lịch điều khiển thiết bị nào đang hoạt động không?"
+
+### Ứng dụng
+
+- Lên lịch bật/tắt **đèn, quạt, điều hòa, máy sưởi, bình nóng lạnh**…
+- Tạo **nhiều lịch trình độc lập** cho từng thiết bị
+- Tạm dừng, tiếp tục hoặc kéo dài thời gian dễ dàng bằng giọng nói
+- Là **nền tảng cho các tự động hóa điều khiển thiết bị bằng giọng nói** trong ngôi nhà thông minh
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules.yaml)
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules_restart_handler.yaml)
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules_controller_full_llm.yaml)
+
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
+
+---
+
+## 🧠 Voice Assist - Ghi nhớ mọi thứ (Memory Tool)
+
+Biến Voice Assist thành "trí nhớ mở rộng" của bạn - có thể lưu, cập nhật, tra cứu hoặc xóa thông tin chỉ bằng giọng nói.
+Ghi nhớ mọi thứ như mật khẩu Wi-Fi, vị trí đậu xe, sinh nhật, hay các ghi chú nhanh - và truy xuất lại trong vài giây, không cần mở điện thoại hay tìm thủ công.
+
+### Tính năng nổi bật
+
+- Lưu trữ và quản lý ghi nhớ bằng giọng nói tự nhiên
+- Hỗ trợ cập nhật, xóa, hoặc ghi đè thông tin đã có
+- Tìm kiếm thông minh qua từ khóa hoặc ngữ nghĩa gần đúng
+- Hoạt động **hoàn toàn cục bộ**, không cần internet
+- Tùy chọn giới hạn thời gian lưu (TTL) cho các ghi nhớ tạm thời
+
+### Ví dụ lệnh thoại
+
+- "Ghi nhớ chỗ đậu xe là tầng hầm B2, R10."
+- "Xe mình đậu ở đâu?"
+- "Ghi nhớ mật khẩu Wi-Fi khách là 123456789."
+- "Mật khẩu Wi-Fi khách là gì?"
 
 ### Phiên bản LLM (Đa ngôn ngữ)
 
@@ -27,7 +77,7 @@ Biến Voice Assist thành "trợ lý trí nhớ" luôn túc trực. Blueprint c
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_local.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -42,7 +92,7 @@ Trao cho Voice Assist khả năng truy cập các camera mà bạn chia sẻ. B�
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -59,7 +109,7 @@ Sắp xếp lịch trình bằng giọng nói như đang trò chuyện. Blueprin
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -71,7 +121,7 @@ Kết nối Home Assistant với Official Account trên Zalo để duy trì hộ
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -86,7 +136,7 @@ Gửi nội dung tới người nhận trên Zalo chỉ bằng giọng nói. Nh�
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_bot_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -98,7 +148,7 @@ Tự xây dựng bot Zalo tuỳ chỉnh nhưng vẫn đầy đủ khả năng h�
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -113,7 +163,7 @@ Gửi tin nhắn tới cá nhân hoặc nhóm thông qua bot Zalo tuỳ chỉnh 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_custom_bot_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -125,7 +175,7 @@ Tạo bot Telegram trò chuyện hai chiều với Home Assistant. Bạn có th�
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -140,7 +190,7 @@ Trao đổi thông tin với bạn bè hoặc nhóm Telegram bằng giọng nói
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_telegram_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -155,7 +205,7 @@ Thực hiện mọi truy vấn Google bằng giọng nói và nhận câu trả 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_google_search_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -172,7 +222,7 @@ Thiết lập hẹn giờ cho bất kỳ thiết bị nào bằng giọng nói, 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_tool.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -182,7 +232,7 @@ Theo dõi tình trạng phạt nguội của xe và nhận cảnh báo ngay khi 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -196,7 +246,7 @@ Tra cứu phạt nguội của bất kỳ phương tiện nào bằng giọng n�
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -213,7 +263,7 @@ Tìm kiếm nội dung YouTube rồi phát trên TV hoặc thiết bị media b�
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -228,7 +278,7 @@ Tìm kiếm nội dung YouTube rồi phát trên TV hoặc thiết bị media b�
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -243,7 +293,7 @@ Bật/tắt chế độ xoay cho nhiều quạt cùng lúc bằng giọng nói. 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -262,7 +312,7 @@ Tự động phát hiện video mới nhất từ các kênh bạn theo dõi và
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -281,7 +331,7 @@ Tự động phát hiện video mới nhất từ các kênh bạn theo dõi và
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -298,7 +348,7 @@ Chuyển đổi tức thì giữa lịch Dương và lịch Âm, hoạt động 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -313,7 +363,7 @@ Kiểm tra nhanh các sự kiện đã có trong lịch như sinh nhật, giỗ 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -323,7 +373,7 @@ Tự động thêm các sự kiện tính theo lịch Âm (giỗ, kỷ niệm, c
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 
@@ -333,7 +383,7 @@ Tự động thêm các sự kiện tính theo lịch Âm (giỗ, kỷ niệm, c
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Flink_multiple_devices.yaml)
 
-*Hãy đọc kỹ mô tả của blueprint và làm theo hướng dẫn trong đó nhé.*
+*Hãy đọc kỹ mô tả của từng blueprint và làm theo hướng dẫn trong đó nhé.*
 
 ---
 

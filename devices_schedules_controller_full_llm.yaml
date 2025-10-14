@@ -4,19 +4,21 @@ blueprint:
   description: >-
     # Devices Schedules Controller used for Voice Assistant
 
-    - Uses the Devices Schedules script to manage per-device timers (start / cancel / cancel_all / extend / pause / resume / list).
+    * Uses the Devices Schedules script to manage per-device timers (start / cancel / cancel_all / extend / pause / resume / list).
 
-    - Accepts friendly names from the LLM, resolves them to entity_ids via the provided alias sensor, and can operate on multiple devices in one request.
+    * Accepts friendly names from the LLM, resolves them to entity_ids via the provided alias sensor, and can operate on multiple devices in one request.
 
-    - For `start`, the blueprint dispatches timers via `script.turn_on` with on-completion actions to turn the device on/off. Other modes call the Devices Schedules script directly to receive structured responses.
+    * For `start`, the blueprint dispatches timers via `script.turn_on` with on-completion actions to turn the device on/off. Other modes call the Devices Schedules script directly to receive structured responses.
 
     ## Blueprint Setup
+
+    ### Required
 
     * The `devices_schedules.yaml` blueprint needs to be installed.
 
     * The mentioned file(s) is/are included in the repository.
 
-    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; the sensor is required for friendly-name lookup.
+    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
 
@@ -43,6 +45,8 @@ blueprint:
               entities: "{{ response.stdout }}"
 
     ```
+
+    ### Note
 
     * Make sure to expose the script to Assist after the script has been saved.
 
@@ -121,8 +125,13 @@ blueprint:
             This argument is required when the mode is start or extend.
 
             Provide the delay using the HH:MM:SS format (relative to now). For extend, use the same format to indicate how much time to add (e.g., 00:05:00 adds five minutes).
+
 mode: parallel
 max_exceeded: silent
+
+variables:
+  version: 20251014
+
 fields:
   mode:
     name: Mode
@@ -151,6 +160,7 @@ fields:
     description: !input duration_prompt
     selector:
       text:
+
 sequence:
   - variables:
       _timer_script: !input timer_script

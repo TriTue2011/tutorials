@@ -4,9 +4,21 @@ blueprint:
   description: >-
     # Devices Schedules Restart Handler
 
-    - Runs automatically when Home Assistant comes back online.
+    * Runs automatically when Home Assistant comes back online.
 
-    - Restores cached timers created by the Devices Schedules script, resuming ones still active and executing actions for any that expired while offline.
+    * Restores cached timers created by the Devices Schedules script, resuming ones still active and executing actions for any that expired while offline.
+
+    ## Blueprint Setup
+
+    ### Required
+
+    * The Pyscript integration needs to be installed through HACS and properly configured.
+
+    * The `scripts/common_utilities.py` script need to be copied into the `config/pyscript` folder.
+
+    * The `devices_schedules.yaml` blueprint needs to be installed.
+
+    * The mentioned file(s) is/are included in the repository.
   domain: automation
   input:
     required_settings:
@@ -52,6 +64,9 @@ blueprint:
 
 mode: queued
 max_exceeded: silent
+
+variables:
+  version: 20251014
 
 triggers:
   - trigger: homeassistant

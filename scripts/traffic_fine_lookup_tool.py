@@ -560,7 +560,7 @@ async def _check_license_plate(
                         if response and response.get("status") == "success":
                             await _cache_set(
                                 f"{license_plate}-{vehicle_type}",
-                                json.dumps(response),
+                                json.dumps(response, ensure_ascii=False),
                                 cache_max_age,
                             )
                         return response

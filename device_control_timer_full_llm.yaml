@@ -10,9 +10,9 @@ blueprint:
 
     * The `device_control_tool.yaml` blueprint needs to be installed.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
-    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`.
+    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
 
@@ -21,12 +21,12 @@ blueprint:
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
-      - trigger:
-          - platform: homeassistant
+      - triggers:
+          - trigger: homeassistant
             event: start
           - trigger: event
             event_type: event_template_reloaded
-        action:
+        actions:
           - action: shell_command.get_entity_alias
             response_variable: response
         sensor:

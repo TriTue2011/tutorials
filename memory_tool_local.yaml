@@ -12,7 +12,7 @@ blueprint:
 
     * The `scripts/memory.py` and `scripts/common_utilities.py` scripts need to be copied into the `config/pyscript` folder.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
     ### Optional
 
@@ -28,7 +28,6 @@ blueprint:
     trigger_settings:
       name: Trigger settings
       icon: mdi:chat
-      collapsed: true
       description:
         Settings for the trigger, you can adjust them, or translate them to your own language
       input:
@@ -165,7 +164,7 @@ mode: single
 max_exceeded: silent
 
 variables:
-  version: 20250928
+  version: 20251014
   store_key: "memory_tool"
   trigger_id: "{{ (trigger.id | string) if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
@@ -311,7 +310,7 @@ actions:
                           'key_phrase': key_phrase,
                           'prompt': prompt_text,
                           'allow_force_new': allow_force_new
-                        } | to_json }}
+                        } }}
                   - action: pyscript.memory_cache_set
                     data:
                       key: "{{ store_key }}"
@@ -351,7 +350,7 @@ actions:
                           'key_norm': key_norm,
                           'prompt': prompt_text,
                           'allow_force_new': allow_force_new
-                        } | to_json }}
+                        } }}
                   - action: pyscript.memory_cache_set
                     data:
                       key: "{{ store_key }}"
@@ -385,7 +384,7 @@ actions:
                           'pending_action': 'get_ambiguous_choice',
                           'entries': ns.items,
                           'prompt': prompt_text
-                        } | to_json }}
+                        } }}
                   - action: pyscript.memory_cache_set
                     data:
                       key: "{{ store_key }}"
@@ -431,7 +430,7 @@ actions:
                       'page': 0,
                       'query': key_phrase,
                       'prompt': prompt_text
-                    } | to_json }}
+                    } }}
               - action: pyscript.memory_cache_set
                 data:
                   key: "{{ store_key }}"
@@ -454,7 +453,7 @@ actions:
                       'key': key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')),
                       'key_phrase': key_phrase,
                       'prompt': prompt_text
-                    } | to_json }}
+                    } }}
               - action: pyscript.memory_cache_set
                 data:
                   key: "{{ store_key }}"
@@ -480,10 +479,10 @@ actions:
                           itemsd: "{{ resp_forget.matches[:max_choices] }}"
                           prompt_text: >
                             I found a few candidates:
-              
+
                             {% for it in itemsd -%}
                             {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
-              
+
                             {% endfor -%}
                             Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                           cache_payload: >
@@ -496,7 +495,7 @@ actions:
                               'entries': ns.items,
                               'must_confirm': must_confirm_delete,
                               'prompt': prompt_text
-                            } | to_json }}
+                            } }}
                       - action: pyscript.memory_cache_set
                         data:
                           key: "{{ store_key }}"
@@ -516,8 +515,7 @@ actions:
               - conditions: "{{ resume_cache.status == 'ok' and (resume_cache.value | default('', true) | length) > 0 }}"
                 sequence:
                   - variables:
-                      resume_original: "{{ resume_cache.value }}"
-                      resume_payload: "{{ resume_cache.value | from_json }}"
+                      resume_payload: "{{ resume_cache.value }}"
                   - action: pyscript.memory_cache_forget
                     data:
                       key: "{{ store_key }}"
@@ -595,7 +593,7 @@ actions:
                               - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
-                                  value: "{{ resume_original }}"
+                                  value: "{{ resume_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
@@ -654,7 +652,7 @@ actions:
                                                   'key_norm': chosen_key,
                                                   'prompt': prompt_text,
                                                   'allow_force_new': allow_force_new
-                                                } | to_json }}
+                                                } }}
                                           - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
@@ -674,7 +672,7 @@ actions:
                               - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
-                                  value: "{{ resume_original }}"
+                                  value: "{{ resume_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
@@ -729,7 +727,7 @@ actions:
                                                   'page': next_page,
                                                   'query': resume_payload.query | default(key_phrase, true),
                                                   'prompt': prompt_text
-                                                } | to_json }}
+                                                } }}
                                           - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
@@ -743,7 +741,7 @@ actions:
                                       - action: pyscript.memory_cache_set
                                         data:
                                           key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
+                                          value: "{{ resume_payload }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
                                       - variables:
@@ -784,7 +782,7 @@ actions:
                                                   'key_norm': chosen_key,
                                                   'prompt': prompt_text,
                                                   'allow_force_new': allow_force_new
-                                                } | to_json }}
+                                                } }}
                                           - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
@@ -804,7 +802,7 @@ actions:
                               - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
-                                  value: "{{ resume_original }}"
+                                  value: "{{ resume_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
@@ -856,7 +854,7 @@ actions:
                                                   'entries': ns.items,
                                                   'must_confirm': must_confirm_delete,
                                                   'prompt': prompt_text
-                                                } | to_json }}
+                                                } }}
                                           - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
@@ -881,7 +879,7 @@ actions:
                               - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
-                                  value: "{{ resume_original }}"
+                                  value: "{{ resume_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
@@ -922,7 +920,7 @@ actions:
                                                   'pending_action': 'forget_confirm_secondary',
                                                   'key': chosen_key,
                                                   'prompt': prompt_text
-                                                } | to_json }}
+                                                } }}
                                           - action: pyscript.memory_cache_set
                                             data:
                                               key: "{{ store_key }}"
@@ -957,7 +955,7 @@ actions:
                               - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
-                                  value: "{{ resume_original }}"
+                                  value: "{{ resume_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
@@ -999,7 +997,7 @@ actions:
                               - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
-                                  value: "{{ resume_original }}"
+                                  value: "{{ resume_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
@@ -1067,7 +1065,7 @@ actions:
                                       - action: pyscript.memory_cache_set
                                         data:
                                           key: "{{ store_key }}"
-                                          value: "{{ resume_original }}"
+                                          value: "{{ resume_payload }}"
                                           ttl_seconds: "{{ choice_timeout }}"
                                         response_variable: cache_state
                                       - set_conversation_response: "{{ prompt_text }}"
@@ -1086,7 +1084,7 @@ actions:
                               - action: pyscript.memory_cache_set
                                 data:
                                   key: "{{ store_key }}"
-                                  value: "{{ resume_original }}"
+                                  value: "{{ resume_payload }}"
                                   ttl_seconds: "{{ choice_timeout }}"
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"

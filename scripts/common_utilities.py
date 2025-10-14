@@ -1,4 +1,5 @@
 import asyncio
+import json
 import sqlite3
 import threading
 import time
@@ -10,6 +11,17 @@ DB_PATH = Path("/config/cache.db")
 
 _CACHE_READY = False
 _CACHE_READY_LOCK = threading.Lock()
+_INDEX_LOCKS: dict[str, asyncio.Lock] = {}
+_INDEX_LOCKS_GUARD = threading.Lock()
+
+
+def _get_index_lock(key: str) -> asyncio.Lock:
+    with _INDEX_LOCKS_GUARD:
+        lock = _INDEX_LOCKS.get(key)
+        if lock is None:
+            lock = asyncio.Lock()
+            _INDEX_LOCKS[key] = lock
+        return lock
 
 
 def _ensure_cache_db() -> None:
@@ -186,8 +198,9 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
             "error": "Missing a required argument: key",
         }
     try:
-        value = await _cache_get(key)
-        if value:
+        raw_value = await _cache_get(key)
+        if raw_value:
+            value = json.loads(raw_value)
             return {
                 "status": "ok",
                 "op": "get",
@@ -249,7 +262,7 @@ async def memory_cache_forget(key: str) -> dict[str, Any]:
 @service(supports_response="only")
 async def memory_cache_set(
     key: str,
-    value: str,
+    value: Any,
     ttl_seconds: int | None = None,
 ) -> dict[str, Any]:
     """
@@ -265,7 +278,7 @@ async def memory_cache_set(
           text:
       value:
         name: Value
-        description: Value to cache for the provided key.
+        description: JSON-serializable value to cache for the provided key (string, number, list, dict, etc.).
         required: true
         selector:
           text:
@@ -275,11 +288,11 @@ async def memory_cache_set(
         selector:
           number:
             min: 1
-            max: 86400
+            max: 2592000
             mode: box
     """
     ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else TTL
-    stored_value = str(value)
+    stored_value = json.dumps(value, ensure_ascii=False)
     try:
         success = await _cache_set(key, stored_value, ttl)
         if not success:
@@ -287,14 +300,14 @@ async def memory_cache_set(
                 "status": "error",
                 "op": "set",
                 "key": key,
-                "value": stored_value,
+                "value": value,
                 "error": "cache_set returned False",
             }
         return {
             "status": "ok",
             "op": "set",
             "key": key,
-            "value": stored_value,
+            "value": value,
             "ttl": ttl,
         }
     except Exception as error:
@@ -304,3 +317,155 @@ async def memory_cache_set(
             "key": key,
             "error": f"An unexpected error occurred during processing: {error}",
         }
+
+
+@service(supports_response="only")
+async def memory_cache_index_update(
+    index_key: str,
+    add: Any | None = None,
+    remove: Any | None = None,
+    replace: Any | None = None,
+    ttl_seconds: int | None = None,
+) -> dict[str, Any]:
+    """
+    yaml
+    name: Memory Cache Index Update
+    description: Atomically update a list index in cache by adding and/or removing identifiers.
+    fields:
+      index_key:
+        name: Index key
+        description: Cache key that stores the index list.
+        required: true
+        selector:
+          text:
+      add:
+        name: IDs to add
+        description: Optional list of identifiers to append when absent.
+        selector:
+          object:
+      remove:
+        name: IDs to remove
+        description: Optional list of identifiers to remove from the index.
+        selector:
+          object:
+      replace:
+        name: Replace index
+        description: Optional list that replaces the entire index before add/remove adjustments.
+        selector:
+          object:
+      ttl_seconds:
+        name: TTL Seconds
+        description: Optional override for the index time to live (defaults to 30 days).
+        selector:
+          number:
+            min: 1
+            max: 2592000
+            mode: box
+    """
+    cleaned_key = (index_key or "").strip()
+    if not cleaned_key:
+        return {
+            "status": "error",
+            "op": "index_update",
+            "error": "Missing a required argument: index_key",
+        }
+
+    def _normalize(value: Any) -> list[str]:
+        if value is None:
+            return []
+        if isinstance(value, (str, int, float, bool)):
+            seq = [value]
+        elif isinstance(value, list):
+            seq = value
+        elif isinstance(value, tuple) or isinstance(value, set):
+            seq = list(value)
+        else:
+            return []
+        result: list[str] = []
+        for item in seq:
+            normalized = str(item).strip()
+            if normalized:
+                result.append(normalized)
+        return result
+
+    replace_list = _normalize(replace) if replace is not None else None
+    add_list = _normalize(add)
+    remove_list = _normalize(remove)
+
+    if replace_list is None and not add_list and not remove_list:
+        return {
+            "status": "error",
+            "op": "index_update",
+            "key": cleaned_key,
+            "error": "Nothing to add or remove",
+        }
+
+    ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else 2592000
+
+    lock = _get_index_lock(cleaned_key)
+    async with lock:
+        try:
+            entries: list[str] = []
+            seen: set[str] = set()
+            changed = False
+
+            if replace_list is not None:
+                for value in replace_list:
+                    if value not in seen:
+                        entries.append(value)
+                        seen.add(value)
+                changed = True
+            else:
+                existing_raw = await _cache_get(cleaned_key)
+                if existing_raw:
+                    try:
+                        parsed = json.loads(existing_raw)
+                        if isinstance(parsed, list):
+                            for item in parsed:
+                                value = str(item).strip()
+                                if value and value not in seen:
+                                    entries.append(value)
+                                    seen.add(value)
+                    except json.JSONDecodeError:
+                        entries = []
+
+            for value in add_list:
+                if value not in seen:
+                    entries.append(value)
+                    seen.add(value)
+                    changed = True
+
+            if remove_list:
+                remove_set = set(remove_list)
+                filtered = [entry for entry in entries if entry not in remove_set]
+                if len(filtered) != len(entries):
+                    entries = filtered
+                    seen = set(filtered)
+                    changed = True
+
+            stored_value = json.dumps(entries, ensure_ascii=False)
+            success = await _cache_set(cleaned_key, stored_value, ttl)
+
+            if not success:
+                return {
+                    "status": "error",
+                    "op": "index_update",
+                    "key": cleaned_key,
+                    "error": "cache_set returned False",
+                }
+
+            return {
+                "status": "ok",
+                "op": "index_update",
+                "key": cleaned_key,
+                "ids": entries,
+                "ttl": ttl,
+                "changed": changed,
+            }
+        except Exception as error:
+            return {
+                "status": "error",
+                "op": "index_update",
+                "key": cleaned_key,
+                "error": f"An unexpected error occurred during processing: {error}",
+            }

@@ -14,7 +14,7 @@ blueprint:
 
     * Cần sao chép tập tin `scripts/requirements.txt` vào thư mục `config/pyscript`.
 
-    * Các tệp phụ thuộc được đề cập bên trên đều có sẵn trong kho lưu trữ Github.
+    * Các tệp được đề cập bên trên đều có sẵn trong kho lưu trữ Github.
 
     * Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` sử dụng cho việc giải mã CAPTCHA.
 
@@ -50,7 +50,7 @@ blueprint:
     #File configuration.yaml
 
     template:
-      - trigger:
+      - triggers:
           - trigger: time_pattern
             hours: /6
           - trigger: event
@@ -61,10 +61,10 @@ blueprint:
             icon: mdi:clock-digital
             device_class: timestamp
             state: "{{ (now() + timedelta(minutes=range(1,121) | random)).isoformat() }}"
-      - trigger:
+      - triggers:
           - trigger: time
             at: sensor.time_to_check_30g12345     # Biển số xe
-        action:
+        actions:
           - action: pyscript.traffic_fine_lookup_tool
             data:
               license_plate: 30G12345     # Biển số xe

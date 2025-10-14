@@ -12,7 +12,7 @@ blueprint:
 
     * The `scripts/date_conversion_tool.py` script needs to be copied into the `config/pyscript` folder.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
     * A calendar entity with write permissions to save events.
 

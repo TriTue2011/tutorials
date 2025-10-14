@@ -101,7 +101,7 @@ blueprint:
               multiline: true
           default: >-
             Use either the end_date_time parameter or the end_date parameter, but not both.
- 
+
             This argument specifies the event end date and time in the format YYYY-MM-DD HH:MM:SS.
 
             For timed events, you must provide end_date_time and it must be on or after start_date_time.

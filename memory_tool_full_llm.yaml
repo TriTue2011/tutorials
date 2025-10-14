@@ -14,7 +14,7 @@ blueprint:
 
     * The Memory Tool relies on specific instructions. For complete usage rules and system policies, please refer to `home_assistant_voice_instructions.md`.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
     ### Optional
 

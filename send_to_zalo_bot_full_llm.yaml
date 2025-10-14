@@ -16,7 +16,7 @@ blueprint:
 
     * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
 
-    * The mentioned dependency file(s) is/are included in the repository.
+    * The mentioned file(s) is/are included in the repository.
 
     * A Zalo bot token needs to be configured in `config/configuration.yaml`.
 

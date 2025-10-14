@@ -431,12 +431,53 @@ sequence:
               - variables:
                   _responses: "{{ [_call_result] }}"
           - variables:
+              _list_results_with_names: >
+                {% set responses = _responses | default([]) %}
+                {% set outer = namespace(items=[]) %}
+                {% for item in responses %}
+                  {% if item is mapping %}
+                    {% set timers = item.timers if item.timers is sequence else [] %}
+                    {% set timer_ns = namespace(items=[]) %}
+                    {% for timer in timers %}
+                      {% if timer is mapping %}
+                        {% set entity_id = timer.entity_id | default('') | string %}
+                        {% set friendly = state_attr(entity_id, 'friendly_name') %}
+                        {% if friendly is none or (friendly | string | trim) == '' or (friendly | string | lower) in ['unknown', 'unavailable'] %}
+                          {% set alias_list = _alias_list if _alias_list is sequence else [] %}
+                          {% set alias_match = alias_list | selectattr('entity_id', 'equalto', entity_id) | map(attribute='aliases') | list %}
+                          {% if alias_match | count > 0 %}
+                            {% set aliases = alias_match[0] if alias_match[0] is sequence else [] %}
+                            {% if aliases | count > 0 %}
+                              {% set friendly = aliases[0] %}
+                            {% endif %}
+                          {% endif %}
+                        {% endif %}
+                        {% if friendly is none or (friendly | string | trim) == '' or (friendly | string | lower) in ['unknown', 'unavailable'] %}
+                          {% set entity_part = (entity_id.split('.')[-1] if '.' in entity_id else entity_id) %}
+                          {% set friendly = (entity_part | replace('_', ' ') | title) %}
+                        {% endif %}
+                        {% if friendly is none or (friendly | string | trim) == '' %}
+                          {% set friendly = entity_id %}
+                        {% endif %}
+                        {% set timer_pairs = timer.items() | list %}
+                        {% set timer_ns.items = timer_ns.items + [dict(timer_pairs + [('friendly_name', friendly)])] %}
+                      {% else %}
+                        {% set timer_ns.items = timer_ns.items + [timer] %}
+                      {% endif %}
+                    {% endfor %}
+                    {% set item_pairs = item.items() | list %}
+                    {% set outer.items = outer.items + [dict(item_pairs + [('timers', timer_ns.items)])] %}
+                  {% else %}
+                    {% set outer.items = outer.items + [item] %}
+                  {% endif %}
+                {% endfor %}
+                {{ outer.items }}
               response: >
                 {{
                   dict(
                     mode='list',
                     targets=_resolved_entities,
-                    results=_responses
+                    results=_list_results_with_names
                   )
                 }}
 

@@ -209,7 +209,9 @@ Thực hiện mọi truy vấn Google bằng giọng nói và nhận câu trả 
 
 ---
 
-## ⏱️ Voice Assist - Hẹn giờ bật/tắt thiết bị
+## ⏱️ Voice Assist - Hẹn giờ bật/tắt thiết bị (Đã lỗi thời)
+
+> **Sử dụng phiên bản mới Smart Device Schedule Controller để có nhiều tính năng hơn**
 
 Thiết lập hẹn giờ cho bất kỳ thiết bị nào bằng giọng nói, từ đèn phòng khách đến máy điều hòa. Bạn có thể đặt thời điểm cụ thể, đếm ngược hoặc áp dụng cho nhiều thiết bị cùng lúc mà không cần tự viết automation.
 

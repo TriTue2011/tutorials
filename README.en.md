@@ -209,7 +209,9 @@ Run sophisticated Google searches by voice and hear concise, up-to-date answers.
 
 ---
 
-## ⏱️ Voice Assist - Device Control Timer
+## ⏱️ Voice Assist - Device Control Timer (Obsoleted)
+
+> **Use the new version Smart Device Schedule Controller for more features**
 
 Set timers for any device with natural speech-from living room lights to bedroom AC units. Schedule a specific shutoff time or a countdown, and apply the command to multiple devices at once without writing any YAML.
 

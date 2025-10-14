@@ -28,7 +28,6 @@ blueprint:
     trigger_settings:
       name: Trigger settings
       icon: mdi:chat
-      collapsed: true
       description:
         Settings for the trigger, you can adjust them, or translate them to your own language
       input:
@@ -165,7 +164,7 @@ mode: single
 max_exceeded: silent
 
 variables:
-  version: 20250928
+  version: 20251014
   store_key: "memory_tool"
   trigger_id: "{{ (trigger.id | string) if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"

@@ -10,7 +10,7 @@ blueprint:
 
     * An AI Task entity must be created and configured in the System - General settings.
 
-    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`.
+    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
 

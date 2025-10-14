@@ -16,7 +16,7 @@ blueprint:
 
     * Consider adding entity aliases to make them easier to remember if needed.
 
-    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`.
+    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
 

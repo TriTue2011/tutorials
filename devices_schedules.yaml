@@ -490,8 +490,14 @@ sequence:
                     response_variable: _stop_result
           - variables:
               _id: >-
-                {% if _tid_in|length > 0 %}{{ _tid_in }}
-                {% else %}{{ (_entity_norm|default('timer')|lower|regex_replace('[^a-z0-9]+','_')) ~ '__' ~ (as_timestamp(now())|int) }}
+                {% if _tid_in|length > 0 %}
+                  {{ _tid_in }}
+                {% else %}
+                  {% set slug = (_entity_norm|default('timer')|lower|regex_replace('[^a-z0-9]+','_')) %}
+                  {% set slug = slug if slug|length > 0 else 'timer' %}
+                  {% set ts = now().strftime('%Y%m%d%H%M%S%f') %}
+                  {% set entropy = '%04x' % (range(65536) | random) %}
+                  {{ slug ~ '__' ~ ts ~ '_' ~ entropy }}
                 {% endif %}
               _end_dt: "{{ now() + timedelta(seconds=_dur|int) }}"
               _end_iso: "{{ as_datetime(_end_dt).isoformat() }}"

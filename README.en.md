@@ -8,7 +8,7 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
 
 ---
 
-## Voice Assist - Smart Device Schedule Controller
+## Voice Assist - Devices Schedules / Timers
 
 Automatically create, extend, pause, resume, or cancel **device schedules** through natural voice commands.
 Each schedule controls one or multiple smart devices (such as lights, fans, or air conditioners) and automatically restores itself after Home Assistant restarts.
@@ -16,7 +16,7 @@ Each schedule controls one or multiple smart devices (such as lights, fans, or a
 Unlike Home Assistant's built-in timers, this tool manages **device-based schedules** independently, supports **multiple concurrent schedules**, and performs **automatic actions** (turning devices on or off when the schedule ends).
 You can simply speak naturally - Voice Assist (an LLM such as Gemini/GPT) will interpret, create, and manage these schedules automatically.
 
-### Key Features
+**Key Features:**
 
 - Supports modes: **start**, **extend**, **pause**, **resume**, **cancel**, **cancel_all**, **list**
 - Manage **multiple devices and schedules simultaneously**
@@ -24,7 +24,7 @@ You can simply speak naturally - Voice Assist (an LLM such as Gemini/GPT) will i
 - **Integrated with Voice Assist (LLMs)** for natural multi-language commands
 - Customizable end actions: turn on/off devices, send notifications, or trigger other scripts
 
-### Example Voice Commands
+**Example Voice Commands:**
 
 - "Set a schedule to turn off the living room fan in 15 minutes."
 - "Extend the kitchen light schedule by 10 minutes."
@@ -32,7 +32,7 @@ You can simply speak naturally - Voice Assist (an LLM such as Gemini/GPT) will i
 - "Cancel all device schedules."
 - "What device schedules are currently active?"
 
-### Use Cases
+**Use Cases:**
 
 - Schedule **lights, fans, air conditioners, heaters, or water heaters**
 - Run **multiple independent schedules** per device
@@ -49,12 +49,12 @@ You can simply speak naturally - Voice Assist (an LLM such as Gemini/GPT) will i
 
 ---
 
-## 🧠 Voice Assist - Memory Tool (Remember Anything)
+## 🧠 Voice Assist - Remember Anything (Memory Tool)
 
 Turn Voice Assist into your personal memory vault - capable of storing, updating, recalling, or forgetting information using only your voice.
 Save things like Wi-Fi passwords, parking spots, birthdays, or quick reminders - and retrieve them in seconds without touching your phone or scrolling through notes.
 
-### Key Features
+**Key Features:**
 
 - Store and manage memories through natural voice commands
 - Update, overwrite, or delete existing entries easily
@@ -62,7 +62,7 @@ Save things like Wi-Fi passwords, parking spots, birthdays, or quick reminders -
 - Works **entirely offline** with no internet required
 - Optional TTL (time-to-live) for temporary memories
 
-### Example Voice Commands
+**Example Voice Commands:**
 
 - "Remember my parking spot is basement B2, R10."
 - "Where did I park?"

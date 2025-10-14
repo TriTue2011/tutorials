@@ -1,18 +1,18 @@
 blueprint:
-  name: Voice - Devices Schedule Controller
+  name: Voice - Devices Schedules Controller
   author: luuquangvu
   description: >-
-    # Devices Schedule Controller used for Voice Assistant
+    # Devices Schedules Controller used for Voice Assistant
 
-    - Uses the Devices Schedule script to manage per-device timers (start / cancel / cancel_all / extend / pause / resume / list).
+    - Uses the Devices Schedules script to manage per-device timers (start / cancel / cancel_all / extend / pause / resume / list).
 
     - Accepts friendly names from the LLM, resolves them to entity_ids via the provided alias sensor, and can operate on multiple devices in one request.
 
-    - For `start`, the blueprint dispatches timers via `script.turn_on` with on-completion actions to turn the device on/off. Other modes call the Devices Schedule script directly to receive structured responses.
+    - For `start`, the blueprint dispatches timers via `script.turn_on` with on-completion actions to turn the device on/off. Other modes call the Devices Schedules script directly to receive structured responses.
 
     ## Blueprint Setup
 
-    * The `devices_schedule.yaml` blueprint needs to be installed.
+    * The `devices_schedules.yaml` blueprint needs to be installed.
 
     * The mentioned file(s) is/are included in the repository.
 
@@ -57,8 +57,8 @@ blueprint:
       description: Select the dependencies used by this blueprint.
       input:
         timer_script:
-          name: Devices Schedule script entity
-          description: Script entity created from the Devices Schedule blueprint.
+          name: Devices Schedules script entity
+          description: Script entity created from the Devices Schedules blueprint.
           selector:
             entity:
               filter:

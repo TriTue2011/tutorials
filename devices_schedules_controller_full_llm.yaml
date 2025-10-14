@@ -87,7 +87,13 @@ blueprint:
             text:
               multiline: true
           default: >-
-            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume). Provide one or more friendly names or entity_ids and separate multiple entries with semicolons. For cancel_all, supply devices to limit the cancellation or leave this field empty to cancel every active timer. Leave it empty to list every timer.
+            Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume).
+
+            Provide one or more friendly names or entity_ids and separate multiple entries with semicolons.
+
+            For cancel_all, supply devices to limit the cancellation or leave this field empty to cancel every active schedule/timer.
+
+            Leave it empty to list every schedule/timer entry.
         mode_prompt:
           name: Mode prompt
           selector:
@@ -96,26 +102,28 @@ blueprint:
           default: >-
             Required. Choose exactly one mode:
 
-            - start: create a new timer for the provided device(s) and run the specified expire action when it ends.
+            - start: create a new schedule/timer for the provided device(s) and run the specified expire action when it ends.
 
-            - cancel: stop the active timer for each listed device immediately.
+            - cancel: stop the active schedule/timer for each listed device immediately.
 
-            - cancel_all: cancel every active timer (limit by listing device names, or leave empty to cancel everything).
+            - cancel_all: cancel every active schedule/timer (limit by listing device names, or leave empty to cancel everything).
 
-            - extend: add the given duration to the current timer for each listed device.
+            - extend: add the given duration to the current schedule/timer for each listed device.
 
-            - pause: freeze the running timer for each listed device, preserving remaining time.
+            - pause: freeze the running schedule/timer for each listed device, preserving remaining time.
 
-            - resume: restart a paused timer for each listed device.
+            - resume: restart a paused schedule/timer for each listed device.
 
-            - list: return active timers (leave entities blank for all, or provide a device to filter).
+            - list: return active schedule/timer entries (leave entities blank for all, or provide a device to filter).
         action_prompt:
           name: Action prompt
           selector:
             text:
               multiline: true
           default: >-
-            Required only when mode = start. Use 'turn_on' to run the turn on service when the timer expires, or 'turn_off' to run the turn off service. Ignore for other modes.
+            Required only when mode = start. Ignore for other modes.
+
+            Use 'turn_on' to run the turn on service when the schedule/timer expires, or 'turn_off' to run the turn off service.
         duration_prompt:
           name: Duration prompt
           selector:
@@ -124,7 +132,9 @@ blueprint:
           default: >-
             This argument is required when the mode is start or extend.
 
-            Provide the delay using the HH:MM:SS format (relative to now). For extend, use the same format to indicate how much time to add (e.g., 00:05:00 adds five minutes).
+            Provide the delay using the HH:MM:SS format (relative to now).
+
+            For extend, use the same format to indicate how much time to add to the schedule/timer (e.g., 00:05:00 adds five minutes).
 
 mode: parallel
 max_exceeded: silent

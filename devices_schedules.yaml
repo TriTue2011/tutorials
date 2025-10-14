@@ -165,7 +165,6 @@ sequence:
         {% else %}
           {{ [] }}
         {% endif %}
-      _IDX_COUNT: "{{ _IDX_LIST | length if _IDX_LIST is sequence else 0 }}"
       _IDX_ALIVE: []
   - repeat:
       for_each: "{{ _IDX_LIST if _IDX_LIST is sequence else [] }}"
@@ -200,40 +199,21 @@ sequence:
           {% endif %}
         {% endfor %}
         {{ stale }}
-  - action: pyscript.memory_cache_get
-    data: { key: "{{ _index_key }}" }
-    response_variable: _idx_latest_compact
-  - variables:
-      _IDX_LATEST_COMPACT: >
-        {% set idx_raw = _idx_latest_compact.value if _idx_latest_compact.status == 'ok' else [] %}
-        {% if idx_raw is sequence %}
-          {{ idx_raw }}
-        {% else %}
-          {{ [] }}
-        {% endif %}
-      _IDX_COMPACTED: >
-        {% set stale = _IDX_STALE if _IDX_STALE is sequence else [] %}
-        {% set current_alive = _IDX_ALIVE if _IDX_ALIVE is sequence else [] %}
-        {% set ns = namespace(out=[]) %}
-        {% set compact = _IDX_LATEST_COMPACT if _IDX_LATEST_COMPACT is iterable else [] %}
-        {% for existing in compact %}
-          {% if existing not in stale and existing not in ns.out %}
-            {% set ns.out = ns.out + [existing] %}
-          {% endif %}
-        {% endfor %}
-        {% for existing in current_alive %}
-          {% if existing not in stale and existing not in ns.out %}
-            {% set ns.out = ns.out + [existing] %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.out }}
-      _IDX_ALIVE: "{{ _IDX_COMPACTED if _IDX_COMPACTED is sequence else [] }}"
-  - action: pyscript.memory_cache_set
+  - action: pyscript.memory_cache_index_update
     data:
-      key: "{{ _index_key }}"
-      value: "{{ _IDX_ALIVE }}"
+      index_key: "{{ _index_key }}"
+      add: "{{ _IDX_ALIVE }}"
+      remove: "{{ _IDX_STALE }}"
       ttl_seconds: 2592000  # 30 days
     response_variable: cache_set_index
+  - variables:
+      _IDX_ALIVE: >
+        {% if cache_set_index.status == 'ok' %}
+          {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+          {{ ids }}
+        {% else %}
+          {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+        {% endif %}
 
   # Gather active timers for dedupe checks
   - variables:
@@ -438,40 +418,33 @@ sequence:
                   - stop: ""
                     response_variable: _stop_result
 
-          - action: pyscript.memory_cache_get
-            data: { key: "{{ _index_key }}" }
-            response_variable: _idx_latest_start
           - variables:
-              _IDX_LATEST_START: >
-                {% set idx_raw = _idx_latest_start.value if _idx_latest_start.status == 'ok' else [] %}
-                {% if idx_raw is sequence %}
-                  {{ idx_raw }}
-                {% else %}
-                  {{ [] }}
-                {% endif %}
-              _IDX_ALIVE_PRE: "{{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}"
               _IDX_ALIVE: >
                 {% set removed = _IDX_DEDUPE_REMOVALS if _IDX_DEDUPE_REMOVALS is sequence else [] %}
+                {% set current = _IDX_ALIVE if _IDX_ALIVE is sequence else [] %}
                 {% set ns = namespace(out=[]) %}
-                {% set latest = _IDX_LATEST_START if _IDX_LATEST_START is sequence else [] %}
-                {% for existing in latest %}
-                  {% if existing not in removed and existing not in ns.out %}
-                    {% set ns.out = ns.out + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {% for existing in _IDX_ALIVE_PRE %}
+                {% for existing in current %}
                   {% if existing not in removed and existing not in ns.out %}
                     {% set ns.out = ns.out + [existing] %}
                   {% endif %}
                 {% endfor %}
                 {{ ns.out }}
               _IDX_DEDUPE_REMOVALS: "[]"
-          - action: pyscript.memory_cache_set
+          - action: pyscript.memory_cache_index_update
             data:
-              key: "{{ _index_key }}"
-              value: "{{ _IDX_ALIVE }}"
+              index_key: "{{ _index_key }}"
+              add: "{{ _IDX_ALIVE }}"
+              remove: "{{ _IDX_DEDUPE_REMOVALS }}"
               ttl_seconds: 2592000
             response_variable: cache_set_index
+          - variables:
+              _IDX_ALIVE: >
+                {% if cache_set_index.status == 'ok' %}
+                  {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                  {{ ids }}
+                {% else %}
+                  {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                {% endif %}
 
           # Create id + persist per-timer
           - choose:
@@ -520,51 +493,20 @@ sequence:
             response_variable: cache_set_timer_id
 
           # Update index (append id if missing)
-          - variables:
-              _IDX_ALIVE_PRE: "{{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}"
-              _IDX_ALIVE: >
-                {% set ns = namespace(out=[]) %}
-                {% for existing in _IDX_ALIVE_PRE %}
-                  {% if existing not in ns.out %}
-                    {% set ns.out = ns.out + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {% if _id not in ns.out %}
-                  {% set ns.out = ns.out + [_id] %}
-                {% endif %}
-                {{ ns.out }}
-          - action: pyscript.memory_cache_get
-            data: { key: "{{ _index_key }}" }
-            response_variable: _idx_latest_append
-          - variables:
-              _IDX_LATEST_APPEND: >
-                {% set idx_raw = _idx_latest_append.value if _idx_latest_append.status == 'ok' else [] %}
-                {% if idx_raw is sequence %}
-                  {{ idx_raw }}
-                {% else %}
-                  {{ [] }}
-                {% endif %}
-              _IDX3: >
-                {% set ns = namespace(out=[]) %}
-                {% set append_list = _IDX_LATEST_APPEND if _IDX_LATEST_APPEND is sequence else [] %}
-                {% for existing in append_list %}
-                  {% if existing not in ns.out %}
-                    {% set ns.out = ns.out + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {% set alive = _IDX_ALIVE if _IDX_ALIVE is sequence else [] %}
-                {% for existing in alive %}
-                  {% if existing not in ns.out %}
-                    {% set ns.out = ns.out + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {{ ns.out }}
-          - action: pyscript.memory_cache_set
+          - action: pyscript.memory_cache_index_update
             data:
-              key: "{{ _index_key }}"
-              value: "{{ _IDX3 }}"
+              index_key: "{{ _index_key }}"
+              add: "{{ _id }}"
               ttl_seconds: 2592000
             response_variable: cache_set_index
+          - variables:
+              _IDX_ALIVE: >
+                {% if cache_set_index.status == 'ok' %}
+                  {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                  {{ ids }}
+                {% else %}
+                  {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                {% endif %}
 
           # Wait for expire, extend, cancel, or pause signals
           - variables:
@@ -614,33 +556,20 @@ sequence:
                         - variables:
                             _wait_loop_active: false
                         # Remove from index
-                        - action: pyscript.memory_cache_get
-                          data: { key: "{{ _index_key }}" }
-                          response_variable: _idx_cancel_event
-                        - variables:
-                            _IDX_CANCEL_EVENT: >
-                              {% set idx_raw = _idx_cancel_event.value if _idx_cancel_event.status == 'ok' else [] %}
-                              {% if idx_raw is sequence %}
-                                {{ idx_raw }}
-                              {% else %}
-                                {{ [] }}
-                              {% endif %}
-                            _IDX5: >
-                              {% set ns = namespace(out=[]) %}
-                              {% set cancel_list = _IDX_CANCEL_EVENT if _IDX_CANCEL_EVENT is sequence else [] %}
-                              {% for existing in cancel_list %}
-                                {% if existing != _id and existing not in ns.out %}
-                                  {% set ns.out = ns.out + [existing] %}
-                                {% endif %}
-                              {% endfor %}
-                              {{ ns.out }}
-                            _IDX_ALIVE: "{{ _IDX5 if _IDX5 is sequence else [] }}"
-                        - action: pyscript.memory_cache_set
+                        - action: pyscript.memory_cache_index_update
                           data:
-                            key: "{{ _index_key }}"
-                            value: "{{ _IDX5 if _IDX5 is sequence else [] }}"
+                            index_key: "{{ _index_key }}"
+                            remove: "{{ _id }}"
                             ttl_seconds: 2592000
                           response_variable: cache_set_index
+                        - variables:
+                            _IDX_ALIVE: >
+                              {% if cache_set_index.status == 'ok' %}
+                                {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                                {{ ids }}
+                              {% else %}
+                                {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                              {% endif %}
                         # Mark canceled + short TTL
                         - action: pyscript.memory_cache_set
                           data:
@@ -679,33 +608,20 @@ sequence:
                         - action: "{{ repeat.item.action }}"
                           target: "{{ repeat.item.target | default({}) }}"
                           data: "{{ repeat.item.data | default({}) }}"
-          - action: pyscript.memory_cache_get
-            data: { key: "{{ _index_key }}" }
-            response_variable: _idx_expired_event
-          - variables:
-              _IDX_EXPIRED_EVENT: >
-                {% set idx_raw = _idx_expired_event.value if _idx_expired_event.status == 'ok' else [] %}
-                {% if idx_raw is sequence %}
-                  {{ idx_raw }}
-                {% else %}
-                  {{ [] }}
-                {% endif %}
-              _IDX7: >
-                {% set ns = namespace(out=[]) %}
-                {% set expired_list = _IDX_EXPIRED_EVENT if _IDX_EXPIRED_EVENT is sequence else [] %}
-                {% for existing in expired_list %}
-                  {% if existing != _id and existing not in ns.out %}
-                    {% set ns.out = ns.out + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {{ ns.out }}
-              _IDX_ALIVE: "{{ _IDX7 if _IDX7 is sequence else [] }}"
-          - action: pyscript.memory_cache_set
+          - action: pyscript.memory_cache_index_update
             data:
-              key: "{{ _index_key }}"
-              value: "{{ _IDX7 if _IDX7 is sequence else [] }}"
+              index_key: "{{ _index_key }}"
+              remove: "{{ _id }}"
               ttl_seconds: 2592000
             response_variable: cache_set_index
+          - variables:
+              _IDX_ALIVE: >
+                {% if cache_set_index.status == 'ok' %}
+                  {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                  {{ ids }}
+                {% else %}
+                  {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                {% endif %}
           - action: pyscript.memory_cache_set
             data:
               key: "{{ _prefix }}{{ _id }}"
@@ -779,33 +695,28 @@ sequence:
               _T2: >
                 {{ dict(_T, **{'remaining': (_cancel_remaining if _cancel_remaining > 0 else 0)}) }}
           # Remove from index
-          - action: pyscript.memory_cache_get
-            data: { key: "{{ _index_key }}" }
-            response_variable: _idx_cancel_mode
-          - variables:
-              _IDX_CANCEL_MODE: >
-                {% set idx_raw = _idx_cancel_mode.value if _idx_cancel_mode.status == 'ok' else [] %}
-                {% if idx_raw is sequence %}
-                  {{ idx_raw }}
-                {% else %}
-                  {{ [] }}
-                {% endif %}
-              _IDX3: >
-                {% set ns = namespace(out=[]) %}
-                {% set cancel_mode = _IDX_CANCEL_MODE if _IDX_CANCEL_MODE is sequence else [] %}
-                {% for existing in cancel_mode %}
-                  {% if existing != _id_resolved and existing not in ns.out %}
-                    {% set ns.out = ns.out + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {{ ns.out }}
-              _IDX_ALIVE: "{{ _IDX3 if _IDX3 is sequence else [] }}"
-          - action: pyscript.memory_cache_set
+          - action: pyscript.memory_cache_index_update
             data:
-              key: "{{ _index_key }}"
-              value: "{{ _IDX3 if _IDX3 is sequence else [] }}"
+              index_key: "{{ _index_key }}"
+              remove: "{{ _id_resolved }}"
               ttl_seconds: 2592000
             response_variable: cache_set_index
+          - variables:
+              _IDX_ALIVE: >
+                {% if cache_set_index.status == 'ok' %}
+                  {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                  {{ ids }}
+                {% else %}
+                  {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                {% endif %}
+          - variables:
+              _IDX_ALIVE: >
+                {% if cache_set_index.status == 'ok' %}
+                  {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                  {{ ids }}
+                {% else %}
+                  {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                {% endif %}
           # Mark canceled + short TTL
           - action: pyscript.memory_cache_set
             data:
@@ -878,35 +789,20 @@ sequence:
                   {% endif %}
                 {% endfor %}
                 {{ ns.ids }}
-          - action: pyscript.memory_cache_get
-            data: { key: "{{ _index_key }}" }
-            response_variable: _idx_cancel_all
-          - variables:
-              _IDX_CANCEL_ALL: >
-                {% set idx_raw = _idx_cancel_all.value if _idx_cancel_all.status == 'ok' else [] %}
-                {% if idx_raw is sequence %}
-                  {{ idx_raw }}
-                {% else %}
-                  {{ [] }}
-                {% endif %}
-              _IDX_AFTER_CANCEL_ALL: >
-                {% set idx = _IDX_CANCEL_ALL if _IDX_CANCEL_ALL is sequence else [] %}
-                {% set ids = _cancel_all_ids if _cancel_all_ids is sequence else [] %}
-                {% set ns = namespace(out=[]) %}
-                {% for existing in idx %}
-                  {% if existing not in ids and existing not in ns.out %}
-                    {% set ns.out = ns.out + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {{ ns.out }}
-          - action: pyscript.memory_cache_set
+          - action: pyscript.memory_cache_index_update
             data:
-              key: "{{ _index_key }}"
-              value: "{{ _IDX_AFTER_CANCEL_ALL if _IDX_AFTER_CANCEL_ALL is sequence else [] }}"
+              index_key: "{{ _index_key }}"
+              remove: "{{ _cancel_all_ids }}"
               ttl_seconds: 2592000
             response_variable: cache_set_index
           - variables:
-              _IDX_ALIVE: "{{ _IDX_AFTER_CANCEL_ALL if _IDX_AFTER_CANCEL_ALL is sequence else [] }}"
+              _IDX_ALIVE: >
+                {% if cache_set_index.status == 'ok' %}
+                  {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                  {{ ids }}
+                {% else %}
+                  {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                {% endif %}
               _CANCELLED: []
           - repeat:
               for_each: "{{ _cancel_all_candidates if _cancel_all_candidates is sequence else [] }}"
@@ -1264,40 +1160,20 @@ sequence:
                       sequence:
                         - variables:
                             _wait_loop_active: false
-                            _IDX_RESUME: "{{ _IDX_ALIVE }}"
-                        - action: pyscript.memory_cache_get
-                          data: { key: "{{ _index_key }}" }
-                          response_variable: _idx_resume_cancel
-                        - variables:
-                            _IDX_RESUME_CURRENT: >
-                              {% set idx_raw = _idx_resume_cancel.value if _idx_resume_cancel.status == 'ok' else [] %}
-                              {% if idx_raw is sequence %}
-                                {{ idx_raw }}
-                              {% else %}
-                                {{ [] }}
-                              {% endif %}
-                            _IDX_RESUME2: >
-                              {% set ns = namespace(out=[]) %}
-                              {% set resume_current = _IDX_RESUME_CURRENT if _IDX_RESUME_CURRENT is sequence else [] %}
-                              {% for existing in resume_current %}
-                                {% if existing != _id_resolved and existing not in ns.out %}
-                                  {% set ns.out = ns.out + [existing] %}
-                                {% endif %}
-                              {% endfor %}
-                              {% set resume = _IDX_RESUME if _IDX_RESUME is sequence else [] %}
-                              {% for existing in resume %}
-                                {% if existing != _id_resolved and existing not in ns.out %}
-                                  {% set ns.out = ns.out + [existing] %}
-                                {% endif %}
-                              {% endfor %}
-                              {{ ns.out }}
-                            _IDX_ALIVE: "{{ _IDX_RESUME2 if _IDX_RESUME2 is sequence else [] }}"
-                        - action: pyscript.memory_cache_set
+                        - action: pyscript.memory_cache_index_update
                           data:
-                            key: "{{ _index_key }}"
-                            value: "{{ _IDX_RESUME2 if _IDX_RESUME2 is sequence else [] }}"
+                            index_key: "{{ _index_key }}"
+                            remove: "{{ _id_resolved }}"
                             ttl_seconds: 2592000
                           response_variable: cache_set_index
+                        - variables:
+                            _IDX_ALIVE: >
+                              {% if cache_set_index.status == 'ok' %}
+                                {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
+                                {{ ids }}
+                              {% else %}
+                                {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
+                              {% endif %}
                         - action: pyscript.memory_cache_set
                           data:
                             key: "{{ _prefix }}{{ _id_resolved }}"
@@ -1342,29 +1218,10 @@ sequence:
               ttl_seconds: "{{ _buf|int }}"
             response_variable: cache_set_timer_id
           # Remove from index
-          - action: pyscript.memory_cache_get
-            data: { key: "{{ _index_key }}" }
-            response_variable: _idx2
-          - variables:
-              __IDX: >
-                {% set idx_raw = _idx2.value if _idx2.status == 'ok' else [] %}
-                {% if idx_raw is sequence %}
-                  {{ idx_raw }}
-                {% else %}
-                  {{ [] }}
-                {% endif %}
-              __IDX2: >
-                {% set ids = [] %}
-                {% for existing in __IDX %}
-                  {% if existing != _id_resolved %}
-                    {% set ids = ids + [existing] %}
-                  {% endif %}
-                {% endfor %}
-                {{ ids }}
-          - action: pyscript.memory_cache_set
+          - action: pyscript.memory_cache_index_update
             data:
-              key: "{{ _index_key }}"
-              value: "{{ __IDX2 if __IDX2 is sequence else [] }}"
+              index_key: "{{ _index_key }}"
+              remove: "{{ _id_resolved }}"
               ttl_seconds: 2592000
             response_variable: cache_set_index
           - variables:
@@ -1388,22 +1245,10 @@ sequence:
       #######################################################################
       - conditions: "{{ _mode == 'list' }}"
         sequence:
-          # Compact index again (safety)
-          - action: pyscript.memory_cache_get
-            data: { key: "{{ _index_key }}" }
-            response_variable: _idx3
           - variables:
-              _IDS: >
-                {% set ids_raw = _idx3.value if _idx3.status == 'ok' else [] %}
-                {% if ids_raw is sequence %}
-                  {{ ids_raw }}
-                {% else %}
-                  {{ [] }}
-                {% endif %}
-              _IDS_COUNT: "{{ _IDS | length if _IDS is sequence else 0 }}"
               _ALIVE: []
           - repeat:
-              for_each: "{{ _IDS if _IDS is sequence else [] }}"
+              for_each: "{{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}"
               sequence:
                 - action: pyscript.memory_cache_get
                   data: { key: "{{ _prefix }}{{ repeat.item }}" }

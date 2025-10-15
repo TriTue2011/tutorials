@@ -370,20 +370,20 @@ async def memory_cache_index_update(
             "error": "Missing a required argument: index_key",
         }
 
-    def _normalize(value: Any) -> list[str]:
-        if value is None:
+    def _normalize(_value: Any) -> list[str]:
+        if _value is None:
             return []
-        if isinstance(value, (str, int, float, bool)):
-            seq = [value]
-        elif isinstance(value, list):
-            seq = value
-        elif isinstance(value, tuple) or isinstance(value, set):
-            seq = list(value)
+        if isinstance(_value, (str, int, float, bool)):
+            seq = [_value]
+        elif isinstance(_value, list):
+            seq = _value
+        elif isinstance(_value, tuple) or isinstance(_value, set):
+            seq = list(_value)
         else:
             return []
         result: list[str] = []
-        for item in seq:
-            normalized = str(item).strip()
+        for _item in seq:
+            normalized = str(_item).strip()
             if normalized:
                 result.append(normalized)
         return result
@@ -440,7 +440,6 @@ async def memory_cache_index_update(
                 filtered = [entry for entry in entries if entry not in remove_set]
                 if len(filtered) != len(entries):
                     entries = filtered
-                    seen = set(filtered)
                     changed = True
 
             stored_value = json.dumps(entries, ensure_ascii=False)

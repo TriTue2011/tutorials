@@ -175,10 +175,10 @@ sequence:
   - variables:
       _timer_script: !input timer_script
       _entity_aliases: !input entity_aliases
-      _mode: "{{ (mode | default('start')) | string | lower | trim }}"
-      _entities_raw: "{{ entities | default('') }}"
-      _action_raw: "{{ action | default('turn_on') }}"
-      _duration_raw: "{{ duration | default('00:00:00') }}"
+      _mode: "{{ (mode | default('list', true)) | string | lower | trim }}"
+      _entities_raw: "{{ entities | default('', true) }}"
+      _action_raw: "{{ action | default('', true) }}"
+      _duration_raw: "{{ duration | default('00:00:00', true) }}"
       _entity_names: >
         {% set ns = namespace(items=[]) %}
         {% set source = _entities_raw %}
@@ -189,7 +189,7 @@ sequence:
           {% endif %}
         {% endfor %}
         {{ ns.items }}
-      _alias_list: "{{ state_attr(_entity_aliases, 'entities') | default([]) }}"
+      _alias_list: "{{ state_attr(_entity_aliases, 'entities') | default([], true) }}"
       _missing_entities: >
         {% set ns = namespace(items=[]) %}
         {% set alias_list = _alias_list if _alias_list is sequence else [] %}
@@ -263,12 +263,14 @@ sequence:
         {% endif %}
       _action_normalized: >
         {% set raw = (_action_raw | string | lower | trim) %}
-        {% if raw in ['turn_off', 'off', 'false', '0', 'no'] %}
+        {% if raw in ['turn_on', 'on', 'true', '1', 'yes'] %}
+          turn_on
+        {% elif raw in ['turn_off', 'off', 'false', '0', 'no'] %}
           turn_off
         {% else %}
-          turn_on
+          ''
         {% endif %}
-      _action_service: "{{ 'homeassistant.' ~ _action_normalized }}"
+      _action_service: "{{ 'homeassistant.' ~ _action_normalized if (_action_normalized | length) > 0 else '' }}"
       _responses: []
 
   - choose:
@@ -309,6 +311,20 @@ sequence:
                   )
                 }}
           - stop: "Duration must be greater than zero seconds."
+            response_variable: response
+
+      - conditions: "{{ _mode == 'start' and _action_normalized not in ['turn_on', 'turn_off'] }}"
+        sequence:
+          - variables:
+              response: >
+                {{
+                  dict(
+                    error='Invalid expire action; choose turn_on or turn_off when starting a schedule.',
+                    mode=_mode,
+                    action=_action_raw
+                  )
+                }}
+          - stop: "Invalid expire action; expected turn_on or turn_off."
             response_variable: response
 
   - choose:

@@ -141,12 +141,12 @@ fields:
 sequence:
   - variables:
       _mode: "{{ mode }}"
-      _tid_in: "{{ timer_id }}"
-      _entity_norm: "{{ target_entity | string | trim | lower }}"
-      _dur: "{{ duration_seconds }}"
-      _expire_actions_in: "{{ expire_actions }}"
-      _ext: "{{ extend_seconds }}"
-      _filter: "{{ list_entity_filter }}"
+      _tid_in: "{{ timer_id | default('', true) }}"
+      _entity_norm: "{{ target_entity | default('', true) | string | trim | lower }}"
+      _dur: "{{ duration_seconds | default(0, true) }}"
+      _expire_actions_in: "{{ expire_actions | default([], true) }}"
+      _ext: "{{ extend_seconds | default(0, true) }}"
+      _filter: "{{ list_entity_filter | default('', true) }}"
       _dedupe_mode: !input dedupe_mode
       _dedupe_match: !input dedupe_match
       _index_key: !input registry_index_key

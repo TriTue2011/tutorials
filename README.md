@@ -8,7 +8,7 @@ Biến Home Assistant thành trợ lý cá nhân thực thụ với bộ sưu t�
 
 ---
 
-## Voice Assist - Điều khiển lịch trình thiết bị thông minh (Smart Device Schedule Controller)
+## Voice Assist - Điều khiển lịch trình / hẹn giờ thiết bị
 
 Tự động tạo, gia hạn, tạm dừng, tiếp tục hoặc hủy **lịch trình điều khiển thiết bị** bằng giọng nói tự nhiên.
 Mỗi lịch trình có thể gắn với một hoặc nhiều thiết bị thông minh (như đèn, quạt, điều hòa...) và sẽ tự động **khôi phục sau khi Home Assistant khởi động lại**.
@@ -16,7 +16,7 @@ Mỗi lịch trình có thể gắn với một hoặc nhiều thiết bị thô
 Khác với công cụ hẹn giờ mặc định của Home Assistant, tiện ích này **quản lý lịch trình riêng cho từng thiết bị**, hỗ trợ **nhiều lịch trình chạy song song** và **thực hiện hành động tự động** (bật hoặc tắt thiết bị khi lịch trình kết thúc).
 Bạn chỉ cần nói tự nhiên - Voice Assist (LLM như Gemini/GPT) sẽ tự động hiểu, tạo và theo dõi các lịch trình này.
 
-### Tính năng nổi bật
+**Tính năng nổi bật:**
 
 - Hỗ trợ đầy đủ các chế độ: **start**, **extend**, **pause**, **resume**, **cancel**, **cancel_all**, **list**
 - Quản lý **nhiều thiết bị và nhiều lịch trình cùng lúc**
@@ -24,7 +24,7 @@ Bạn chỉ cần nói tự nhiên - Voice Assist (LLM như Gemini/GPT) sẽ t�
 - **Tích hợp với Voice Assist (LLM)** để hiểu và xử lý lệnh thoại đa ngôn ngữ
 - Hỗ trợ tùy chỉnh hành động khi kết thúc lịch trình: bật/tắt thiết bị, gửi thông báo, hoặc kích hoạt script khác
 
-### Ví dụ lệnh thoại
+**Ví dụ lệnh thoại:**
 
 - "Đặt lịch tắt quạt phòng khách sau 15 phút."
 - "Gia hạn lịch tắt đèn phòng bếp thêm 10 phút."
@@ -32,7 +32,7 @@ Bạn chỉ cần nói tự nhiên - Voice Assist (LLM như Gemini/GPT) sẽ t�
 - "Hủy tất cả lịch điều khiển thiết bị."
 - "Có lịch điều khiển thiết bị nào đang hoạt động không?"
 
-### Ứng dụng
+**Ứng dụng:**
 
 - Lên lịch bật/tắt **đèn, quạt, điều hòa, máy sưởi, bình nóng lạnh**…
 - Tạo **nhiều lịch trình độc lập** cho từng thiết bị
@@ -54,7 +54,7 @@ Bạn chỉ cần nói tự nhiên - Voice Assist (LLM như Gemini/GPT) sẽ t�
 Biến Voice Assist thành "trí nhớ mở rộng" của bạn - có thể lưu, cập nhật, tra cứu hoặc xóa thông tin chỉ bằng giọng nói.
 Ghi nhớ mọi thứ như mật khẩu Wi-Fi, vị trí đậu xe, sinh nhật, hay các ghi chú nhanh - và truy xuất lại trong vài giây, không cần mở điện thoại hay tìm thủ công.
 
-### Tính năng nổi bật
+**Tính năng nổi bật:**
 
 - Lưu trữ và quản lý ghi nhớ bằng giọng nói tự nhiên
 - Hỗ trợ cập nhật, xóa, hoặc ghi đè thông tin đã có
@@ -62,7 +62,7 @@ Ghi nhớ mọi thứ như mật khẩu Wi-Fi, vị trí đậu xe, sinh nhật,
 - Hoạt động **hoàn toàn cục bộ**, không cần internet
 - Tùy chọn giới hạn thời gian lưu (TTL) cho các ghi nhớ tạm thời
 
-### Ví dụ lệnh thoại
+**Ví dụ lệnh thoại:**
 
 - "Ghi nhớ chỗ đậu xe là tầng hầm B2, R10."
 - "Xe mình đậu ở đâu?"

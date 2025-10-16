@@ -339,7 +339,7 @@ Tự động phát hiện video mới nhất từ các kênh bạn theo dõi và
 
 ## 🌙 Voice Assist - Tra cứu & chuyển đổi lịch Âm
 
-Chuyển đổi tức thì giữa lịch Dương và lịch Âm, hoạt động 100% offline với tốc độ phản hồi cực nhanh. Blueprint cung cấp đầy đủ Can Chi, tiết khí, ngày tốt/xấu, giờ hòang đạo và số ngày còn lại tới các sự kiện quan trọng.
+Chuyển đổi tức thì giữa lịch Dương và lịch Âm, hoạt động 100% offline với tốc độ phản hồi cực nhanh. Blueprint cung cấp đầy đủ Can Chi, tiết khí, ngày tốt/xấu, giờ hoàng đạo và số ngày còn lại tới các sự kiện quan trọng.
 
 **Ví dụ lệnh thoại:**
 

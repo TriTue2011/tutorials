@@ -147,9 +147,7 @@ template:
 
 - Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. Chỉ định Template Sensor đã tạo ở bước trên. **Giữ tên kịch bản mặc định không thay đổi.**
 
-- Sau khi tạo xong, chia sẻ kịch bản đó với Assist.
-
-![image](images/20250527_jR4Saw.png)
+- Sau khi tạo xong, lộ diện kịch bản đó với Assist.
 
 ### Cài đặt Blueprint tiếp theo
 
@@ -161,9 +159,7 @@ template:
 
 ![image](images/20250527_JC5AOg.png)
 
-- Sau khi tạo xong, chia sẻ kịch bản đó với Assist.
-
-![image](images/20250527_oMWjtW.png)
+- Sau khi tạo xong, lộ diện kịch bản đó với Assist.
 
 - **Vậy là xong. Bây giờ bạn có thể thử với một số mẫu câu lệnh như sau, hoặc tùy trí tưởng tượng của bạn:**
 

@@ -8,7 +8,7 @@ Biến Home Assistant thành trợ lý cá nhân thực thụ với bộ sưu t�
 
 ---
 
-## Voice Assist - Điều khiển lịch trình / hẹn giờ thiết bị
+## ⏱ Voice Assist - Điều khiển lịch trình / hẹn giờ thiết bị
 
 Tự động tạo, gia hạn, tạm dừng, tiếp tục hoặc hủy **lịch trình điều khiển thiết bị** bằng giọng nói tự nhiên.
 Mỗi lịch trình có thể gắn với một hoặc nhiều thiết bị thông minh (như đèn, quạt, điều hòa...) và sẽ tự động **khôi phục sau khi Home Assistant khởi động lại**.
@@ -400,4 +400,4 @@ Tự động thêm các sự kiện tính theo lịch Âm (giỗ, kỷ niệm, c
 
 ---
 
-**Nếu bạn thấy những blueprint này hữu ích, hãy chia sẻ để cộng đồng Home Assistant cùng trải nghiệm - và nhớ theo dõi để không bỏ lỡ các kịch bản độc đáo sắp ra mắt nhé!**
+**Nếu bạn thấy những blueprint này hữu ích, hãy chia sẻ chúng với cộng đồng Home Assistant nhé! Đừng quên theo dõi để không bỏ lỡ nhiều bản thiết kế độc đáo sắp ra mắt!**

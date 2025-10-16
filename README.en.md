@@ -8,7 +8,7 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
 
 ---
 
-## Voice Assist - Devices Schedules / Timers
+## ⏱ Voice Assist - Devices Schedules / Timers
 
 Automatically create, extend, pause, resume, or cancel **device schedules** through natural voice commands.
 Each schedule controls one or multiple smart devices (such as lights, fans, or air conditioners) and automatically restores itself after Home Assistant restarts.
@@ -400,4 +400,4 @@ Mirror on/off states across multiple devices just like a two-way staircase switc
 
 ---
 
-**If these blueprints spark ideas, share them so more people can benefit-and follow along to catch the next wave of standout automations as soon as they land!**
+**If you find these blueprints helpful, please share them with the Home Assistant community - and be sure to follow along for more unique blueprints coming soon!**

@@ -20,6 +20,8 @@ blueprint:
 
     * Update the Webhook URL to the Zalo Bot Server after saving the script.
 
+    * Enable two Pyscript configuration settings to permit the import of any Python package and to expose hass as a variable.
+
     ```
 
     #File configuration.yaml

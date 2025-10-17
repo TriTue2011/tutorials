@@ -18,9 +18,9 @@ blueprint:
 
     * The mentioned file(s) is/are included in the repository.
 
-    * A Zalo bot token needs to be configured in `config/configuration.yaml`.
+    * Enable two Pyscript configuration settings to permit the import of any Python package and to expose hass as a variable.
 
-    * Use the `pyscript.get_zalo_updates` action to retrieve chat IDs then use the `pyscript.set_zalo_webhook` action to generate a Webhook ID.
+    * A Zalo bot token needs to be configured in `config/configuration.yaml`.
 
     ```
 
@@ -40,6 +40,8 @@ blueprint:
     zalo_bot_token: XXXXXX      # Retrieve the token from the OA Zalo Bot Manager.
 
     ```
+
+    * Use the `pyscript.get_zalo_updates` action to retrieve chat IDs then use the `pyscript.set_zalo_webhook` action to generate a Webhook ID.
 
     ### Note
 

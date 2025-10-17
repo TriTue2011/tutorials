@@ -14,6 +14,18 @@ blueprint:
 
     * The mentioned file(s) is/are included in the repository.
 
+    * Enable two Pyscript configuration settings to permit the import of any Python package and to expose hass as a variable.
+
+    ```
+
+    #File configuration.yaml
+
+    pyscript:
+      allow_all_imports: true
+      hass_is_global: true
+
+    ```
+
     ### Optional
 
     * Add triggers or change the existing ones.

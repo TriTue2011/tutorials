@@ -18,7 +18,7 @@ blueprint:
 
     * Bật hai cài đặt cấu hình Pyscript để cho phép nhập bất kỳ gói Python nào và hiển thị hass dưới dạng một biến.
 
-    * Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` sử dụng cho việc giải mã CAPTCHA.
+    * Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` và `config/secrets.yaml` sử dụng cho việc giải mã CAPTCHA.
 
     ```
 

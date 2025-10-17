@@ -20,7 +20,7 @@ blueprint:
 
     * The mentioned file(s) is/are included in the repository.
 
-    * Enable two Pyscript configuration settings to permit the import of any Python package and to expose hass as a variable.
+    * Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
 
     ```
 

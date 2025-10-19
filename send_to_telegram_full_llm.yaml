@@ -162,6 +162,34 @@ blueprint:
             If content_type is not image: leave this blank.
 
             Return only the value.
+        chat_id_override_prompt:
+          name: Chat ID Override Prompt
+          description: Prompt shown to the LLM to request an alternate chat when needed.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            This argument is optional. Provide only when the user explicitly wants to send the message to a different chat than the default configuration.
+
+            Return the exact Telegram chat ID (accept negative IDs for supergroups). No spaces, words, or extra commentary.
+
+            If the user does not specify a chat ID, leave this blank.
+
+            Return only the value.
+        message_thread_id_override_prompt:
+          name: Message Thread ID Override Prompt
+          description: Prompt shown to the LLM to request a different topic when needed.
+          selector:
+            text:
+              multiline: true
+          default: >-
+            This argument is optional. Provide only when the user requests a specific message thread (topic) different from the default configuration.
+
+            Return the numeric thread (topic) ID. Digits only; no punctuation or additional text.
+
+            If the user does not specify a thread ID, leave this blank.
+
+            Return only the value.
 mode: queued
 max: 30
 max_exceeded: silent
@@ -199,13 +227,38 @@ fields:
     description: !input image_path_prompt
     selector:
       text:
+  target_chat_id:
+    name: Override Chat ID
+    description: !input chat_id_override_prompt
+    selector:
+      text:
+  target_message_thread_id:
+    name: Override Thread ID
+    description: !input message_thread_id_override_prompt
+    selector:
+      text:
 sequence:
   - variables:
+      default_chat_id: !input chat_id
+      default_thread_id: !input thread_id
       summary: "{{ summary | default('') | trim }}"
       detail: "{{ detail | default('') | trim }}"
       content_type: "{{ content_type | default('') | trim }}"
       location: "{{ location | default('') | trim }}"
       image_path: "{{ image_path | default('') | trim }}"
+      override_chat_id: "{{ target_chat_id | default('') | trim }}"
+      override_message_thread_id: "{{ target_message_thread_id | default('') | trim }}"
+      chat_id_value: >-
+        {% set candidate = override_chat_id if override_chat_id else default_chat_id %}
+        {{ '' if candidate is none else (candidate | string | trim) }}
+      message_thread_id_value: >-
+        {% if override_message_thread_id %}
+          {{ override_message_thread_id }}
+        {% elif default_thread_id is not none %}
+          {{ (default_thread_id | string) | trim }}
+        {% else %}
+          {{ '' }}
+        {% endif %}
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -213,8 +266,13 @@ sequence:
           {{
             (not summary)
             or (content_type not in ['information', 'location', 'image'])
+            or (not chat_id_value)
             or (content_type == 'location' and not location)
             or (content_type == 'image' and not image_path)
+            or (
+              override_message_thread_id
+              and not override_message_thread_id | regex_match('^\d+$')
+            )
           }}
     then:
       - alias: Set variable for error message
@@ -222,7 +280,7 @@ sequence:
           response:
             error: >-
               Unable to send the message to Telegram because one or more
-              inputs are missing or invalid (summary, content_type, location, or image_path).
+              inputs are missing or invalid (summary, content_type, chat_id, location, image_path, or message_thread_id).
       - alias: Stop the script
         stop: Unable to send the message to Telegram due to invalid inputs.
         response_variable: response
@@ -233,8 +291,8 @@ sequence:
         sequence:
           - action: pyscript.send_telegram_message
             data:
-              chat_id: !input chat_id
-              message_thread_id: !input thread_id
+              chat_id: "{{ chat_id_value }}"
+              message_thread_id: "{{ message_thread_id_value }}"
               parse_mode: HTML
               message: >-
                 <b>{{ summary | e }}</b>{% if detail %}
@@ -253,8 +311,8 @@ sequence:
         sequence:
           - action: pyscript.send_telegram_message
             data:
-              chat_id: !input chat_id
-              message_thread_id: !input thread_id
+              chat_id: "{{ chat_id_value }}"
+              message_thread_id: "{{ message_thread_id_value }}"
               parse_mode: HTML
               message: >-
                 <b>{{ summary | e }}</b>{% if detail %}
@@ -273,8 +331,8 @@ sequence:
         sequence:
           - action: pyscript.send_telegram_photo
             data:
-              chat_id: !input chat_id
-              message_thread_id: !input thread_id
+              chat_id: "{{ chat_id_value }}"
+              message_thread_id: "{{ message_thread_id_value }}"
               parse_mode: HTML
               file_path: "{{ image_path }}"
               caption: >-

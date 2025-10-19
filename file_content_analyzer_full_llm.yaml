@@ -81,7 +81,7 @@ blueprint:
 mode: parallel
 max_exceeded: silent
 variables:
-  version: 20250923
+  version: 20251019
 fields:
   instructions:
     name: Instructions

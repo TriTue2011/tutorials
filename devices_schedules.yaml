@@ -481,7 +481,7 @@ sequence:
                   {% set slug = (_entity_norm|default('timer')|lower|regex_replace('[^a-z0-9]+','_')) %}
                   {% set slug = slug if slug|length > 0 else 'timer' %}
                   {% set ts = now().strftime('%Y%m%d%H%M%S%f') %}
-                  {% set entropy = '%04x' % (range(65536) | random) %}
+                  {% set entropy = '%05x' % (range(100000) | random) %}
                   {{ slug ~ '__' ~ ts ~ '_' ~ entropy }}
                 {% endif %}
               _end_dt: "{{ now() + timedelta(seconds=_dur|int) }}"

@@ -187,6 +187,13 @@ sequence:
         {{ sanitized_prefix ~ now().strftime('%Y%m%d_%H%M%S') ~ '_' ~ snapshot_random_suffix ~ sanitized_extension }}
       snapshot_full_path: >-
         {{ snapshot_directory_normalized ~ '/' ~ snapshot_filename }}
+      returned_image_path: >-
+        {% set prefix = '/media/' %}
+        {% if snapshot_full_path.startswith(prefix) %}
+          {{ 'local/' ~ snapshot_full_path[prefix | length:] }}
+        {% else %}
+          {{ snapshot_full_path }}
+        {% endif %}
   - action: camera.snapshot
     target:
       entity_id: "{{ camera_entity_id }}"
@@ -194,6 +201,6 @@ sequence:
       filename: "{{ snapshot_full_path }}"
   - variables:
       response:
-        image_path: "{{ snapshot_full_path }}"
+        image_path: "{{ returned_image_path }}"
   - stop: ""
     response_variable: response

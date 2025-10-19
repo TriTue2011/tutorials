@@ -118,7 +118,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20250925
+  version: 20251019
   chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language
@@ -177,6 +177,8 @@ actions:
                   %} {% endif %}
 
                   {{ trigger.json.message.text }}
+                telegram_chat_id: "{{ trigger.json.message.chat.id }}"
+                telegram_message_thread_id: "{{trigger.json.message.message_thread_id if trigger.json.message.message_thread_id is defined }}"
         alias: Process text
       - conditions:
           - condition: template
@@ -210,6 +212,8 @@ actions:
                   trigger.json.message.caption }} {% endif %}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                telegram_chat_id: "{{ trigger.json.message.chat.id }}"
+                telegram_message_thread_id: "{{trigger.json.message.message_thread_id if trigger.json.message.message_thread_id is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process photo
       - conditions:
@@ -244,6 +248,8 @@ actions:
                   trigger.json.message.caption }} {% endif %}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                telegram_chat_id: "{{ trigger.json.message.chat.id }}"
+                telegram_message_thread_id: "{{trigger.json.message.message_thread_id if trigger.json.message.message_thread_id is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process video
       - conditions:
@@ -278,6 +284,8 @@ actions:
                   trigger.json.message.caption }} {% endif %}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                telegram_chat_id: "{{ trigger.json.message.chat.id }}"
+                telegram_message_thread_id: "{{trigger.json.message.message_thread_id if trigger.json.message.message_thread_id is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process video note
       - conditions:
@@ -312,6 +320,8 @@ actions:
                   trigger.json.message.caption }} {% endif %}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                telegram_chat_id: "{{ trigger.json.message.chat.id }}"
+                telegram_message_thread_id: "{{trigger.json.message.message_thread_id if trigger.json.message.message_thread_id is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process voice
       - conditions:
@@ -346,6 +356,8 @@ actions:
                   trigger.json.message.caption }} {% endif %}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                telegram_chat_id: "{{ trigger.json.message.chat.id }}"
+                telegram_message_thread_id: "{{trigger.json.message.message_thread_id if trigger.json.message.message_thread_id is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process audio
       - conditions:
@@ -380,6 +392,8 @@ actions:
                   trigger.json.message.caption }} {% endif %}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                telegram_chat_id: "{{ trigger.json.message.chat.id }}"
+                telegram_message_thread_id: "{{trigger.json.message.message_thread_id if trigger.json.message.message_thread_id is defined }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process document
   - choose:

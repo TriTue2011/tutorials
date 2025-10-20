@@ -172,7 +172,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20250923
+  version: 20251020
 fields:
   summary:
     name: Summary

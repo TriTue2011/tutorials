@@ -160,14 +160,14 @@ sequence:
     then:
       - action: ai_task.generate_data
         data:
-          task_name: Analyze content from a media entity
+          task_name: Analyze content from a media or document file
           instructions: "{{ instructions }}"
           attachments: "{{ attachments }}"
         response_variable: result
     else:
       - action: ai_task.generate_data
         data:
-          task_name: Analyze content from a media entity
+          task_name: Analyze content from a media or document file
           instructions: "{{ instructions }}"
           attachments: "{{ attachments }}"
           entity_id: "{{ ai_task_entity }}"

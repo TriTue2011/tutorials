@@ -46,6 +46,8 @@ blueprint:
 
     * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling speed of a smart fan.
 
+    * Make sure to expose the fan entities you want to control to Assist.
+
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.

@@ -127,7 +127,7 @@ blueprint:
 
             Return the address of the location. Names only; no commas, prefixes or punctuation; single spaces.
 
-            If content_type = information or image: leave this blank.
+            If content_type is not location: leave this blank.
 
             Return only the value.
         image_path_prompt:
@@ -157,7 +157,7 @@ blueprint:
 
             Return the exact Zalo thread ID. No spaces, words, or extra commentary.
 
-            If not provided or unknown, leave this blank.
+            If the user does not specify a thread ID, leave this blank.
 
             Return only the value.
         receiver_override_prompt:
@@ -171,7 +171,7 @@ blueprint:
 
             Return exactly "0" for user or "1" for group. No words or extra commentary.
 
-            If not provided or unknown, leave this blank.
+            If the user does not specify a receiver type, leave this blank.
 
             Return only the value.
 mode: queued

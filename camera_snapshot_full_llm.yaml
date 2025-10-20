@@ -36,7 +36,7 @@ blueprint:
 
     ```
 
-    * Ensure the directory defined in the snapshot settings exists (for example `/media/snapshots`).
+    * Ensure the directory defined in the snapshot settings exists (default is `/media`).
 
     ### Optional
 
@@ -75,10 +75,10 @@ blueprint:
       input:
         snapshot_directory:
           name: Snapshot Directory
-          description: Absolute path where the snapshot will be stored (for example `/media/snapshots`).
+          description: Absolute path where the snapshot will be stored (default is `/media`).
           selector:
             text:
-          default: /media/snapshots
+          default: /media
         snapshot_filename_prefix:
           name: Snapshot Filename Prefix
           description: Prefix used when generating the snapshot filename.
@@ -124,7 +124,7 @@ sequence:
   - variables:
       entity_aliases: !input entity_aliases
       camera_name: "{{ camera_name | default('') | trim }}"
-      snapshot_directory: "{{ snapshot_directory | default('/media/snapshots') | trim }}"
+      snapshot_directory: "{{ snapshot_directory | default('/media') | trim }}"
       snapshot_prefix: "{{ snapshot_filename_prefix | default('camera_snapshot_') | trim }}"
       snapshot_extension: "{{ snapshot_file_extension | default('jpg') | trim | lower }}"
   - alias: Validate camera name
@@ -180,7 +180,7 @@ sequence:
         {% if snapshot_directory %}
           {{ snapshot_directory.rstrip('/\\') }}
         {% else %}
-          /media/snapshots
+          /media
         {% endif %}
       snapshot_random_suffix: "{{ '%05d' | format(range(0, 100000) | random) }}"
       snapshot_filename: >-

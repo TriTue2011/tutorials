@@ -135,7 +135,7 @@ blueprint:
 
             Return the address of the location. Names only; no commas, prefixes or punctuation; single spaces.
 
-            If content_type = information or image: leave this blank.
+            If content_type is not location: leave this blank.
 
             Return only the value.
         image_path_prompt:

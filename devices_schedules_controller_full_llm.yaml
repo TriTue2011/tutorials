@@ -48,6 +48,8 @@ blueprint:
 
     ### Note
 
+    * Make sure to expose the entities you want to control to Assist.
+
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.

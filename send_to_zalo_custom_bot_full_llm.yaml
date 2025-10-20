@@ -239,15 +239,15 @@ sequence:
         {% else %}
           {{ path }}
         {% endif %}
-      override_thread_id: "{{ target_thread_id | default('') | trim }}"
-      override_receiver: "{{ target_receiver | default('') | trim }}"
+      override_thread_id: "{{ target_thread_id | default('') | string | trim }}"
+      override_receiver: "{{ target_receiver | default('') | string | trim }}"
       account_value: "{{ default_account | default('') | string | trim }}"
       thread_id_value: >-
         {% set candidate = override_thread_id if override_thread_id else default_thread_id %}
-        {{ '' if candidate is none else (candidate | string | trim) }}
+        {{ candidate | default('', true) | string | trim }}
       receiver_value: >-
         {% set candidate = override_receiver if override_receiver else default_receiver %}
-        {{ '' if candidate is none else (candidate | string | trim) }}
+        {{ candidate | default('', true) | string | trim }}
   - alias: Check if variables were set correctly
     if:
       - condition: template

@@ -271,6 +271,9 @@ async def _copy_to_www(file_path: str) -> tuple[str, str]:
         ValueError: When external URL is not configured.
     """
     normalized = _to_media_path(file_path)
+    file_exists = await asyncio.to_thread(os.path.isfile, normalized)
+    if not file_exists:
+        raise FileNotFoundError(f"File not found: {normalized}")
     await _ensure_dir(WWW_DIRECTORY)
     async with aiofiles.open(normalized, "rb") as src:
         data = await src.read()

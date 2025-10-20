@@ -82,6 +82,7 @@ blueprint:
           selector:
             number:
               min: 0
+              max: 86400000
               step: 1
           default: 0
     agent_settings:
@@ -106,7 +107,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20250925
+  version: 20251020
   thread_ids: !input thread_ids
   user_ids: !input user_ids
   language: !input language
@@ -160,6 +161,8 @@ actions:
                   {{ trigger.json.data.quote.msg if (trigger.json.data.quote is defined and trigger.json.data.quote.msg is defined) }}
 
                   {{ trigger.json.data.content }}
+                zalo_thread_id: "{{ trigger.json.threadId }}"
+                zalo_receiver_type: "{{ trigger.json.type }}"
         alias: Process text
       - conditions:
           - condition: template
@@ -185,6 +188,8 @@ actions:
                   {{ trigger.json.data.content.title }}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                zalo_thread_id: "{{ trigger.json.threadId }}"
+                zalo_receiver_type: "{{ trigger.json.type }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process all file types
   - choose:

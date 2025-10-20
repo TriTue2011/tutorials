@@ -116,7 +116,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20250925
+  version: 20251020
   chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language
@@ -168,6 +168,7 @@ actions:
                   Always respond in the user's language: {{ language | trim }}.
                 prompt: >-
                   {{ trigger.json.message.text }}
+                zalo_chat_id: "{{ trigger.json.message.chat.id }}"
         alias: Process text
       - conditions:
           - condition: template
@@ -193,6 +194,7 @@ actions:
                   {{ trigger.json.message.caption }}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
+                zalo_chat_id: "{{ trigger.json.message.chat.id }}"
               supported: "{{ file.supported if file.supported is defined }}"
         alias: Process photo
   - choose:

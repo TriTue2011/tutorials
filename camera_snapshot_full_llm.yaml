@@ -184,7 +184,7 @@ sequence:
         {% endif %}
       snapshot_random_suffix: "{{ '%05d' | format(range(0, 100000) | random) }}"
       snapshot_filename: >-
-        {{ sanitized_prefix ~ now().strftime('%Y%m%d_%H%M%S') ~ '_' ~ snapshot_random_suffix ~ sanitized_extension }}
+        {{ sanitized_prefix ~ now().strftime('%Y%m%d%H%M%S%f') ~ '_' ~ snapshot_random_suffix ~ sanitized_extension }}
       snapshot_full_path: >-
         {{ snapshot_directory_normalized ~ '/' ~ snapshot_filename }}
       returned_image_path: >-

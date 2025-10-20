@@ -199,6 +199,10 @@ async def _send_photo(
     """
     file_path = _to_media_path(file_path)
 
+    file_exists = await asyncio.to_thread(os.path.isfile, file_path)
+    if not file_exists:
+        raise FileNotFoundError(f"File not found: {file_path}")
+
     async with aiofiles.open(file_path, "rb") as f:
         data = await f.read()
 

@@ -239,15 +239,47 @@ sequence:
         {% else %}
           {{ path }}
         {% endif %}
-      override_thread_id: "{{ '' ~ (target_thread_id | default('', true) | trim) }}"
-      override_receiver: "{{ '' ~ (target_receiver | default('', true) | trim) }}"
-      account_value: "{{ '' ~ (default_account | default('', true) | trim) }}"
-      thread_id_value: >-
-        {% set candidate = override_thread_id if override_thread_id else default_thread_id %}
-        {{ '' ~ (candidate | default('', true) | trim) }}
-      receiver_value: >-
-        {% set candidate = override_receiver if override_receiver else default_receiver %}
-        {{ '' ~ (candidate | default('', true) | trim) }}
+      default_account_json: >-
+        {% set raw = default_account | default('', true) %}
+        {% set value = (raw | string) | trim %}
+        {{ value | to_json if value else '""' }}
+      default_thread_id_json: >-
+        {% set raw = default_thread_id | default('', true) %}
+        {% if raw is number %}
+          {% set value = '%s' | format(raw) %}
+        {% else %}
+          {% set value = (raw | string) | trim %}
+        {% endif %}
+        {{ value | to_json if value else '""' }}
+      default_receiver_json: >-
+        {% set raw = default_receiver | default('', true) %}
+        {% set value = (raw | string) | trim %}
+        {{ value | to_json if value else '""' }}
+      override_thread_id_json: >-
+        {% set raw = target_thread_id | default('', true) %}
+        {% if raw is number %}
+          {% set value = '%s' | format(raw) %}
+        {% else %}
+          {% set value = (raw | string) | trim %}
+        {% endif %}
+        {{ value | to_json if value else '""' }}
+      override_receiver_json: >-
+        {% set raw = target_receiver | default('', true) %}
+        {% set value = (raw | string) | trim %}
+        {{ value | to_json if value else '""' }}
+      account_value_json: "{{ default_account_json }}"
+      thread_id_value_json: >-
+        {% if override_thread_id_json != '""' %}
+          {{ override_thread_id_json }}
+        {% else %}
+          {{ default_thread_id_json }}
+        {% endif %}
+      receiver_value_json: >-
+        {% if override_receiver_json != '""' %}
+          {{ override_receiver_json }}
+        {% else %}
+          {{ default_receiver_json }}
+        {% endif %}
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -255,14 +287,14 @@ sequence:
           {{
             (not summary)
             or (content_type not in ['information', 'location', 'image'])
-            or (not account_value)
-            or (not thread_id_value)
-            or (receiver_value not in ['0', '1'])
+            or (not (account_value_json != '""' and (account_value_json | from_json)))
+            or (not (thread_id_value_json != '""' and (thread_id_value_json | from_json)))
+            or ((receiver_value_json | from_json) not in ['0', '1'])
             or (content_type == 'location' and not location)
             or (content_type == 'image' and not image_path)
             or (
-              override_receiver
-              and override_receiver not in ['0', '1']
+              override_receiver_json != '""'
+              and (override_receiver_json | from_json) not in ['0', '1']
             )
           }}
     then:
@@ -282,9 +314,15 @@ sequence:
         sequence:
           - action: zalo_bot.send_message
             data:
-              account_selection: "{{ account_value }}"
-              thread_id: "{{ thread_id_value }}"
-              type: "{{ receiver_value }}"
+              account_selection: >-
+                {% set encoded = account_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
+              thread_id: >-
+                {% set encoded = thread_id_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
+              type: >-
+                {% set encoded = receiver_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
               message: >-
                 {{ summary }}{% if detail %}
 
@@ -302,9 +340,15 @@ sequence:
         sequence:
           - action: zalo_bot.send_message
             data:
-              account_selection: "{{ account_value }}"
-              thread_id: "{{ thread_id_value }}"
-              type: "{{ receiver_value }}"
+              account_selection: >-
+                {% set encoded = account_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
+              thread_id: >-
+                {% set encoded = thread_id_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
+              type: >-
+                {% set encoded = receiver_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
               message: >-
                 {{ summary }}{% if detail %}
 
@@ -322,9 +366,15 @@ sequence:
         sequence:
           - action: zalo_bot.send_image
             data:
-              account_selection: "{{ account_value }}"
-              thread_id: "{{ thread_id_value }}"
-              type: "{{ receiver_value }}"
+              account_selection: >-
+                {% set encoded = account_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
+              thread_id: >-
+                {% set encoded = thread_id_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
+              type: >-
+                {% set encoded = receiver_value_json %}
+                {{ '' if encoded == '""' else encoded | from_json }}
               image_path: "{{ image_path_resolved }}"
               message: >-
                 {{ summary }}{% if detail %}

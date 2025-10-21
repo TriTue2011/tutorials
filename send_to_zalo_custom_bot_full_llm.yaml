@@ -146,34 +146,6 @@ blueprint:
             If content_type is not image: leave this blank.
 
             Return only the value.
-        thread_id_override_prompt:
-          name: Thread ID Override Prompt
-          description: Prompt shown to the LLM to request an alternate thread when needed.
-          selector:
-            text:
-              multiline: true
-          default: >-
-            This argument is optional. Provide only when the user explicitly wants to send the message to a different thread than the default configuration.
-
-            Return the exact Zalo thread ID. No spaces, words, or extra commentary.
-
-            If the user does not specify a thread ID, leave this blank.
-
-            Return only the value.
-        receiver_override_prompt:
-          name: Receiver Override Prompt
-          description: Prompt shown to the LLM to request an alternate receiver type (user or group).
-          selector:
-            text:
-              multiline: true
-          default: >-
-            This argument is optional. Provide only when the user explicitly wants to switch between sending to a user or a group.
-
-            Return exactly "0" for user or "1" for group. No words or extra commentary.
-
-            If the user does not specify a receiver type, leave this blank.
-
-            Return only the value.
 mode: queued
 max: 30
 max_exceeded: silent
@@ -211,16 +183,6 @@ fields:
     description: !input image_path_prompt
     selector:
       text:
-  target_thread_id:
-    name: Override Thread ID
-    description: !input thread_id_override_prompt
-    selector:
-      text:
-  target_receiver:
-    name: Override Receiver Type
-    description: !input receiver_override_prompt
-    selector:
-      text:
 sequence:
   - variables:
       default_account: !input account
@@ -239,47 +201,6 @@ sequence:
         {% else %}
           {{ path }}
         {% endif %}
-      default_account_json: >-
-        {% set raw = default_account | default('', true) %}
-        {% set value = (raw | string) | trim %}
-        {{ value | to_json if value else '""' }}
-      default_thread_id_json: >-
-        {% set raw = default_thread_id | default('', true) %}
-        {% if raw is number %}
-          {% set value = '%s' | format(raw) %}
-        {% else %}
-          {% set value = (raw | string) | trim %}
-        {% endif %}
-        {{ value | to_json if value else '""' }}
-      default_receiver_json: >-
-        {% set raw = default_receiver | default('', true) %}
-        {% set value = (raw | string) | trim %}
-        {{ value | to_json if value else '""' }}
-      override_thread_id_json: >-
-        {% set raw = target_thread_id | default('', true) %}
-        {% if raw is number %}
-          {% set value = '%s' | format(raw) %}
-        {% else %}
-          {% set value = (raw | string) | trim %}
-        {% endif %}
-        {{ value | to_json if value else '""' }}
-      override_receiver_json: >-
-        {% set raw = target_receiver | default('', true) %}
-        {% set value = (raw | string) | trim %}
-        {{ value | to_json if value else '""' }}
-      account_value_json: "{{ default_account_json }}"
-      thread_id_value_json: >-
-        {% if override_thread_id_json != '""' %}
-          {{ override_thread_id_json }}
-        {% else %}
-          {{ default_thread_id_json }}
-        {% endif %}
-      receiver_value_json: >-
-        {% if override_receiver_json != '""' %}
-          {{ override_receiver_json }}
-        {% else %}
-          {{ default_receiver_json }}
-        {% endif %}
   - alias: Check if variables were set correctly
     if:
       - condition: template
@@ -287,15 +208,8 @@ sequence:
           {{
             (not summary)
             or (content_type not in ['information', 'location', 'image'])
-            or (not (account_value_json != '""' and (account_value_json | from_json)))
-            or (not (thread_id_value_json != '""' and (thread_id_value_json | from_json)))
-            or ((receiver_value_json | from_json) not in ['0', '1'])
             or (content_type == 'location' and not location)
             or (content_type == 'image' and not image_path)
-            or (
-              override_receiver_json != '""'
-              and (override_receiver_json | from_json) not in ['0', '1']
-            )
           }}
     then:
       - alias: Set variable for error message
@@ -314,15 +228,9 @@ sequence:
         sequence:
           - action: zalo_bot.send_message
             data:
-              account_selection: >-
-                {% set encoded = account_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
-              thread_id: >-
-                {% set encoded = thread_id_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
-              type: >-
-                {% set encoded = receiver_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
+              account_selection: !input account
+              thread_id: !input thread_id
+              type: !input receiver
               message: >-
                 {{ summary }}{% if detail %}
 
@@ -340,15 +248,9 @@ sequence:
         sequence:
           - action: zalo_bot.send_message
             data:
-              account_selection: >-
-                {% set encoded = account_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
-              thread_id: >-
-                {% set encoded = thread_id_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
-              type: >-
-                {% set encoded = receiver_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
+              account_selection: !input account
+              thread_id: !input thread_id
+              type: !input receiver
               message: >-
                 {{ summary }}{% if detail %}
 
@@ -366,15 +268,9 @@ sequence:
         sequence:
           - action: zalo_bot.send_image
             data:
-              account_selection: >-
-                {% set encoded = account_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
-              thread_id: >-
-                {% set encoded = thread_id_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
-              type: >-
-                {% set encoded = receiver_value_json %}
-                {{ '' if encoded == '""' else encoded | from_json }}
+              account_selection: !input account
+              thread_id: !input thread_id
+              type: !input receiver
               image_path: "{{ image_path_resolved }}"
               message: >-
                 {{ summary }}{% if detail %}

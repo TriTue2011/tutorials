@@ -189,10 +189,16 @@ sequence:
     data:
       task_name: Analyze and summarize news
       instructions: >-
-        Here is a list of news items collected within the past 24 hours. Please
-        analyze them and produce a summary in Vietnamese. The summary must be
-        concise and written in bullet points, highlighting the main events,
-        their context, and their impact:
+        Here is a list of news items collected within the past 24 hours. Analyze
+        them and produce a summary in Vietnamese.
+
+        The output must be concise and written in bullet points. Each bullet
+        should briefly describe the main event, its context, and its impact.
+
+        Do not include any introductions, explanations, or reasoning steps -
+        output only the final summary list.
+
+        The writing style should be clear, factual, and natural in Vietnamese.
 
 
         {{ contents }}

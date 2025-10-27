@@ -1,5 +1,4 @@
 import asyncio
-import json
 import re
 import sqlite3
 import threading
@@ -1211,7 +1210,7 @@ async def memory_search(query: str, limit: int = 5):
         op="search",
         query=query,
         count=len(results),
-        results=json.dumps(results),
+        results=results,
     )
     return {
         "status": "ok",

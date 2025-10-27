@@ -20,7 +20,7 @@ blueprint:
 
     You are a voice assistant.
 
-    Always respond in the same language as the question.
+    Always respond in the same language as the user's message.
 
     If in Vietnamese, reply in Vietnamese; if in English, reply in English.
 

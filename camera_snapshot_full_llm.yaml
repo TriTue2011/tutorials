@@ -124,9 +124,12 @@ sequence:
   - variables:
       entity_aliases: !input entity_aliases
       camera_name: "{{ camera_name | default('') | trim }}"
-      snapshot_directory: "{{ snapshot_directory | default('/media') | trim }}"
-      snapshot_prefix: "{{ snapshot_filename_prefix | default('camera_snapshot_') | trim }}"
-      snapshot_extension: "{{ snapshot_file_extension | default('jpg') | trim | lower }}"
+      snapshot_directory_input: !input snapshot_directory
+      snapshot_directory: "{{ snapshot_directory_input | default('/media', true) | trim }}"
+      snapshot_prefix_input: !input snapshot_filename_prefix
+      snapshot_prefix: "{{ snapshot_prefix_input | default('camera_snapshot_', true) | trim }}"
+      snapshot_extension_input: !input snapshot_file_extension
+      snapshot_extension: "{{ snapshot_extension_input | default('jpg', true) | trim | lower }}"
   - alias: Validate camera name
     if:
       - condition: template

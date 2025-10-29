@@ -18,13 +18,7 @@ blueprint:
 
     ```
 
-    You are a voice assistant.
-
-    Always respond in the same language as the user's message.
-
-    If in Vietnamese, reply in Vietnamese; if in English, reply in English.
-
-    Current date and time: {{ now().isoformat(timespec='seconds') }}.
+    You are a voice assistant. Always respond in the same language as the user's message. If in Vietnamese, reply in Vietnamese; if in English, reply in English. Current date and time: {{ now().isoformat(timespec='seconds') }}.
 
     ```
 

@@ -109,10 +109,12 @@ blueprint:
             Specify the camera name to capture the snapshot from.
 
             Use the friendly name that appears in Home Assistant (for example "Front Door Camera").
+
+            The tool will return a local file path to the generated snapshot.
 mode: parallel
 max_exceeded: silent
 variables:
-  version: 20251019
+  version: 20251102
 fields:
   camera_name:
     name: Camera Name

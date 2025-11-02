@@ -56,32 +56,32 @@ blueprint:
 
             The tool can analyze content and extract any type of information from an image, video, audio, or document, including text, numbers, objects, speech, and visual features.
 
-            Always clearly specify exactly what data should be extracted.
-        media_path_prompt:
-          name: Media Path Prompt
-          description: The prompt which will be used for the LLM can provide the media path for the query.
+            Always specify exactly what data should be extracted.
+        file_path_prompt:
+          name: File Path Prompt
+          description: The prompt which will be used for the LLM can provide the file path for the query.
           selector:
             text:
               multiline: true
           default: >-
             This argument is mandatory and must always be provided.
 
-            Always provide a media path that starts with `local/` (for example `local/snapshots/latest.jpg` or `local/documents/report.pdf`).
+            Always specify a relative file path that starts with `local/`.
         mime_type_prompt:
           name: MIME Type Prompt
-          description: The prompt which will be used for the LLM can provide the MIME type of media for the query.
+          description: The prompt which will be used for the LLM can provide the MIME type of file for the query.
           selector:
             text:
               multiline: true
           default: >-
             This argument is mandatory and must always be provided.
 
-            Always specify the MIME type of the media.
+            Always specify the MIME type of the file.
             Choose a value that matches the file contents (for example image/jpeg, video/mp4, audio/mp3, text/plain, or application/pdf).
 mode: parallel
 max_exceeded: silent
 variables:
-  version: 20251019
+  version: 20251102
 fields:
   instructions:
     name: Instructions
@@ -90,9 +90,9 @@ fields:
       text:
         multiline: true
     required: true
-  media_path:
+  file_path:
     name: Media Path
-    description: !input media_path_prompt
+    description: !input file_path_prompt
     selector:
       text:
     required: true
@@ -106,7 +106,7 @@ sequence:
   - variables:
       ai_task_entity: !input ai_task_entity
       instructions: "{{ instructions | default('') | trim }}"
-      media_path: "{{ media_path | default('') | trim }}"
+      file_path: "{{ file_path | default('') | trim }}"
       mime_type: "{{ mime_type | default('') | trim }}"
   - if:
       - alias: Check if variables were set correctly
@@ -125,16 +125,16 @@ sequence:
   - if:
       - alias: Check if variables were set correctly
         condition: template
-        value_template: "{{ (media_path | length == 0) or (not media_path.startswith('local/')) }}"
+        value_template: "{{ (file_path | length == 0) or (not file_path.startswith('local/')) }}"
     then:
       - alias: Set variable for error message
         variables:
           response:
             error: >-
-              Unable to extract data because media path is missing or invalid. Provide a path beginning with `local/`, such as `local/folder/file.ext`.
+              Unable to extract data because file path is missing or invalid. Provide a path beginning with `local/`, such as `local/folder/file.ext`.
       - alias: Stop the script
         stop: >-
-          Unable to extract data because media path is missing or invalid.
+          Unable to extract data because file path is missing or invalid.
         response_variable: response
   - if:
       - alias: Check if variables were set correctly
@@ -152,7 +152,7 @@ sequence:
         response_variable: response
   - variables:
       attachments:
-        media_content_id: media-source://media_source/{{ media_path }}
+        media_content_id: media-source://media_source/{{ file_path }}
         media_content_type: "{{ mime_type }}"
   - if:
       - condition: template

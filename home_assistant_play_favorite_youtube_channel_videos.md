@@ -6,7 +6,7 @@
 
 - **Chỉ hỗ trợ các LLM của Google hay OpenAI.**
 
-- *Với Google cần sử dụng Gemini 2.0 Flash hoặc Gemini 2.5 Flash trở lên.*
+- _Với Google cần sử dụng Gemini 2.0 Flash hoặc Gemini 2.5 Flash trở lên._
 
 - **Tính năng này không hỗ trợ tìm những video cũ từ một kênh.**
 

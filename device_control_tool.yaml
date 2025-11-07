@@ -42,7 +42,7 @@ fields:
     name: Devices
     description: Provide the names of the devices to control, separated by commas.
     selector:
-        text:
+      text:
     required: true
   control:
     name: Control

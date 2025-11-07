@@ -64,7 +64,7 @@ fields:
     name: Media ID
     description: !input media_id_prompt
     selector:
-        text:
+      text:
     required: true
 sequence:
   - variables:

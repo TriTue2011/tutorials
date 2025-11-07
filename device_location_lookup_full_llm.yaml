@@ -122,7 +122,7 @@ fields:
     name: Entities
     description: !input entities_prompt
     selector:
-        text:
+      text:
     required: true
 sequence:
   - variables:

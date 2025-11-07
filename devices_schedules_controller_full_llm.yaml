@@ -332,7 +332,6 @@ sequence:
             response_variable: response
 
   - choose:
-
       - conditions: "{{ _mode == 'start' }}"
         sequence:
           - repeat:

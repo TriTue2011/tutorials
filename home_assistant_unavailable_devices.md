@@ -12,7 +12,7 @@
 
 ### Tạo một template binary_sensor, thêm vào trong cấu hình `config/configuration.yaml`
 
-``` yaml
+```yaml
 template:
   - binary_sensor:
       - name: Unavailable Devices

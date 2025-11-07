@@ -14,8 +14,8 @@ blueprint:
         entity:
           filter:
             - domain:
-              - switch
-              - light
+                - switch
+                - light
     linked_boolean:
       name: Input Boolean
       description: Input Boolean Helper to link
@@ -31,11 +31,11 @@ triggers:
   - trigger: state
     entity_id: !input linked_entity
     from:
-      - 'on'
-      - 'off'
+      - "on"
+      - "off"
     to:
-      - 'off'
-      - 'on'
+      - "off"
+      - "on"
 conditions: []
 actions:
   - if:

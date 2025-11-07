@@ -85,7 +85,7 @@ fields:
     name: Query String
     description: !input query_string_prompt
     selector:
-        text:
+      text:
     required: true
   language:
     name: Language

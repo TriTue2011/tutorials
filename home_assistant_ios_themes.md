@@ -18,7 +18,7 @@
 
 1. Khởi tạo các biến trợ giúp
 
-- Tạo một *input_select* với các tùy chọn như bên dưới
+- Tạo một _input_select_ với các tùy chọn như bên dưới
 
 ```yaml
 input_select:
@@ -35,7 +35,7 @@ input_select:
       - red
 ```
 
-- Tạo hai *input_boolean* như bên dưới
+- Tạo hai _input_boolean_ như bên dưới
 
 ```yaml
 input_boolean:
@@ -45,7 +45,7 @@ input_boolean:
   ios_themes_local_backgrounds:
     name: iOS Themes Local Backgrounds
     icon: mdi:cloud
-    initial: 'on'
+    initial: "on"
 ```
 
 - Tạo tự động thay đổi theme vào các buổi sáng và buổi tối

@@ -40,8 +40,7 @@ blueprint:
     trigger_settings:
       name: Trigger settings
       icon: mdi:chat
-      description:
-        Settings for the trigger, you can adjust them, or translate them to your own language
+      description: Settings for the trigger, you can adjust them, or translate them to your own language
       input:
         set_commands:
           name: Set commands
@@ -131,8 +130,7 @@ blueprint:
       name: Tool settings
       icon: mdi:tools
       collapsed: true
-      description:
-        Settings for the trigger, you can adjust them, or translate them to your own language
+      description: Settings for the trigger, you can adjust them, or translate them to your own language
       input:
         default_scope:
           name: Default scope

@@ -1,6 +1,6 @@
 # Unique Home Assistant Blueprints & Tutorials
 
-*All blueprints in this collection are fine-tuned to work best with **Gemini 2.5 Flash**. Other models may require minor adjustments to behave as expected.*
+_All blueprints in this collection are fine-tuned to work best with **Gemini 2.5 Flash**. Other models may require minor adjustments to behave as expected._
 
 Transform Home Assistant into a fully-fledged personal teammate with this curated collection of blueprints and guides. Every scenario has been proven in real homes, backed by clear explanations, example voice prompts, and deployment tips so you can bring each idea to life right away.
 
@@ -45,7 +45,7 @@ You can simply speak naturally - Voice Assist (an LLM such as Gemini/GPT) will i
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules_controller_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -77,7 +77,7 @@ Save things like Wi-Fi passwords, parking spots, birthdays, or quick reminders -
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_local.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -94,7 +94,7 @@ Give Voice Assist eyes on your surroundings. Share the cameras you want it to ac
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcamera_snapshot_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -111,7 +111,7 @@ Plan your schedule as if you were chatting with a personal assistant. This bluep
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -123,7 +123,7 @@ Connect Home Assistant to your Zalo Official Account for natural, two-way conver
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -138,7 +138,7 @@ Send anything to a Zalo recipient with your voice alone. Mention a location to a
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_bot_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -150,7 +150,7 @@ Build your own Zalo bot without giving up conversational smarts. The blueprint h
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -165,7 +165,7 @@ Dictate messages through your custom Zalo bot and deliver them to people or grou
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_custom_bot_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -177,7 +177,7 @@ Spin up a Telegram bot that keeps up with natural, multi-turn conversations. Tri
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -192,7 +192,7 @@ Talk to friends or groups on Telegram via Voice Assist. Locations automatically 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_telegram_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -207,7 +207,7 @@ Run sophisticated Google searches by voice and hear concise, up-to-date answers.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_google_search_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -226,7 +226,7 @@ Set timers for any device with natural speech-from living room lights to bedroom
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_tool.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -236,7 +236,7 @@ Stay on top of traffic fines linked to your vehicle and get alerts as soon as th
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -250,7 +250,7 @@ Check traffic fines for any vehicle with live data from the national traffic pol
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -267,7 +267,7 @@ Search YouTube and play videos on any media device using conversation alone. Hun
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -282,7 +282,7 @@ Adjust the speed of one or many fans across your home with simple voice prompts.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -297,7 +297,7 @@ Toggle oscillation for multiple fans at once using nothing but your voice. Perfe
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -316,7 +316,7 @@ Automatically surface the newest videos from your must-watch channels and play t
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -335,7 +335,7 @@ Track down phones, tablets, smartwatches, or BLE tags around your home with a qu
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -352,7 +352,7 @@ Switch between solar and lunar calendars instantly-completely offline and lightn
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -367,7 +367,7 @@ Ask what's already on your calendar-birthdays, anniversaries, work commitments, 
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -377,7 +377,7 @@ Add lunar-based occasions-memorials, anniversaries, weddings-to your solar calen
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 
@@ -387,7 +387,7 @@ Mirror on/off states across multiple devices just like a two-way staircase switc
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Flink_multiple_devices.yaml)
 
-*Please carefully read each blueprint description before getting started.*
+_Please carefully read each blueprint description before getting started._
 
 ---
 

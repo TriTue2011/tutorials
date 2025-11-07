@@ -216,7 +216,7 @@ sequence:
       index_key: "{{ _index_key }}"
       add: "{{ _IDX_ALIVE }}"
       remove: "{{ _IDX_STALE }}"
-      ttl_seconds: 2592000  # 30 days
+      ttl_seconds: 2592000 # 30 days
     response_variable: cache_set_index
   - variables:
       _IDX_ALIVE: >
@@ -273,7 +273,6 @@ sequence:
                       {{ current + [_ACTIVE_ITEM] }}
 
   - choose:
-
       #######################################################################
       # START
       #######################################################################
@@ -360,7 +359,11 @@ sequence:
                                 {% endif %}
                               sequence:
                                 - event: device_timer_signal
-                                  event_data: { timer_id: "{{ repeat.item.id }}", reason: "cancel" }
+                                  event_data:
+                                    {
+                                      timer_id: "{{ repeat.item.id }}",
+                                      reason: "cancel",
+                                    }
                                 - action: pyscript.memory_cache_set
                                   data:
                                     key: "{{ _prefix }}{{ repeat.item.id }}"
@@ -855,7 +858,11 @@ sequence:
                             ttl_seconds: "{{ _buf|int }}"
                           response_variable: cache_set_timer_id
                         - event: device_timer_signal
-                          event_data: { timer_id: "{{ _cancel_all_id }}", reason: "cancel" }
+                          event_data:
+                            {
+                              timer_id: "{{ _cancel_all_id }}",
+                              reason: "cancel",
+                            }
                         - variables:
                             _CANCELLED: >
                               {% set current = (_CANCELLED | list) if _CANCELLED is sequence else [] %}

@@ -106,7 +106,7 @@ fields:
     name: Fan Entities
     description: !input fan_entities_prompt
     selector:
-        text:
+      text:
     required: true
   oscillating:
     name: Oscillating

@@ -38,11 +38,11 @@ triggers:
   - trigger: state
     entity_id: !input linked_entities
     from:
-      - 'on'
-      - 'off'
+      - "on"
+      - "off"
     to:
-      - 'off'
-      - 'on'
+      - "off"
+      - "on"
 conditions:
   - condition: template
     value_template: "{{ trigger.to_state.state != trigger.from_state.state }}"
@@ -70,7 +70,7 @@ conditions:
         )
       }}
 actions:
-- action: homeassistant.turn_{{ trigger.to_state.state }}
-  target:
-    entity_id: >-
-      {{ expand(linked_entities) | selectattr('entity_id', '!=', trigger.entity_id) | map(attribute='entity_id') | list }}
+  - action: homeassistant.turn_{{ trigger.to_state.state }}
+    target:
+      entity_id: >-
+        {{ expand(linked_entities) | selectattr('entity_id', '!=', trigger.entity_id) | map(attribute='entity_id') | list }}

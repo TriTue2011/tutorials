@@ -130,7 +130,7 @@ fields:
     name: Entities
     description: !input entities_prompt
     selector:
-        text:
+      text:
     required: true
   period_length:
     name: Period Length

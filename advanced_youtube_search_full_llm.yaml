@@ -111,13 +111,13 @@ fields:
     name: Query String
     description: !input query_string_prompt
     selector:
-        text:
+      text:
     required: true
   page_token:
     name: Page Token
     description: !input page_token_prompt
     selector:
-        text:
+      text:
 sequence:
   - variables:
       results: !input results

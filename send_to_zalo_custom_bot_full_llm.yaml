@@ -278,3 +278,11 @@ sequence:
 
                 {{ detail }}{% endif %}
               ttl: !input ttl
+  - alias: Prepare success response for Assist
+    variables:
+      response:
+        success: >-
+          Sent the {{ content_type }} "{{ summary }}" to Zalo (thread
+          {{ default_thread_id | default('unspecified') }}) successfully.
+  - stop: Finish and return response data
+    response_variable: response

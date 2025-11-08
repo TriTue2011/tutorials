@@ -101,3 +101,10 @@ sequence:
             minutes: 0
             seconds: 5
             milliseconds: 0
+  - alias: Prepare success response for Assist
+    variables:
+      response:
+        success: >-
+          Sent 5 critical ring notifications to {{ ring_id }} successfully.
+  - stop: Finish and return response data
+    response_variable: response

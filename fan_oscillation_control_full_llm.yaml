@@ -80,7 +80,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify at least one fan's name to control.
 
@@ -92,7 +92,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Define the oscillation state for the fan you want to set.
 

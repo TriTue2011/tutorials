@@ -48,9 +48,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide the Ring ID of the device you want to activate its ringing function.
+            Specify the Ring ID of the device you want to activate its ringing function.
 mode: parallel
 max_exceeded: silent
 variables:

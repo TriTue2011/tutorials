@@ -93,7 +93,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify at least one device name to control.
 
@@ -105,7 +105,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify the desired action using one of the following two values: 'true' to turn on the device, or 'false' to turn off the device.
         timer_prompt:
@@ -115,7 +115,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify the delay time using the format HH:MM:SS.
 

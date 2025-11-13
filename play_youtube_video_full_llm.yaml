@@ -52,7 +52,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify the Media ID of the video you want to play.
 mode: parallel

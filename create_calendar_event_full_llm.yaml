@@ -64,7 +64,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             It defines the short summary or subject of the event.
         description_prompt:
@@ -238,8 +238,8 @@ sequence:
     then:
       - variables:
           response:
-            error: For timed events, end_date_time is required and must be provided.
-      - stop: For timed events, end_date_time is required and must be provided.
+            error: For timed events, end_date_time is required and must be included.
+      - stop: For timed events, end_date_time is required and must be included.
         response_variable: response
   - alias: Validate end inputs for all-day start
     if:
@@ -249,8 +249,8 @@ sequence:
     then:
       - variables:
           response:
-            error: For all-day events, end_date is required and must be provided.
-      - stop: For all-day events, end_date is required and must be provided.
+            error: For all-day events, end_date is required and must be included.
+      - stop: For all-day events, end_date is required and must be included.
         response_variable: response
   - alias: Disallow type mismatch for timed start
     if:
@@ -348,6 +348,6 @@ sequence:
         variables:
           response:
             error: >-
-              Invalid date configuration. Provide either start_date_time + end_date_time (timed) or start_date + end_date (all-day), and ensure end is on/after start.
+              Invalid date configuration. Specify either start_date_time + end_date_time (timed) or start_date + end_date (all-day), and ensure end is on/after start.
       - stop: Invalid date configuration
         response_variable: response

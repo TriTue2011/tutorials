@@ -67,9 +67,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide the vehicle's license plate number to check for any traffic fines.
+            Specify the vehicle's license plate number to check for any traffic fines.
 
             A license plate number consists of a continuous sequence of alphanumeric characters with no spaces.
 
@@ -81,9 +81,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide the type of vehicle to check for any traffic fines.
+            Specify the type of vehicle to check for any traffic fines.
 
             It must be one of the following three values: '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.
 mode: parallel

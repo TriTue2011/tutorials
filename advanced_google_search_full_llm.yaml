@@ -61,9 +61,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide the search string to obtain information from Google.
+            Specify the search string to obtain information from Google.
 
             If the query seems misspelled or misheard, silently correct it to the most likely intended search string and proceed. Do not ask clarifying questions; instead, briefly note the correction in the response.
         language_prompt:
@@ -73,7 +73,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify the output language of the response using an IETF BCP 47 language tag (e.g., vi-VN, en-US). The value must match the user's language.
 mode: parallel
@@ -123,7 +123,7 @@ sequence:
 
         - Perform up to three iterative refinements. Avoid duplicate sources; prioritize recent, authoritative content.
 
-        - Provide both a concise overview and expanded details to minimize the need for follow-up searches.
+        - Include both a concise overview and expanded details to minimize the need for follow-up searches.
 
         - Optionally include source names (publisher/site, date).
 

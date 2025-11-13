@@ -98,9 +98,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide at least one YouTube channel name to query video information.
+            Specify at least one YouTube channel name to query video information.
 
             When requesting multiple YouTube channels, separate each channel name with a semicolon.
 

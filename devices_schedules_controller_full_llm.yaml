@@ -91,7 +91,7 @@ blueprint:
           default: >-
             Required when the chosen mode operates on specific devices (start, cancel, extend, pause, resume).
 
-            Provide one or more friendly names or entity_ids and separate multiple entries with semicolons.
+            Specify one or more friendly names or entity_ids and separate multiple entries with semicolons.
 
             For cancel_all, supply devices to limit the cancellation or leave this field empty to cancel every active schedule/timer.
 
@@ -104,7 +104,7 @@ blueprint:
           default: >-
             Required. Choose exactly one mode:
 
-            - start: create a new schedule/timer for the provided device(s) and run the specified expire action when it ends.
+            - start: create a new schedule/timer for the selected device(s) and run the specified expire action when it ends.
 
             - cancel: stop the active schedule/timer for each listed device immediately.
 
@@ -134,7 +134,7 @@ blueprint:
           default: >-
             This argument is required when the mode is start or extend.
 
-            Provide the delay using the HH:MM:SS format (relative to the current time).
+            Specify the delay using the HH:MM:SS format (relative to the current time).
 
             If a query specifies a particular target time, calculate the delay from the current time to that specified time.
 

@@ -56,7 +56,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             It must be one of the following two values: 's2l' to convert a Solar date to a Lunar date, or 'l2s' to convert a Lunar date to a Solar date.
 
@@ -68,9 +68,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide the date for the requested conversion using the format YYYY-MM-DD.
+            Specify the date for the requested conversion using the format YYYY-MM-DD.
 
             Always include the relevant date: today's date for today's request, tomorrow's date for tomorrow's request.
 

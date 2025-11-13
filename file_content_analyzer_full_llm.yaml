@@ -52,11 +52,13 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            The tool can analyze content and extract any type of information from an image, video, audio, or document, including text, numbers, objects, speech, and visual features.
+            The tool can analyze and extract any type of information from an image, video, audio, or document, including text, numbers, objects, speech, and visual features.
 
             Always specify exactly what data should be extracted.
+
+            This tool returns plain text only.
         file_path_prompt:
           name: File Path Prompt
           description: The prompt which will be used for the LLM can provide the file path for the query.
@@ -64,7 +66,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Always specify a relative file path that starts with `local/`.
         mime_type_prompt:
@@ -74,7 +76,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Always specify the MIME type of the file.
             Choose a value that matches the file contents (for example image/jpeg, video/mp4, audio/mp3, text/plain, or application/pdf).
@@ -131,7 +133,7 @@ sequence:
         variables:
           response:
             error: >-
-              Unable to extract data because file path is missing or invalid. Provide a path beginning with `local/`, such as `local/folder/file.ext`.
+              Unable to extract data because file path is missing or invalid. Specify a path beginning with `local/`, such as `local/folder/file.ext`.
       - alias: Stop the script
         stop: >-
           Unable to extract data because file path is missing or invalid.

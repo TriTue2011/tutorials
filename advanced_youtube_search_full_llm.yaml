@@ -104,6 +104,7 @@ blueprint:
             Use it when the initial query results are unsatisfying and the user wants to find more videos.
 mode: parallel
 max_exceeded: silent
+description: Searches YouTube for videos based on a query string.
 variables:
   version: 20250923
 fields:

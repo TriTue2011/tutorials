@@ -107,7 +107,7 @@ blueprint:
             After obtaining the result, if the device supports ringing, prompt the user to activate its ringing function.
 mode: parallel
 max_exceeded: silent
-description: Retrieves the real-time location of tracked electronic devices (phones, watches, tablets, BLE tags, or beacons). Not for static or user-saved locations. Use only to locate devices currently monitored by Home Assistant.
+description: Retrieves the real-time location of tracked electronic devices (phones, watches, tablets, BLE tags, or beacons). Only for devices currently monitored by Home Assistant, not for user-saved information.
 variables:
   version: 20251116
 fields:

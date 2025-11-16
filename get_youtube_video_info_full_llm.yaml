@@ -58,6 +58,7 @@ blueprint:
 
     * Do not alter the default script name.
 
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -123,8 +124,9 @@ blueprint:
             The default is 3 days. The minimum is 1 day, and the maximum is 30 days. "Today" means 1 day, "This week" means 7 days, and "This month" means 30 days.
 mode: parallel
 max_exceeded: silent
+description: Retrieves a list of recent videos from one or more specified YouTube channels.
 variables:
-  version: 20250923
+  version: 20251116
 fields:
   entities:
     name: Entities

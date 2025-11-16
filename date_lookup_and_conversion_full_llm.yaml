@@ -38,7 +38,7 @@ blueprint:
 
     * Do not alter the default script name.
 
-    * Add additional aliases: `Get Auspicious Information` and `Get Day of Week` for this script.
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -75,11 +75,6 @@ blueprint:
             Always include the relevant date: today's date for today's request, tomorrow's date for tomorrow's request.
 
             If the request does not specify a year, assume the current year.
-
-            Some specific Lunar calendar terms in Vietnamese:
-            'Ngày Rằm' refers to the 15th day of the requested month in the Lunar calendar.
-            'Tết Nguyên Đán' refers to the 1st day of the 1st month in the Lunar calendar (Lunar New Year).
-            'Tết Trung Thu' refers to the 15th day of the 8th month in the Lunar calendar (Mid-Autumn Festival).
         leap_month_prompt:
           name: Leap Month Prompt
           description: The prompt which will be used for the LLM can provide the leap month for the conversion.
@@ -94,8 +89,9 @@ blueprint:
             It must be one of the following two values: 'true' for a leap month, or 'false' for a regular month.
 mode: parallel
 max_exceeded: silent
+description: Converts dates between Solar and Lunar calendars, looks up auspicious/inauspicious days according to East Asian traditions, and determines the day of the week for any given date.
 variables:
-  version: 20250923
+  version: 20251116
 fields:
   conversion_type:
     name: Conversion Type

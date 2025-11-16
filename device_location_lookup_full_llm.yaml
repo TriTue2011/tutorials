@@ -4,25 +4,13 @@ blueprint:
   description: >-
     # Find My Device Tool used for Voice Assistant
 
-    ## Features
-
-    * The Voice Assist will tell you if the device is at home or not, and the specific room where the device is located if possible.
-
-    * It can determine any BLE Device added by Bermuda BLE Trilateration integration: Android, iOS, some smartwatches, beacon tiles, ...
-
-    * It can determine any Mobile Device with the Home Assistant Companion App installed.
-
-    * If the device has the Home Assistant Companion App installed, it can also ring to locate more easily, even in Do Not Disturb mode.
-
-    * LLM has extremely limited knowledge about your device's location. It cannot know your device's actual GPS location but may have general information such as whether you are at home or in specific areas like the living room or kitchen. And it only accesses this information when you request it to locate your device.
-
     ## Blueprint Setup
 
     ### Required
 
     * Check out the guide `home_assistant_device_location_lookup_guide_en.md` for further details.
 
-    * An online LLM like Gemini or OpenAI.
+    * An LLM like Gemini or OpenAI.
 
     * Expose Bermuda Device Tracker or Mobile Device Tracker entities to Assist.
 
@@ -75,6 +63,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -106,7 +96,9 @@ blueprint:
           default: >-
             This argument is mandatory and must always be included.
 
-            Specify at least one device name to find it.
+            Specify the name of one or more devices whose location is actively tracked by a Home Assistant sensor (device_tracker).
+
+            Use this for finding things that report their own real-time position. This tool cannot retrieve information that a user has manually saved as a memory or note.
 
             If requesting multiple devices, separate each device name with a semicolon.
 
@@ -115,8 +107,9 @@ blueprint:
             After obtaining the result, if the device supports ringing, prompt the user to activate its ringing function.
 mode: parallel
 max_exceeded: silent
+description: Looks up the real-time location of electronic devices (e.g., phones, watches, tablets, and BLE trackers like tags or beacons) tracked by Home Assistant. This tool is not intended for static, user-saved locations.
 variables:
-  version: 20250923
+  version: 20251116
 fields:
   entities:
     name: Entities

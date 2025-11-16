@@ -21,6 +21,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -96,8 +98,9 @@ blueprint:
             Always provide time. For a full day, use 00:00:00. For the current hour, use the start of the hour. Night starts at 00:00:00, morning starts at 06:00:00, afternoon starts at 12:00:00 and evening starts at 18:00:00.
 mode: parallel
 max_exceeded: silent
+description: Retrieves calendar events based on specified time periods.
 variables:
-  version: 20250923
+  version: 20251116
 fields:
   time_period_type:
     name: Time Period Type

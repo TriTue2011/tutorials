@@ -53,6 +53,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -139,13 +141,11 @@ blueprint:
             If a query specifies a particular target time, calculate the delay from the current time to that specified time.
 
             For extend, use the same format to indicate how much time to add to the schedule/timer (e.g., 00:05:00 adds five minutes).
-
 mode: parallel
 max_exceeded: silent
-
+description: Manages and controls schedules/timers for various devices.
 variables:
-  version: 20251014
-
+  version: 20251116
 fields:
   mode:
     name: Mode

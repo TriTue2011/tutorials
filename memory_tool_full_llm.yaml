@@ -242,7 +242,7 @@ fields:
         mode: box
 mode: restart
 max_exceeded: silent
-description: Stores, retrieves, or searches for user-saved information in memory. Use this to recall facts, notes, or locations saved by the user.
+description: Provides read and write access to user-saved memory, allowing the assistant to store, retrieve, or look up facts, notes, or locations. Prefer search for recall, and confirm success only when the backend returns `status=ok`.
 variables:
   version: 20251116
 sequence:

@@ -8,6 +8,10 @@ Biến Home Assistant thành trợ lý cá nhân thực thụ với bộ sưu t�
 
 ---
 
+**Hãy đảm bảo đọc kỹ mô tả của từng bản thiết kế và làm theo hướng dẫn khi cài đặt hoặc cập nhật.**
+
+---
+
 ## ⏱ Voice Assist - Điều khiển lịch trình / hẹn giờ thiết bị
 
 Tự động tạo, gia hạn, tạm dừng, tiếp tục hoặc hủy **lịch trình điều khiển thiết bị** bằng giọng nói tự nhiên.

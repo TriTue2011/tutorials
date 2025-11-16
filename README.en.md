@@ -8,6 +8,10 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
 
 ---
 
+**Make sure to read each blueprint's description and follow its instructions when installing or updating.**
+
+---
+
 ## ⏱ Voice Assist - Devices Schedules / Timers
 
 Automatically create, extend, pause, resume, or cancel **device schedules** through natural voice commands.

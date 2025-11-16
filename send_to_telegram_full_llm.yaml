@@ -54,6 +54,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -89,9 +91,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide a brief overview, such as the name of a person, object, or location title.
+            Specify a brief overview, such as the name of a person, object, or location title.
             Keep it short (ideally <= 10 words). No extra commentary, no markdown, emojis, or HTML.
             If content_type is image, write a concise caption that clearly describes the image subject.
             Return only the plain text value.
@@ -106,7 +108,7 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide clear and specific details, such as comprehensive information or a detailed description of the subject.
+            Specify clear and specific details, such as comprehensive information or a detailed description of the subject.
             No links, no markdown/emojis, no additional commentary, and avoid repeating the summary.
             If content_type is image, provide short optional supporting text to appear under the image (leave blank if not needed).
             Return only the plain text value.
@@ -119,7 +121,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Return exactly one of the following options: information, location, image.
             Return only the word, without quotes or extra text.
@@ -155,9 +157,9 @@ blueprint:
           default: >-
             This argument is optional. Use only when content_type is image.
 
-            Provide the local or media path to the image that should be sent (for example: /media/... or local/...).
+            Specify the local or media path to the image that should be sent (for example: /media/... or local/...).
             The path must already exist in Home Assistant and point to an actual image file.
-            When unknown or not provided by the user, leave this blank and do not guess.
+            When unknown or not specified by the user, leave this blank and do not guess.
 
             If content_type is not image: leave this blank.
 
@@ -169,7 +171,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is optional. Provide only when the user explicitly wants to send the message to a different chat than the default configuration.
+            This argument is optional. Specify only when the user explicitly wants to send the message to a different chat than the default configuration.
 
             Return the exact Telegram chat ID (accept negative IDs for supergroups). No spaces, words, or extra commentary.
 
@@ -183,7 +185,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is optional. Provide only when the user requests a specific message thread (topic) different from the default configuration.
+            This argument is optional. Specify only when the user requests a specific message thread (topic) different from the default configuration.
 
             Return the numeric thread (topic) ID. Digits only; no punctuation or additional text.
 
@@ -193,8 +195,9 @@ blueprint:
 mode: queued
 max: 30
 max_exceeded: silent
+description: Sends a message to a specified Telegram chat.
 variables:
-  version: 20251020
+  version: 20251116
 fields:
   summary:
     name: Summary

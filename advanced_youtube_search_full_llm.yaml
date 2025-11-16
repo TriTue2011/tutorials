@@ -52,6 +52,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -83,9 +85,9 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
-            Provide the search string to obtain a list of videos.
+            Specify the search string to obtain a list of videos.
 
             If the query contains errors caused by user mispronunciation, correct it to the most likely accurate search string and ask the user for confirmation before proceeding.
 
@@ -99,13 +101,14 @@ blueprint:
           default: >-
             This argument is optional.
 
-            Provide the page token to obtain additional videos.
+            Specify the page token to obtain additional videos.
 
             Use it when the initial query results are unsatisfying and the user wants to find more videos.
 mode: parallel
 max_exceeded: silent
+description: Searches YouTube for videos based on a query string.
 variables:
-  version: 20250923
+  version: 20251116
 fields:
   query_string:
     name: Query String

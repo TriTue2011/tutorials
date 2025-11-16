@@ -12,8 +12,6 @@ blueprint:
 
     * The `scripts/memory.py` script needs to be copied into the `config/pyscript` folder.
 
-    * The Memory Tool relies on specific instructions. For complete usage rules and system policies, please refer to `home_assistant_voice_instructions.md`.
-
     * The mentioned file(s) is/are included in the repository.
 
     * Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
@@ -41,6 +39,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -74,13 +74,15 @@ blueprint:
           default: >-
             Required when operation = set|get|forget. Ignored if operation = search.
 
-            Derive a concise key that captures the user's main concept from their original wording, keeping exactly the same language.
+            Provide a concise key for a piece of information the user has manually saved.
 
-            Do not translate, paraphrase, or canonicalize into English or any other language; do not invent synonyms or new terms.
+            Use this for retrieving facts, notes, or locations that are not actively tracked by a sensor.
 
-            If the user explicitly selected a candidate key, reuse it exactly.
+            Derive the key from the user's main concept, keeping their original language.
 
-            Output the key only, no quotes or labels. If unsure, use search instead of inventing a new key.
+            Do not translate or paraphrase. If the user provides a key, use it exactly.
+
+            Output only the key. If unsure, use the 'search' operation instead.
         value_prompt:
           name: Value Prompt
           description: Instruction shown to the LLM for providing the value.
@@ -150,13 +152,13 @@ blueprint:
           default: >-
             Required only when operation = search.
 
-            If the user's input is short, output it unchanged.
+            Provide a search term for information the user has manually saved.
 
-            If it is long, keep only the main keywords in the same language.
+            Use this for searching memories or notes, not for finding the real-time position of a tracked device.
 
-            Do not translate, paraphrase, or copy the full sentence.
+            If the user's input is short, use it as the query. If long, use only the main keywords.
 
-            Output the query only, no quotes or extra text.
+            Do not translate or paraphrase. Output only the query text.
         search_limit_prompt:
           name: Search Limit Prompt
           description: Instruction shown to the LLM for providing the search limit.
@@ -240,8 +242,9 @@ fields:
         mode: box
 mode: restart
 max_exceeded: silent
+description: Provides read and write access to user-saved memory, allowing the assistant to store, retrieve, or look up facts, notes, or locations. Not for real-time device tracking. Prefer search for recall, and confirm success only when the backend returns `status=ok`.
 variables:
-  version: 20250923
+  version: 20251116
 sequence:
   - variables:
       op: "{{ operation | default('set') }}"

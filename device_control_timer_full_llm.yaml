@@ -53,6 +53,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -93,7 +95,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify at least one device name to control.
 
@@ -105,7 +107,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify the desired action using one of the following two values: 'true' to turn on the device, or 'false' to turn off the device.
         timer_prompt:
@@ -115,7 +117,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify the delay time using the format HH:MM:SS.
 
@@ -124,8 +126,9 @@ blueprint:
             If a query specifies a particular target time, calculate the delay from the current time to that specified time
 mode: parallel
 max_exceeded: silent
+description: Sets a timer for controlling one or more specified devices.
 variables:
-  version: 20250923
+  version: 20251116
 fields:
   entities:
     name: Entities

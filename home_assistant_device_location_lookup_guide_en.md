@@ -16,7 +16,7 @@
 
 ## Limitations
 
-- Only support an online LLM like Gemini or OpenAI.
+- Only support an LLM like Gemini or OpenAI.
 
 - Only support Bermuda Device Tracker entities or Mobile Device Tracker entities.
 

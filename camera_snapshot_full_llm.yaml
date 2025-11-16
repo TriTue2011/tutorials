@@ -51,6 +51,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -104,7 +106,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify the camera name to capture the snapshot from.
 
@@ -113,8 +115,9 @@ blueprint:
             The tool will return a local file path to the generated snapshot.
 mode: parallel
 max_exceeded: silent
+description: Takes a snapshot from a specified camera.
 variables:
-  version: 20251102
+  version: 20251116
 fields:
   camera_name:
     name: Camera Name

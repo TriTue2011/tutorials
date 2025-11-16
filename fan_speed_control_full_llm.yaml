@@ -51,6 +51,8 @@ blueprint:
     * Make sure to expose the script to Assist after the script has been saved.
 
     * Do not alter the default script name.
+
+    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -94,7 +96,7 @@ blueprint:
             text:
               multiline: true
           default: >-
-            This argument is mandatory and must always be provided.
+            This argument is mandatory and must always be included.
 
             Specify at least one fan's name to control.
 
@@ -108,11 +110,11 @@ blueprint:
           default: >-
             Use this argument to increase or decrease the fan's speed.
 
-            You must provide this parameter only when the 'percentage' parameter is not provided.
+            You must include this parameter only when the 'percentage' parameter is not included.
 
             Values: 'true' means increase (e.g., increase/turn up/higher), 'false' means decrease (e.g., decrease/turn down/lower).
 
-            Do not provide both 'speed_adjustment' and 'percentage'. If the user specifies a target like 50%, prefer 'percentage' and omit 'speed_adjustment'. Do not ask clarifying questions.
+            Do not include both 'speed_adjustment' and 'percentage'. If the user specifies a target like 50%, prefer 'percentage' and omit 'speed_adjustment'. Do not ask clarifying questions.
         percentage_prompt:
           name: Percentage Prompt
           description: The prompt which will be used for the LLM can provide the speed percentage.
@@ -122,15 +124,16 @@ blueprint:
           default: >-
             Use this argument to set the fan's speed to a specific percentage. Accepted range: 1-100.
 
-            You must provide this parameter only when the 'speed_adjustment' parameter is not provided.
+            You must include this parameter only when the 'speed_adjustment' parameter is not included.
 
-            Map qualitative levels when specified: min=1, low=25, medium=50, high=75, max=100. If the user provides an exact value (e.g., 60%), use that value.
+            Map qualitative levels when specified: min=1, low=25, medium=50, high=75, max=100. If the user specifies an exact value (e.g., 60%), use that value.
 
-            Do not provide both 'percentage' and 'speed_adjustment'. Prefer 'percentage' when the user provides an explicit target. Do not ask clarifying questions.
+            Do not include both 'percentage' and 'speed_adjustment'. Prefer 'percentage' when the user specifies an explicit target. Do not ask clarifying questions.
 mode: parallel
 max_exceeded: silent
+description: Controls the speed of one or more specified fans.
 variables:
-  version: 20250923
+  version: 20251116
 fields:
   fan_entities:
     name: Fan Entities
@@ -187,10 +190,10 @@ sequence:
         variables:
           response:
             error: >-
-              Unable to control the fan. Provide valid fan names and exactly one of: percentage (1-100) or speed_adjustment (true/false).
+              Unable to control the fan. Specify valid fan names and exactly one of: percentage (1-100) or speed_adjustment (true/false).
       - alias: Stop the script
         stop: >-
-          Unable to control the fan. Provide valid fan names and exactly one of: percentage (1-100) or speed_adjustment (true/false).
+          Unable to control the fan. Specify valid fan names and exactly one of: percentage (1-100) or speed_adjustment (true/false).
         response_variable: response
   - variables:
       devices: >-

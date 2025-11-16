@@ -242,7 +242,7 @@ fields:
         mode: box
 mode: restart
 max_exceeded: silent
-description: Provides read and write access to user-saved memory, allowing the assistant to store, retrieve, or look up facts, notes, or locations. Prefer search for recall, and confirm success only when the backend returns `status=ok`.
+description: Provides read and write access to user-saved memory, allowing the assistant to store, retrieve, or look up facts, notes, or locations. Not for real-time device tracking. Prefer search for recall, and confirm success only when the backend returns `status=ok`.
 variables:
   version: 20251116
 sequence:

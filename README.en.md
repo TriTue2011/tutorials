@@ -8,394 +8,485 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
 
 ---
 
-**Make sure to read each blueprint's description and follow its instructions when installing or updating.**
+**Note:** Please make sure to read each blueprint's description and follow its instructions when installing or updating.
 
 ---
 
-## ⏱ Voice Assist - Devices Schedules / Timers
+## ⏱️ Voice Assist - Devices Schedules / Timers
 
-Automatically create, extend, pause, resume, or cancel **device schedules** through natural voice commands.
-Each schedule controls one or multiple smart devices (such as lights, fans, or air conditioners) and automatically restores itself after Home Assistant restarts.
+Automatically create, extend, pause, resume, or cancel **device schedules** through natural voice commands. Each schedule controls one or multiple smart devices and **automatically restores itself after Home Assistant restarts**.
 
-Unlike Home Assistant's built-in timers, this tool manages **device-based schedules** independently, supports **multiple concurrent schedules**, and performs **automatic actions** (turning devices on or off when the schedule ends).
-You can simply speak naturally - Voice Assist (an LLM such as Gemini/GPT) will interpret, create, and manage these schedules automatically.
+**✨ Key Features:**
 
-**Key Features:**
+- **Flexible Management:** Supports all necessary modes: `start`, `extend`, `pause`, `resume`, `cancel`, `list`.
+- **Multitasking:** Manage multiple devices and independent schedules simultaneously.
+- **Persistent:** Automatically restores all active schedules after a Home Assistant restart.
+- **Smart:** Integrated with Voice Assist (LLMs) to naturally understand multi-language commands.
 
-- Supports modes: **start**, **extend**, **pause**, **resume**, **cancel**, **cancel_all**, **list**
-- Manage **multiple devices and schedules simultaneously**
-- **Auto-restores** schedules after Home Assistant restarts
-- **Integrated with Voice Assist (LLMs)** for natural multi-language commands
-- Customizable end actions: turn on/off devices, send notifications, or trigger other scripts
-
-**Example Voice Commands:**
+**🗣️ Example Voice Commands:**
 
 - "Set a schedule to turn off the living room fan in 15 minutes."
 - "Extend the kitchen light schedule by 10 minutes."
-- "Add a schedule to turn off the bedroom air conditioner at 6 a.m."
-- "Cancel all device schedules."
-- "What device schedules are currently active?"
+- "Add a schedule to turn off the bedroom AC at 6 a.m."
+- "What schedules are currently active?"
 
-**Use Cases:**
+**💡 Use Cases:**
 
-- Schedule **lights, fans, air conditioners, heaters, or water heaters**
-- Run **multiple independent schedules** per device
-- Pause, resume, or extend existing schedules easily
-- Serve as a **foundation for voice-driven device automation** in smart homes
+- Schedule lights, fans, air conditioners, or heaters to save energy.
+- Set a schedule for tasks that need to run for a specific duration, like charging an electric scooter for 2 hours.
+- Easily change or cancel schedules by voice without opening the app.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules.yaml)
+For full functionality, you need to install **all 3 blueprints**:
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules_restart_handler.yaml)
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules_controller_full_llm.yaml)
-
-_Please carefully read each blueprint description before getting started._
+1. **Controller Blueprint (LLM):** Processes voice commands and coordinates actions.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules_controller_full_llm.yaml)
+2. **Core Schedule Blueprint:** Responsible for creating and managing the schedules.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules.yaml)
+3. **Restore Blueprint:** Automatically restores active schedules when Home Assistant restarts.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevices_schedules_restart_handler.yaml)
 
 ---
 
 ## 🧠 Voice Assist - Remember Anything (Memory Tool)
 
-Turn Voice Assist into your personal memory vault - capable of storing, updating, recalling, or forgetting information using only your voice.
-Save things like Wi-Fi passwords, parking spots, birthdays, or quick reminders - and retrieve them in seconds without touching your phone or scrolling through notes.
+Turn Voice Assist into your personal memory vault to store, retrieve, and manage personal or household information.
 
-**Key Features:**
+**✨ Key Features:**
 
-- Store and manage memories through natural voice commands
-- Update, overwrite, or delete existing entries easily
-- Smart keyword and semantic search for accurate recall
-- Works **entirely offline** with no internet required
-- Optional TTL (time-to-live) for temporary memories
+- **Versatile Storage:** Remembers everything from passwords and addresses to quick notes.
+- **Flexible Retrieval:** Fetches information by an exact "key" (`get`) or searches by keyword/context (`search`).
+- **Storage Scopes:** Choose to save information for just yourself (`user`), the whole `household`, or only the current `session`.
+- **Auto-Expiration:** Optionally set memories to be automatically deleted after a specified number of days.
 
-**Example Voice Commands:**
+**🗣️ Example Voice Commands:**
 
-- "Remember my parking spot is basement B2, R10."
-- "Where did I park?"
-- "Remember the guest Wi-Fi password is 123456789."
-- "What's the guest Wi-Fi password?"
+- "Remember the guest Wi-Fi password is `guestshere123`."
+- "Remember I parked at B2, column D5, and forget it after one day."
+- "Remind me that ABC Company's address is 123 Main Street, Anytown."
+- "Search for the memory about my parking spot."
+- "What is the guest Wi-Fi password?"
 
-### LLM Version (Multiple Languages)
+**💡 Use Cases:**
 
+- **Secure & Personal:** Store rarely used but important personal info (passport numbers, membership IDs, warranty details) with `user` scope.
+- **Household Convenience:** Save shared information for the family (guest Wi-Fi password, gate code) with `household` scope.
+- **Temporary Notes:** Save temporary, expiring information (parking spots, temporary addresses, a recommended book title).
+
+_Choose the version you want to use:_
+
+**LLM Version (Multi-language):**
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_full_llm.yaml)
 
-### Local Version (English Only)
-
+**Local Version (English only, works offline):**
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fmemory_tool_local.yaml)
-
-_Please carefully read each blueprint description before getting started._
 
 ---
 
 ## 👀 Voice Assist - "See" Around
 
-Give Voice Assist eyes on your surroundings. Share the cameras you want it to access, then ask it to check doorways, hunt down pets, or confirm activity around the house-all through natural conversation with near-instant responses.
+Give Voice Assist eyes on your surroundings by allowing it to access your cameras and answer questions about what's happening.
 
-**Example voice commands:**
+**✨ Key Features:**
 
-- Show the cameras to see where the cat is
-- Check the gate camera to see if anyone's there
+- **Image Analysis:** Extracts content from camera snapshots to answer your questions.
+- **Multi-Camera Support:** Configure multiple cameras to give Voice Assist a wider field of view.
+- **Instant Responses:** Get answers almost immediately after asking.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+**🗣️ Example Voice Commands:**
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcamera_snapshot_full_llm.yaml)
+- "Check the cameras to see where the cat is."
+- "Look at the gate camera to see if anyone's there."
+- "Is there a strange car in the yard?"
 
-_Please carefully read each blueprint description before getting started._
+**💡 Use Cases:**
+
+- Quickly check your yard, a child's room, or your front door without opening the camera app.
+- Find a pet or confirm unusual activity when you're not near a screen.
+
+To use this feature, you need to install **both blueprints**:
+
+1. **Snapshot Blueprint:** Takes a picture from the requested camera.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcamera_snapshot_full_llm.yaml)
+2. **Analyzer Blueprint (LLM):** Sends the snapshot to the language model for analysis and response.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
 ---
 
-## 🗓️ Voice Assist - Create Calendar Events
+## 🗓️ Voice Assist - Calendar Management
 
-Plan your schedule as if you were chatting with a personal assistant. This blueprint turns reminders, meetings, and getaways into calendar entries, and pairs perfectly with the calendar lookup blueprint when you need timely nudges.
+Manage your personal schedule effectively using natural voice commands.
 
-**Example voice commands:**
+### Create Calendar Events
 
-- Schedule a haircut tomorrow at 2 PM
-- Schedule a 3-hour meeting tomorrow at 9 AM
-- Add an event this Saturday to visit family
-- Create an event next Sunday for a 1-week trip to Phu Quoc
+Plan your schedule by voice as if you were talking to an assistant. This blueprint automates creating events for reminders, meetings, and trips in your calendar.
+
+**✨ Key Features:**
+
+- **Natural Language Processing:** Automatically parses dates, times, and durations from your commands.
+- **Quick Event Creation:** Add events to your calendar without manual typing.
+- **Seamless Integration:** Works perfectly with Google Calendars configured in Home Assistant.
+
+**🗣️ Example Voice Commands:**
+
+- "Schedule a haircut tomorrow at 2 PM."
+- "Schedule a 3-hour meeting tomorrow at 9 AM."
+- "Add an event this Saturday to visit family."
+
+**💡 Use Cases:**
+
+- Quickly create reminders and appointments while driving or busy.
+- Add family or work events to your calendar the moment you think of them.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 
-_Please carefully read each blueprint description before getting started._
+### Calendar Events Lookup
+
+Ask about and get information on existing events in your calendar, such as birthdays, appointments, or anniversaries.
+
+**🗣️ Example Voice Commands:**
+
+- "What events are happening this week?"
+- "What's on the calendar for this month?"
+
+**💡 Use Cases:**
+
+- Get a quick overview of your day or week without opening the calendar app.
+- Ensure you don't miss any important events.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
 
 ---
 
-## 🤝 Two-Way Interaction with Zalo (Official Zalo Bot)
+## 🌙 Voice Assist - Lunar Calendar Assistant
 
-Connect Home Assistant to your Zalo Official Account for natural, two-way conversations. Control devices, send images for instant analysis, and let the bot ask clarifying questions before it takes action.
+Tools to help you accurately track and manage events based on the Lunar calendar.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fzalo_bot_webhook.yaml)
+### Lunar Calendar Conversion & Lookup
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+Instantly convert between Solar and Lunar calendars, 100% offline. Provides full traditional details like Can Chi, solar terms, auspicious/inauspicious days, and lucky hours.
 
-_Please carefully read each blueprint description before getting started._
+**✨ Key Features:**
 
----
+- **Offline Functionality:** Extremely fast and requires no internet connection.
+- **Detailed Information:** Provides comprehensive traditional lunar calendar data.
+- **Event Countdown:** Shows the number of days remaining until major holidays like Lunar New Year.
 
-## 📩 Voice Assist → Zalo (Official Bot)
+**🗣️ Example Voice Commands:**
 
-Send anything to a Zalo recipient with your voice alone. Mention a location to auto-generate Google Maps links, while other content gets a companion Google Search link for instant follow-up.
+- "What's the lunar date this Sunday?"
+- "How many days until Tet?"
+- "Is tomorrow a good or bad day?"
 
-**Example voice commands:**
+**💡 Use Cases:**
 
-- Find the best restaurants in Nha Trang and send them to Zalo
-- Send the address of Thang Long Citadel to Zalo
+- Check the lunar date for festivals, memorials, and cultural ceremonies.
+- Look up auspicious/inauspicious days for important life events.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_bot_full_llm.yaml)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 
-_Please carefully read each blueprint description before getting started._
+### Create Lunar Calendar Events
 
----
+Automatically add important events based on the Lunar calendar (memorials, anniversaries, etc.) to your calendar.
 
-## 🧩 Two-Way Interaction with Zalo (Custom Bot)
+**Note:** This blueprint is designed for **manual execution** or via automation, requiring users to fill in information directly through the Home Assistant UI. It **does not support voice commands** via Voice Assist.
 
-Build your own Zalo bot without giving up conversational smarts. The blueprint handles webhooks, state syncing, and rich media (images, video, audio, documents) so you can focus on the experience instead of the plumbing.
+**✨ Key Features:**
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fzalo_custom_bot_webhook.yaml)
+- **Automatic Conversion:** Calculates and creates events on the corresponding solar date each year.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+- **Accurate & Convenient:** No more manual conversions or forgetting important traditional dates.
 
-_Please carefully read each blueprint description before getting started._
+**💡 Use Cases:**
 
----
+- Ensure you never miss important family memorials or ceremonies.
 
-## 📬 Voice Assist → Zalo (Custom Bot)
+- Automatically get reminders for anniversaries or birthdays that are celebrated based on the lunar calendar.
 
-Dictate messages through your custom Zalo bot and deliver them to people or group chats. Mention a destination to generate Google Maps links automatically; everything else ships with a Google Search link so recipients can dive deeper right away.
-
-**Example voice commands:**
-
-- Share the best restaurants in Nha Trang with the family Zalo group
-- Send the address of Thang Long Citadel to my wife's Zalo
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_custom_bot_full_llm.yaml)
-
-_Please carefully read each blueprint description before getting started._
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
 
 ---
 
-## 💬 Two-Way Interaction with Telegram
+## 💬 Two-Way Interaction with Telegram / Zalo
 
-Spin up a Telegram bot that keeps up with natural, multi-turn conversations. Trigger automations, receive contextual replies, attach snapshots or clips from cameras, and continue chatting without losing context.
+Build a bot to chat with and control Home Assistant. The bot can ask clarifying questions and send/receive images.
 
+**✨ Key Features:**
+
+- **Conversational AI:** The bot can ask clarifying questions before taking action.
+- **Rich Media Support:** Send camera snapshots for analysis or receive files from the bot.
+- **Smart Home Control:** Issue commands directly in the chat interface to control devices.
+
+**💡 Use Cases:**
+
+- Control your home remotely via a chat app without opening the Home Assistant app.
+- Send a photo of a plant in your garden and ask, "What plant is this and how do I care for it?".
+
+_Install the webhook blueprint for your chosen platform. For image analysis, also install the Analyzer blueprint._
+
+**Webhook for Telegram:**
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftelegram_bot_webhook.yaml)
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
+**Webhook for Zalo (Official Account):**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fzalo_bot_webhook.yaml)
 
-_Please carefully read each blueprint description before getting started._
+**Webhook for Zalo (Custom Bot):**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fzalo_custom_bot_webhook.yaml)
+
+**(Optional) Image Analyzer Blueprint:**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffile_content_analyzer_full_llm.yaml)
 
 ---
 
-## ✉️ Voice Assist → Telegram
+## ✉️ Voice Assist → Send Messages & Photos via Telegram / Zalo
 
-Talk to friends or groups on Telegram via Voice Assist. Locations automatically turn into Google Maps links, while every other message includes a Google Search link so recipients can fact-check or explore further on the spot.
+Use your voice to send text messages, photos, locations, or search results to friends and group chats.
 
-**Example voice commands:**
+**✨ Key Features:**
 
-- Find the best restaurants around My Dinh and send them to Telegram
-- Send the address of Yen So Park to Telegram
+- **Multi-Content Support:** Send text messages, photos from your cameras, or media files.
+- **Maps & Search Integration:** Automatically attach Google Maps links for locations and Google Search links for other content.
+- **Group or Private:** Supports sending messages to both private chats and groups.
 
+**🗣️ Example Voice Commands:**
+
+- "Send a list of good restaurants in Nha Trang to the Telegram family group."
+- "Send the address of the Thang Long Citadel to my wife Zalo."
+- "Send the photo from the gate camera to the Telegram group."
+
+**💡 Use Cases:**
+
+- Quickly share a location, image, or interesting piece of information with someone while on the go.
+- Forward voice search results to others for their reference.
+
+_Install the blueprint for the platform you want to send messages to:_
+
+**Send to Telegram:**
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_telegram_full_llm.yaml)
 
-_Please carefully read each blueprint description before getting started._
+**Send to Zalo (Official Bot):**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_bot_full_llm.yaml)
+
+**Send to Zalo (Custom Bot):**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fsend_to_zalo_custom_bot_full_llm.yaml)
 
 ---
 
 ## 🔍 Voice Assist - Advanced Google Search
 
-Run sophisticated Google searches by voice and hear concise, up-to-date answers. Ask open-ended questions, filter by topic, and receive summarized results that highlight what matters most.
+Run sophisticated Google searches by voice and hear concise, summarized, and up-to-date answers.
 
-**Example voice commands:**
+**✨ Key Features:**
 
-- What's the entry score for Hanoi University of Science and Technology this year?
-- Which AI technologies are trending this week?
+- **Smart Summarization:** Returns a brief, direct answer instead of a long list of search results.
+- **Understands Open-Ended Questions:** Handles complex questions that require information synthesis.
+- **Always Current:** Fetches the latest data directly from Google's search results.
+
+**🗣️ Example Voice Commands:**
+
+- "What's the entry score for Hanoi University of Science and Technology this year?"
+- "Which AI technologies are trending this week?"
+
+**💡 Use Cases:**
+
+- Quickly look up facts, events, or knowledge without sifting through websites.
+- Settle everyday questions and debates instantly ("who was the main actor in movie X?").
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_google_search_full_llm.yaml)
-
-_Please carefully read each blueprint description before getting started._
-
----
-
-## ⏱️ Voice Assist - Device Control Timer (Obsoleted)
-
-**Use the new version `Voice Assist - Devices Schedules / Timers` for more features**
-
-Set timers for any device with natural speech-from living room lights to bedroom AC units. Schedule a specific shutoff time or a countdown, and apply the command to multiple devices at once without writing any YAML.
-
-**Example voice commands:**
-
-- Turn off the living room lights and fan in 30 minutes
-- Turn off the bedroom air conditioner at 6 AM
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_timer_full_llm.yaml)
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_tool.yaml)
-
-_Please carefully read each blueprint description before getting started._
-
----
-
-## 🚨 Traffic Fine Notifications
-
-Stay on top of traffic fines linked to your vehicle and get alerts as soon as the national traffic police system records a new violation. Notifications flow straight into Home Assistant so you can handle them before deadlines slip by.
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
-
-_Please carefully read each blueprint description before getting started._
-
----
-
-## 🛑 Voice Assist - Traffic Fine Lookup
-
-Check traffic fines for any vehicle with live data from the national traffic police portal. It's ideal for monitoring family cars or double-checking a used vehicle before you buy.
-
-**Example voice commands:**
-
-- Check traffic fines for the car 30G12345
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
-
-_Please carefully read each blueprint description before getting started._
 
 ---
 
 ## 📺 Voice Assist - YouTube Search & Playback
 
-Search YouTube and play videos on any media device using conversation alone. Hunt by topic, person, or event and let the blueprint queue the most relevant clip automatically.
+Search YouTube and play videos on any media device using conversation alone.
 
-**Example voice commands:**
+**✨ Key Features:**
 
-- Find a video about the life and career of Le Duc Tho
-- Who was the most outstanding female scientist of the 20th century? Find a video about her
+- **Semantic Search:** Finds videos based on topics, people, or events, not just keywords.
+- **Automatic Playback:** Automatically selects the most relevant video and plays it on your designated device.
+- **Knowledge Questions:** Answers questions by finding and playing a relevant video.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_youtube_search_full_llm.yaml)
+**🗣️ Example Voice Commands:**
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
+- "Find a video about the life and career of Le Duc Tho."
+- "Who was the most outstanding female scientist of the 20th century? Find a video about her."
 
-_Please carefully read each blueprint description before getting started._
+**💡 Use Cases:**
 
----
+- Find and play a tutorial for cooking or repairs while your hands are busy.
+- Quickly play entertainment or music videos for the whole family.
 
-## 🌬️ Voice Assist - Fan Speed Control
+To use this feature, you need to install **both blueprints**:
 
-Adjust the speed of one or many fans across your home with simple voice prompts. Increase, decrease, or set specific percentages-even coordinate multiple rooms in one request.
-
-**Example voice commands:**
-
-- Increase the kitchen fan speed
-- Set the bedroom fan speed to 50
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
-
-_Please carefully read each blueprint description before getting started._
-
----
-
-## 🔄 Voice Assist - Fan Oscillation Control
-
-Toggle oscillation for multiple fans at once using nothing but your voice. Perfect when you want to rotate airflow between zones or lock a fan onto a single spot.
-
-**Example voice commands:**
-
-- Start oscillation for the living room and kitchen fans
-- Stop oscillation for the bedroom fan
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
-
-_Please carefully read each blueprint description before getting started._
+1. **Search Blueprint (LLM):** Analyzes the query and finds the right video.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_youtube_search_full_llm.yaml)
+2. **Player Blueprint:** Gets the video info and plays it on the media player.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
 ---
 
 ## 📡 Voice Assist - Favorite YouTube Channels
 
-Automatically surface the newest videos from your must-watch channels and play them on your chosen devices. Optionally get notified the moment a fresh upload drops so you never miss a thing.
+Automatically surface the newest videos from your must-watch channels and play them on your chosen devices.
 
-**Example voice commands:**
+**✨ Key Features:**
 
-- Does Hoa Ban Food have a new video?
-- Play the latest Sang vlog on the TV
+- **New Video Checks:** Automatically checks your pre-configured favorite YouTube channels for new content.
+- **Play Latest Video:** Easily play the most recently uploaded video with a simple command.
+- **Optional Notifications:** Can be configured to notify you the moment a new video drops.
 
-[**Detailed guide**](/home_assistant_play_favorite_youtube_channel_videos.md)
+**🗣️ Example Voice Commands:**
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fget_youtube_video_info_full_llm.yaml)
+- "Does Hoa Ban Food have a new video?"
+- "Play the latest video from Sang vlog on the TV."
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
+**💡 Use Cases:**
 
-_Please carefully read each blueprint description before getting started._
+- Create a "morning brief" automation that plays the latest news from your trusted channels.
+- Ensure you never miss content from your favorite creators.
+
+[**View the detailed guide**](/home_assistant_play_favorite_youtube_channel_videos.md)
+
+To use this feature, you need to install **both blueprints**:
+
+1. **Info Getter Blueprint (LLM):** Checks the channel and gets the latest video info.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fget_youtube_video_info_full_llm.yaml)
+2. **Player Blueprint:** Gets the video info and plays it on the media player (can be reused from the blueprint above).
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
+
+---
+
+## 🌬️ Voice Assist - Fan Control
+
+Adjust the speed and oscillation of one or many fans across your home with simple voice prompts.
+
+**✨ Key Features:**
+
+- **Speed Control:** Increase, decrease, or set a specific fan speed percentage.
+- **Oscillation Control:** Toggle the fan's oscillation mode on or off.
+- **Multi-Fan Support:** Command multiple fans at once.
+
+**🗣️ Example Voice Commands:**
+
+- "Increase the kitchen fan speed."
+- "Set the bedroom fan speed to 50%."
+- "Start oscillation for the living room fan."
+
+**💡 Use Cases:**
+
+- Adjust fan comfort level without getting up.
+- Quickly change the airflow in a room to suit your needs.
+
+_Install the blueprint for the function you want to use:_
+
+**Fan Speed Control:**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
+
+**Fan Oscillation Control:**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
 
 ---
 
 ## 📍 Voice Assist - Device Location Lookup
 
-Track down phones, tablets, smartwatches, or BLE tags around your home with a quick command. Voice Assist reports the most recent room and can trigger a ring so you locate the device in moments.
+Track down mobile devices or BLE tags in your home by voice and make them ring to locate them easily.
 
-**Example voice commands:**
+**✨ Key Features:**
 
-- Where are the phones right now?
-- Find the iPad and make it ring
+- **Location Reporting:** Reports the approximate location (by room) of the device in your home.
+- **Trigger Ringing:** Makes the device ring so you can find it by sound.
+- **Multi-Device Support:** Search for multiple phones or tablets at once.
 
-[**Detailed guide**](/home_assistant_device_location_lookup_guide_en.md)
+**🗣️ Example Voice Commands:**
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
+- "Where are the phones right now?"
+- "Find the iPad and make it ring."
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
+**💡 Use Cases:**
 
-_Please carefully read each blueprint description before getting started._
+- Quickly find a misplaced phone or tablet inside the house.
+- Check if your kids have left their devices at home.
 
----
+[**View the detailed guide**](/home_assistant_device_location_lookup_guide_en.md)
 
-## 🌙 Voice Assist - Lunar Calendar Conversion
+To use this feature, you need to install **both blueprints**:
 
-Switch between solar and lunar calendars instantly-completely offline and lightning fast. Get full Can Chi details, solar terms, auspicious/inauspicious ratings, lucky hours, and countdowns to important milestones.
-
-**Example voice commands:**
-
-- What's the lunar date this Sunday?
-- When is Mid-Autumn Festival?
-- How many days until Tet?
-- Is tomorrow a good or bad day?
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
-
-_Please carefully read each blueprint description before getting started._
+1. **Location Finder Blueprint (LLM):** Processes the request and finds the device's location.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
+2. **Ringing Blueprint (LLM):** Triggers the device to ring.
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
 
 ---
 
-## 📆 Voice Assist - Calendar Events Lookup
+## 🚦 Voice Assist - Traffic Fine Lookup
 
-Ask what's already on your calendar-birthdays, anniversaries, work commitments, or personal reminders. Voice Assist reads everything back with timing so you can plan your day with confidence.
+Check for traffic fines for any vehicle by voice, using live data from the national traffic police portal.
 
-**Example voice commands:**
+**Note:** This feature is only applicable to the traffic fine system in Vietnam.
 
-- What events are happening this week?
-- What's on the calendar this month?
+**🗣️ Example Voice Commands:**
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
+- "Check traffic fines for the car 30G-123.45."
+- "Does the motorbike 29-T1 567.89 have any fines?"
 
-_Please carefully read each blueprint description before getting started._
+**💡 Use Cases:**
+
+- Periodically check your family's vehicles for fines.
+- Check a used car for outstanding fines before purchasing.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
 
 ---
 
-## 🗓️ Create Lunar Calendar Events
+## 🚨 Automatic Traffic Fine Notifications
 
-Add lunar-based occasions-memorials, anniversaries, weddings-to your solar calendar accurately and effortlessly. No more manual conversions or missed traditional milestones.
+Get an alert as soon as a new traffic violation is recorded for your vehicle in the national police system.
 
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
+**Note:** This feature is only applicable to the traffic fine system in Vietnam.
 
-_Please carefully read each blueprint description before getting started._
+**✨ Key Features:**
+
+- **Automatic Checks:** Periodically scans the system for new violations.
+- **Instant Notifications:** Sends a notification to Home Assistant as soon as a fine is detected.
+- **Multi-Vehicle Support:** Easily configure to monitor multiple license plates.
+
+**💡 Use Cases:**
+
+- Stay informed about violations early to handle them in time and avoid late fees.
+- Automatically manage the fine status for all family vehicles.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
 ---
 
 ## 🔗 Device State Synchronization
 
-Mirror on/off states across multiple devices just like a two-way staircase switch. It works with any toggleable entity, keeping switches, sensors, and automations perfectly in sync.
+Synchronize the `on/off` state between multiple devices, acting like a virtual two-way staircase switch.
+
+**💡 Use Cases:**
+
+- A physical switch can control a smart bulb that it's not directly wired to.
+- Turning on one light can trigger other lights in the same area to turn on as well.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Flink_multiple_devices.yaml)
 
-_Please carefully read each blueprint description before getting started._
+---
+
+## ⚠️ Obsoleted Blueprints
+
+### Device Control Timer
+
+**Use the new [Voice Assist - Devices Schedules / Timers](#️-voice-assist---devices-schedules--timers) for more features.**
+
+To use this, you need to install **both blueprints**:
+
+1. **Controller Blueprint (LLM):**
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_timer_full_llm.yaml)
+2. **Timer Tool Blueprint:**
+   [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_control_tool.yaml)
 
 ---
 
-## 📘 Tutorials
+## 📘 Additional Tutorials
 
 - [**How to write custom system instructions for Voice Assist**](/home_assistant_voice_instructions.md)
 - [**Play new videos from favorite YouTube channels**](/home_assistant_play_favorite_youtube_channel_videos.md)
@@ -406,4 +497,4 @@ _Please carefully read each blueprint description before getting started._
 
 ---
 
-**If you find these blueprints helpful, please share them with the Home Assistant community - and be sure to follow along for more unique blueprints coming soon!**
+**If you find these blueprints helpful, please share them with the Home Assistant community! Be sure to follow along for more unique blueprints coming soon!**

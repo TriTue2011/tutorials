@@ -74,8 +74,10 @@ if TTL < 1 or TTL > 30:
     raise ValueError("TTL must be between 1 and 30")
 
 GEMINI_CLIENT: Any = None
+_GEMINI_LOCK = asyncio.Lock()
 
 SSL_CTX: ssl.SSLContext | None = None
+_SSL_LOCK = asyncio.Lock()
 
 _CACHE_READY = False
 _CACHE_READY_LOCK = threading.Lock()
@@ -268,7 +270,9 @@ async def _ensure_ssl_ctx() -> None:
     """
     global SSL_CTX
     if SSL_CTX is None:
-        SSL_CTX = await asyncio.to_thread(_build_ssl_ctx)
+        async with _SSL_LOCK:
+            if SSL_CTX is None:
+                SSL_CTX = await asyncio.to_thread(_build_ssl_ctx)
 
 
 async def _ensure_gemini_client() -> None:
@@ -278,7 +282,9 @@ async def _ensure_gemini_client() -> None:
     """
     global GEMINI_CLIENT
     if GEMINI_CLIENT is None:
-        GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
+        async with _GEMINI_LOCK:
+            if GEMINI_CLIENT is None:
+                GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
 
 
 @pyscript_compile
@@ -439,7 +445,7 @@ async def _solve_captcha(
     Returns:
         (solution_text, None) on success or (None, error_message) on failure.
     """
-    prompt = "Extract exactly six consecutive lowercase letters (a-z) and digits (0-9) from this image, no spaces, and output only these characters."
+    prompt = "Analyze the image and extract the CAPTCHA text, which consists of exactly 6 alphanumeric characters. Return ONLY the extracted text. Do not include any other words, spaces, or markdown."
     await _ensure_gemini_client()
 
     def _solve_captcha_sync(_prompt: str, _image: Image.Image) -> Any:
@@ -514,7 +520,7 @@ async def _check_license_plate(
                 if not image:
                     return {"error": f"Unable to retrieve CAPTCHA image: {error}"}
 
-                image_filtered = _process_captcha(image)
+                image_filtered = await asyncio.to_thread(_process_captcha, image)
                 captcha, error = await _solve_captcha(image_filtered)
 
                 if not captcha:
@@ -628,6 +634,8 @@ async def traffic_fine_lookup_tool(
     """
     try:
         license_plate = str(license_plate).upper()
+        # Clean the license plate by removing any non-alphanumeric characters
+        license_plate = re.sub(r"[^A-Z0-9]", "", license_plate)
         vehicle_type = int(vehicle_type)
 
         if vehicle_type == 1:

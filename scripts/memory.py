@@ -2,6 +2,8 @@ import asyncio
 import re
 import sqlite3
 import threading
+import time
+from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -89,6 +91,16 @@ def _dt_from_iso(s: str) -> datetime | None:
         return None
 
 
+def _get_db_connection() -> sqlite3.Connection:
+    """Create a properly configured database connection."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    conn.execute("PRAGMA temp_store=MEMORY;")
+    conn.execute("PRAGMA busy_timeout=3000;")
+    return conn
+
+
 def _ensure_db() -> None:
     """Ensure database exists and tables/indices are created.
 
@@ -96,12 +108,8 @@ def _ensure_db() -> None:
     at import time.
     """
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
+    with closing(_get_db_connection()) as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
-        conn.execute("PRAGMA synchronous=NORMAL;")
-        conn.execute("PRAGMA temp_store=MEMORY;")
-        conn.execute("PRAGMA busy_timeout=3000;")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS mem
@@ -485,8 +493,7 @@ def _memory_set_db_sync(
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 cur.execute(
                     """
@@ -515,6 +522,7 @@ def _memory_set_db_sync(
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return False
@@ -525,8 +533,7 @@ def _memory_key_exists_db_sync(key_norm: str) -> bool:
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 row = cur.execute(
                     "SELECT 1 FROM mem WHERE key = ? LIMIT 1",
@@ -536,6 +543,7 @@ def _memory_key_exists_db_sync(key_norm: str) -> bool:
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return False
@@ -546,8 +554,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 expired, row = _fetch_with_expiry(cur, key_norm)
                 if row is None:
@@ -574,6 +581,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return "error", None
@@ -586,8 +594,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 found_by_key: dict[str, sqlite3.Row] = {}
                 total_rows: list[sqlite3.Row] = []
@@ -628,7 +635,9 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                         if len(found_by_key) >= limit:
                             break
                 if not total_rows:
-                    like_q = f"%{query}%"
+                    # Fallback to LIKE using normalized query to match normalized columns (key, tags)
+                    # We prioritize normalized matching because key/tags are the primary search vectors.
+                    like_q = f"%{normalized_query}%"
                     total_rows = cur.execute(
                         """
                         SELECT DISTINCT m.key,
@@ -675,6 +684,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return []
@@ -685,8 +695,7 @@ def _memory_forget_db_sync(key_norm: str) -> int:
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM mem WHERE key=?", (key_norm,))
                 rowcount = getattr(cur, "rowcount", -1)
@@ -696,6 +705,7 @@ def _memory_forget_db_sync(key_norm: str) -> int:
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return 0
@@ -709,8 +719,7 @@ def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 cur.execute(
                     "DELETE FROM mem WHERE expires_at IS NOT NULL AND expires_at < ?",
@@ -723,6 +732,7 @@ def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return 0
@@ -733,9 +743,9 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
+                cur.execute("BEGIN IMMEDIATE")
                 try:
                     cur.execute("SELECT COUNT(*) FROM mem_fts")
                     before = cur.fetchone()[0]
@@ -801,6 +811,7 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return 0, 0
@@ -811,8 +822,7 @@ def _memory_health_check_db_sync() -> tuple[int, int, int]:
     for attempt in range(2):
         try:
             _ensure_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
-                conn.row_factory = sqlite3.Row
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 cur.execute("SELECT COUNT(*) FROM mem")
                 rows = cur.fetchone()[0]
@@ -828,6 +838,7 @@ def _memory_health_check_db_sync() -> tuple[int, int, int]:
         except sqlite3.OperationalError:
             _reset_db_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return 0, 0, 0

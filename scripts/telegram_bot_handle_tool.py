@@ -2,6 +2,8 @@ import asyncio
 import mimetypes
 import os
 import secrets
+import time
+from pathlib import Path
 from typing import Any
 
 import aiofiles
@@ -12,6 +14,16 @@ DIRECTORY = "/media/telegram"
 TOKEN = pyscript.config.get("telegram_bot_token")
 
 _session: aiohttp.ClientSession | None = None
+
+
+@time_trigger("shutdown")
+async def _close_session() -> None:
+    """Close the aiohttp session on shutdown."""
+    global _session
+    if _session and not _session.closed:
+        await _session.close()
+        _session = None
+
 
 if not TOKEN:
     raise ValueError("Telegram bot token is missing")
@@ -40,17 +52,38 @@ PARSE_MODES: tuple[str, ...] = (
 def _to_media_path(path: str) -> str:
     """Normalize Home Assistant media source path to /media/ prefix.
 
-    Converts leading "local/" to "/media/". Leaves other paths unchanged.
+    Converts leading "local/" to "/media/". Leaves other paths unchanged but
+    validates that they resolve to a path inside /media/ to prevent traversal.
 
     Args:
         path: Input file path from UI or config.
 
     Returns:
-        Normalized path beginning with "/media/" when applicable.
+        Normalized absolute path beginning with "/media/".
+
+    Raises:
+        ValueError: If the resolved path is outside the allowed /media directory.
     """
     if path.startswith("local/"):
-        return "/media/" + path.removeprefix("local/")
-    return path
+        path = "/media/" + path.removeprefix("local/")
+
+    p = Path(path)
+    if not p.is_absolute():
+        p = Path("/media") / p
+
+    try:
+        resolved_path = p.resolve()
+    except OSError as e:
+        resolved_path = Path(os.path.abspath(str(p)))
+
+    media_root = Path("/media").resolve()
+    if media_root not in resolved_path.parents and resolved_path != media_root:
+        raise ValueError(
+            f"Security Error: Access to '{path}' (resolved to '{resolved_path}') "
+            "is denied. Path must be inside /media."
+        )
+
+    return str(resolved_path)
 
 
 def _to_local_path(path: str) -> str:
@@ -77,7 +110,7 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
+        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
     return _session
 
 
@@ -203,9 +236,6 @@ async def _send_photo(
     if not file_exists:
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    async with aiofiles.open(file_path, "rb") as f:
-        data = await f.read()
-
     filename = os.path.basename(file_path)
     mime_type, _ = mimetypes.guess_file_type(filename)
     content_type = mime_type or "application/octet-stream"
@@ -224,17 +254,19 @@ async def _send_photo(
         form.add_field("reply_to_message_id", str(reply_to_message_id))
     if message_thread_id:
         form.add_field("message_thread_id", str(message_thread_id))
-    form.add_field(
-        name="photo",
-        value=data,
-        filename=filename,
-        content_type=content_type,
-    )
 
-    url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-    async with session.post(url, data=form) as resp:
-        resp.raise_for_status()
-        return await resp.json()
+    with open(file_path, "rb") as f:
+        form.add_field(
+            name="photo",
+            value=f,
+            filename=filename,
+            content_type=content_type,
+        )
+
+        url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+        async with session.post(url, data=form) as resp:
+            resp.raise_for_status()
+            return await resp.json()
 
 
 async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -388,6 +420,27 @@ def _external_url() -> str | None:
         return None
 
 
+async def _cleanup_old_files(directory: str, days: int = 30) -> None:
+    """Delete files in the directory older than the specified number of days."""
+    now = time.time()
+    cutoff = now - (days * 86400)
+
+    def _cleanup_sync() -> None:
+        if not os.path.exists(directory):
+            return
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            try:
+                if os.path.isfile(file_path):
+                    t = os.path.getmtime(file_path)
+                    if t < cutoff:
+                        os.remove(file_path)
+            except Exception:
+                pass
+
+    await asyncio.to_thread(_cleanup_sync)
+
+
 @service(supports_response="only")
 async def send_telegram_message(
     chat_id: str,
@@ -482,6 +535,8 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         session = await _ensure_session()
         await _ensure_dir(DIRECTORY)
 
+        await _cleanup_old_files(DIRECTORY, days=30)
+
         online_file_path = await _get_file(session, file_id)
         if not online_file_path:
             return {"error": "Unable to retrieve the file_path from Telegram."}
@@ -491,6 +546,9 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
             return {"error": "Unable to download the file from Telegram."}
 
         file_name = os.path.basename(online_file_path)
+        base, ext = os.path.splitext(file_name)
+        file_name = f"{base}_{int(time.time())}{ext}"
+
         file_path = os.path.join(DIRECTORY, file_name)
         await _write_file(file_path, content)
         mimetypes.add_type("text/plain", ".yaml")

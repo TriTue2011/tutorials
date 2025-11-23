@@ -13,8 +13,7 @@ import google.api_core.exceptions
 from PIL import Image
 from PIL import ImageOps
 from bs4 import BeautifulSoup
-from bs4.element import AttributeValueList
-from typing_extensions import Any, Buffer, cast
+from typing import Any, cast
 
 TTL = 30  # Cache retention period (1-30 days)
 RETRY_LIMIT = 3
@@ -88,14 +87,24 @@ cache_min_age = cache_max_age - (
 )  # Only update cache when existing data is older than 2 hours
 
 
-def _ensure_cache_db() -> None:
-    """Create the cache database directory, SQLite file, and schema if they do not already exist."""
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("PRAGMA journal_mode=WAL;")
+def _connect_db() -> sqlite3.Connection:
+    """Create a configured SQLite connection with necessary PRAGMAs."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
         conn.execute("PRAGMA synchronous=NORMAL;")
         conn.execute("PRAGMA temp_store=MEMORY;")
         conn.execute("PRAGMA busy_timeout=3000;")
+    except Exception:
+        conn.close()
+        raise
+    return conn
+
+
+def _ensure_cache_db() -> None:
+    """Create the cache database directory, SQLite file, and schema if they do not already exist."""
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with _connect_db() as conn:
+        conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS cache_entries
@@ -143,7 +152,7 @@ def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
         try:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
-            with sqlite3.connect(DB_PATH) as conn:
+            with _connect_db() as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
@@ -165,6 +174,7 @@ def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)  # Add a small delay for retry
                 continue
             raise
     return None, None
@@ -182,7 +192,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
             expires_at = now + ttl_seconds
-            with sqlite3.connect(DB_PATH) as conn:
+            with _connect_db() as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
                 cur.execute(
@@ -199,6 +209,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)  # Add a small delay for retry
                 continue
             raise
     return False
@@ -214,7 +225,7 @@ def _cache_delete_sync(key: str) -> int:
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
+            with _connect_db() as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE key = ?", (key,))
                 deleted = cur.rowcount if cur.rowcount is not None else 0
@@ -223,6 +234,7 @@ def _cache_delete_sync(key: str) -> int:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)  # Add a small delay for retry
                 continue
             raise
     return 0
@@ -313,7 +325,7 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     sections = body_print.find_all(recursive=False)
     current_violation = {}
     for element in sections:
-        if "form-group" in element.get("class", AttributeValueList()):
+        if "form-group" in element.get("class", []):
             if not current_violation:
                 current_violation = {
                     "Biển kiểm soát": "",
@@ -380,7 +392,7 @@ async def _get_captcha(
         async with ss.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
             response.raise_for_status()
             content = await response.read()
-            return BytesIO(cast(Buffer, content)), None
+            return BytesIO(cast(bytes, content)), None
     except asyncio.TimeoutError as error:
         return None, f"TimeoutError during retrieve CAPTCHA image: {error}"
     except aiohttp.ClientError as error:

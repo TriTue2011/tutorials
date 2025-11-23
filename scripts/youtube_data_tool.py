@@ -2,17 +2,39 @@ import asyncio
 from typing import Any
 
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 YOUTUBE_API_KEY = pyscript.config.get("youtube_api_key")
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
+
+YOUTUBE_CLIENT: Any = None
+_YOUTUBE_LOCK = asyncio.Lock()
 
 if not YOUTUBE_API_KEY:
     raise ValueError("You need to configure your YouTube API key")
 
 
 @pyscript_compile
+def _build_youtube_client() -> Any:
+    """Build the YouTube API client."""
+    return build(
+        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=YOUTUBE_API_KEY
+    )
+
+
+async def _ensure_youtube_client() -> None:
+    """Ensure the global YouTube client is initialized once."""
+    global YOUTUBE_CLIENT
+    if YOUTUBE_CLIENT is None:
+        async with _YOUTUBE_LOCK:
+            if YOUTUBE_CLIENT is None:
+                YOUTUBE_CLIENT = await asyncio.to_thread(_build_youtube_client)
+
+
+@pyscript_compile
 def youtube_search(
+    client: Any,
     query: str,
     results: int = 5,
     search_type: str = "video,channel,playlist",
@@ -22,6 +44,7 @@ def youtube_search(
     Performs a search on YouTube.
 
     Args:
+        client: The initialized YouTube API client.
         query: The search query string.
         results: The maximum number of results to return.
         search_type: The type of content to search for.
@@ -30,11 +53,8 @@ def youtube_search(
     Returns:
         A dictionary containing the search results from the YouTube API.
     """
-    youtube = build(
-        YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=YOUTUBE_API_KEY
-    )
     search_response = (
-        youtube.search()
+        client.search()
         .list(
             q=query,
             part="id,snippet",
@@ -105,6 +125,7 @@ async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
         return coerced
 
     def _coerce_search_types(value: Any) -> list[str]:
+        valid_types = {"video", "channel", "playlist"}
         if value is None:
             items: list[str] = []
         elif isinstance(value, str):
@@ -115,21 +136,26 @@ async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
             raise ValueError(
                 "The search_type value must be a string or list of strings"
             )
+
         cleaned: list[str] = []
         for item in items:
-            item = item.strip()
-            if item and item not in cleaned:
+            item = item.strip().lower()  # Normalize to lowercase
+            if item in valid_types and item not in cleaned:
                 cleaned.append(item)
+
         if not cleaned:
             cleaned = ["video"]
         return cleaned
 
     try:
+        await _ensure_youtube_client()
         results = _coerce_results(kwargs.get("results", 5))
         search_types = _coerce_search_types(kwargs.get("search_type", ["video"]))
         page_token = kwargs.get("page_token", "") or ""
+
         response = await asyncio.to_thread(
             youtube_search,
+            YOUTUBE_CLIENT,
             query,
             results=results,
             search_type=",".join(search_types),
@@ -141,5 +167,12 @@ async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
                 "detail": f"Expected dict, received {type(response).__name__}",
             }
         return response
+    except HttpError as error:
+        return {
+            "error": "YouTube API Error",
+            "status": error.resp.status,
+            "reason": error._get_reason(),
+            "detail": str(error),
+        }
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

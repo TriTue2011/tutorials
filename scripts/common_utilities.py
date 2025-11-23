@@ -4,6 +4,7 @@ import json
 import sqlite3
 import threading
 import time
+from contextlib import closing
 from pathlib import Path
 from typing import Any
 
@@ -49,7 +50,7 @@ def _get_db_connection() -> sqlite3.Connection:
 def _ensure_cache_db() -> None:
     """Create the cache database directory, SQLite file, and schema if they do not already exist."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with _get_db_connection() as conn:
+    with closing(_get_db_connection()) as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute(
             """
@@ -98,7 +99,7 @@ def _prune_expired_sync() -> None:
         try:
             _ensure_cache_db_once()
             now = int(time.time())
-            with _get_db_connection() as conn:
+            with closing(_get_db_connection()) as conn:
                 conn.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
                 conn.commit()
             return
@@ -118,7 +119,7 @@ def _cache_get_sync(key: str) -> str | None:
         try:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
-            with _get_db_connection() as conn:
+            with closing(_get_db_connection()) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute(
@@ -148,7 +149,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
             expires_at = now + ttl_seconds
-            with _get_db_connection() as conn:
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 cur.execute(
                     """
@@ -175,7 +176,7 @@ def _cache_delete_sync(key: str) -> int:
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
-            with _get_db_connection() as conn:
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE key = ?", (key,))
                 deleted = cur.rowcount if cur.rowcount is not None else 0

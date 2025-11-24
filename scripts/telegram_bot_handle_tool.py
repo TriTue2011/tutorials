@@ -129,17 +129,6 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-async def _write_file(path: str, content: bytes) -> None:
-    """Write bytes to a file asynchronously.
-
-    Args:
-        path: Destination file path.
-        content: Raw bytes to write.
-    """
-    async with aiofiles.open(path, "wb") as f:
-        await f.write(content)
-
-
 async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     """Resolve Telegram file path from a file_id.
 
@@ -157,22 +146,26 @@ async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     return data.get("result", {}).get("file_path")
 
 
-async def _download_file(
-    session: aiohttp.ClientSession, file_path: str
-) -> bytes | None:
-    """Download a file from Telegram's file server.
+async def _download_and_save_file(
+    session: aiohttp.ClientSession, file_path: str, destination: str
+) -> bool:
+    """Download a file from Telegram and save it directly to disk (streaming).
 
     Args:
         session: Shared aiohttp session.
         file_path: Path returned by Telegram `getFile`.
+        destination: Local destination path.
 
     Returns:
-        Raw bytes of the file content, or None.
+        True if successful, False otherwise.
     """
     url = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.read()
+        async with aiofiles.open(destination, "wb") as f:
+            async for chunk in resp.content.iter_chunked(4096):
+                await f.write(chunk)
+    return True
 
 
 async def _send_message(
@@ -197,7 +190,10 @@ async def _send_message(
         Telegram API JSON response as a dict.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": chat_id, "text": message[:4096]}
+    text = message
+    if len(text) > 4096:
+        text = text[:4093] + "..."
+    payload = {"chat_id": chat_id, "text": text}
     if reply_to_message_id:
         payload["reply_to_message_id"] = reply_to_message_id
     if message_thread_id:
@@ -547,16 +543,18 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         if not online_file_path:
             return {"error": "Unable to retrieve the file_path from Telegram."}
 
-        content = await _download_file(session, online_file_path)
-        if not content:
-            return {"error": "Unable to download the file from Telegram."}
-
         file_name = os.path.basename(online_file_path)
         base, ext = os.path.splitext(file_name)
-        file_name = f"{base}_{int(time.time())}{ext}"
+        # Use timestamp and random token to prevent filename collisions
+        file_name = f"{base}_{int(time.time())}_{secrets.token_hex(4)}{ext}"
 
         file_path = os.path.join(DIRECTORY, file_name)
-        await _write_file(file_path, content)
+
+        try:
+            await _download_and_save_file(session, online_file_path, file_path)
+        except Exception:
+            return {"error": "Unable to download or save the file from Telegram."}
+
         mimetypes.add_type("text/plain", ".yaml")
         mime_type, _ = mimetypes.guess_file_type(file_name)
         file_path = _to_relative_path(file_path)

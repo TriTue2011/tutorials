@@ -170,8 +170,6 @@ async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
     except HttpError as error:
         return {
             "error": "YouTube API Error",
-            "status": error.resp.status,
-            "reason": error._get_reason(),
             "detail": str(error),
         }
     except Exception as error:

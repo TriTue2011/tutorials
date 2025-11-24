@@ -16,21 +16,6 @@ TOKEN = pyscript.config.get("telegram_bot_token")
 _session: aiohttp.ClientSession | None = None
 
 
-@time_trigger("shutdown")
-async def _close_session() -> None:
-    """Close the aiohttp session on shutdown."""
-    global _session
-    if _session and not _session.closed:
-        await _session.close()
-        _session = None
-
-
-@time_trigger("cron(0 0 * * *)")
-async def _daily_cleanup() -> None:
-    """Run daily cleanup of old files."""
-    await _cleanup_old_files(DIRECTORY, days=30)
-
-
 if not TOKEN:
     raise ValueError("Telegram bot token is missing")
 
@@ -79,7 +64,7 @@ def _to_media_path(path: str) -> str:
 
     try:
         resolved_path = p.resolve()
-    except OSError as e:
+    except OSError:
         resolved_path = Path(os.path.abspath(str(p)))
 
     media_root = Path("/media").resolve()
@@ -452,6 +437,21 @@ async def _cleanup_old_files(directory: str, days: int = 30) -> None:
                 pass
 
     await asyncio.to_thread(_cleanup_sync)
+
+
+@time_trigger("shutdown")
+async def _close_session() -> None:
+    """Close the aiohttp session on shutdown."""
+    global _session
+    if _session and not _session.closed:
+        await _session.close()
+        _session = None
+
+
+@time_trigger("cron(0 0 * * *)")
+async def _daily_cleanup() -> None:
+    """Run daily cleanup of old files."""
+    await _cleanup_old_files(DIRECTORY, days=30)
 
 
 @service(supports_response="only")

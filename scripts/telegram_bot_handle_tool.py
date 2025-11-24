@@ -328,19 +328,28 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
 
 
 async def _get_updates(
-    session: aiohttp.ClientSession, timeout: int = 30
+    session: aiohttp.ClientSession,
+    timeout: int = 30,
+    offset: int | None = None,
+    limit: int | None = None,
 ) -> dict[str, Any]:
     """Fetch updates with long polling.
 
     Args:
         session: Shared aiohttp session.
         timeout: Long-poll timeout in seconds.
+        offset: Identifier of the first update to be returned.
+        limit: Limits the number of updates to be retrieved.
 
     Returns:
         Telegram API JSON response as a dict.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
-    params = {"timeout": timeout}
+    params: dict[str, Any] = {"timeout": timeout}
+    if offset is not None:
+        params["offset"] = offset
+    if limit is not None:
+        params["limit"] = limit
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
         return await resp.json()
@@ -634,7 +643,9 @@ async def delete_telegram_webhook() -> dict[str, Any]:
 
 
 @service(supports_response="only")
-async def get_telegram_updates(timeout: int = 30) -> dict[str, Any]:
+async def get_telegram_updates(
+    timeout: int = 30, offset: int | None = None, limit: int | None = None
+) -> dict[str, Any]:
     """
     yaml
     name: Get Telegram Updates
@@ -649,10 +660,25 @@ async def get_telegram_updates(timeout: int = 30) -> dict[str, Any]:
             max: 60
             step: 1
         default: 30
+      offset:
+        name: Offset
+        description: Identifier of the first update to be returned.
+        selector:
+          number:
+            min: 0
+            step: 1
+      limit:
+        name: Limit
+        description: Limits the number of updates to be retrieved. Values between 1-100.
+        selector:
+          number:
+            min: 1
+            max: 100
+            step: 1
     """
     try:
         session = await _ensure_session()
-        return await _get_updates(session, timeout=timeout)
+        return await _get_updates(session, timeout=timeout, offset=offset, limit=limit)
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 

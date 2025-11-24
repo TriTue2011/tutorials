@@ -251,7 +251,7 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
         }
     try:
         raw_value = await _cache_get(key)
-        if raw_value:
+        if raw_value is not None:
             value = json.loads(raw_value)
             return {
                 "status": "ok",

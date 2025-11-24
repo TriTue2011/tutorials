@@ -191,7 +191,7 @@ async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
 
 
 @service(supports_response="only")
-def generate_webhook_id() -> dict[str, Any]:
+async def generate_webhook_id() -> dict[str, Any]:
     """
     yaml
     name: Generate Webhook ID

@@ -81,10 +81,10 @@ _SSL_LOCK = asyncio.Lock()
 _CACHE_READY = False
 _CACHE_READY_LOCK = threading.Lock()
 
-cache_max_age = TTL * 24 * 60 * 60
-cache_min_age = cache_max_age - (
-    2 * 60 * 60
-)  # Only update cache when existing data is older than 2 hours
+CACHE_MAX_AGE = TTL * 24 * 60 * 60
+# Update cache in background if data is older than 4 hours
+CACHE_REFRESH_PERIOD = 4 * 60 * 60
+CACHE_REFRESH_THRESHOLD = CACHE_MAX_AGE - CACHE_REFRESH_PERIOD
 
 
 def _connect_db() -> sqlite3.Connection:
@@ -245,7 +245,6 @@ async def _cache_delete(key: str) -> int:
     return await asyncio.to_thread(_cache_delete_sync, key)
 
 
-@pyscript_compile
 def _build_ssl_ctx() -> ssl.SSLContext:
     """Build an SSL context compatible with target site requirements.
 
@@ -263,7 +262,6 @@ def _build_ssl_ctx() -> ssl.SSLContext:
     return ctx
 
 
-@pyscript_compile
 def _build_gemini_client() -> Any:
     """Create a Gemini client using the configured API key.
 
@@ -299,7 +297,6 @@ async def _ensure_gemini_client() -> None:
                 GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
 
 
-@pyscript_compile
 def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     """Parse violations from the result HTML page.
 
@@ -401,7 +398,6 @@ async def _get_captcha(
         return None, f"An unexpected error during retrieve CAPTCHA image: {error}"
 
 
-@pyscript_compile
 def _process_captcha(
     image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
@@ -579,7 +575,7 @@ async def _check_license_plate(
                             await _cache_set(
                                 f"{license_plate}-{vehicle_type}",
                                 json.dumps(response, ensure_ascii=False),
-                                cache_max_age,
+                                CACHE_MAX_AGE,
                             )
                         return response
 
@@ -667,7 +663,7 @@ async def traffic_fine_lookup_tool(
 
         cached_value, ttl = await _cache_get(cache_key)
         if cached_value is not None:
-            if ttl is not None and ttl < cache_min_age:
+            if ttl is not None and ttl < CACHE_REFRESH_THRESHOLD:
                 task.create(_check_license_plate, license_plate, vehicle_type)
             return json.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)

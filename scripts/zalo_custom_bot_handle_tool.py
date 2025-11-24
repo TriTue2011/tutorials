@@ -2,6 +2,7 @@ import asyncio
 import mimetypes
 import os
 import secrets
+import time
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,22 @@ from homeassistant.helpers import network
 DIRECTORY = "/media/zalo"
 
 _session: aiohttp.ClientSession | None = None
+
+
+def _to_relative_path(path: str) -> str:
+    """Convert a /media/ path to Home Assistant local/ media source path.
+
+    Converts leading "/media/" to "local/". Leaves other paths unchanged.
+
+    Args:
+        path: Absolute media path.
+
+    Returns:
+        Path with leading "local/" when applicable.
+    """
+    if path.startswith("/media/"):
+        return "local/" + path.removeprefix("/media/")
+    return path
 
 
 def _internal_url() -> str | None:
@@ -44,7 +61,7 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
+        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
     return _session
 
 
@@ -57,19 +74,29 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-async def _write_file(path: str, content: bytes) -> None:
-    """Write bytes to a file asynchronously.
+async def _cleanup_old_files(directory: str, days: int = 30) -> None:
+    """Delete files in the directory older than the specified number of days."""
+    now = time.time()
+    cutoff = now - (days * 86400)
 
-    Args:
-        path: Destination file path.
-        content: Raw bytes to write.
-    """
-    async with aiofiles.open(path, "wb") as f:
-        await f.write(content)
+    def _cleanup_sync() -> None:
+        if not os.path.exists(directory):
+            return
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            try:
+                if os.path.isfile(file_path):
+                    t = os.path.getmtime(file_path)
+                    if t < cutoff:
+                        os.remove(file_path)
+            except Exception:
+                pass
+
+    await asyncio.to_thread(_cleanup_sync)
 
 
 async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None:
-    """Download a file from a given URL and save it under DIRECTORY.
+    """Download a file from a given URL and save it under DIRECTORY (streaming).
 
     Args:
         session: Shared aiohttp session.
@@ -78,17 +105,45 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
     Returns:
         Full file path of the saved file, or None on failure.
     """
-    async with session.get(url) as resp:
-        resp.raise_for_status()
-        content = await resp.read()
-        content_type = resp.headers.get("Content-Type", "")
-        ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
-        file_name = Path(url).name
-        if not Path(file_name).suffix and ext:
-            file_name += ext
-        file_path = os.path.join(DIRECTORY, file_name)
-        await _write_file(file_path, content)
-        return file_path
+    try:
+        async with session.get(url) as resp:
+            resp.raise_for_status()
+            content_type = resp.headers.get("Content-Type", "")
+            ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
+
+            # Use safe filename from URL or default, then append unique token
+            original_name = Path(url).name
+            if not Path(original_name).suffix and ext:
+                original_name += ext
+
+            base, extension = os.path.splitext(original_name)
+            # Construct unique filename: name_timestamp_random.ext
+            file_name = f"{base}_{int(time.time())}_{secrets.token_hex(4)}{extension}"
+
+            file_path = os.path.join(DIRECTORY, file_name)
+
+            async with aiofiles.open(file_path, "wb") as f:
+                async for chunk in resp.content.iter_chunked(4096):
+                    await f.write(chunk)
+
+            return file_path
+    except Exception:
+        return None
+
+
+@time_trigger("shutdown")
+async def _close_session() -> None:
+    """Close the aiohttp session on shutdown."""
+    global _session
+    if _session and not _session.closed:
+        await _session.close()
+        _session = None
+
+
+@time_trigger("cron(0 0 * * *)")
+async def _daily_cleanup() -> None:
+    """Run daily cleanup of old files."""
+    await _cleanup_old_files(DIRECTORY, days=30)
 
 
 @service(supports_response="only")
@@ -116,10 +171,8 @@ async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
             return {"error": "Unable to download the file from Zalo."}
 
         mimetypes.add_type("text/plain", ".yaml")
-        mime_type, encoding = mimetypes.guess_file_type(file_path)
-        file_path = file_path.replace(
-            "/media/", "local/"
-        )  # Modify the media source to use a relative URI
+        mime_type, _ = mimetypes.guess_file_type(file_path)
+        file_path = _to_relative_path(file_path)
         response: dict[str, Any] = {"file_path": file_path, "mime_type": mime_type}
         support_file_types = (
             "image/",

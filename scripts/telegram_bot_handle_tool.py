@@ -25,6 +25,12 @@ async def _close_session() -> None:
         _session = None
 
 
+@time_trigger("cron(0 0 * * *)")
+async def _daily_cleanup() -> None:
+    """Run daily cleanup of old files."""
+    await _cleanup_old_files(DIRECTORY, days=30)
+
+
 if not TOKEN:
     raise ValueError("Telegram bot token is missing")
 
@@ -86,7 +92,7 @@ def _to_media_path(path: str) -> str:
     return str(resolved_path)
 
 
-def _to_local_path(path: str) -> str:
+def _to_relative_path(path: str) -> str:
     """Convert a /media/ path to Home Assistant local/ media source path.
 
     Converts leading "/media/" to "local/". Leaves other paths unchanged.
@@ -255,18 +261,20 @@ async def _send_photo(
     if message_thread_id:
         form.add_field("message_thread_id", str(message_thread_id))
 
-    with open(file_path, "rb") as f:
-        form.add_field(
-            name="photo",
-            value=f,
-            filename=filename,
-            content_type=content_type,
-        )
+    async with aiofiles.open(file_path, "rb") as f:
+        file_content = await f.read()
 
-        url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-        async with session.post(url, data=form) as resp:
-            resp.raise_for_status()
-            return await resp.json()
+    form.add_field(
+        name="photo",
+        value=file_content,
+        filename=filename,
+        content_type=content_type,
+    )
+
+    url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+    async with session.post(url, data=form) as resp:
+        resp.raise_for_status()
+        return await resp.json()
 
 
 async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -535,8 +543,6 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         session = await _ensure_session()
         await _ensure_dir(DIRECTORY)
 
-        await _cleanup_old_files(DIRECTORY, days=30)
-
         online_file_path = await _get_file(session, file_id)
         if not online_file_path:
             return {"error": "Unable to retrieve the file_path from Telegram."}
@@ -553,7 +559,7 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         await _write_file(file_path, content)
         mimetypes.add_type("text/plain", ".yaml")
         mime_type, _ = mimetypes.guess_file_type(file_name)
-        file_path = _to_local_path(file_path)
+        file_path = _to_relative_path(file_path)
         response: dict[str, Any] = {"file_path": file_path, "mime_type": mime_type}
         support_file_types = (
             "image/",

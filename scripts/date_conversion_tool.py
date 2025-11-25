@@ -194,7 +194,7 @@ def solar_to_lunar(dd: int, mm: int, yy: int, time_zone: int = 7) -> list[int]:
     return [lunar_day, lunar_month, lunar_year, lunar_leap, day_number]
 
 
-def lunar_to_sonar(
+def lunar_to_solar(
     lunar_day: int,
     lunar_month: int,
     lunar_year: int,
@@ -1130,20 +1130,24 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str,
             response = {}
             leap_month = bool(kwargs.get("leap_month", False))
             is_leap = 1 if leap_month else 0
-            solar_date = lunar_to_sonar(day, month, year, is_leap)
+            solar_date = lunar_to_solar(day, month, year, is_leap)
+            if solar_date == [0, 0, 0]:
+                return {
+                    "error": f"Invalid lunar date: Day {day} Month {month} (Leap: {leap_month}) Year {year} does not exist."
+                }
             days = get_number_of_days(
                 join_date(solar_date[0], solar_date[1], solar_date[2])
             )
-            day_numer = jd_from_date(solar_date[0], solar_date[1], solar_date[2])
-            can_chi_day = CAN[(day_numer + 9) % 10] + " " + CHI[(day_numer + 1) % 12]
+            day_number = jd_from_date(solar_date[0], solar_date[1], solar_date[2])
+            can_chi_day = CAN[(day_number + 9) % 10] + " " + CHI[(day_number + 1) % 12]
             can_chi_month = (
                 CAN[(year * 12 + month + 3) % 10] + " " + CHI[(month + 1) % 12]
             )
             can_chi_year = CAN[(year + 6) % 10] + " " + CHI[(year + 8) % 12]
-            auspicious_hours = get_auspicious_hours(day_numer)
-            auspicious_day = get_auspicious_day(month, day_numer)
-            twelve_day_officers = get_twelve_day_officers(day_numer)
-            twenty_eight_mansions = get_twenty_eight_mansions(day_numer)
+            auspicious_hours = get_auspicious_hours(day_number)
+            auspicious_day = get_auspicious_day(month, day_number)
+            twelve_day_officers = get_twelve_day_officers(day_number)
+            twenty_eight_mansions = get_twenty_eight_mansions(day_number)
             response["mode"] = "l2s"
             response["solar_date"] = join_date(
                 solar_date[0], solar_date[1], solar_date[2]
@@ -1165,7 +1169,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str,
                 "calendar": "solar",
                 "full_can_chi_date_vi": f"{DAYS[get_day_of_week(solar_date[0], solar_date[1], solar_date[2])]} ngày {can_chi_day} tháng {can_chi_month} năm {can_chi_year}",
             }
-            response["solar_term"] = SOLAR_TERM[get_solar_term(day_numer + 1, 7)]
+            response["solar_term"] = SOLAR_TERM[get_solar_term(day_number + 1, 7)]
             response["extras"] = {
                 "auspicious_hours": auspicious_hours,
                 "auspicious_day": auspicious_day,

@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 import json
 import sqlite3
 import threading
@@ -18,24 +17,38 @@ _INDEX_LOCKS_COUNTS: dict[str, int] = {}
 _INDEX_LOCKS_GUARD = threading.Lock()
 
 
-@contextlib.asynccontextmanager
-async def _acquire_index_lock(key: str):
-    with _INDEX_LOCKS_GUARD:
-        if key not in _INDEX_LOCKS:
-            _INDEX_LOCKS[key] = asyncio.Lock()
-            _INDEX_LOCKS_COUNTS[key] = 0
-        _INDEX_LOCKS_COUNTS[key] += 1
-        lock = _INDEX_LOCKS[key]
+class _IndexLockContext:
+    def __init__(self, key: str):
+        self.key = key
+        self.lock = None
 
-    try:
-        async with lock:
-            yield
-    finally:
+    async def __aenter__(self):
+        key = self.key
         with _INDEX_LOCKS_GUARD:
-            _INDEX_LOCKS_COUNTS[key] -= 1
-            if _INDEX_LOCKS_COUNTS[key] <= 0:
-                _INDEX_LOCKS.pop(key, None)
-                _INDEX_LOCKS_COUNTS.pop(key, None)
+            if key not in _INDEX_LOCKS:
+                _INDEX_LOCKS[key] = asyncio.Lock()
+                _INDEX_LOCKS_COUNTS[key] = 0
+            _INDEX_LOCKS_COUNTS[key] += 1
+            self.lock = _INDEX_LOCKS[key]
+
+        await self.lock.acquire()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.lock:
+            self.lock.release()
+
+        key = self.key
+        with _INDEX_LOCKS_GUARD:
+            if key in _INDEX_LOCKS_COUNTS:
+                _INDEX_LOCKS_COUNTS[key] -= 1
+                if _INDEX_LOCKS_COUNTS[key] <= 0:
+                    _INDEX_LOCKS.pop(key, None)
+                    _INDEX_LOCKS_COUNTS.pop(key, None)
+
+
+def _acquire_index_lock(key: str):
+    return _IndexLockContext(key)
 
 
 def _get_db_connection() -> sqlite3.Connection:

@@ -2,8 +2,10 @@ import asyncio
 import mimetypes
 import os
 import secrets
+import time
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import aiofiles
 import aiohttp
@@ -22,20 +24,41 @@ if not TOKEN:
 def _to_media_path(path: str) -> str:
     """Normalize Home Assistant media source path to /media/ prefix.
 
-    Converts leading "local/" to "/media/". Leaves other paths unchanged.
+    Converts leading "local/" to "/media/". Leaves other paths unchanged but
+    validates that they resolve to a path inside /media/ to prevent traversal.
 
     Args:
         path: Input file path from UI or config.
 
     Returns:
-        Normalized path beginning with "/media/" when applicable.
+        Normalized absolute path beginning with "/media/".
+
+    Raises:
+        ValueError: If the resolved path is outside the allowed /media directory.
     """
     if path.startswith("local/"):
-        return "/media/" + path.removeprefix("local/")
-    return path
+        path = "/media/" + path.removeprefix("local/")
+
+    p = Path(path)
+    if not p.is_absolute():
+        p = Path("/media") / p
+
+    try:
+        resolved_path = p.resolve()
+    except OSError:
+        resolved_path = Path(os.path.abspath(str(p)))
+
+    media_root = Path("/media").resolve()
+    if media_root not in resolved_path.parents and resolved_path != media_root:
+        raise ValueError(
+            f"Security Error: Access to '{path}' (resolved to '{resolved_path}') "
+            "is denied. Path must be inside /media."
+        )
+
+    return str(resolved_path)
 
 
-def _to_local_path(path: str) -> str:
+def _to_relative_path(path: str) -> str:
     """Convert a /media/ path to Home Assistant local/ media source path.
 
     Converts leading "/media/" to "local/". Leaves other paths unchanged.
@@ -59,7 +82,7 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
+        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
     return _session
 
 
@@ -72,19 +95,29 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-async def _write_file(path: str, content: bytes) -> None:
-    """Write bytes to a file asynchronously.
+async def _cleanup_old_files(directory: str, days: int = 30) -> None:
+    """Delete files in the directory older than the specified number of days."""
+    now = time.time()
+    cutoff = now - (days * 86400)
 
-    Args:
-        path: Destination file path.
-        content: Raw bytes to write.
-    """
-    async with aiofiles.open(path, "wb") as f:
-        await f.write(content)
+    def _cleanup_sync() -> None:
+        if not os.path.exists(directory):
+            return
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            try:
+                if os.path.isfile(file_path):
+                    t = os.path.getmtime(file_path)
+                    if t < cutoff:
+                        os.remove(file_path)
+            except Exception:
+                pass
+
+    await asyncio.to_thread(_cleanup_sync)
 
 
 async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None:
-    """Download a file from a given URL and save it under DIRECTORY.
+    """Download a file from a given URL and save it under DIRECTORY (streaming).
 
     Args:
         session: Shared aiohttp session.
@@ -93,17 +126,31 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
     Returns:
         Full file path of the saved file, or None on failure.
     """
-    async with session.get(url) as resp:
-        resp.raise_for_status()
-        content = await resp.read()
-        content_type = resp.headers.get("Content-Type", "")
-        ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
-        file_name = Path(url).name
-        if not Path(file_name).suffix and ext:
-            file_name += ext
-        file_path = os.path.join(DIRECTORY, file_name)
-        await _write_file(file_path, content)
-        return file_path
+    try:
+        async with session.get(url) as resp:
+            resp.raise_for_status()
+            content_type = resp.headers.get("Content-Type", "")
+            ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
+
+            # Use safe filename from URL or default, then append unique token
+            parsed_url = urlparse(url)
+            original_name = Path(parsed_url.path).name
+            if not Path(original_name).suffix and ext:
+                original_name += ext
+
+            base, extension = os.path.splitext(original_name)
+            # Construct unique filename: name_timestamp_random.ext
+            file_name = f"{base}_{int(time.time())}_{secrets.token_hex(4)}{extension}"
+
+            file_path = os.path.join(DIRECTORY, file_name)
+
+            async with aiofiles.open(file_path, "wb") as f:
+                async for chunk in resp.content.iter_chunked(4096):
+                    await f.write(chunk)
+
+            return file_path
+    except Exception:
+        return None
 
 
 async def _send_message(
@@ -120,7 +167,10 @@ async def _send_message(
         Zalo API JSON response as a dict.
     """
     url = f"https://bot-api.zapps.me/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": chat_id, "text": message[:2000]}
+    text = message
+    if len(text) > 2000:
+        text = text[:1997] + "..."
+    payload = {"chat_id": chat_id, "text": text}
     async with session.post(url, json=payload) as resp:
         resp.raise_for_status()
         return await resp.json(content_type=None)
@@ -274,17 +324,24 @@ async def _copy_to_www(file_path: str) -> tuple[str, str]:
     file_exists = await asyncio.to_thread(os.path.isfile, normalized)
     if not file_exists:
         raise FileNotFoundError(f"File not found: {normalized}")
-    await _ensure_dir(WWW_DIRECTORY)
-    async with aiofiles.open(normalized, "rb") as src:
-        data = await src.read()
-    name = f"{secrets.token_urlsafe(16)}-{Path(normalized).name}"
-    dest_path = os.path.join(WWW_DIRECTORY, name)
-    async with aiofiles.open(dest_path, "wb") as dst:
-        await dst.write(data)
-
     external = _external_url()
     if not external:
         raise ValueError("The external Home Assistant URL is not found or incorrect.")
+    await _ensure_dir(WWW_DIRECTORY)
+
+    name = f"{secrets.token_urlsafe(16)}-{Path(normalized).name}"
+    dest_path = os.path.join(WWW_DIRECTORY, name)
+
+    # Streaming copy
+    async with (
+        aiofiles.open(normalized, "rb") as src,
+        aiofiles.open(dest_path, "wb") as dst,
+    ):
+        async for (
+            chunk
+        ) in src:  # aiofiles supports async iteration (default chunk size)
+            await dst.write(chunk)
+
     public_url = f"{external}/local/zalo/{name}"
     return public_url, dest_path
 
@@ -336,6 +393,25 @@ def _external_url() -> str | None:
         )
     except network.NoURLAvailableError:
         return None
+
+
+@time_trigger("shutdown")
+async def _close_session() -> None:
+    """Close the aiohttp session on shutdown."""
+    global _session
+    if _session and not _session.closed:
+        await _session.close()
+        _session = None
+
+
+@time_trigger("cron(0 0 * * *)")
+async def _daily_cleanup() -> None:
+    """Run daily cleanup of old files."""
+    await _cleanup_old_files(DIRECTORY, days=30)
+    # Cleanup www folder more frequently or same duration? Assuming same.
+    await _cleanup_old_files(
+        WWW_DIRECTORY, days=1
+    )  # Public files should be short-lived
 
 
 @service(supports_response="only")
@@ -397,7 +473,7 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
 
         mimetypes.add_type("text/plain", ".yaml")
         mime_type, _ = mimetypes.guess_file_type(file_path)
-        file_path = _to_local_path(file_path)
+        file_path = _to_relative_path(file_path)
         response: dict[str, Any] = {"file_path": file_path, "mime_type": mime_type}
         support_file_types = (
             "image/",
@@ -568,12 +644,15 @@ async def send_zalo_photo(
     """
     if not all([chat_id, file_path]):
         return {"error": "Missing one or more required arguments: chat_id, file_path"}
+    published_path = None
     try:
         session = await _ensure_session()
         public_url, published_path = await _copy_to_www(file_path)
         response = await _send_photo(session, chat_id, public_url, caption=caption)
-        # Schedule deletion after a short delay to ensure Zalo had time to fetch the file
-        task.create(_delayed_remove, published_path, 30)
         return response
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}
+    finally:
+        # Ensure deletion is scheduled even if an error occurred
+        if published_path:
+            task.create(_delayed_remove, published_path, 30)

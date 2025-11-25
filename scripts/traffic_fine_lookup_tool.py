@@ -13,8 +13,7 @@ import google.api_core.exceptions
 from PIL import Image
 from PIL import ImageOps
 from bs4 import BeautifulSoup
-from bs4.element import AttributeValueList
-from typing_extensions import Any, Buffer, cast
+from typing import Any, cast
 
 TTL = 30  # Cache retention period (1-30 days)
 RETRY_LIMIT = 3
@@ -74,26 +73,38 @@ if TTL < 1 or TTL > 30:
     raise ValueError("TTL must be between 1 and 30")
 
 GEMINI_CLIENT: Any = None
+_GEMINI_LOCK = asyncio.Lock()
 
 SSL_CTX: ssl.SSLContext | None = None
+_SSL_LOCK = asyncio.Lock()
 
 _CACHE_READY = False
 _CACHE_READY_LOCK = threading.Lock()
 
-cache_max_age = TTL * 24 * 60 * 60
-cache_min_age = cache_max_age - (
-    2 * 60 * 60
-)  # Only update cache when existing data is older than 2 hours
+CACHE_MAX_AGE = TTL * 24 * 60 * 60
+# Update cache in background if data is older than 4 hours
+CACHE_REFRESH_PERIOD = 4 * 60 * 60
+CACHE_REFRESH_THRESHOLD = CACHE_MAX_AGE - CACHE_REFRESH_PERIOD
+
+
+def _connect_db() -> sqlite3.Connection:
+    """Create a configured SQLite connection with necessary PRAGMAs."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        conn.execute("PRAGMA temp_store=MEMORY;")
+        conn.execute("PRAGMA busy_timeout=3000;")
+    except Exception:
+        conn.close()
+        raise
+    return conn
 
 
 def _ensure_cache_db() -> None:
     """Create the cache database directory, SQLite file, and schema if they do not already exist."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(DB_PATH) as conn:
+    with _connect_db() as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
-        conn.execute("PRAGMA synchronous=NORMAL;")
-        conn.execute("PRAGMA temp_store=MEMORY;")
-        conn.execute("PRAGMA busy_timeout=3000;")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS cache_entries
@@ -141,7 +152,7 @@ def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
         try:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
-            with sqlite3.connect(DB_PATH) as conn:
+            with _connect_db() as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
@@ -163,6 +174,7 @@ def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)  # Add a small delay for retry
                 continue
             raise
     return None, None
@@ -180,7 +192,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
             expires_at = now + ttl_seconds
-            with sqlite3.connect(DB_PATH) as conn:
+            with _connect_db() as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
                 cur.execute(
@@ -197,6 +209,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)  # Add a small delay for retry
                 continue
             raise
     return False
@@ -212,7 +225,7 @@ def _cache_delete_sync(key: str) -> int:
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
+            with _connect_db() as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE key = ?", (key,))
                 deleted = cur.rowcount if cur.rowcount is not None else 0
@@ -221,6 +234,7 @@ def _cache_delete_sync(key: str) -> int:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)  # Add a small delay for retry
                 continue
             raise
     return 0
@@ -268,7 +282,9 @@ async def _ensure_ssl_ctx() -> None:
     """
     global SSL_CTX
     if SSL_CTX is None:
-        SSL_CTX = await asyncio.to_thread(_build_ssl_ctx)
+        async with _SSL_LOCK:
+            if SSL_CTX is None:
+                SSL_CTX = await asyncio.to_thread(_build_ssl_ctx)
 
 
 async def _ensure_gemini_client() -> None:
@@ -278,10 +294,11 @@ async def _ensure_gemini_client() -> None:
     """
     global GEMINI_CLIENT
     if GEMINI_CLIENT is None:
-        GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
+        async with _GEMINI_LOCK:
+            if GEMINI_CLIENT is None:
+                GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
 
 
-@pyscript_compile
 def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     """Parse violations from the result HTML page.
 
@@ -307,7 +324,7 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     sections = body_print.find_all(recursive=False)
     current_violation = {}
     for element in sections:
-        if "form-group" in element.get("class", AttributeValueList()):
+        if "form-group" in element.get("class", []):
             if not current_violation:
                 current_violation = {
                     "Biển kiểm soát": "",
@@ -374,7 +391,7 @@ async def _get_captcha(
         async with ss.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
             response.raise_for_status()
             content = await response.read()
-            return BytesIO(cast(Buffer, content)), None
+            return BytesIO(cast(bytes, content)), None
     except asyncio.TimeoutError as error:
         return None, f"TimeoutError during retrieve CAPTCHA image: {error}"
     except aiohttp.ClientError as error:
@@ -383,7 +400,6 @@ async def _get_captcha(
         return None, f"An unexpected error during retrieve CAPTCHA image: {error}"
 
 
-@pyscript_compile
 def _process_captcha(
     image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
@@ -439,7 +455,7 @@ async def _solve_captcha(
     Returns:
         (solution_text, None) on success or (None, error_message) on failure.
     """
-    prompt = "Extract exactly six consecutive lowercase letters (a-z) and digits (0-9) from this image, no spaces, and output only these characters."
+    prompt = "Analyze the image and extract the CAPTCHA text, which consists of exactly 6 alphanumeric characters. Return ONLY the extracted text. Do not include any other words, spaces, or markdown."
     await _ensure_gemini_client()
 
     def _solve_captcha_sync(_prompt: str, _image: Image.Image) -> Any:
@@ -514,7 +530,7 @@ async def _check_license_plate(
                 if not image:
                     return {"error": f"Unable to retrieve CAPTCHA image: {error}"}
 
-                image_filtered = _process_captcha(image)
+                image_filtered = await asyncio.to_thread(_process_captcha, image)
                 captcha, error = await _solve_captcha(image_filtered)
 
                 if not captcha:
@@ -561,7 +577,7 @@ async def _check_license_plate(
                             await _cache_set(
                                 f"{license_plate}-{vehicle_type}",
                                 json.dumps(response, ensure_ascii=False),
-                                cache_max_age,
+                                CACHE_MAX_AGE,
                             )
                         return response
 
@@ -628,6 +644,8 @@ async def traffic_fine_lookup_tool(
     """
     try:
         license_plate = str(license_plate).upper()
+        # Clean the license plate by removing any non-alphanumeric characters
+        license_plate = re.sub(r"[^A-Z0-9]", "", license_plate)
         vehicle_type = int(vehicle_type)
 
         if vehicle_type == 1:
@@ -647,7 +665,7 @@ async def traffic_fine_lookup_tool(
 
         cached_value, ttl = await _cache_get(cache_key)
         if cached_value is not None:
-            if ttl is not None and ttl < cache_min_age:
+            if ttl is not None and ttl < CACHE_REFRESH_THRESHOLD:
                 task.create(_check_license_plate, license_plate, vehicle_type)
             return json.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)

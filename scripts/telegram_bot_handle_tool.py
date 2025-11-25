@@ -2,6 +2,8 @@ import asyncio
 import mimetypes
 import os
 import secrets
+import time
+from pathlib import Path
 from typing import Any
 
 import aiofiles
@@ -12,6 +14,7 @@ DIRECTORY = "/media/telegram"
 TOKEN = pyscript.config.get("telegram_bot_token")
 
 _session: aiohttp.ClientSession | None = None
+
 
 if not TOKEN:
     raise ValueError("Telegram bot token is missing")
@@ -40,20 +43,41 @@ PARSE_MODES: tuple[str, ...] = (
 def _to_media_path(path: str) -> str:
     """Normalize Home Assistant media source path to /media/ prefix.
 
-    Converts leading "local/" to "/media/". Leaves other paths unchanged.
+    Converts leading "local/" to "/media/". Leaves other paths unchanged but
+    validates that they resolve to a path inside /media/ to prevent traversal.
 
     Args:
         path: Input file path from UI or config.
 
     Returns:
-        Normalized path beginning with "/media/" when applicable.
+        Normalized absolute path beginning with "/media/".
+
+    Raises:
+        ValueError: If the resolved path is outside the allowed /media directory.
     """
     if path.startswith("local/"):
-        return "/media/" + path.removeprefix("local/")
-    return path
+        path = "/media/" + path.removeprefix("local/")
+
+    p = Path(path)
+    if not p.is_absolute():
+        p = Path("/media") / p
+
+    try:
+        resolved_path = p.resolve()
+    except OSError:
+        resolved_path = Path(os.path.abspath(str(p)))
+
+    media_root = Path("/media").resolve()
+    if media_root not in resolved_path.parents and resolved_path != media_root:
+        raise ValueError(
+            f"Security Error: Access to '{path}' (resolved to '{resolved_path}') "
+            "is denied. Path must be inside /media."
+        )
+
+    return str(resolved_path)
 
 
-def _to_local_path(path: str) -> str:
+def _to_relative_path(path: str) -> str:
     """Convert a /media/ path to Home Assistant local/ media source path.
 
     Converts leading "/media/" to "local/". Leaves other paths unchanged.
@@ -77,7 +101,7 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60))
+        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
     return _session
 
 
@@ -88,17 +112,6 @@ async def _ensure_dir(path: str) -> None:
         path: Directory path to create if it does not exist.
     """
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
-
-
-async def _write_file(path: str, content: bytes) -> None:
-    """Write bytes to a file asynchronously.
-
-    Args:
-        path: Destination file path.
-        content: Raw bytes to write.
-    """
-    async with aiofiles.open(path, "wb") as f:
-        await f.write(content)
 
 
 async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
@@ -118,22 +131,26 @@ async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     return data.get("result", {}).get("file_path")
 
 
-async def _download_file(
-    session: aiohttp.ClientSession, file_path: str
-) -> bytes | None:
-    """Download a file from Telegram's file server.
+async def _download_and_save_file(
+    session: aiohttp.ClientSession, file_path: str, destination: str
+) -> bool:
+    """Download a file from Telegram and save it directly to disk (streaming).
 
     Args:
         session: Shared aiohttp session.
         file_path: Path returned by Telegram `getFile`.
+        destination: Local destination path.
 
     Returns:
-        Raw bytes of the file content, or None.
+        True if successful, False otherwise.
     """
     url = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.read()
+        async with aiofiles.open(destination, "wb") as f:
+            async for chunk in resp.content.iter_chunked(4096):
+                await f.write(chunk)
+    return True
 
 
 async def _send_message(
@@ -158,7 +175,10 @@ async def _send_message(
         Telegram API JSON response as a dict.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": chat_id, "text": message[:4096]}
+    text = message
+    if len(text) > 4096:
+        text = text[:4093] + "..."
+    payload = {"chat_id": chat_id, "text": text}
     if reply_to_message_id:
         payload["reply_to_message_id"] = reply_to_message_id
     if message_thread_id:
@@ -203,9 +223,6 @@ async def _send_photo(
     if not file_exists:
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    async with aiofiles.open(file_path, "rb") as f:
-        data = await f.read()
-
     filename = os.path.basename(file_path)
     mime_type, _ = mimetypes.guess_file_type(filename)
     content_type = mime_type or "application/octet-stream"
@@ -224,9 +241,13 @@ async def _send_photo(
         form.add_field("reply_to_message_id", str(reply_to_message_id))
     if message_thread_id:
         form.add_field("message_thread_id", str(message_thread_id))
+
+    async with aiofiles.open(file_path, "rb") as f:
+        file_content = await f.read()
+
     form.add_field(
         name="photo",
-        value=data,
+        value=file_content,
         filename=filename,
         content_type=content_type,
     )
@@ -292,19 +313,28 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
 
 
 async def _get_updates(
-    session: aiohttp.ClientSession, timeout: int = 30
+    session: aiohttp.ClientSession,
+    timeout: int = 30,
+    offset: int | None = None,
+    limit: int | None = None,
 ) -> dict[str, Any]:
     """Fetch updates with long polling.
 
     Args:
         session: Shared aiohttp session.
         timeout: Long-poll timeout in seconds.
+        offset: Identifier of the first update to be returned.
+        limit: Limits the number of updates to be retrieved.
 
     Returns:
         Telegram API JSON response as a dict.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
-    params = {"timeout": timeout}
+    params: dict[str, Any] = {"timeout": timeout}
+    if offset is not None:
+        params["offset"] = offset
+    if limit is not None:
+        params["limit"] = limit
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
         return await resp.json()
@@ -386,6 +416,42 @@ def _external_url() -> str | None:
         )
     except network.NoURLAvailableError:
         return None
+
+
+async def _cleanup_old_files(directory: str, days: int = 30) -> None:
+    """Delete files in the directory older than the specified number of days."""
+    now = time.time()
+    cutoff = now - (days * 86400)
+
+    def _cleanup_sync() -> None:
+        if not os.path.exists(directory):
+            return
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            try:
+                if os.path.isfile(file_path):
+                    t = os.path.getmtime(file_path)
+                    if t < cutoff:
+                        os.remove(file_path)
+            except Exception:
+                pass
+
+    await asyncio.to_thread(_cleanup_sync)
+
+
+@time_trigger("shutdown")
+async def _close_session() -> None:
+    """Close the aiohttp session on shutdown."""
+    global _session
+    if _session and not _session.closed:
+        await _session.close()
+        _session = None
+
+
+@time_trigger("cron(0 0 * * *)")
+async def _daily_cleanup() -> None:
+    """Run daily cleanup of old files."""
+    await _cleanup_old_files(DIRECTORY, days=30)
 
 
 @service(supports_response="only")
@@ -486,16 +552,21 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         if not online_file_path:
             return {"error": "Unable to retrieve the file_path from Telegram."}
 
-        content = await _download_file(session, online_file_path)
-        if not content:
-            return {"error": "Unable to download the file from Telegram."}
-
         file_name = os.path.basename(online_file_path)
+        base, ext = os.path.splitext(file_name)
+        # Use timestamp and random token to prevent filename collisions
+        file_name = f"{base}_{int(time.time())}_{secrets.token_hex(4)}{ext}"
+
         file_path = os.path.join(DIRECTORY, file_name)
-        await _write_file(file_path, content)
+
+        try:
+            await _download_and_save_file(session, online_file_path, file_path)
+        except Exception:
+            return {"error": "Unable to download or save the file from Telegram."}
+
         mimetypes.add_type("text/plain", ".yaml")
         mime_type, _ = mimetypes.guess_file_type(file_name)
-        file_path = _to_local_path(file_path)
+        file_path = _to_relative_path(file_path)
         response: dict[str, Any] = {"file_path": file_path, "mime_type": mime_type}
         support_file_types = (
             "image/",
@@ -572,7 +643,9 @@ async def delete_telegram_webhook() -> dict[str, Any]:
 
 
 @service(supports_response="only")
-async def get_telegram_updates(timeout: int = 30) -> dict[str, Any]:
+async def get_telegram_updates(
+    timeout: int = 30, offset: int | None = None, limit: int | None = None
+) -> dict[str, Any]:
     """
     yaml
     name: Get Telegram Updates
@@ -587,10 +660,25 @@ async def get_telegram_updates(timeout: int = 30) -> dict[str, Any]:
             max: 60
             step: 1
         default: 30
+      offset:
+        name: Offset
+        description: Identifier of the first update to be returned.
+        selector:
+          number:
+            min: 0
+            step: 1
+      limit:
+        name: Limit
+        description: Limits the number of updates to be retrieved. Values between 1-100.
+        selector:
+          number:
+            min: 1
+            max: 100
+            step: 1
     """
     try:
         session = await _ensure_session()
-        return await _get_updates(session, timeout=timeout)
+        return await _get_updates(session, timeout=timeout, offset=offset, limit=limit)
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 

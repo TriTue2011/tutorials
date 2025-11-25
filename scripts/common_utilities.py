@@ -3,6 +3,7 @@ import json
 import sqlite3
 import threading
 import time
+from contextlib import closing
 from pathlib import Path
 from typing import Any
 
@@ -12,26 +13,58 @@ DB_PATH = Path("/config/cache.db")
 _CACHE_READY = False
 _CACHE_READY_LOCK = threading.Lock()
 _INDEX_LOCKS: dict[str, asyncio.Lock] = {}
+_INDEX_LOCKS_COUNTS: dict[str, int] = {}
 _INDEX_LOCKS_GUARD = threading.Lock()
 
 
-def _get_index_lock(key: str) -> asyncio.Lock:
-    with _INDEX_LOCKS_GUARD:
-        lock = _INDEX_LOCKS.get(key)
-        if lock is None:
-            lock = asyncio.Lock()
-            _INDEX_LOCKS[key] = lock
-        return lock
+class _IndexLockContext:
+    def __init__(self, key: str):
+        self.key = key
+        self.lock = None
+
+    async def __aenter__(self):
+        key = self.key
+        with _INDEX_LOCKS_GUARD:
+            if key not in _INDEX_LOCKS:
+                _INDEX_LOCKS[key] = asyncio.Lock()
+                _INDEX_LOCKS_COUNTS[key] = 0
+            _INDEX_LOCKS_COUNTS[key] += 1
+            self.lock = _INDEX_LOCKS[key]
+
+        await self.lock.acquire()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.lock:
+            self.lock.release()
+
+        key = self.key
+        with _INDEX_LOCKS_GUARD:
+            if key in _INDEX_LOCKS_COUNTS:
+                _INDEX_LOCKS_COUNTS[key] -= 1
+                if _INDEX_LOCKS_COUNTS[key] <= 0:
+                    _INDEX_LOCKS.pop(key, None)
+                    _INDEX_LOCKS_COUNTS.pop(key, None)
+
+
+def _acquire_index_lock(key: str):
+    return _IndexLockContext(key)
+
+
+def _get_db_connection() -> sqlite3.Connection:
+    """Establish a database connection with optimized settings."""
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    conn.execute("PRAGMA temp_store=MEMORY;")
+    conn.execute("PRAGMA busy_timeout=3000;")
+    return conn
 
 
 def _ensure_cache_db() -> None:
     """Create the cache database directory, SQLite file, and schema if they do not already exist."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(DB_PATH) as conn:
+    with closing(_get_db_connection()) as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
-        conn.execute("PRAGMA synchronous=NORMAL;")
-        conn.execute("PRAGMA temp_store=MEMORY;")
-        conn.execute("PRAGMA busy_timeout=3000;")
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS cache_entries
@@ -73,17 +106,35 @@ def _cache_prepare_db_sync(force: bool = False) -> bool:
     return True
 
 
+def _prune_expired_sync() -> None:
+    """Prune expired entries from the cache database."""
+    for attempt in range(2):
+        try:
+            _ensure_cache_db_once()
+            now = int(time.time())
+            with closing(_get_db_connection()) as conn:
+                conn.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
+                conn.commit()
+            return
+        except sqlite3.OperationalError:
+            _reset_cache_ready()
+            if attempt == 0:
+                time.sleep(0.1)
+                continue
+            raise
+        except Exception:
+            return
+
+
 def _cache_get_sync(key: str) -> str | None:
     """Retrieve the cached value for a key, pruning expired rows first."""
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
-            with sqlite3.connect(DB_PATH) as conn:
+            with closing(_get_db_connection()) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
-                cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
-                conn.commit()
                 cur.execute(
                     """
                     SELECT value
@@ -98,6 +149,7 @@ def _cache_get_sync(key: str) -> str | None:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return None
@@ -110,9 +162,8 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
             expires_at = now + ttl_seconds
-            with sqlite3.connect(DB_PATH) as conn:
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
-                cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
                 cur.execute(
                     """
                     INSERT INTO cache_entries (key, value, expires_at)
@@ -127,6 +178,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return False
@@ -137,7 +189,7 @@ def _cache_delete_sync(key: str) -> int:
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
-            with sqlite3.connect(DB_PATH) as conn:
+            with closing(_get_db_connection()) as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE key = ?", (key,))
                 deleted = cur.rowcount if cur.rowcount is not None else 0
@@ -146,6 +198,7 @@ def _cache_delete_sync(key: str) -> int:
         except sqlite3.OperationalError:
             _reset_cache_ready()
             if attempt == 0:
+                time.sleep(0.1)
                 continue
             raise
     return 0
@@ -171,10 +224,22 @@ async def _cache_delete(key: str) -> int:
     return await asyncio.to_thread(_cache_delete_sync, key)
 
 
+async def _prune_expired() -> None:
+    """Async wrapper for pruning expired entries."""
+    await asyncio.to_thread(_prune_expired_sync)
+
+
 @time_trigger("startup")
 async def initialize_cache_db() -> None:
     """Run once at startup to create the cache database and schema before services execute."""
     await _cache_prepare_db(force=True)
+    await _prune_expired()
+
+
+@time_trigger("cron(*/30 * * * *)")
+async def prune_cache_db() -> None:
+    """Regularly prune expired entries from the cache database."""
+    await _prune_expired()
 
 
 @service(supports_response="only")
@@ -199,7 +264,7 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
         }
     try:
         raw_value = await _cache_get(key)
-        if raw_value:
+        if raw_value is not None:
             value = json.loads(raw_value)
             return {
                 "status": "ok",
@@ -243,7 +308,8 @@ async def memory_cache_forget(key: str) -> dict[str, Any]:
             "error": "Missing a required argument: key",
         }
     try:
-        deleted = await _cache_delete(key)
+        async with _acquire_index_lock(key):
+            deleted = await _cache_delete(key)
         return {
             "status": "ok",
             "op": "forget",
@@ -294,7 +360,8 @@ async def memory_cache_set(
     ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else TTL
     stored_value = json.dumps(value, ensure_ascii=False)
     try:
-        success = await _cache_set(key, stored_value, ttl)
+        async with _acquire_index_lock(key):
+            success = await _cache_set(key, stored_value, ttl)
         if not success:
             return {
                 "status": "error",
@@ -402,8 +469,7 @@ async def memory_cache_index_update(
 
     ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else 2592000
 
-    lock = _get_index_lock(cleaned_key)
-    async with lock:
+    async with _acquire_index_lock(cleaned_key):
         try:
             entries: list[str] = []
             seen: set[str] = set()

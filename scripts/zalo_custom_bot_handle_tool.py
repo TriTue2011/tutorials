@@ -5,6 +5,7 @@ import secrets
 import time
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import aiofiles
 import aiohttp
@@ -112,7 +113,8 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
             ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
 
             # Use safe filename from URL or default, then append unique token
-            original_name = Path(url).name
+            parsed_url = urlparse(url)
+            original_name = Path(parsed_url.path).name
             if not Path(original_name).suffix and ext:
                 original_name += ext
 

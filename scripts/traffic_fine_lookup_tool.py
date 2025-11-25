@@ -245,6 +245,7 @@ async def _cache_delete(key: str) -> int:
     return await asyncio.to_thread(_cache_delete_sync, key)
 
 
+@pyscript_compile
 def _build_ssl_ctx() -> ssl.SSLContext:
     """Build an SSL context compatible with target site requirements.
 
@@ -254,8 +255,7 @@ def _build_ssl_ctx() -> ssl.SSLContext:
     Returns:
         An initialized `ssl.SSLContext` instance.
     """
-    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    ctx.load_default_certs()
+    ctx = ssl.create_default_context()
     ctx.set_ciphers(
         "@SECLEVEL=0:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
     )
@@ -263,6 +263,7 @@ def _build_ssl_ctx() -> ssl.SSLContext:
     return ctx
 
 
+@pyscript_compile
 def _build_gemini_client() -> Any:
     """Create a Gemini client using the configured API key.
 

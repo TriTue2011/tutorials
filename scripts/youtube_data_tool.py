@@ -15,6 +15,7 @@ if not YOUTUBE_API_KEY:
     raise ValueError("You need to configure your YouTube API key")
 
 
+@pyscript_compile
 def _build_youtube_client() -> Any:
     """Build the YouTube API client."""
     return build(
@@ -31,6 +32,7 @@ async def _ensure_youtube_client() -> None:
                 YOUTUBE_CLIENT = await asyncio.to_thread(_build_youtube_client)
 
 
+@pyscript_compile
 def youtube_search(
     client: Any,
     query: str,

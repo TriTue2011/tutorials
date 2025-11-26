@@ -12,7 +12,7 @@
 
 - **Tính năng này không hỗ trợ tìm một video bất kỳ trong YouTube.**
 
-- **Yêu cầu cần có một Smart TV đã tích hợp lên Home Assistant**
+- **Yêu cầu cần có một Smart TV đã tích hợp lên Home Assistant.**
 
 ![image](images/20250528_210348.jpg)
 
@@ -24,7 +24,7 @@
 
 - Xem chi tiết tại: [github.com/custom-components/feedparser](https://github.com/custom-components/feedparser)
 
-- Lưu ý tính đến thời điểm hiện tại (2025-06-04) tích hợp Feedparser chưa hỗ trợ unique_id. Do đó không thể thêm được alias cho tên kênh YouTube.
+- Lưu ý tính đến thời điểm hiện tại (2025-06-04) tích hợp Feedparser chưa hỗ trợ `unique_id`. Do đó không thể thêm được alias cho tên kênh YouTube thông qua giao diện UI.
 
 - Mình đã tạo pull request, các bạn chờ tác giả cập nhật nhé. Chi tiết theo dõi tại: [github.com/custom-components/feedparser/pull/143](https://github.com/custom-components/feedparser/pull/143)
 
@@ -34,7 +34,7 @@
 
 ### Lấy ID kênh Youtube
 
-- Mở Google tìm kiếm theo từ khóa: Get YouTube Channel ID, chọn một trang bất kỳ.
+- Mở Google tìm kiếm theo từ khóa: `Get YouTube Channel ID`, chọn một trang bất kỳ.
 
 - Nhập đường dẫn kênh YouTube mà bạn yêu thích để lấy ID của kênh.
 
@@ -61,9 +61,9 @@ sensor:
     date_format: "%Y-%m-%dT%H:%M:%S%z"
 ```
 
-- Trong đó CHANNEL_NAME để thành tên kênh YouTube bạn đang muốn thêm.
+- Trong đó `CHANNEL_NAME` đổi thành tên kênh YouTube bạn đang muốn thêm.
 
-- XXXXXX là ID của kênh.
+- `XXXXXX` là ID của kênh.
 
 - Lưu ý cụm từ **YouTube Channel** trong tên sẽ là cố định gán cho mọi kênh muốn thêm.
 
@@ -92,7 +92,7 @@ sensor:
 
 ### Chia sẻ kênh YouTube với Assist
 
-- Sau khi khởi động lại, chia sẻ sensor các kênh YouTube mới tạo đó với Assist.
+- Sau khi khởi động lại, chia sẻ sensor các kênh YouTube mới tạo đó với Assist (Expose).
 
 ![image](images/20250527_gCfAcK.png)
 
@@ -135,11 +135,11 @@ template:
 
 - Sau khi thêm xong khởi động lại Home Assistant.
 
-- **Lưu ý về sau mỗi khi thay đổi alias cần phải reload template**
+- **Lưu ý: Về sau mỗi khi thay đổi alias bạn cần phải reload template entities.**
 
 ## Bước 2: Thêm kịch bản cho Assist
 
-### Cài đặt Blueprint sau
+### Cài đặt Blueprint Get Video Info
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fget_youtube_video_info_full_llm.yaml)
 
@@ -147,9 +147,9 @@ template:
 
 - Sau khi thêm blueprint, tạo một kịch bản mới từ blueprint này. Chỉ định Template Sensor đã tạo ở bước trên. **Giữ tên kịch bản mặc định không thay đổi.**
 
-- Sau khi tạo xong, lộ diện kịch bản đó với Assist.
+- Sau khi tạo xong, chia sẻ kịch bản đó với Assist (Expose).
 
-### Cài đặt Blueprint tiếp theo
+### Cài đặt Blueprint Play Video
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
@@ -159,7 +159,7 @@ template:
 
 ![image](images/20250527_JC5AOg.png)
 
-- Sau khi tạo xong, lộ diện kịch bản đó với Assist.
+- Sau khi tạo xong, chia sẻ kịch bản đó với Assist (Expose).
 
 - **Vậy là xong. Bây giờ bạn có thể thử với một số mẫu câu lệnh như sau, hoặc tùy trí tưởng tượng của bạn:**
 

@@ -16,7 +16,7 @@
 
 ### Lấy ID kênh Youtube tin tức
 
-- Mở Google tìm kiếm theo từ khóa: Get YouTube Channel ID, chọn một trang bất kỳ.
+- Mở Google tìm kiếm theo từ khóa: `Get YouTube Channel ID`, chọn một trang bất kỳ.
 
 - Nhập đường dẫn kênh YouTube tin tức mà bạn yêu thích để lấy ID của kênh.
 
@@ -43,15 +43,15 @@ sensor:
     date_format: "%Y-%m-%dT%H:%M:%S%z"
 ```
 
-- Trong đó CHANNEL_NAME để thành tên kênh YouTube tin tức bạn đang muốn thêm.
+- Trong đó `CHANNEL_NAME` đổi thành tên kênh YouTube tin tức bạn đang muốn thêm.
 
-- XXXXXX là ID của kênh.
+- `XXXXXX` là ID của kênh.
 
 - Ví dụ bên dưới là một số kênh tin tức với nội dung khá phong phú.
 
   - Kênh VTV24 của Đài Truyền hình Việt Nam.
 
-  - kênh VNA Media của Thông tấn xã Việt Nam.
+  - Kênh VNA Media của Thông tấn xã Việt Nam.
 
 ```yaml
 sensor:
@@ -116,9 +116,9 @@ sensor:
 
 - Cần khai báo Variable ID theo đúng cú pháp để tự động chạy không bị lỗi.
 
-  - Variable Name: CHANNEL_NAME News Last 24 Hours
-  - Variable ID: channel_name_news_last_24_hours
-  - Value: 0
+  - Variable Name: `CHANNEL_NAME News Last 24 Hours`
+  - Variable ID: `channel_name_news_last_24_hours`
+  - Value: `0`
 
 ![image](images/20250603_Dj7S4y.png)
 

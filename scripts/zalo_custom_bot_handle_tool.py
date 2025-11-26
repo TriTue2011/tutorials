@@ -152,7 +152,7 @@ async def _daily_cleanup() -> None:
 async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
     """
     yaml
-    name: Get Zalo File
+    name: Get Zalo File (Custom Bot)
     description: Download a file by direct URL and save it under Home Assistant media; returns a local path and file type.
     fields:
       url:

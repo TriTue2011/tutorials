@@ -226,6 +226,7 @@ def lunar_to_solar(
 
 
 def get_solar_term(day_number: int, time_zone: int) -> int:
+    """Calculate the solar term index (0-23) for a given Julian Day number."""
     return int((sun_longitude(day_number - 0.5 - time_zone / 24.0) / math.pi) * 12)
 
 
@@ -882,6 +883,7 @@ FIELD_MAPPING = {
 
 
 def validate_date(date: str) -> bool:
+    """Validate if a given string is a valid date in YYYY-MM-DD format."""
     try:
         datetime.date.fromisoformat(date)
         return True
@@ -890,15 +892,18 @@ def validate_date(date: str) -> bool:
 
 
 def split_date(date: str) -> tuple[int, int, int]:
+    """Split a date string (YYYY-MM-DD) into day, month, and year integers."""
     current_date = datetime.date.fromisoformat(date)
     return current_date.day, current_date.month, current_date.year
 
 
 def join_date(day: int, month: int, year: int) -> str:
+    """Join day, month, and year integers into a date string (YYYY-MM-DD)."""
     return datetime.date(year, month, day).isoformat()
 
 
 def get_day_of_week(day: int, month: int, year: int) -> int:
+    """Get the weekday (0=Monday, 6=Sunday) for a given date."""
     return datetime.date(year, month, day).weekday()
 
 
@@ -961,7 +966,7 @@ def get_twenty_eight_mansions(jd: int) -> dict[str, Any]:
 
 def get_auspicious_day(lunar_month: int, jd: int) -> dict[str, Any]:
     """
-    Xác định ngày là Hoàng Đạo hay Hắc Đạo dựa trên quy tắc Lục Diệu.
+    Xác định ngày là Hoàng Đạo hay Hắc Đạo dựa trên các sao Hoàng Đạo (Thanh Long, Minh Đường, v.v.).
     - lunar_month: tháng âm lịch (1-12)
     - jd: Julian Day number
     """
@@ -990,6 +995,7 @@ def get_auspicious_day(lunar_month: int, jd: int) -> dict[str, Any]:
 
 
 def get_auspicious_hours(jd: int) -> list:
+    """Calculate the auspicious hours for a given Julian Day number based on the day's earthly branch (Chi)."""
     chi_of_day = (jd + 1) % 12
     auspicious_hours_pattern = AUSPICIOUS_HOURS[chi_of_day % 6]
     auspicious_hours = []
@@ -1013,6 +1019,7 @@ def get_auspicious_hours(jd: int) -> list:
 
 
 def get_number_of_days(date: str) -> int:
+    """Calculate the number of days between today and a given date string (YYYY-MM-DD)."""
     start_date = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
     end_date = datetime.datetime.strptime(date, "%Y-%m-%d")
     return (end_date - start_date).days

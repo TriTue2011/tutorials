@@ -2,11 +2,11 @@
 
 ## Bước 1: Tạo một thực thể lưu trữ thông tin toàn bộ thiết bị đang bị mất kết nối
 
-### Tạo một nhãn đặt tên là **Ignored**
+### Tạo một nhãn đặt tên là **ignored**
 
 ![image](images/20250426_GwdtEl.png)
 
-### Gán nhãn **Ignored** cho các thực thể không muốn theo dõi mất kết nối, để loại trừ chúng khỏi danh sách theo dõi
+### Gán nhãn **ignored** cho các thực thể hoặc thiết bị không muốn theo dõi mất kết nối, để loại trừ chúng khỏi danh sách theo dõi
 
 ![image](images/20250426_oj1S9U.png)
 
@@ -49,6 +49,8 @@ template:
               | map(attribute='entity_id')
               | list }}
 ```
+
+_Lưu ý: Bạn có thể cần sửa lại tên nhãn `ignored` trong biến `ignored_label` cho đúng với tên nhãn bạn đã tạo ở bước trên nếu bạn đặt tên khác._
 
 ### Khởi động lại Home Assistant
 
@@ -122,7 +124,7 @@ actions:
       - condition: template
         value_template: "{{ entities | count > 0 }}"
     then:
-      - action: notify.all_mobiles
+      - action: notify.mobile_app_iphone
         data:
           title: Mất kết nối thiết bị
           message: >-
@@ -131,7 +133,7 @@ actions:
           data:
             tag: "{{ notify_tag }}"
     else:
-      - action: notify.all_mobiles
+      - action: notify.mobile_app_iphone
         data:
           message: clear_notification
           data:
@@ -139,6 +141,8 @@ actions:
 mode: queued
 max: 10
 ```
+
+_Lưu ý: Bạn cần thay `notify.mobile_app_iphone` bằng dịch vụ thông báo tới điện thoại của bạn (ví dụ `notify.mobile_app_pixel_7`...)_
 
 ## Bước 3: Tùy chọn hiển thị thẻ ở giao diện Home Assistant
 

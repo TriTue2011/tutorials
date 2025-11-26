@@ -4,21 +4,21 @@
 
 - Truy cập **HACS** (Cài đặt [HACS](https://github.com/hacs) nếu chưa có)
 
-- Tìm kiếm theo từ khóa **iOS Themes**
+- Tìm kiếm theo từ khóa `iOS Themes`
 
 - Cài đặt **iOS Themes** (Xem chi tiết tại: [github.com/basnijholt/lovelace-ios-themes](https://github.com/basnijholt/lovelace-ios-themes))
 
-- Cài đặt **Spook** một tích hợp có rất nhiều tính năng hay và hữu ích (Xem chi tiết tại: [github.com/frenck/spook](https://github.com/frenck/spook))
+- Cài đặt **Spook** - một tích hợp có rất nhiều tính năng hay và hữu ích (Xem chi tiết tại: [github.com/frenck/spook](https://github.com/frenck/spook)). Spook cung cấp các service cần thiết như `input_select.random` được sử dụng trong hướng dẫn này.
 
 ## Lưu ảnh nền cục bộ
 
-- Sao chép toàn bộ tập tin **JPG** nằm trong thư mục **themes/ios-themes** sang thư mục **www/ios-themes**
+- Sao chép toàn bộ tập tin `.jpg` nằm trong thư mục `themes/ios-themes` sang thư mục `www/ios-themes`. Nếu thư mục `www/ios-themes` chưa có, hãy tạo mới nó. Việc này giúp hình nền tải nhanh hơn từ mạng nội bộ thay vì tải từ internet.
 
 ## Tạo tự động đổi light/dark themes
 
 1. Khởi tạo các biến trợ giúp
 
-- Tạo một _input_select_ với các tùy chọn như bên dưới
+- Thêm mã sau vào `config/configuration.yaml` hoặc tạo qua giao diện UI (Helpers) để tạo một `input_select`:
 
 ```yaml
 input_select:
@@ -35,7 +35,7 @@ input_select:
       - red
 ```
 
-- Tạo hai _input_boolean_ như bên dưới
+- Thêm mã sau vào `config/configuration.yaml` hoặc tạo qua giao diện UI (Helpers) để tạo hai `input_boolean`:
 
 ```yaml
 input_boolean:
@@ -45,10 +45,10 @@ input_boolean:
   ios_themes_local_backgrounds:
     name: iOS Themes Local Backgrounds
     icon: mdi:cloud
-    initial: "on"
+    initial: on
 ```
 
-- Tạo tự động thay đổi theme vào các buổi sáng và buổi tối
+- Tạo Automation tự động thay đổi theme vào các buổi sáng và buổi tối:
 
 ```yaml
 alias: Auto change iOS themes
@@ -115,7 +115,7 @@ max: 10
 
 - Yêu cầu có cài đặt Mushroom ([github.com/piitaya/lovelace-mushroom](https://github.com/piitaya/lovelace-mushroom))
 
-- Thêm thẻ vào giao diện
+- Thêm thẻ vào giao diện (Lovelace Dashboard):
 
 ```yaml
 square: false
@@ -138,4 +138,4 @@ cards:
 columns: 2
 ```
 
-- Mỗi khi nhấn vào thẻ, hệ thống sẽ tự động chọn ngẫu nhiên một chủ đề mới
+- Mỗi khi nhấn vào thẻ `input_select`, hệ thống sẽ tự động chọn ngẫu nhiên một chủ đề mới.

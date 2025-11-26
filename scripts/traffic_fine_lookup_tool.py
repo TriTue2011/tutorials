@@ -5,6 +5,7 @@ import sqlite3
 import ssl
 import threading
 import time
+from contextlib import closing
 from io import BytesIO
 from pathlib import Path
 
@@ -103,7 +104,7 @@ def _connect_db() -> sqlite3.Connection:
 def _ensure_cache_db() -> None:
     """Create the cache database directory, SQLite file, and schema if they do not already exist."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with _connect_db() as conn:
+    with closing(_connect_db()) as conn:
         conn.execute("PRAGMA journal_mode=WAL;")
         conn.execute(
             """
@@ -147,16 +148,14 @@ async def _cache_prepare_db(force: bool = False) -> bool:
 
 
 def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
-    """Fetch a cache record synchronously, returning the value and remaining TTL."""
+    """Fetch a cache record synchronously if it exists and has not expired."""
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
-            with _connect_db() as conn:
+            with closing(_connect_db()) as conn:
                 conn.row_factory = sqlite3.Row
                 cur = conn.cursor()
-                cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
-                conn.commit()
                 cur.execute(
                     """
                     SELECT value, expires_at
@@ -192,9 +191,8 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
             _ensure_cache_db_once(force=attempt == 1)
             now = int(time.time())
             expires_at = now + ttl_seconds
-            with _connect_db() as conn:
+            with closing(_connect_db()) as conn:
                 cur = conn.cursor()
-                cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
                 cur.execute(
                     """
                     INSERT INTO cache_entries (key, value, expires_at)
@@ -225,7 +223,7 @@ def _cache_delete_sync(key: str) -> int:
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
-            with _connect_db() as conn:
+            with closing(_connect_db()) as conn:
                 cur = conn.cursor()
                 cur.execute("DELETE FROM cache_entries WHERE key = ?", (key,))
                 deleted = cur.rowcount if cur.rowcount is not None else 0
@@ -243,6 +241,39 @@ def _cache_delete_sync(key: str) -> int:
 async def _cache_delete(key: str) -> int:
     """Remove the cache entry identified by key if it exists."""
     return await asyncio.to_thread(_cache_delete_sync, key)
+
+
+def _prune_expired_sync() -> int:
+    """Prune expired entries from the cache database."""
+    for attempt in range(2):
+        try:
+            _ensure_cache_db_once()
+            now = int(time.time())
+            with closing(_connect_db()) as conn:
+                cur = conn.cursor()
+                cur.execute("DELETE FROM cache_entries WHERE expires_at <= ?", (now,))
+                rowcount = getattr(cur, "rowcount", -1)
+                removed = rowcount if rowcount and rowcount > 0 else 0
+                conn.commit()
+            return removed
+        except sqlite3.OperationalError:
+            _reset_cache_ready()
+            if attempt == 0:
+                time.sleep(0.1)
+                continue
+            raise
+    return 0
+
+
+async def _prune_expired() -> int:
+    """Async wrapper for pruning expired entries."""
+    return await asyncio.to_thread(_prune_expired_sync)
+
+
+@time_trigger("cron(15 3 * * *)")
+async def prune_cache_db() -> None:
+    """Regularly prune expired entries from the cache database."""
+    await _prune_expired()
 
 
 @pyscript_compile
@@ -600,6 +631,7 @@ async def _check_license_plate(
 async def build_cached_ctx() -> None:
     """Run once at HA startup / Pyscript reload."""
     await _cache_prepare_db(force=True)
+    await _prune_expired()
     await _ensure_ssl_ctx()
     await _ensure_gemini_client()
 

@@ -127,7 +127,7 @@ def _prune_expired_sync() -> None:
 
 
 def _cache_get_sync(key: str) -> str | None:
-    """Retrieve the cached value for a key, pruning expired rows first."""
+    """Retrieve the cached value for a key if it exists and has not expired."""
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
@@ -156,7 +156,7 @@ def _cache_get_sync(key: str) -> str | None:
 
 
 def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
-    """Persist a cache entry with the provided TTL and prune expired records."""
+    """Persist a cache entry with the provided TTL."""
     for attempt in range(2):
         try:
             _ensure_cache_db_once(force=attempt == 1)
@@ -210,12 +210,12 @@ async def _cache_prepare_db(force: bool = False) -> bool:
 
 
 async def _cache_get(key: str) -> str | None:
-    """Retrieve the cached value for a key, pruning expired rows first."""
+    """Retrieve the cached value for a key if it exists and has not expired."""
     return await asyncio.to_thread(_cache_get_sync, key)
 
 
 async def _cache_set(key: str, value: str, ttl_seconds: int) -> bool:
-    """Persist a cache entry with the provided TTL and prune expired records."""
+    """Persist a cache entry with the provided TTL."""
     return await asyncio.to_thread(_cache_set_sync, key, value, ttl_seconds)
 
 
@@ -236,7 +236,7 @@ async def initialize_cache_db() -> None:
     await _prune_expired()
 
 
-@time_trigger("cron(*/30 * * * *)")
+@time_trigger("cron(0 * * * *)")
 async def prune_cache_db() -> None:
     """Regularly prune expired entries from the cache database."""
     await _prune_expired()
@@ -347,7 +347,7 @@ async def memory_cache_set(
         description: JSON-serializable value to cache for the provided key (string, number, list, dict, etc.).
         required: true
         selector:
-          text:
+          object:
       ttl_seconds:
         name: TTL Seconds
         description: Optional override for the entry's time to live (defaults to TTL constant).

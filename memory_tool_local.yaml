@@ -110,6 +110,14 @@ blueprint:
             - "next"
             - "show more"
           selector: { text: { multiple: true } }
+        back_commands:
+          name: Go-back phrases (pagination)
+          description: Using for selection or confirmation steps.
+          default:
+            - "back"
+            - "previous"
+            - "go back"
+          selector: { text: { multiple: true } }
         restore_commands:
           name: Restore phrases (reactivate expired entry as-is)
           description: Using for selection or confirmation steps.
@@ -174,7 +182,7 @@ mode: single
 max_exceeded: silent
 
 variables:
-  version: 20251014
+  version: 20251208
   store_key: "memory_tool"
   trigger_id: "{{ (trigger.id | string) if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
@@ -191,6 +199,7 @@ variables:
   no_cmds: !input no_commands
   create_new_cmds: !input create_new_commands
   more_cmds: !input more_commands
+  back_cmds: !input back_commands
   restore_cmds: !input restore_commands
   update_cmds: !input update_commands
   numbers:
@@ -211,15 +220,10 @@ variables:
     five: 5
     fifth: 5
   key_norm: >
-    {% set k = (key_phrase or '') | lower -%}
-    {% set k = k | regex_replace('[^a-z0-9\\s_]+',' ') -%}
-    {% set k = k | regex_replace('\\s+',' ') | trim -%}
-    {% set toks = k.split(' ') -%}
-    {% set toks = toks | reject('search','^[a-z]*[0-9]+$', ignorecase=True) | list -%}
-    {% set key2 = toks | join('_') -%}
-    {{ key2 if key2 else k | replace(' ','_') }}
+    {% set k = (key_phrase or '') | lower | trim -%}
+    {{ k }}
   tags_auto: >
-    {% set phrase = (key_phrase or '') | lower -%}
+    {% set phrase = (key_phrase or '') | lower | trim -%}
     {{ phrase if phrase else 'note' }}
 
 triggers:
@@ -268,6 +272,9 @@ triggers:
   - id: resume_more
     trigger: conversation
     command: !input more_commands
+  - id: resume_back
+    trigger: conversation
+    command: !input back_commands
   - id: resume_restore
     trigger: conversation
     command: !input restore_commands
@@ -417,7 +424,27 @@ actions:
                   - set_conversation_response: "Search failed. Please try again later."
               - conditions: "{{ (resp_s.results | length) == 0 }}"
                 sequence:
-                  - set_conversation_response: "No matching results."
+                  - variables:
+                      prompt_text: "No matching results for '{{ key_phrase }}'. Say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to create it?"
+                  - set_conversation_response: "{{ prompt_text }}"
+                  - variables:
+                      cache_payload: >
+                        {{ {
+                          'pending_action': 'get_expired_choice',
+                          'key': key_norm if key_norm|length > 0 else (key_phrase | lower | trim | regex_replace('\\s+', '_')),
+                          'value': '',
+                          'scope': scope,
+                          'expiration_days': exp_days,
+                          'tags': tags_auto,
+                          'prompt': prompt_text,
+                          'allow_force_new': true
+                        } }}
+                  - action: pyscript.memory_cache_set
+                    data:
+                      key: "{{ store_key }}"
+                      value: "{{ cache_payload }}"
+                      ttl_seconds: "{{ choice_timeout }}"
+                    response_variable: cache_state
             default:
               - variables:
                   all_items: "{{ resp_s.results }}"
@@ -729,7 +756,7 @@ actions:
                                                 {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
 
                                                 {% endfor -%}
-                                                Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                                                Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, say {{ (back_cmds[0] if back_cmds else 'back') }} for previous page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                               next_payload: >
                                                 {{ {
                                                   'pending_action': 'search_results',
@@ -757,6 +784,52 @@ actions:
                                       - variables:
                                           handled: true
                                           final_response: "No more results."
+                              - conditions: "{{ trigger_id == 'resume_back' }}"
+                                sequence:
+                                  - variables:
+                                      prev_page: "{{ (page | int) - 1 }}"
+                                  - choose:
+                                      - conditions: "{{ prev_page >= 0 }}"
+                                        sequence:
+                                          - variables:
+                                              prev_start: "{{ prev_page * max_choices }}"
+                                              prev_end: "{{ [prev_start + max_choices, (results_list | length)] | min }}"
+                                              prev_items: "{{ results_list[prev_start:prev_end] }}"
+                                              prompt_text: >
+                                                Results ({{ prev_start + 1 }}-{{ prev_end }} of {{ results_list | length }}):
+
+                                                {% for it in prev_items -%}
+                                                {{ loop.index }}. {{ it.key | replace('_', ' ') }}: {{ (it.value or '') | string | truncate(15) }}
+
+                                                {% endfor -%}
+                                                Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page{% if prev_page > 0 %}, say {{ (back_cmds[0] if back_cmds else 'back') }} for previous page{% endif %}, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
+                                              prev_payload: >
+                                                {{ {
+                                                  'pending_action': 'search_results',
+                                                  'results': results_list,
+                                                  'page': prev_page,
+                                                  'query': resume_payload.query | default(key_phrase, true),
+                                                  'prompt': prompt_text
+                                                } }}
+                                          - action: pyscript.memory_cache_set
+                                            data:
+                                              key: "{{ store_key }}"
+                                              value: "{{ prev_payload }}"
+                                              ttl_seconds: "{{ choice_timeout }}"
+                                            response_variable: cache_state
+                                          - variables:
+                                              handled: true
+                                              final_response: "{{ prompt_text }}"
+                                    default:
+                                      - action: pyscript.memory_cache_set
+                                        data:
+                                          key: "{{ store_key }}"
+                                          value: "{{ resume_payload }}"
+                                          ttl_seconds: "{{ choice_timeout }}"
+                                        response_variable: cache_state
+                                      - variables:
+                                          handled: true
+                                          final_response: "You are already on the first page."
                               - conditions: "{{ 1 <= pick_num <= (page_items | length) }}"
                                 sequence:
                                   - variables:
@@ -1018,7 +1091,7 @@ actions:
                               handled: false
                               final_response: ""
                           - choose:
-                              - conditions: "{{ trigger_id == 'resume_restore' }}"
+                              - conditions: "{{ trigger_id in ['resume_restore', 'resume_yes'] }}"
                                 sequence:
                                   - action: pyscript.memory_set
                                     data:
@@ -1099,7 +1172,7 @@ actions:
                                 response_variable: cache_state
                               - set_conversation_response: "{{ prompt_text }}"
                     default:
-                      - set_conversation_response: "I didn't quite catch that. Action {{ resume_payload.pending_action | default('') }} is not supported by the current handler."
+                      - set_conversation_response: "That command isn't valid here. {{ resume_payload.prompt }}"
             default:
               - set_conversation_response: "I didn't quite catch that. Could it be that the confirmation timed out?"
     default:

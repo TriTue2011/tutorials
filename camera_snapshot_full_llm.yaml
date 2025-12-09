@@ -119,7 +119,7 @@ mode: parallel
 max_exceeded: silent
 description: Takes a snapshot from a specified camera.
 variables:
-  version: 20251116
+  version: 20251209
 fields:
   camera_name:
     name: Camera Name

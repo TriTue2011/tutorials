@@ -158,7 +158,7 @@ blueprint:
 
             If the user's input is short, use it as the query. If long, use only the main keywords.
 
-            Do not translate or paraphrase. Output only the query text.
+            Do not translate, paraphrase, or add punctuation. Output only the query text.
         search_limit_prompt:
           name: Search Limit Prompt
           description: Instruction shown to the LLM for providing the search limit.

@@ -117,7 +117,7 @@ blueprint:
             The tool will return a local file path to the generated snapshot.
 mode: parallel
 max_exceeded: silent
-description: Takes a snapshot from a specified camera.
+description: Captures a snapshot from a specified camera to visually check the scene. Returns the local file path of the image, which can be used by other tools for analysis or sent to the user.
 variables:
   version: 20251209
 fields:

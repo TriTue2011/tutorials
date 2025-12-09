@@ -108,9 +108,11 @@ blueprint:
           default: >-
             This argument is mandatory and must always be included.
 
-            Specify the camera name to capture the snapshot from.
+            Specify the friendly name of the camera you want to capture a snapshot from (e.g., "Front Door Camera").
 
-            Use the friendly name that appears in Home Assistant (for example "Front Door Camera").
+            If the user's request does not clearly specify a camera, determine and suggest one or more relevant cameras based on context.
+
+            If multiple cameras are needed, submit each camera in a separate tool call.
 
             The tool will return a local file path to the generated snapshot.
 mode: parallel

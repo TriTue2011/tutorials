@@ -118,7 +118,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20251020
+  version: 20251209
   chat_ids: !input chat_ids
   user_ids: !input user_ids
   language: !input language
@@ -139,7 +139,7 @@ conditions:
       {{ (trigger.json.message.chat.id | string) in chat_ids }}
   - condition: template
     value_template: >-
-      {% if user_ids is list -%}
+      {% if user_ids is list and user_ids | count > 0 -%}
         {% if (trigger.json.message.from.id | string) in user_ids -%}
         {{ true }}
         {% else -%}
@@ -165,7 +165,7 @@ actions:
             value_template: "{{ trigger.json.message.text is defined }}"
         sequence:
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always respond in the user's language: {{ language | trim }}.
                 prompt: >-
@@ -189,7 +189,7 @@ actions:
               file_id: "{{ trigger.json.message.photo[-1].file_id }}"
             response_variable: file
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
@@ -225,7 +225,7 @@ actions:
               file_id: "{{ trigger.json.message.video.file_id }}"
             response_variable: file
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
@@ -261,7 +261,7 @@ actions:
               file_id: "{{ trigger.json.message.video_note.file_id }}"
             response_variable: file
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
@@ -297,7 +297,7 @@ actions:
               file_id: "{{ trigger.json.message.voice.file_id }}"
             response_variable: file
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
@@ -333,7 +333,7 @@ actions:
               file_id: "{{ trigger.json.message.audio.file_id }}"
             response_variable: file
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
@@ -369,7 +369,7 @@ actions:
               file_id: "{{ trigger.json.message.document.file_id }}"
             response_variable: file
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
@@ -409,7 +409,7 @@ actions:
             response_variable: telegram_response
       - conditions:
           - condition: template
-            value_template: "{{ input is defined }}"
+            value_template: "{{ agent_input is defined }}"
         sequence:
           - if:
               - condition: template
@@ -432,25 +432,35 @@ actions:
               - action: conversation.process
                 data:
                   agent_id: !input agent_id
-                  text: "{{ input }}"
+                  text: "{{ agent_input }}"
                   language: "{{ language | trim }}"
                 response_variable: result
+                continue_on_error: true
             else:
               - action: conversation.process
                 data:
                   agent_id: !input agent_id
-                  text: "{{ input }}"
+                  text: "{{ agent_input }}"
                   conversation_id: "{{ conversation_id }}"
                   language: "{{ language | trim }}"
                 response_variable: result
+                continue_on_error: true
           - variables:
               response: >-
-                {{ result.response.speech.plain.speech if (result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0) else 'No response from assistant' }}
-          - action: pyscript.memory_cache_set
-            data:
-              value: "{{ result.conversation_id }}"
-              key: "{{ chat_id }}"
-            response_variable: set_chat
+                {% if result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0 %}
+                  {{ result.response.speech.plain.speech }}
+                {% else %}
+                  I encountered an error processing your request. Please check the Home Assistant logs.
+                {% endif %}
+          - if:
+              - condition: template
+                value_template: "{{ result is defined and result.conversation_id is defined }}"
+            then:
+              - action: pyscript.memory_cache_set
+                data:
+                  value: "{{ result.conversation_id }}"
+                  key: "{{ chat_id }}"
+                response_variable: set_chat
           - action: pyscript.send_telegram_message
             data:
               chat_id: "{{ trigger.json.message.chat.id }}"

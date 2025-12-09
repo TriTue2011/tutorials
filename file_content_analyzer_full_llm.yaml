@@ -84,9 +84,9 @@ blueprint:
             Choose a value that matches the file contents (for example image/jpeg, video/mp4, audio/mp3, text/plain, or application/pdf).
 mode: parallel
 max_exceeded: silent
-description: Analyzes the content of a specified file.
+description: Analyzes the content of a specified file (image, video, audio, or document) based on provided instructions. Capable of visual recognition (e.g. camera snapshots), text summarization, and audio transcription.
 variables:
-  version: 20251116
+  version: 20251209
 fields:
   instructions:
     name: Instructions

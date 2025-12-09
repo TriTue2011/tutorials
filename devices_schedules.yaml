@@ -101,7 +101,7 @@ max: !input simultaneous
 max_exceeded: silent
 
 variables:
-  version: 20251014
+  version: 20251209
 
 fields:
   mode:
@@ -257,7 +257,7 @@ sequence:
                         {% if svc is string and svc|length > 0 %}
                           {% set normalized = {
                             'action': svc,
-                            'target': {'entity_id': entity},
+                            'target': step.target | default({'entity_id': entity}),
                             'data': step.data | default({})
                           } %}
                           {% set ns_actions.out = ns_actions.out + [normalized] %}
@@ -309,7 +309,7 @@ sequence:
                   {% if svc is string and svc|length > 0 %}
                     {% set normalized = {
                       'action': svc,
-                      'target': {'entity_id': _entity_norm},
+                      'target': step.target | default({'entity_id': _entity_norm}),
                       'data': step.data | default({})
                     } %}
                     {% set ns.out = ns.out + [normalized] %}
@@ -444,7 +444,7 @@ sequence:
                   {% endif %}
                 {% endfor %}
                 {{ ns.out }}
-              _IDX_DEDUPE_REMOVALS: "[]"
+              _IDX_DEDUPE_REMOVALS: []
           - action: pyscript.memory_cache_index_update
             data:
               index_key: "{{ _index_key }}"
@@ -570,21 +570,6 @@ sequence:
                       sequence:
                         - variables:
                             _wait_loop_active: false
-                        # Remove from index
-                        - action: pyscript.memory_cache_index_update
-                          data:
-                            index_key: "{{ _index_key }}"
-                            remove: "{{ _id }}"
-                            ttl_seconds: 2592000
-                          response_variable: cache_set_index
-                        - variables:
-                            _IDX_ALIVE: >
-                              {% if cache_set_index.status == 'ok' %}
-                                {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
-                                {{ ids }}
-                              {% else %}
-                                {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
-                              {% endif %}
                         # Mark canceled + short TTL
                         - action: pyscript.memory_cache_set
                           data:
@@ -1179,20 +1164,6 @@ sequence:
                       sequence:
                         - variables:
                             _wait_loop_active: false
-                        - action: pyscript.memory_cache_index_update
-                          data:
-                            index_key: "{{ _index_key }}"
-                            remove: "{{ _id_resolved }}"
-                            ttl_seconds: 2592000
-                          response_variable: cache_set_index
-                        - variables:
-                            _IDX_ALIVE: >
-                              {% if cache_set_index.status == 'ok' %}
-                                {% set ids = cache_set_index.ids if cache_set_index.ids is sequence else [] %}
-                                {{ ids }}
-                              {% else %}
-                                {{ _IDX_ALIVE if _IDX_ALIVE is sequence else [] }}
-                              {% endif %}
                         - action: pyscript.memory_cache_set
                           data:
                             key: "{{ _prefix }}{{ _id_resolved }}"

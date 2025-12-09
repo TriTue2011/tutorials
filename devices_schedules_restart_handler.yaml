@@ -79,7 +79,7 @@ mode: queued
 max_exceeded: silent
 
 variables:
-  version: 20251014
+  version: 20251209
 
 triggers:
   - trigger: homeassistant
@@ -112,6 +112,9 @@ actions:
   - repeat:
       for_each: "{{ _timer_ids if _timer_ids is sequence else [] }}"
       sequence:
+        - variables:
+            _should_remove: false
+
         - action: pyscript.memory_cache_get
           data:
             key: "{{ _prefix }}{{ repeat.item }}"
@@ -126,8 +129,13 @@ actions:
               sequence:
                 - variables:
                     _end_iso: "{{ _timer_data.end | default('') }}"
-                    _end_dt: "{{ as_datetime(_end_iso) if _end_iso | length > 0 else now() }}"
-                    _remaining: "{{ (as_timestamp(_end_dt) - as_timestamp(now())) | int }}"
+                    _end_dt: "{{ as_datetime(_end_iso, none) }}"
+                    _remaining: >
+                      {% if _end_dt is not none %}
+                         {{ (as_timestamp(_end_dt) - as_timestamp(now())) | int }}
+                      {% else %}
+                         -1
+                      {% endif %}
 
                 - choose:
                     - conditions: "{{ _remaining > 0 }}"
@@ -169,11 +177,7 @@ actions:
                     - variables:
                         _actions_list: >
                           {% set raw = _timer_data.actions | default([]) %}
-                          {% if raw is sequence %}
-                            {{ raw }}
-                          {% else %}
-                            {{ [] }}
-                          {% endif %}
+                          {{ raw if raw is sequence else [] }}
 
                     - choose:
                         - conditions: "{{ _actions_list | count > 0 }}"
@@ -187,6 +191,7 @@ actions:
                                           - service: "{{ repeat.item.action }}"
                                             target: "{{ repeat.item.target | default({}) }}"
                                             data: "{{ repeat.item.data | default({}) }}"
+                                            continue_on_error: true
 
                     - variables:
                         _expired_payload: >
@@ -209,21 +214,34 @@ actions:
                       response_variable: cache_set_timer_id
 
                     - variables:
-                        _ids_to_remove: >
-                          {% set current = _ids_to_remove if _ids_to_remove is sequence else [] %}
-                          {{ current + [repeat.item] }}
+                        _should_remove: true
+
+            - conditions: "{{ _timer_res.status == 'ok' and _status == 'paused' }}"
+              sequence: []
+
+          default:
+            - variables:
+                _should_remove: true
+
+        - choose:
+            - conditions: "{{ _should_remove }}"
+              sequence:
+                - variables:
+                    _ids_to_remove: >
+                      {% set current = _ids_to_remove if _ids_to_remove is sequence else [] %}
+                      {{ current + [repeat.item] }}
+
+  - action: pyscript.memory_cache_get
+    data:
+      key: "{{ _index_key }}"
+    response_variable: _latest_idx_res
 
   - variables:
       _updated_index: >
-        {% set original = _timer_ids if _timer_ids is sequence else [] %}
+        {% set fresh_index = _latest_idx_res.value if _latest_idx_res.status == 'ok' else [] %}
+        {% set fresh_index = fresh_index if fresh_index is sequence else [] %}
         {% set remove = _ids_to_remove if _ids_to_remove is sequence else [] %}
-        {% set ns = namespace(out=[]) %}
-        {% for item in original %}
-          {% if item not in remove %}
-            {% set ns.out = ns.out + [item] %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.out }}
+        {{ fresh_index | reject('in', remove) | list }}
 
   - action: pyscript.memory_cache_index_update
     data:

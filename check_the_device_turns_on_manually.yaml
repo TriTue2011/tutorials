@@ -3,13 +3,16 @@ blueprint:
   author: luuquangvu
   description: >-
     # Verify whether the device activated manually or via automation/application
+
+    *  Prevents false triggers when device comes back from unavailable/unknown state.
+
   domain: automation
   homeassistant:
     min_version: 2024.10.0
   input:
     linked_entity:
       name: Entity
-      description: Entity to link
+      description: Entity to link (Switch or Light)
       selector:
         entity:
           filter:
@@ -23,20 +26,23 @@ blueprint:
         entity:
           filter:
             - domain: input_boolean
-mode: queued
+mode: restart
 max_exceeded: silent
 variables:
-  version: 20250923
+  version: 20251209
 triggers:
   - trigger: state
     entity_id: !input linked_entity
-    from:
-      - "on"
-      - "off"
-    to:
-      - "off"
-      - "on"
-conditions: []
+    from: null
+    to: null
+conditions:
+  - condition: template
+    value_template: "{{ trigger.from_state.state != trigger.to_state.state }}"
+  - condition: template
+    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown'] }}"
+  - condition: template
+    value_template: "{{ trigger.to_state.state not in ['unavailable', 'unknown'] }}"
+
 actions:
   - if:
       - condition: template

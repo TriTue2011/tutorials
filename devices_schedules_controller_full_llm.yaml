@@ -145,7 +145,7 @@ mode: parallel
 max_exceeded: silent
 description: Manages and controls schedules/timers for various devices.
 variables:
-  version: 20251116
+  version: 20251209
 fields:
   mode:
     name: Mode
@@ -266,7 +266,7 @@ sequence:
           0
         {% endif %}
       _action_normalized: >
-        {% set raw = (_action_raw | string | lower | trim) %}
+        {% set raw = (_action_raw | string | lower | replace(' ', '_') | trim) %}
         {% if raw in ['turn_on', 'on', 'true', '1', 'yes'] %}
           turn_on
         {% elif raw in ['turn_off', 'off', 'false', '0', 'no'] %}
@@ -488,14 +488,12 @@ sequence:
                         {% if friendly is none or (friendly | string | trim) == '' %}
                           {% set friendly = entity_id %}
                         {% endif %}
-                        {% set timer_pairs = timer.items() | list %}
-                        {% set timer_ns.items = timer_ns.items + [dict(timer_pairs + [('friendly_name', friendly)])] %}
+                        {% set timer_ns.items = timer_ns.items + [dict(timer, friendly_name=friendly)] %}
                       {% else %}
                         {% set timer_ns.items = timer_ns.items + [timer] %}
                       {% endif %}
                     {% endfor %}
-                    {% set item_pairs = item.items() | list %}
-                    {% set outer.items = outer.items + [dict(item_pairs + [('timers', timer_ns.items)])] %}
+                    {% set outer.items = outer.items + [dict(item, timers=timer_ns.items)] %}
                   {% else %}
                     {% set outer.items = outer.items + [item] %}
                   {% endif %}

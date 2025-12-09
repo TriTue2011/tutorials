@@ -107,7 +107,7 @@ mode: queued
 max: 30
 max_exceeded: silent
 variables:
-  version: 20251020
+  version: 20251209
   thread_ids: !input thread_ids
   user_ids: !input user_ids
   language: !input language
@@ -128,7 +128,7 @@ conditions:
       {{ (trigger.json.threadId | string) in thread_ids }}
   - condition: template
     value_template: >-
-      {% if user_ids is list -%}
+      {% if user_ids is list and user_ids | count > 0 -%}
         {% if (trigger.json.data.uidFrom | string) in user_ids -%}
         {{ true }}
         {% else -%}
@@ -154,7 +154,7 @@ actions:
             value_template: "{{ trigger.json.data.msgType == 'webchat' }}"
         sequence:
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always respond in the user's language: {{ language | trim }}.
                 prompt: >-
@@ -173,7 +173,7 @@ actions:
               url: "{{ trigger.json.data.content.href }}"
             response_variable: file
           - variables:
-              input:
+              agent_input:
                 system: >-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
 
@@ -205,7 +205,7 @@ actions:
               type: "{{ trigger.json.type }}"
       - conditions:
           - condition: template
-            value_template: "{{ input is defined }}"
+            value_template: "{{ agent_input is defined }}"
         sequence:
           - action: zalo_bot.send_typing_event
             data:
@@ -218,25 +218,35 @@ actions:
               - action: conversation.process
                 data:
                   agent_id: !input agent_id
-                  text: "{{ input }}"
+                  text: "{{ agent_input }}"
                   language: "{{ language | trim }}"
                 response_variable: result
+                continue_on_error: true
             else:
               - action: conversation.process
                 data:
                   agent_id: !input agent_id
-                  text: "{{ input }}"
+                  text: "{{ agent_input }}"
                   conversation_id: "{{ conversation_id }}"
                   language: "{{ language | trim }}"
                 response_variable: result
+                continue_on_error: true
           - variables:
               response: >-
-                {{ result.response.speech.plain.speech if (result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0) else 'No response from assistant' }}
-          - action: pyscript.memory_cache_set
-            data:
-              value: "{{ result.conversation_id }}"
-              key: "{{ chat_id }}"
-            response_variable: set_chat
+                {% if result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0 %}
+                  {{ result.response.speech.plain.speech }}
+                {% else %}
+                  I encountered an error processing your request. Please check the Home Assistant logs.
+                {% endif %}
+          - if:
+              - condition: template
+                value_template: "{{ result is defined and result.conversation_id is defined }}"
+            then:
+              - action: pyscript.memory_cache_set
+                data:
+                  value: "{{ result.conversation_id }}"
+                  key: "{{ chat_id }}"
+                response_variable: set_chat
           - action: zalo_bot.send_message
             data:
               thread_id: "{{ trigger.json.threadId }}"

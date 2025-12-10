@@ -1,47 +1,53 @@
-# Guide to configure Voice Assist to locate your device and make it ring
+# How to Configure Voice Assist to Find Your Devices
 
 ![image](images/20250608_ASxwFa.png)
 
 ## Features
 
-- Voice Assist will tell you if the device is at home or not, and the specific room where the device is located if possible.
-
-- It can locate any BLE Device added by the Bermuda BLE Trilateration integration: Android, iOS, some smartwatches, beacon tiles, etc.
-
-- It can locate any Mobile Device with the Home Assistant Companion App installed.
-
-- If the device has the Home Assistant Companion App installed, it can also ring to help locate it more easily, even in Do Not Disturb mode.
-
-- The LLM has extremely limited knowledge about your device's location. It cannot know your device's actual GPS location but may have general information such as whether you are at home or in specific areas like the living room or kitchen. It only accesses this information when you request it to locate your device.
+- **Location Tracking:** Voice Assist will tell you if a device is at home, and specifically which room it is in (if detected).
+- **Universal BLE Support:** Works with any BLE device tracked by the [Bermuda BLE Trilateration](https://github.com/agittins/bermuda) integration (Android, iOS, smartwatches, beacon tiles, etc.).
+- **Mobile App Support:** Locates any device with the Home Assistant Companion App installed.
+- **Ring to Find:** If the device has the Companion App, Voice Assist can trigger it to ring, even if it's in "Do Not Disturb" mode.
+- **Privacy Focused:** The LLM does not have real-time access to your GPS coordinates. It only receives general location info (Home/Away, specific room) strictly when you ask to find a device.
 
 ## Limitations
 
-- Only supports LLMs like Gemini or OpenAI.
+- **LLM Compatibility:** Requires an LLM-based Voice Assist (like Gemini or OpenAI).
+- **Entity Support:** Only works with `device_tracker` entities from Bermuda or the Mobile App.
 
-- Only supports Bermuda Device Tracker entities or Mobile Device Tracker entities.
+## Prerequisites
 
-## Installation
+- **Bermuda BLE Trilateration:** (Optional but recommended) Installed via HACS for room-level tracking.
+- **Home Assistant Companion App:** Installed on mobile devices for "Ring to Find" functionality.
 
-### Expose device tracker entities to Voice Assist
+## Installation Guide
 
-- Only expose one device tracker per physical device.
+### Step 1: Expose Device Trackers to Voice Assist
 
-- Consider adding entity aliases to make them easier to remember if needed.
+1.  Navigate to **Settings** > **Voice assistants** > **Expose**.
+2.  Expose **only one** `device_tracker` entity per physical device.
+3.  **Tip:** Add friendly **Aliases** to your entities (e.g., "My Phone", "Keys") to make voice commands more natural.
 
-- When your phone is equipped with both the Mobile Device Tracker and the Bermuda Device Tracker, ensure you expose the Bermuda Device Tracker to Voice Assist. Additionally, rename the Bermuda Device to match the name of the Mobile Device. For instance, if your Mobile is named **Pixel 9**, the Bermuda Device should also be named **Pixel 9** or **Pixel 9 BLE**. This enables Voice Assist to identify the specific room location of your device and activate its ringing function.
+**Important for Bermuda Users:**
+If your phone has both a Mobile App tracker and a Bermuda tracker:
 
-### Create a shell_command to get information about the Alias of the entities
+1.  **Expose only the Bermuda tracker** to Voice Assist (it provides better room-level accuracy).
+2.  **Rename the Bermuda device** to match the Mobile App device name.
+    - _Example:_ If your Mobile App device is named `Pixel 9`, rename your Bermuda device to `Pixel 9` (or `Pixel 9 BLE`).
+    - _Why?_ This links the accurate location from Bermuda with the "Ring" capability of the Mobile App.
 
-- Add the code below to the `config/configuration.yaml` file of Home Assistant.
+### Step 2: Create a Shell Command for Alias Retrieval
+
+This command allows the system to read the aliases you've set for your entities. Add this to your `configuration.yaml` file:
 
 ```yaml
 shell_command:
   get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
 ```
 
-### Create a template sensor to save information about Alias
+### Step 3: Create a Template Sensor
 
-- Add the code below to the `config/configuration.yaml` file of Home Assistant.
+This sensor stores the alias information for the blueprints to use. Add this to your `configuration.yaml` (under `template:` or merge with your existing configuration):
 
 ```yaml
 template:
@@ -63,40 +69,42 @@ template:
           entities: "{{ response.stdout }}"
 ```
 
-- After adding, restart Home Assistant.
+**After adding these codes:**
 
-- **Note: Whenever you change an Alias, you must reload template entities.**
+1.  **Restart** Home Assistant.
+2.  **Note:** If you add or change an Alias later, you must reload Template entities (Developer Tools > YAML > Template Entities) or restart HA.
 
-### Add Blueprints
+### Step 4: Install Blueprints
 
-#### Blueprint 1
+#### 1. Device Location Lookup Blueprint
+
+This blueprint powers the logic to find where your devices are.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
 
-- See details at: [github.com/luuquangvu/tutorials](/device_location_lookup_full_llm.yaml)
+1.  Import the blueprint.
+2.  Create a **Script** from it.
+3.  In the script settings, select the **Template Sensor** (`sensor.assist_entity_ids_and_aliases`) you created in Step 3.
+4.  **Keep the default script name** (or ensure it's easy for the LLM to recognize).
+5.  **Expose** this new script to Voice Assist.
 
-- Once the Blueprint has been added, proceed to create a new script based on this Blueprint. Include the Template Sensor that was created in the previous step. Ensure the default name remains unchanged.
+#### 2. Device Ringing Blueprint
 
-- After creating, expose that script to Voice Assist.
-
-#### Blueprint 2
+This blueprint allows Voice Assist to make your device ring.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
 
-- See details at: [github.com/luuquangvu/tutorials](/device_ringing_full_llm.yaml)
+1.  Import the blueprint.
+2.  Create a **Script** from it.
+3.  **Keep the default script name**.
+4.  **Expose** this new script to Voice Assist.
 
-- Once the Blueprint has been added, proceed to create a new script based on this Blueprint. Ensure the default name remains unchanged.
+## Usage Examples
 
-- After creating, expose that script to Voice Assist.
+Once set up, try asking Voice Assist:
 
-#### Now you can try some of the following commands (or vary them based on your imagination)
-
-- Find my phone?
-
-- Where is my iPhone?
-
-- Where is my watch?
-
-- Where is my wallet?
-
-- Where is my dog?
+- "Find my phone."
+- "Where is my iPhone?"
+- "Where is my watch?"
+- "Where is my wallet?" (for BLE tags)
+- "Where is the dog?" (for pet tags)

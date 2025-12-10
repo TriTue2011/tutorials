@@ -10,29 +10,35 @@ Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ s
 
 ## Mục lục
 
-- [Voice Assist - Hẹn giờ & Lên lịch Thông minh](#voice-assist---hẹn-giờ--lên-lịch-thông-minh)
-- [Voice Assist - Ghi nhớ và Truy xuất Thông tin](#voice-assist---ghi-nhớ-và-truy-xuất-thông-tin)
-- [Voice Assist - Phân tích Hình ảnh Camera](#voice-assist---phân-tích-hình-ảnh-camera)
-- [Voice Assist - Quản lý Lịch trình & Sự kiện](#voice-assist---quản-lý-lịch-trình--sự-kiện)
-- [Voice Assist - Tra cứu & Chuyển đổi Lịch Âm](#voice-assist---tra-cứu--chuyển-đổi-lịch-âm)
-- [Chatbot Tương tác & Điều khiển Nhà thông minh](#chatbot-tương-tác--điều-khiển-nhà-thông-minh)
-- [Voice Assist - Gửi Tin nhắn & Hình ảnh](#voice-assist---gửi-tin-nhắn--hình-ảnh)
-- [Voice Assist - Tra cứu Thông tin Internet](#voice-assist---tra-cứu-thông-tin-internet)
-- [Voice Assist - Tìm kiếm & Phát Video YouTube](#voice-assist---tìm-kiếm--phát-video-youtube)
-- [Voice Assist - Theo dõi Kênh YouTube Yêu thích](#voice-assist---theo-dõi-kênh-youtube-yêu-thích)
-- [Voice Assist - Điều khiển Quạt Thông minh](#voice-assist---điều-khiển-quạt-thông-minh)
-- [Voice Assist - Định vị & Tìm kiếm Thiết bị](#voice-assist---định-vị--tìm-kiếm-thiết-bị)
-- [Voice Assist - Tra cứu Phạt nguội](#voice-assist---tra-cứu-phạt-nguội)
-- [Tự động Cảnh báo Phạt nguội](#tự-động-cảnh-báo-phạt-nguội)
-- [Đồng bộ Trạng thái Thiết bị](#đồng-bộ-trạng-thái-thiết-bị)
-- [Các Blueprint đã lỗi thời](#các-blueprint-đã-lỗi-thời)
-- [Hướng dẫn Thêm](#hướng-dẫn-thêm)
-  - [Tùy chỉnh Prompt/Chỉ dẫn cho Voice Assist](/home_assistant_voice_instructions.md)
-  - [Tự động phát video YouTube mới](/home_assistant_play_favorite_youtube_channel_videos.md)
-  - [Tóm tắt tin tức hàng ngày với AI](/home_assistant_get_and_summary_daily_news.md)
-  - [Cảnh báo thiết bị mất kết nối (Unavailable)](/home_assistant_unavailable_devices.md)
-  - [Tự động đổi Theme Sáng/Tối](/home_assistant_ios_themes.md)
-  - [Hướng dẫn cài đặt Tìm Điện thoại & Thiết bị](/home_assistant_device_location_lookup_guide_en.md)
+- [Bộ sưu tập Blueprint và Hướng dẫn độc đáo cho Home Assistant](#bộ-sưu-tập-blueprint-và-hướng-dẫn-độc-đáo-cho-home-assistant)
+  - [Mục lục](#mục-lục)
+  - [Voice Assist - Hẹn giờ \& Lên lịch Thông minh](#voice-assist---hẹn-giờ--lên-lịch-thông-minh)
+  - [Voice Assist - Ghi nhớ và Truy xuất Thông tin](#voice-assist---ghi-nhớ-và-truy-xuất-thông-tin)
+  - [Voice Assist - Phân tích Hình ảnh Camera](#voice-assist---phân-tích-hình-ảnh-camera)
+  - [Voice Assist - Quản lý Lịch trình \& Sự kiện](#voice-assist---quản-lý-lịch-trình--sự-kiện)
+    - [Tạo Sự kiện Lịch](#tạo-sự-kiện-lịch)
+    - [Tra cứu Sự kiện trong Lịch](#tra-cứu-sự-kiện-trong-lịch)
+  - [Voice Assist - Tra cứu \& Chuyển đổi Lịch Âm](#voice-assist---tra-cứu--chuyển-đổi-lịch-âm)
+    - [Tra cứu \& chuyển đổi Lịch Âm](#tra-cứu--chuyển-đổi-lịch-âm)
+    - [Tạo Sự kiện theo Lịch Âm](#tạo-sự-kiện-theo-lịch-âm)
+  - [Chatbot Tương tác \& Điều khiển Nhà thông minh](#chatbot-tương-tác--điều-khiển-nhà-thông-minh)
+  - [Voice Assist - Gửi Tin nhắn \& Hình ảnh](#voice-assist---gửi-tin-nhắn--hình-ảnh)
+  - [Voice Assist - Tra cứu Thông tin Internet](#voice-assist---tra-cứu-thông-tin-internet)
+  - [Voice Assist - Tìm kiếm \& Phát Video YouTube](#voice-assist---tìm-kiếm--phát-video-youtube)
+  - [Voice Assist - Theo dõi Kênh YouTube Yêu thích](#voice-assist---theo-dõi-kênh-youtube-yêu-thích)
+  - [Voice Assist - Điều khiển Quạt Thông minh](#voice-assist---điều-khiển-quạt-thông-minh)
+  - [Voice Assist - Định vị \& Tìm kiếm Thiết bị](#voice-assist---định-vị--tìm-kiếm-thiết-bị)
+  - [Voice Assist - Tra cứu Phạt nguội](#voice-assist---tra-cứu-phạt-nguội)
+  - [Tự động Cảnh báo Phạt nguội](#tự-động-cảnh-báo-phạt-nguội)
+  - [Đồng bộ Trạng thái Thiết bị](#đồng-bộ-trạng-thái-thiết-bị)
+  - [Các Blueprint đã lỗi thời](#các-blueprint-đã-lỗi-thời)
+    - [Voice Assist - Hẹn giờ Bật/Tắt Thiết bị (Cũ)](#voice-assist---hẹn-giờ-bậttắt-thiết-bị-cũ)
+  - [Hướng dẫn Thêm](#hướng-dẫn-thêm)
+    - [Tùy chỉnh chỉ dẫn hệ thống (system instruction) cho Voice Assist](#tùy-chỉnh-chỉ-dẫn-hệ-thống-system-instruction-cho-voice-assist)
+    - [Phát video mới từ kênh YouTube yêu thích](#phát-video-mới-từ-kênh-youtube-yêu-thích)
+    - [Theo dõi các thiết bị mất kết nối (unavailable)](#theo-dõi-các-thiết-bị-mất-kết-nối-unavailable)
+    - [Tự động chuyển đổi giao diện (theme) sáng/tối](#tự-động-chuyển-đổi-giao-diện-theme-sángtối)
+    - [Hướng dẫn cài đặt tìm kiếm vị trí thiết bị](#hướng-dẫn-cài-đặt-tìm-kiếm-vị-trí-thiết-bị)
 
 ---
 
@@ -432,7 +438,7 @@ _Cài đặt blueprint cho chức năng bạn muốn sử dụng:_
 - Nhanh chóng tìm thấy điện thoại, máy tính bảng bị thất lạc trong nhà.
 - Kiểm tra xem con cái có để quên thiết bị ở nhà hay không.
 
-[**Xem hướng dẫn chi tiết**](/home_assistant_device_location_lookup_guide_en.md)
+[**Xem hướng dẫn chi tiết**](/home_assistant_device_location_lookup_guide.md)
 
 Để sử dụng tính năng này, bạn cần cài đặt **cả 2 blueprint**:
 
@@ -514,12 +520,15 @@ Nhận cảnh báo ngay khi có vi phạm giao thông mới được ghi nhận 
 
 ## Hướng dẫn Thêm
 
-- [**Tùy chỉnh chỉ dẫn hệ thống (system instruction) cho Voice Assist**](/home_assistant_voice_instructions.md)
-- [**Phát video mới từ kênh YouTube yêu thích**](/home_assistant_play_favorite_youtube_channel_videos.md)
-- [**Tự động cập nhật và tóm tắt tin tức mỗi ngày**](/home_assistant_get_and_summary_daily_news.md)
-- [**Theo dõi các thiết bị mất kết nối (unavailable)**](/home_assistant_unavailable_devices.md)
-- [**Tự động chuyển đổi giao diện (theme) sáng/tối**](/home_assistant_ios_themes.md)
-- [**Hướng dẫn cài đặt tìm kiếm vị trí thiết bị**](/home_assistant_device_location_lookup_guide_en.md)
+### [Tùy chỉnh chỉ dẫn hệ thống (system instruction) cho Voice Assist](/home_assistant_voice_instructions.md)
+
+### [Phát video mới từ kênh YouTube yêu thích](/home_assistant_play_favorite_youtube_channel_videos.md)
+
+### [Theo dõi các thiết bị mất kết nối (unavailable)](/home_assistant_unavailable_devices.md)
+
+### [Tự động chuyển đổi giao diện (theme) sáng/tối](/home_assistant_ios_themes.md)
+
+### [Hướng dẫn cài đặt tìm kiếm vị trí thiết bị](/home_assistant_device_location_lookup_guide.md)
 
 ---
 

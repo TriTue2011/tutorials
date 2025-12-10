@@ -10,29 +10,35 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
 
 ## Table of Contents
 
-- [Voice Assist - Smart Scheduling & Timers](#voice-assist---smart-scheduling--timers)
-- [Voice Assist - Memory & Information Retrieval](#voice-assist---memory--information-retrieval)
-- [Voice Assist - Camera Image Analysis](#voice-assist---camera-image-analysis)
-- [Voice Assist - Calendar & Event Management](#voice-assist---calendar--event-management)
-- [Voice Assist - Lunar Calendar Lookup & Conversion](#voice-assist---lunar-calendar-lookup--conversion)
-- [Interactive Smart Home Chatbot](#interactive-smart-home-chatbot)
-- [Voice Assist - Send Messages & Images](#voice-assist---send-messages--images)
-- [Voice Assist - Internet Knowledge Search](#voice-assist---internet-knowledge-search)
-- [Voice Assist - YouTube Search & Playback](#voice-assist---youtube-search--playback)
-- [Voice Assist - Favorite YouTube Channels](#voice-assist---favorite-youtube-channels)
-- [Voice Assist - Smart Fan Control](#voice-assist---smart-fan-control)
-- [Voice Assist - Device Location & Find](#voice-assist---device-location--find)
-- [Voice Assist - Traffic Fine Lookup](#voice-assist---traffic-fine-lookup)
-- [Automatic Traffic Fine Notifications](#automatic-traffic-fine-notifications)
-- [Device State Synchronization](#device-state-synchronization)
-- [Obsolete Blueprints](#obsolete-blueprints)
-- [Additional Tutorials](#additional-tutorials)
-  - [Custom System Instructions for Voice Assist](/home_assistant_voice_instructions.md)
-  - [Play YouTube Videos from favorite channels](/home_assistant_play_favorite_youtube_channel_videos.md)
-  - [Daily News Summary](/home_assistant_get_and_summary_daily_news.md)
-  - [Monitor Offline/Unavailable Devices](/home_assistant_unavailable_devices.md)
-  - [Auto-switch iOS Themes (Light/Dark)](/home_assistant_ios_themes.md)
-  - [Find Phones & Devices Setup Guide](/home_assistant_device_location_lookup_guide_en.md)
+- [Unique Home Assistant Blueprints \& Tutorials](#unique-home-assistant-blueprints--tutorials)
+  - [Table of Contents](#table-of-contents)
+  - [Voice Assist - Smart Scheduling \& Timers](#voice-assist---smart-scheduling--timers)
+  - [Voice Assist - Memory \& Information Retrieval](#voice-assist---memory--information-retrieval)
+  - [Voice Assist - Camera Image Analysis](#voice-assist---camera-image-analysis)
+  - [Voice Assist - Calendar \& Event Management](#voice-assist---calendar--event-management)
+    - [Create Calendar Events](#create-calendar-events)
+    - [Calendar Events Lookup](#calendar-events-lookup)
+  - [Voice Assist - Lunar Calendar Lookup \& Conversion](#voice-assist---lunar-calendar-lookup--conversion)
+    - [Lunar Calendar Conversion \& Lookup](#lunar-calendar-conversion--lookup)
+    - [Create Lunar Calendar Events](#create-lunar-calendar-events)
+  - [Interactive Smart Home Chatbot](#interactive-smart-home-chatbot)
+  - [Voice Assist - Send Messages \& Images](#voice-assist---send-messages--images)
+  - [Voice Assist - Internet Knowledge Search](#voice-assist---internet-knowledge-search)
+  - [Voice Assist - YouTube Search \& Playback](#voice-assist---youtube-search--playback)
+  - [Voice Assist - Favorite YouTube Channels](#voice-assist---favorite-youtube-channels)
+  - [Voice Assist - Smart Fan Control](#voice-assist---smart-fan-control)
+  - [Voice Assist - Device Location \& Find](#voice-assist---device-location--find)
+  - [Voice Assist - Traffic Fine Lookup](#voice-assist---traffic-fine-lookup)
+  - [Automatic Traffic Fine Notifications](#automatic-traffic-fine-notifications)
+  - [Device State Synchronization](#device-state-synchronization)
+  - [Obsolete Blueprints](#obsolete-blueprints)
+    - [Voice Assist - Device Control Timer (Legacy)](#voice-assist---device-control-timer-legacy)
+  - [Additional Tutorials](#additional-tutorials)
+    - [How to write custom system instructions for Voice Assist](#how-to-write-custom-system-instructions-for-voice-assist)
+    - [Play new videos from favorite YouTube channels](#play-new-videos-from-favorite-youtube-channels)
+    - [Monitor unavailable devices](#monitor-unavailable-devices)
+    - [Auto-switch iOS Themes](#auto-switch-ios-themes)
+    - [Device location lookup guide](#device-location-lookup-guide)
 
 ---
 
@@ -370,7 +376,7 @@ Automatically surface the newest videos from your must-watch channels and play t
 - Create a "morning brief" automation that plays the latest news from your trusted channels.
 - Ensure you never miss content from your favorite creators.
 
-[**View the detailed guide**](/home_assistant_play_favorite_youtube_channel_videos.md)
+[**View the detailed guide**](/home_assistant_play_favorite_youtube_channel_videos_en.md)
 
 To use this feature, you need to install **both blueprints**:
 
@@ -514,12 +520,15 @@ To use this, you need to install **both blueprints**:
 
 ## Additional Tutorials
 
-- [**How to write custom system instructions for Voice Assist**](/home_assistant_voice_instructions.md)
-- [**Play new videos from favorite YouTube channels**](/home_assistant_play_favorite_youtube_channel_videos.md)
-- [**Get and summarize daily news with AI**](/home_assistant_get_and_summary_daily_news.md)
-- [**Monitor unavailable devices**](/home_assistant_unavailable_devices.md)
-- [**Auto-switch iOS Themes**](/home_assistant_ios_themes.md)
-- [**Device location lookup guide**](/home_assistant_device_location_lookup_guide_en.md)
+### [How to write custom system instructions for Voice Assist](/home_assistant_voice_instructions_en.md)
+
+### [Play new videos from favorite YouTube channels](/home_assistant_play_favorite_youtube_channel_videos_en.md)
+
+### [Monitor unavailable devices](/home_assistant_unavailable_devices_en.md)
+
+### [Auto-switch iOS Themes](/home_assistant_ios_themes_en.md)
+
+### [Device location lookup guide](/home_assistant_device_location_lookup_guide_en.md)
 
 ---
 

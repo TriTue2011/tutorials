@@ -1,29 +1,29 @@
-# Giám sát & Thông báo Thiết bị Mất Kết nối (Unavailable Devices)
+# Monitoring & Notifying Unavailable Devices
 
-Hướng dẫn này giúp bạn tự động theo dõi và nhận thông báo khi có bất kỳ thiết bị nào trong Home Assistant chuyển sang trạng thái "Không khả dụng" (Unavailable) hoặc "Không rõ" (Unknown).
+This guide helps you automatically monitor and receive notifications whenever any device in Home Assistant becomes "Unavailable" or "Unknown".
 
-## Bước 1: Tạo cảm biến theo dõi (Sensor)
+## Step 1: Create a Monitoring Sensor
 
-Chúng ta sẽ tạo một `binary_sensor` thông minh, tự động quét toàn bộ hệ thống để tìm các thiết bị lỗi, đồng thời cho phép bạn loại trừ (bỏ qua) các thiết bị không quan trọng.
+We will create a smart `binary_sensor` that automatically scans your entire system for faulty devices, while allowing you to exclude (ignore) unimportant ones.
 
-### 1.1. Tạo nhãn (Label) để quản lý
+### 1.1. Create a Label for Management
 
-Để tránh báo động giả từ các thiết bị bạn không quan tâm, hãy tạo một nhãn để đánh dấu chúng.
+To avoid false alarms from devices you don't care about, create a label to mark them.
 
-1.  Vào **Settings** > **Devices & Services** > **Labels**.
-2.  Tạo nhãn mới tên là: `ignored`
+1.  Go to **Settings** > **Devices & Services** > **Labels**.
+2.  Create a new label named: `ignored`
 
 ![image](images/20250426_GwdtEl.png)
 
-### 1.2. Gán nhãn cho thiết bị cần bỏ qua
+### 1.2. Assign the Label to Ignored Devices
 
-Gán nhãn `ignored` cho bất kỳ thiết bị hoặc thực thể nào bạn **không** muốn nhận thông báo khi nó mất kết nối.
+Assign the `ignored` label to any device or entity you **do not** want to be notified about when it goes offline.
 
 ![image](images/20250426_oj1S9U.png)
 
-### 1.3. Cấu hình Template Sensor
+### 1.3. Configure Template Sensor
 
-Thêm đoạn mã sau vào file `configuration.yaml` của bạn. Sensor này sẽ tự động lọc bỏ các thiết bị có nhãn `ignored`, cũng như các thực thể nút bấm (button) hoặc ngữ cảnh (scene) vốn không có trạng thái kết nối.
+Add the following code to your `configuration.yaml` file. This sensor automatically filters out devices with the `ignored` label, as well as button or scene entities which naturally don't have a connection state.
 
 ```yaml
 template:
@@ -68,16 +68,16 @@ template:
               | list }}
 ```
 
-_Sau khi lưu file, hãy **Khởi động lại (Restart)** Home Assistant để áp dụng._
+_After saving the file, please **Restart** Home Assistant to apply the changes._
 
-## Bước 2: Tạo Thông báo Tự động (Automation)
+## Step 2: Create Automation Notifications
 
-Các automation dưới đây sẽ gửi thông báo khi có sự cố, và tự động xóa thông báo khi sự cố được khắc phục.
+The automations below will send a notification when an issue occurs, and automatically clear the notification when the issue is resolved.
 
-### Tùy chọn 1: Thông báo Persistent (trên giao diện Home Assistant)
+### Option 1: Persistent Notification (on Home Assistant Dashboard)
 
 ```yaml
-alias: "System: Thông báo thiết bị mất kết nối (Persistent)"
+alias: "System: Notify Unavailable Devices (Persistent)"
 description: ""
 triggers:
   - trigger: state
@@ -101,15 +101,15 @@ actions:
       - action: persistent_notification.create
         data:
           notification_id: "{{ notify_tag }}"
-          title: "⚠️ Thiết bị mất kết nối"
+          title: "⚠️ Devices Unavailable"
           message: >
-            ### Có {{ devices | count }} thiết bị ({{ entities | count }} thực thể) gặp sự cố.
+            ### {{ devices | count }} devices ({{ entities | count }} entities) are having issues.
 
-            **Thiết bị:**
+            **Devices:**
             {% for device in devices %}- {{ device }}
             {% endfor %}
 
-            **Chi tiết thực thể:**
+            **Entity Details:**
             {% for entity in entities %}- {{ entity }}
             {% endfor %}
     else:
@@ -120,10 +120,10 @@ mode: queued
 max: 10
 ```
 
-### Tùy chọn 2: Thông báo qua Điện thoại (Mobile App)
+### Option 2: Mobile App Notification
 
 ```yaml
-alias: "System: Thông báo thiết bị mất kết nối (Mobile)"
+alias: "System: Notify Unavailable Devices (Mobile)"
 description: ""
 triggers:
   - trigger: state
@@ -144,16 +144,16 @@ actions:
       - condition: template
         value_template: "{{ entities | count > 0 }}"
     then:
-      - action: notify.mobile_app_iphone # Thay bằng tên điện thoại của bạn
+      - action: notify.mobile_app_iphone # Replace with your phone's notification service
         data:
-          title: "⚠️ Mất kết nối thiết bị"
+          title: "⚠️ Devices Lost Connection"
           message: >-
-            Có {{ devices | count }} thiết bị ({{ entities | count }} thực thể) đang bị mất kết nối.
+            {{ devices | count }} devices ({{ entities | count }} entities) are currently unavailable.
           data:
             tag: "{{ notify_tag }}"
-            url: /lovelace/system # (Tùy chọn) Đường dẫn đến dashboard hệ thống của bạn
+            url: /lovelace/system # (Optional) Path to your system dashboard
     else:
-      - action: notify.mobile_app_iphone # Thay bằng tên điện thoại của bạn
+      - action: notify.mobile_app_iphone # Replace with your phone's notification service
         data:
           message: clear_notification
           data:
@@ -162,25 +162,25 @@ mode: queued
 max: 10
 ```
 
-## Bước 3: Hiển thị trên Dashboard (Tùy chọn)
+## Step 3: Dashboard Display (Optional)
 
-Bạn có thể thêm thẻ Markdown này vào giao diện. Nó sẽ tự động ẩn đi khi hệ thống bình thường và chỉ hiện lên khi có thiết bị lỗi.
+You can add this Markdown card to your dashboard. It will automatically hide when the system is healthy and only appear when there are faulty devices.
 
 ```yaml
 type: markdown
-title: ⚠️ Thiết bị Mất Kết nối
+title: ⚠️ Unavailable Devices
 content: >
   {% set entities = state_attr('binary_sensor.unavailable_devices', 'entities') | default([], true) -%}
   {% set devices = state_attr('binary_sensor.unavailable_devices', 'devices') | default([], true) -%}
 
-  **Tổng quan:** {{ devices | count }} thiết bị - {{ entities | count }} thực thể.
+  **Overview:** {{ devices | count }} devices - {{ entities | count }} entities.
 
   ---
-  **Danh sách thiết bị:**
+  **Device List:**
   {% for device in devices %}- **{{ device }}**
   {% endfor %}
 
-  **Chi tiết thực thể:**
+  **Entity Details:**
   {% for entity in entities %}- `{{ entity }}`
   {% endfor %}
 visibility:

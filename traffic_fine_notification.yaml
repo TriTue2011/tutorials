@@ -1,56 +1,42 @@
 blueprint:
   name: Traffic Fine Notification
   author: luuquangvu
-  description: >-
+  description: |
     # Nhận thông báo khi có thông tin phạt nguội
 
-    * Dữ liệu được tra cứu trực tiếp từ Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
+    - Dữ liệu được tra cứu trực tiếp từ Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
 
     ## Yêu cầu
 
-    * Cần cài đặt tích hợp Pyscript thông qua HACS và được cấu hình đúng cách.
-
-    * Cần sao chép tập lệnh `scripts/traffic_fine_lookup_tool.py` vào thư mục `config/pyscript`.
-
-    * Cần sao chép tập tin `scripts/requirements.txt` vào thư mục `config/pyscript`.
-
-    * Các tệp được đề cập bên trên đều có sẵn trong kho lưu trữ Github.
-
-    * Bật hai cài đặt cấu hình Pyscript để cho phép nhập bất kỳ gói Python nào và hiển thị hass dưới dạng một biến.
-
-    * Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` và `config/secrets.yaml` sử dụng cho việc giải mã CAPTCHA.
+    - Cần cài đặt tích hợp Pyscript thông qua HACS và được cấu hình đúng cách.
+    - Cần sao chép tập lệnh `scripts/traffic_fine_lookup_tool.py` vào thư mục `config/pyscript`.
+    - Cần sao chép tập tin `scripts/requirements.txt` vào thư mục `config/pyscript`.
+    - Các tệp được đề cập bên trên đều có sẵn trong kho lưu trữ Github.
+    - Bật hai cài đặt cấu hình Pyscript để cho phép nhập bất kỳ gói Python nào và hiển thị hass dưới dạng một biến.
+    - Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` và `config/secrets.yaml` sử dụng cho việc giải mã CAPTCHA.
 
     ```
-
     #File configuration.yaml
-
     pyscript:
       allow_all_imports: true
       hass_is_global: true
       gemini_api_key: !secret gemini_api_key
-
     ```
 
     ```
-
     #File secrets.yaml
-
     gemini_api_key: XXXXXX      # Retrieve the key from the Google Cloud Console.
-
     ```
 
     ## Hướng dẫn cài đặt
 
     ### Thêm Template Sensor cho từng xe theo mẫu bên dưới vào trong `config/configuration.yaml` của Home Assistant
 
-    * Trong đó Sensor Time to Check để khai báo thời gian ngẫu nhiên thực hiện tra cứu, tối thiểu ngày 2 lần.
-
-    * Sensor Biển Số sẽ lưu thông tin phạt nguội của xe.
+    - Trong đó Sensor Time to Check để khai báo thời gian ngẫu nhiên thực hiện tra cứu, tối thiểu ngày 2 lần.
+    - Sensor Biển Số sẽ lưu thông tin phạt nguội của xe.
 
     ```
-
     #File configuration.yaml
-
     template:
       - triggers:
           - trigger: time_pattern
@@ -79,40 +65,26 @@ blueprint:
             state: "{{ response.message if response.get('status') else response.get('error') }}"
             attributes:
               data: "{{ response }}"
-
     ```
 
-    * Thay biển số bằng biển số xe của bạn, lưu ý phân biệt chữ hoa chữ thường.
-
-    * vehicle_type:
-
-      * "1": Ô tô
-
-      * "2": Xe máy
-
-      * "3": Xe máy điện
-
-    * icon (tùy chọn):
-
-      * "mdi:car": Ô tô
-
-      * "mdi:motorbike": Xe máy
-
-      * "mdi:motorbike-electric": Xe máy điện
-
-    * Lưu lại cấu hình.
-
-    * Developer Tools - YAML - Reload Template Entities.
-
-    * Dữ liệu phạt nguội có thể không có luôn mà sẽ có sau khi đến thời gian tra cứu.
+    - Thay biển số bằng biển số xe của bạn, lưu ý phân biệt chữ hoa chữ thường.
+    - vehicle_type:
+      - "1": Ô tô
+      - "2": Xe máy
+      - "3": Xe máy điện
+    - icon (tùy chọn):
+      - "mdi:car": Ô tô
+      - "mdi:motorbike": Xe máy
+      - "mdi:motorbike-electric": Xe máy điện
+    - Lưu lại cấu hình.
+    - Developer Tools - YAML - Reload Template Entities.
+    - Dữ liệu phạt nguội có thể không có luôn mà sẽ có sau khi đến thời gian tra cứu.
 
     ### Tạo script từ blueprint này
 
-    * Chỉ định Biển Số của các xe mới được thêm từ bước trên, thêm được đồng thời nhiều xe.
-
-    * Chỉ định các điện thoại sẽ nhận thông báo khi có thông tin phạt nguội.
-
-    * Lưu lại script.
+    - Chỉ định Biển Số của các xe mới được thêm từ bước trên, thêm được đồng thời nhiều xe.
+    - Chỉ định các điện thoại sẽ nhận thông báo khi có thông tin phạt nguội.
+    - Lưu lại script.
   domain: automation
   homeassistant:
     min_version: 2024.10.0

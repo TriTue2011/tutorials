@@ -284,7 +284,7 @@ sequence:
         {% else %}
           {{ [] }}
         {% endif %}
-      _missing_entities: |
+      _resolved_details: |
         {% set ns = namespace(items=[]) %}
         {% set alias_list = _alias_list if _alias_list is sequence else [] %}
         {% for name in _entity_names %}
@@ -298,109 +298,78 @@ sequence:
           {% endfor %}
           {% set name_norm = (name_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
           {% set name_alt_norm = (name_alt | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-          {% set matched = false %}
-
-          {# direct entity_id (case-insensitive) #}
-          {% for s in states %}
-            {% set eid = s.entity_id | string %}
-            {% set eid_l = eid | lower %}
-            {% set eid_suffix = (eid_l.split('.')[-1] if '.' in eid_l else eid_l) %}
-            {% if eid_l == name_l or eid_suffix == name_l or eid_suffix == name_alt or eid_suffix == name_norm or eid_suffix == name_alt_norm %}
-              {% set matched = true %}
-            {% endif %}
-          {% endfor %}
-
-          {% if not matched %}
-            {# friendly name (case-insensitive) #}
-            {% for s in states %}
-              {% set fn = s.attributes.friendly_name if s.attributes.friendly_name is defined else '' %}
-              {% set fn_l = (fn | string | lower | trim) %}
-              {% set fn_norm = (fn_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-              {% set norm_match = (name_norm | length > 0 and fn_norm | length > 0 and (fn_norm in name_norm or name_norm in fn_norm)) %}
-              {% if fn_l == name_l or fn_l == name_alt or fn_norm == name_norm or fn_norm == name_alt_norm or norm_match %}
-                {% set matched = true %}
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-
-          {% if not matched %}
-            {# aliases (case-insensitive) #}
-            {% for device in alias_list %}
-              {% set aliases = device.aliases if device.aliases is sequence else [] %}
-              {% for al in aliases %}
-                {% set al_l = (al | string | lower | trim) %}
-                {% set al_norm = (al_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-                {% set norm_match = (name_norm | length > 0 and al_norm | length > 0 and (al_norm in name_norm or name_norm in al_norm)) %}
-                {% if al_l == name_l or al_l == name_alt or al_norm == name_norm or al_norm == name_alt_norm or norm_match %}
-                  {% set matched = true %}
-                {% endif %}
-              {% endfor %}
-            {% endfor %}
-          {% endif %}
-
-          {% if not matched %}
-            {% set ns.items = ns.items + [name] %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.items }}
-      _resolved_entities: |
-        {% set ns = namespace(items=[]) %}
-        {% set alias_list = _alias_list if _alias_list is sequence else [] %}
-        {% for name in _entity_names %}
-          {% set name_l = (name | string | lower | trim) %}
-          {% set prefixes = ['scene ', 'script ', 'light ', 'fan ', 'cover ', 'switch ', 'climate ', 'humidifier ', 'water heater ', 'water_heater ', 'media player ', 'media_player ', 'vacuum ', 'valve '] %}
-          {% set name_alt = name_l %}
-          {% for p in prefixes %}
-            {% if name_alt[0:(p|length)] == p %}
-              {% set name_alt = (name_alt[(p|length):] | trim) %}
-            {% endif %}
-          {% endfor %}
-          {% set name_norm = (name_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-          {% set name_alt_norm = (name_alt | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
+          {% set match = namespace(done=false) %}
 
           {# 1) Direct entity_id (case-insensitive) #}
           {% for s in states %}
-            {% set eid = s.entity_id | string %}
-            {% set eid_l = eid | lower %}
-            {% set eid_suffix = (eid_l.split('.')[-1] if '.' in eid_l else eid_l) %}
-            {% if eid_l == name_l or eid_suffix == name_l or eid_suffix == name_alt or eid_suffix == name_norm or eid_suffix == name_alt_norm %}
-              {% if eid not in ns.items %}
-                {% set ns.items = ns.items + [eid] %}
+            {% if not match.done %}
+              {% set eid = s.entity_id | string %}
+              {% set eid_l = eid | lower %}
+              {% set eid_suffix = (eid_l.split('.')[-1] if '.' in eid_l else eid_l) %}
+              {% if eid_l == name_l or eid_suffix == name_l or eid_suffix == name_alt or eid_suffix == name_norm or eid_suffix == name_alt_norm %}
+                {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
+                {% set match.done = true %}
               {% endif %}
             {% endif %}
           {% endfor %}
 
           {# 2) Friendly name (case-insensitive) #}
-          {% for s in states %}
-            {% set fn = s.attributes.friendly_name if s.attributes.friendly_name is defined else '' %}
-            {% set fn_l = (fn | string | lower | trim) %}
-            {% set fn_norm = (fn_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-            {% set norm_match = (name_norm | length > 0 and fn_norm | length > 0 and (fn_norm in name_norm or name_norm in fn_norm)) %}
-            {% if fn_l == name_l or fn_l == name_alt or fn_norm == name_norm or fn_norm == name_alt_norm or norm_match %}
-              {% set eid = s.entity_id | string %}
-              {% if eid not in ns.items %}
-                {% set ns.items = ns.items + [eid] %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-
-          {# 3) Aliases (case-insensitive) #}
-          {% for device in alias_list %}
-            {% set aliases = device.aliases if device.aliases is sequence else [] %}
-            {% for al in aliases %}
-              {% set al_l = (al | string | lower | trim) %}
-              {% set al_norm = (al_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-              {% set norm_match = (name_norm | length > 0 and al_norm | length > 0 and (al_norm in name_norm or name_norm in al_norm)) %}
-              {% if al_l == name_l or al_l == name_alt or al_norm == name_norm or al_norm == name_alt_norm or norm_match %}
-                {% set eid = device.entity_id | string %}
-                {% if eid not in ns.items %}
-                  {% set ns.items = ns.items + [eid] %}
+          {% if not match.done %}
+            {% for s in states %}
+              {% if not match.done %}
+                {% set fn = s.attributes.friendly_name if s.attributes.friendly_name is defined else '' %}
+                {% set fn_l = (fn | string | lower | trim) %}
+                {% set fn_norm = (fn_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
+                {% set norm_match = (name_norm | length > 0 and fn_norm | length > 0 and (fn_norm in name_norm or name_norm in fn_norm)) %}
+                {% if fn_l == name_l or fn_l == name_alt or fn_norm == name_norm or fn_norm == name_alt_norm or norm_match %}
+                  {% set eid = s.entity_id | string %}
+                  {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
+                  {% set match.done = true %}
                 {% endif %}
               {% endif %}
             {% endfor %}
-          {% endfor %}
+          {% endif %}
+
+          {# 3) Aliases (case-insensitive) #}
+          {% if not match.done %}
+            {% for device in alias_list %}
+              {% if not match.done %}
+                {% set aliases = device.aliases if device.aliases is sequence else [] %}
+                {% for al in aliases %}
+                  {% if not match.done %}
+                    {% set al_l = (al | string | lower | trim) %}
+                    {% set al_norm = (al_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
+                    {% set norm_match = (name_norm | length > 0 and al_norm | length > 0 and (al_norm in name_norm or name_norm in al_norm)) %}
+                    {% if al_l == name_l or al_l == name_alt or al_norm == name_norm or al_norm == name_alt_norm or norm_match %}
+                      {% set eid = device.entity_id | string %}
+                      {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
+                      {% set match.done = true %}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
         {% endfor %}
         {{ ns.items }}
+      _resolved_entities: |
+        {% set entities = [] %}
+        {% for item in _resolved_details %}
+          {% set eid = item.entity_id | string %}
+          {% if eid not in entities %}
+            {% set entities = entities + [eid] %}
+          {% endif %}
+        {% endfor %}
+        {{ entities }}
+      _missing_entities: |
+        {% set resolved_names = _resolved_details | map(attribute='name') | list %}
+        {% set missing = [] %}
+        {% for name in _entity_names %}
+          {% if name not in resolved_names %}
+            {% set missing = missing + [name] %}
+          {% endif %}
+        {% endfor %}
+        {{ missing }}
       _duration_seconds: |
         {% set raw = _duration_raw %}
         {% if raw is number %}

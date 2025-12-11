@@ -1,28 +1,25 @@
 blueprint:
   name: Voice - File Content Analyzer
   author: luuquangvu
-  description: >-
+  description: |
     # Tool designed to analyze and extract all types of information from media and document files
 
     ## Blueprint Setup
 
     ### Required
 
-    * An AI Task entity must be created and configured in the System - General settings.
+    - An AI Task entity must be created and configured in the System - General settings.
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+    - Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to extract data from a media or document file.
-
-    * Make sure to expose the script to Assist after the script has been saved.
-
-    * Do not alter the default script name.
-
-    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+    - Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to extract data from a media or document file.
+    - Make sure to expose the script to Assist after the script has been saved.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2025.8.0
@@ -53,13 +50,10 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             The tool can analyze and extract any type of information from an image, video, audio, or document, including text, numbers, objects, speech, and visual features.
-
             Always specify exactly what data should be extracted.
-
             This tool returns plain text only.
         file_path_prompt:
           name: File Path Prompt
@@ -67,9 +61,8 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Always specify a relative file path that starts with `local/`.
         mime_type_prompt:
           name: MIME Type Prompt
@@ -77,9 +70,8 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Always specify the MIME type of the file.
             Choose a value that matches the file contents (for example image/jpeg, video/mp4, audio/mp3, text/plain, or application/pdf).
 mode: parallel
@@ -121,10 +113,10 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: >-
+            error: |
               Unable to extract data because instructions is missing or incorrect.
       - alias: Stop the script
-        stop: >-
+        stop: |
           Unable to extract data because instructions is missing or incorrect.
         response_variable: response
   - if:
@@ -135,10 +127,10 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: >-
+            error: |
               Unable to extract data because file path is missing or invalid. Specify a path beginning with `local/`, such as `local/folder/file.ext`.
       - alias: Stop the script
-        stop: >-
+        stop: |
           Unable to extract data because file path is missing or invalid.
         response_variable: response
   - if:
@@ -149,10 +141,10 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: >-
+            error: |
               Unable to extract data because MIME type is missing or incorrect.
       - alias: Stop the script
-        stop: >-
+        stop: |
           Unable to extract data because MIME type is missing or incorrect.
         response_variable: response
   - variables:

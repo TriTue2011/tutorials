@@ -1,30 +1,26 @@
 blueprint:
   name: Voice - Play YouTube Video
   author: luuquangvu
-  description: >-
+  description: |
     # Tool plays YouTube videos on a smart TV used for Voice Assistant
 
     ## Blueprint Setup
 
     ### Required
 
-    * A smart TV integrated into Home Assistant.
-
-    * Support only Android TV, Samsung TV, Apple TV.
+    - A smart TV integrated into Home Assistant.
+    - Support only Android TV, Samsung TV, Apple TV.
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+    - Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for playing YouTube videos on a smart TV.
-
-    * Make sure to expose the script to Assist after the script has been saved.
-
-    * Do not alter the default script name.
-
-    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+    - Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for playing YouTube videos on a smart TV.
+    - Make sure to expose the script to Assist after the script has been saved.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -53,9 +49,8 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Specify the Media ID of the video you want to play.
 mode: parallel
 max_exceeded: silent
@@ -99,7 +94,7 @@ sequence:
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: >-
+        success: |
           Playing YouTube video {{ media_id }} on {{ media_player_name }}.
   - stop: Finish and return response data
     response_variable: response

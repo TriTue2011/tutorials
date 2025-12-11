@@ -1,34 +1,28 @@
 blueprint:
   name: Voice - Ring Device
   author: luuquangvu
-  description: >-
+  description: |
     # Device Ringing Tool used for Voice Assistant
 
     ## Blueprint Setup
 
     ### Required
 
-    * An LLM like Gemini or OpenAI.
-
-    * Home Assistant Companion App must be installed on the device.
-
-    * The device must allow notifications permission for Home Assistant Companion App.
-
-    * The device must allow critical alerts for Home Assistant Companion App (iOS).
+    - An LLM like Gemini or OpenAI.
+    - Home Assistant Companion App must be installed on the device.
+    - The device must allow notifications permission for Home Assistant Companion App.
+    - The device must allow critical alerts for Home Assistant Companion App (iOS).
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+    - Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to ring the mobile device.
-
-    * Make sure to expose the script to Assist after the script has been saved.
-
-    * Do not alter the default script name.
-
-    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+    - Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to ring the mobile device.
+    - Make sure to expose the script to Assist after the script has been saved.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -45,9 +39,8 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Specify the Ring ID of the device you want to activate its ringing function.
 mode: parallel
 max_exceeded: silent
@@ -103,7 +96,7 @@ sequence:
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: >-
+        success: |
           Sent 5 critical ring notifications to {{ ring_id }} successfully.
   - stop: Finish and return response data
     response_variable: response

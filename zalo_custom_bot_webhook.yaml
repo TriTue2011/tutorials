@@ -1,44 +1,35 @@
 blueprint:
   name: Custom Zalo Bot Webhook
   author: luuquangvu
-  description: >-
+  description: |
     # A Zalo bot enabling seamless two-way communication with Home Assistant.
 
     ## Blueprint Setup
 
     ### Required
 
-    * The Zalo Bot integration should be installed through HACS and properly configured.
-
-    * The Pyscript integration needs to be installed through HACS and properly configured.
-
-    * The `scripts/zalo_custom_bot_handle_tool.py` and `scripts/common_utilities.py` scripts need to be copied into the `config/pyscript` folder.
-
-    * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
-
-    * The mentioned file(s) is/are included in the repository.
-
-    * Update the Webhook URL to the Zalo Bot Server after saving the script.
-
-    * Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
+    - The Zalo Bot integration should be installed through HACS and properly configured.
+    - The Pyscript integration needs to be installed through HACS and properly configured.
+    - The `scripts/zalo_custom_bot_handle_tool.py` and `scripts/common_utilities.py` scripts need to be copied into the `config/pyscript` folder.
+    - The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
+    - The mentioned file(s) is/are included in the repository.
+    - Update the Webhook URL to the Zalo Bot Server after saving the script.
+    - Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
 
     ```
-
     #File configuration.yaml
-
     pyscript:
       allow_all_imports: true
       hass_is_global: true
-
     ```
 
     ### Note
 
-    * The `file_content_analyzer_full_llm.yaml` blueprint must be installed to analyze and extract various types of information from media and document files.
+    - The `file_content_analyzer_full_llm.yaml` blueprint must be installed to analyze and extract various types of information from media and document files.
 
     ### Optional
 
-    * Use the `pyscript.generate_webhook_id` action to easily generate a Webhook ID.
+    - Use the `pyscript.generate_webhook_id` action to easily generate a Webhook ID.
   domain: automation
   homeassistant:
     min_version: 2025.8.0
@@ -121,13 +112,13 @@ triggers:
     webhook_id: !input webhook_id
 conditions:
   - condition: template
-    value_template: >-
+    value_template: |
       {{ trigger.json is defined }}
   - condition: template
-    value_template: >-
+    value_template: |
       {{ (trigger.json.threadId | string) in thread_ids }}
   - condition: template
-    value_template: >-
+    value_template: |
       {% if user_ids is list and user_ids | count > 0 -%}
         {% if (trigger.json.data.uidFrom | string) in user_ids -%}
         {{ true }}
@@ -139,14 +130,14 @@ conditions:
       {% endif -%}
 actions:
   - variables:
-      chat_id: >-
+      chat_id: |
         {{ ('id_' ~ trigger.json.threadId ~ '_' ~ trigger.json.data.uidFrom) | slugify }}
   - action: pyscript.memory_cache_get
     data:
       key: "{{ chat_id }}"
     response_variable: get_chat
   - variables:
-      conversation_id: >-
+      conversation_id: |
         {{ get_chat.value if (get_chat.status == 'ok' and get_chat.value | default('', true) | length > 0) }}
   - choose:
       - conditions:
@@ -155,11 +146,10 @@ actions:
         sequence:
           - variables:
               agent_input:
-                system: >-
+                system: |
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: >-
+                prompt: |
                   {{ trigger.json.data.quote.msg if (trigger.json.data.quote is defined and trigger.json.data.quote.msg is defined) }}
-
                   {{ trigger.json.data.content }}
                 zalo_thread_id: "{{ trigger.json.threadId }}"
                 zalo_receiver_type: "{{ trigger.json.type }}"
@@ -174,17 +164,13 @@ actions:
             response_variable: file
           - variables:
               agent_input:
-                system: >-
+                system: |
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
-
                   If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
-
                   Only when no instruction or question exists in the file, return a concise summary of its content.
-
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
-
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: >-
+                prompt: |
                   {{ trigger.json.data.content.title }}
                 file_path: "{{ file.file_path if file.file_path is defined }}"
                 mime_type: "{{ file.mime_type if file.mime_type is defined }}"
@@ -232,7 +218,7 @@ actions:
                 response_variable: result
                 continue_on_error: true
           - variables:
-              response: >-
+              response: |
                 {% if result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0 %}
                   {{ result.response.speech.plain.speech }}
                 {% else %}
@@ -254,7 +240,7 @@ actions:
               account_selection: !input account_selection
               type: "{{ trigger.json.type }}"
               ttl: !input ttl
-              quote: >
+              quote: |
                 {% if trigger.json.data.msgType == 'webchat' %}
                   {{ {'content': trigger.json.data.content, 'uidFrom': trigger.json.data.uidFrom, 'cliMsgId': trigger.json.data.cliMsgId} }}
                 {% else %}

@@ -16,21 +16,21 @@ blueprint:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
       - triggers:
-      - trigger: homeassistant
-    event: start
-      - trigger: event
-    event_type: event_template_reloaded
-    actions:
-      - action: shell_command.get_entity_alias
-    response_variable: response
-    sensor:
-      - name: "Assist: Entity IDs and Aliases"
-    unique_id: entity_ids_and_aliases
-    icon: mdi:format-list-bulleted
-    device_class: timestamp
-    state: "{{ now().isoformat() }}"
-    attributes:
-      entities: "{{ response.stdout }}"
+          - trigger: homeassistant
+            event: start
+          - trigger: event
+            event_type: event_template_reloaded
+        actions:
+          - action: shell_command.get_entity_alias
+            response_variable: response
+        sensor:
+          - name: "Assist: Entity IDs and Aliases"
+            unique_id: entity_ids_and_aliases
+            icon: mdi:format-list-bulleted
+            device_class: timestamp
+            state: "{{ now().isoformat() }}"
+            attributes:
+              entities: "{{ response.stdout }}"
     ```
 
     - Ensure the directory defined in the snapshot settings exists (default is `/media`).

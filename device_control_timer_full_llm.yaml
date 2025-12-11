@@ -1,23 +1,19 @@
 blueprint:
   name: Voice - Set Device Timer
   author: luuquangvu
-  description: >-
+  description: |
     # Tool for controlling on/off devices with adjustable delay timing used for Voice Assistant
 
     ## Blueprint Setup
 
     ### Required
 
-    * The `device_control_tool.yaml` blueprint needs to be installed.
-
-    * The mentioned file(s) is/are included in the repository.
-
-    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
+    - The `device_control_tool.yaml` blueprint needs to be installed.
+    - The mentioned file(s) is/are included in the repository.
+    - A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
-
     #File configuration.yaml
-
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
@@ -37,24 +33,19 @@ blueprint:
             state: "{{ now().isoformat() }}"
             attributes:
               entities: "{{ response.stdout }}"
-
     ```
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+    - Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling devices on/off with a specified delay.
-
-    * Make sure to expose the entities you want to control to Assist.
-
-    * Make sure to expose the script to Assist after the script has been saved.
-
-    * Do not alter the default script name.
-
-    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+    - Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling devices on/off with a specified delay.
+    - Make sure to expose the entities you want to control to Assist.
+    - Make sure to expose the script to Assist after the script has been saved.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -94,11 +85,9 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Specify at least one device name to control.
-
             When controlling multiple devices, separate each device name with a semicolon.
         control_prompt:
           name: Control Prompt
@@ -106,9 +95,8 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Specify the desired action using one of the following two values: 'true' to turn on the device, or 'false' to turn off the device.
         timer_prompt:
           name: Timer Prompt
@@ -116,13 +104,10 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Specify the delay time using the format HH:MM:SS.
-
             The delay is relative to the current time.
-
             If a query specifies a particular target time, calculate the delay from the current time to that specified time
 mode: parallel
 max_exceeded: silent
@@ -157,7 +142,7 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: >-
+        value_template: |
           {% set validation = namespace(not_exist=false) -%}
           {% for entity in entities.split(';') -%}
           {% if not ((states | selectattr('attributes.friendly_name', '==', entity.strip()) | list) or
@@ -175,7 +160,7 @@ sequence:
         stop: Unable to control the device because the device name is invalid.
         response_variable: response
   - variables:
-      devices: >-
+      devices: |
         {% set device = namespace(entities=[]) -%}
         {% for entity in entities.split(';') -%}
         {% if (states | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
@@ -186,7 +171,7 @@ sequence:
         {% endfor -%}
         {{ device.entities }}
   - variables:
-      friendly_entities: >-
+      friendly_entities: |
         {% set names = namespace(values=[]) -%}
         {% for name in entities.split(';') -%}
         {% if name | trim -%}
@@ -205,7 +190,7 @@ sequence:
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: >-
+        success: |
           Scheduled the {{ 'on' if control else 'off' }} action for {{
           friendly_entities | join(', ') }} after {{ timer }}.
   - stop: Finish and return response data

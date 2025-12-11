@@ -301,17 +301,19 @@ sequence:
           {% set match = namespace(done=false) %}
 
           {# 1) Direct entity_id (case-insensitive) #}
-          {% for s in states %}
-            {% if not match.done %}
-              {% set eid = s.entity_id | string %}
-              {% set eid_l = eid | lower %}
-              {% set eid_suffix = (eid_l.split('.')[-1] if '.' in eid_l else eid_l) %}
-              {% if eid_l == name_l or eid_suffix == name_l or eid_suffix == name_alt or eid_suffix == name_norm or eid_suffix == name_alt_norm %}
-                {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
-                {% set match.done = true %}
+          {% if not match.done %}
+            {% for s in states %}
+              {% if not match.done %}
+                {% set eid = s.entity_id | string %}
+                {% set eid_l = eid | lower %}
+                {% set eid_suffix = (eid_l.split('.')[-1] if '.' in eid_l else eid_l) %}
+                {% if eid_l == name_l or eid_suffix == name_l or eid_suffix == name_alt or eid_suffix == name_norm or eid_suffix == name_alt_norm %}
+                  {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
+                  {% set match.done = true %}
+                {% endif %}
               {% endif %}
-            {% endif %}
-          {% endfor %}
+            {% endfor %}
+          {% endif %}
 
           {# 2) Friendly name (case-insensitive) #}
           {% if not match.done %}
@@ -356,13 +358,13 @@ sequence:
         {% set entities = [] %}
         {% for item in _resolved_details %}
           {% set eid = item.entity_id | string %}
-          {% if eid not in entities %}
+          {% if eid | length > 0 and eid not in entities %}
             {% set entities = entities + [eid] %}
           {% endif %}
         {% endfor %}
         {{ entities }}
       _missing_entities: |
-        {% set resolved_names = _resolved_details | map(attribute='name') | list %}
+        {% set resolved_names = _resolved_details | selectattr('entity_id','defined') | map(attribute='name') | list %}
         {% set missing = [] %}
         {% for name in _entity_names %}
           {% if name not in resolved_names %}

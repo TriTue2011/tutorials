@@ -91,21 +91,6 @@ blueprint:
       description: Optional prompt overrides used by the LLM when collecting arguments.
       collapsed: true
       input:
-        entities_prompt:
-          name: Entities prompt
-          selector:
-            text:
-              multiline: true
-          default: |
-            Provide the entities to control.
-            - Required when mode is start, cancel, extend, pause, or resume; optional for list or cancel_all.
-            - Accept entity_id, friendly name, or alias (scenes/scripts may use their spoken name).
-            - Respond with a semicolon-separated list (preferred). Commas or newlines are also valid.
-            - Remove duplicates. Leave blank only when the user wants every timer listed or canceled.
-            Examples:
-            lamp; bedroom fan
-            light.bedroom_lamp, fan.living_room
-            scene Cozy Evening
         mode_prompt:
           name: Mode prompt
           selector:
@@ -121,17 +106,45 @@ blueprint:
             - resume: restart paused timers.
             - list: report active timers (entities input narrows the scope).
             Respond with the bare keyword, for example: start
+        entities_prompt:
+          name: Entities prompt
+          selector:
+            text:
+              multiline: true
+          default: |
+            Provide the entities to control.
+            - Required when mode is start, cancel, extend, pause, or resume; optional for list or cancel_all.
+            - Accept entity_id, friendly name, or alias (scenes/scripts may use their spoken name).
+            - Respond with a semicolon-separated list (preferred). Commas or newlines are also valid.
+            - Remove duplicates. Leave blank only when the user wants every timer listed or canceled.
+            Examples:
+            lamp; bedroom fan
+            light.bedroom_lamp, fan.living_room
+            scene Cozy Evening
         action_prompt:
           name: Action prompt
           selector:
             text:
               multiline: true
           default: |
-            Required only when mode = start.
-            Choose one action keyword describing the expire behavior:
-            turn_on, turn_off, activate, run_script, open, close, stop_cover, set_position, set_brightness, set_color, set_fan_speed, set_oscillation, set_temperature, set_humidity, set_hvac_mode, media_play, media_pause, media_stop, set_volume, start_vacuum, return_vacuum.
-            Use lowercase snake_case.
-            Return an empty string when mode ≠ start.
+            Required only when mode = start. Use lowercase snake_case.
+            - turn_on / turn_off: generic on/off for switches, lights, fans, media players, or simple climate devices.
+            - activate: activate a scene.
+            - run_script: execute another Home Assistant script.
+            - open / close: operate covers or valves.
+            - stop_cover: stop cover movement.
+            - set_position: set cover/valve position (requires 0-100 value).
+            - set_brightness: set light brightness percent (0-100).
+            - set_color: set light color name.
+            - set_fan_speed: set fan speed percent (0-100).
+            - set_oscillation: set fan oscillation true/false.
+            - set_temperature: set climate or water_heater temperature.
+            - set_humidity: set humidifier target percent (0-100).
+            - set_hvac_mode: set climate mode (cool, heat, auto, etc.).
+            - media_play / media_pause / media_stop: control media players.
+            - set_volume: set media player volume percent (0-100).
+            - start_vacuum / return_vacuum: control robot vacuums.
+            Leave this field empty when mode is not start.
         value_prompt:
           name: Value prompt
           selector:

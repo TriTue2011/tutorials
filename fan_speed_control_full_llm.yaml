@@ -1,21 +1,18 @@
 blueprint:
   name: Voice - Set Fan Speed
   author: luuquangvu
-  description: >-
+  description: |
     # Tool for Controlling Fan Speed used for Voice Assistant
 
     ## Blueprint Setup
 
     ### Required
 
-    * A smart fan integrated into Home Assistant.
-
-    * A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
+    - A smart fan integrated into Home Assistant.
+    - A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
-
     #File configuration.yaml
-
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
@@ -35,24 +32,19 @@ blueprint:
             state: "{{ now().isoformat() }}"
             attributes:
               entities: "{{ response.stdout }}"
-
     ```
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+    - Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling speed of a smart fan.
-
-    * Make sure to expose the fan entities you want to control to Assist.
-
-    * Make sure to expose the script to Assist after the script has been saved.
-
-    * Do not alter the default script name.
-
-    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+    - Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling speed of a smart fan.
+    - Make sure to expose the fan entities you want to control to Assist.
+    - Make sure to expose the script to Assist after the script has been saved.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -95,7 +87,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
 
             Specify at least one fan's name to control.
@@ -107,7 +99,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             Use this argument to increase or decrease the fan's speed.
 
             You must include this parameter only when the 'percentage' parameter is not included.
@@ -121,7 +113,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             Use this argument to set the fan's speed to a specific percentage. Accepted range: 1-100.
 
             You must include this parameter only when the 'speed_adjustment' parameter is not included.
@@ -164,7 +156,7 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: >-
+        value_template: |
           {% set validation = namespace(invalid=false) -%}
           {% for entity in fan_entities.split(';') -%}
           {% if not ((states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) or
@@ -189,14 +181,14 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: >-
+            error: |
               Unable to control the fan. Specify valid fan names and exactly one of: percentage (1-100) or speed_adjustment (true/false).
       - alias: Stop the script
-        stop: >-
+        stop: |
           Unable to control the fan. Specify valid fan names and exactly one of: percentage (1-100) or speed_adjustment (true/false).
         response_variable: response
   - variables:
-      devices: >-
+      devices: |
         {% set device = namespace(entities=[]) -%}
         {% for entity in fan_entities.split(';') -%}
         {% if (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
@@ -207,7 +199,7 @@ sequence:
         {% endfor -%}
         {{ device.entities }}
   - variables:
-      friendly_fans: >-
+      friendly_fans: |
         {% set names = namespace(values=[]) -%}
         {% for name in fan_entities.split(';') -%}
         {% if name | trim -%}
@@ -227,7 +219,7 @@ sequence:
                   target:
                     entity_id: "{{ devices[repeat.index - 1] }}"
                   data:
-                    percentage: >-
+                    percentage: |
                       {% if (percentage | int) > (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) -%}
                       {{ percentage | int }}
                       {% else -%}
@@ -244,7 +236,7 @@ sequence:
                   target:
                     entity_id: "{{ devices[repeat.index - 1] }}"
                   data:
-                    percentage_step: >-
+                    percentage_step: |
                       {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 1 else speed_steps }}
       - conditions:
           - condition: template
@@ -257,12 +249,12 @@ sequence:
                   target:
                     entity_id: "{{ devices[repeat.index - 1] }}"
                   data:
-                    percentage_step: >-
+                    percentage_step: |
                       {{ (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) if (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) > 1 else speed_steps }}
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: >-
+        success: |
           {%- if (percentage | int) >= 1 -%}
           Set fan speed to {{ percentage | int }}% for {{ friendly_fans |
           join(', ') }}.

@@ -355,23 +355,23 @@ sequence:
         {% endfor %}
         {{ ns.items }}
       _resolved_entities: |
-        {% set entities = [] %}
+        {% set ns = namespace(items=[]) %}
         {% for item in _resolved_details %}
-          {% set eid = item.entity_id | string %}
-          {% if eid | length > 0 and eid not in entities %}
-            {% set entities = entities + [eid] %}
+          {% set eid = item.entity_id | default('', true) | string %}
+          {% if eid | length > 0 and eid not in ns.items %}
+            {% set ns.items = ns.items + [eid] %}
           {% endif %}
         {% endfor %}
-        {{ entities }}
+        {{ ns.items }}
       _missing_entities: |
         {% set resolved_names = _resolved_details | selectattr('entity_id','defined') | map(attribute='name') | list %}
-        {% set missing = [] %}
+        {% set ns = namespace(items=[]) %}
         {% for name in _entity_names %}
           {% if name not in resolved_names %}
-            {% set missing = missing + [name] %}
+            {% set ns.items = ns.items + [name] %}
           {% endif %}
         {% endfor %}
-        {{ missing }}
+        {{ ns.items }}
       _duration_seconds: |
         {% set raw = _duration_raw %}
         {% if raw is number %}

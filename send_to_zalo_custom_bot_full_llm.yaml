@@ -1,28 +1,25 @@
 blueprint:
   name: Voice - Send to Zalo
   author: luuquangvu
-  description: >-
+  description: |
     # Tool for sending content to Zalo used for Voice Assistant
 
     ## Blueprint Setup
 
     ### Required
 
-    * The Zalo Bot integration must be installed through HACS and properly configured.
+    - The Zalo Bot integration must be installed through HACS and properly configured.
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+    - Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for sending user requested content to Zalo.
-
-    * Make sure to expose the script to Assist after the script has been saved.
-
-    * Do not alter the default script name.
-
-    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+    - Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for sending user requested content to Zalo.
+    - Make sure to expose the script to Assist after the script has been saved.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -74,14 +71,12 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Specify a brief overview, such as the name of a person, object, or location title.
             Keep it short (ideally <= 10 words). No extra commentary, no markdown, emojis, or HTML.
             If content_type is image, write a concise caption that clearly describes the image subject.
             Return only the plain text value.
-
             When submitting multiple items, make sure each one must be sent separately through a separate tool call.
         detail_prompt:
           name: Detail Prompt
@@ -89,14 +84,12 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is optional.
-
             Specify clear and specific details, such as comprehensive information or a detailed description of the subject.
             No links, no markdown/emojis, no additional commentary, and avoid repeating the summary.
             If content_type is image, provide short optional supporting text to appear under the image (leave blank if not needed).
             Return only the plain text value.
-
             When submitting multiple items, make sure each one must be sent separately through a separate tool call.
         content_type_prompt:
           name: Content Type Prompt
@@ -104,19 +97,14 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Return exactly one of the following options: information, location, image.
             Return only the word, without quotes or extra text.
-
             Choose location for any place/address/directions/map intent.
             Do not choose information in these cases.
-
             Choose image when the user requests an image or photo to be sent and provides or implies a path.
-
             Otherwise choose information.
-
             When submitting multiple items, make sure each one must be sent separately through a separate tool call.
         location_prompt:
           name: Location Prompt
@@ -124,13 +112,10 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is optional. Use only when content_type is location.
-
             Return the address of the location. Names only; no commas, prefixes or punctuation; single spaces.
-
             If content_type is not location: leave this blank.
-
             Return only the value.
         image_path_prompt:
           name: Image Path Prompt
@@ -138,15 +123,12 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is optional. Use only when content_type is image.
-
             Specify the local or media path to the image that should be sent (for example: /media/... or local/...).
             The path must already exist in Home Assistant and point to an actual image file.
             When unknown or not specified by the user, leave this blank and do not guess.
-
             If content_type is not image: leave this blank.
-
             Return only the value.
 mode: queued
 max: 30
@@ -196,7 +178,7 @@ sequence:
       content_type: "{{ content_type | default('') | trim }}"
       location: "{{ location | default('') | trim }}"
       image_path: "{{ image_path | default('') | trim }}"
-      image_path_resolved: >-
+      image_path_resolved: |
         {% set path = image_path %}
         {% set prefix = 'local/' %}
         {% if path and path.startswith(prefix) %}
@@ -207,7 +189,7 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: >-
+        value_template: |
           {{
             (not summary)
             or (content_type not in ['information', 'location', 'image'])
@@ -218,9 +200,8 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: >-
-              Unable to send the message to Zalo because one or more
-              inputs are missing or invalid (summary, content_type, account, thread_id, receiver, location, or image_path).
+            error: |
+              Unable to send the message to Zalo because one or more inputs are missing or invalid (summary, content_type, account, thread_id, receiver, location, or image_path).
       - alias: Stop the script
         stop: Unable to send the message to Zalo due to invalid inputs.
         response_variable: response
@@ -234,12 +215,10 @@ sequence:
               account_selection: !input account
               thread_id: !input thread_id
               type: !input receiver
-              message: >-
+              message: |
                 {{ summary }}{% if detail %}
 
-
                 {{ detail }}{% endif %}
-
 
                 {% set query = summary.split() | join('+') -%}
                 {% set url = 'https://www.google.com/search?q=' ~ query -%}
@@ -254,12 +233,10 @@ sequence:
               account_selection: !input account
               thread_id: !input thread_id
               type: !input receiver
-              message: >-
+              message: |
                 {{ summary }}{% if detail %}
 
-
                 {{ detail }}{% endif %}
-
 
                 {% set place = (summary ~ ' ' ~ location).split() | join('+') -%}
                 {% set url = 'https://www.google.com/maps/search/?api=1&query=' ~ place -%}
@@ -275,16 +252,15 @@ sequence:
               thread_id: !input thread_id
               type: !input receiver
               image_path: "{{ image_path_resolved }}"
-              message: >-
+              message: |
                 {{ summary }}{% if detail %}
-
 
                 {{ detail }}{% endif %}
               ttl: !input ttl
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: >-
+        success: |
           Sent the {{ content_type }} "{{ summary }}" to Zalo (thread
           {{ default_thread_id | default('unspecified') }}) successfully.
   - stop: Finish and return response data

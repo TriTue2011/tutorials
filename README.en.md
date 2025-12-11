@@ -1,5 +1,7 @@
 # Unique Home Assistant Blueprints & Tutorials
 
+**Google has recently significantly cut back on the free Gemini API, making it almost impossible to meet the usage needs of Home Assistant. You can find [a completely free alternative solution here](https://github.com/luuquangvu/ha-addons).**
+
 _All blueprints in this collection are fine-tuned to work best with **Gemini 2.5 Flash**. Other models may require minor adjustments to behave as expected._
 
 Transform Home Assistant into a fully-fledged personal teammate with this curated collection of blueprints and guides. Every scenario has been proven in real homes, backed by clear explanations, example voice prompts, and deployment tips so you can bring each idea to life right away.
@@ -48,27 +50,31 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
 
 ## Voice Assist - Smart Scheduling & Timers
 
-Automatically create, extend, pause, resume, or cancel **device schedules** through natural voice commands. Each schedule controls one or multiple smart devices and **automatically restores itself after Home Assistant restarts**.
+Want to turn on the AC for 30 minutes and have it turn off automatically? Or dim the bedroom lights after an hour?
+This blueprint transforms Voice Assist into a true time management assistant. You can use natural voice commands to **create, extend, pause, resume, or cancel** schedules for any device.
 
 **Key Features:**
 
-- **Flexible Management:** Supports all necessary modes: `start`, `extend`, `pause`, `resume`, `cancel`, `list`.
-- **Multitasking:** Manage multiple devices and independent schedules simultaneously.
-- **Persistent:** Automatically restores all active schedules after a Home Assistant restart.
-- **Smart:** Integrated with Voice Assist (LLMs) to naturally understand multi-language commands.
+- **Natural Language Understanding:** Just say "Turn on the fan for 1 hour", no rigid syntax required.
+- **Comprehensive Management:** Full support for creating, extending, pausing, resuming, and canceling schedules.
+- **Reliable & Persistent:** All schedules are saved and **automatically restored** if Home Assistant restarts. No more lost timers due to power outages.
+- **Versatile Control:** Supports most device types: Lights (brightness, color), Covers (open/close/position), Fans (speed/oscillation), Climate, Vacuums, Media Players, etc.
+- **Smart Recognition:** Automatically identifies devices by the friendly aliases you use daily.
+- **Detailed Feedback:** Ask "Are there any running schedules?" and the assistant will list devices and remaining times clearly.
 
 **Example Voice Commands:**
 
-- "Set a schedule to turn off the living room fan in 15 minutes."
-- "Extend the kitchen light schedule by 10 minutes."
-- "Add a schedule to turn off the bedroom AC at 6 a.m."
-- "What schedules are currently active?"
+- "Turn on the living room lights to 50% warm white for 2 hours."
+- "Open the bedroom curtains for 15 minutes to air out the room, then close them."
+- "Extend the kids' room fan timer by 30 minutes."
+- "Pause the garden watering schedule."
+- "Which devices are currently on a timer?"
 
 **Use Cases:**
 
-- Schedule lights, fans, air conditioners, or heaters to save energy.
-- Set a schedule for tasks that need to run for a specific duration, like charging an electric scooter for 2 hours.
-- Easily change or cancel schedules by voice without opening the app.
+- **Energy Saving:** Schedule heaters, water heaters, or fans to turn off after you fall asleep.
+- **Comfort:** Automatically adjust lighting and curtains based on your routine without reaching for your phone.
+- **Peace of Mind:** Never worry about forgetting to turn off important devices thanks to the auto-restore feature.
 
 For full functionality, you need to install **all 3 blueprints**:
 
@@ -83,28 +89,31 @@ For full functionality, you need to install **all 3 blueprints**:
 
 ## Voice Assist - Memory & Information Retrieval
 
-Turn Voice Assist into your personal memory vault to store, retrieve, and manage personal or household information.
+Forget where you parked the car? Keep forgetting the Wi-Fi password for guests? Let Voice Assist become your "Second Brain".
 
 **Key Features:**
 
-- **Versatile Storage:** Remembers everything from passwords and addresses to quick notes.
-- **Flexible Retrieval:** Fetches information by an exact "key" (`get`) or searches by keyword/context (`search`).
-- **Storage Scopes:** Choose to save information for just yourself (`user`), the whole `household`, or only the current `session`.
-- **Auto-Expiration:** Optionally set memories to be automatically deleted after a specified number of days.
+- **Remember Everything:** From small details like "Keys are in the desk drawer" to important reminders like "The customer ID for store ABC".
+- **Smart Retrieval:** No need to remember exact keywords. Just ask "Where is the car?" or "What's the wifi pass?", and the assistant will find the most relevant info.
+- **Flexible Scopes:**
+  - **Personal (User):** For your personal details (e.g., clothing sizes, dietary preferences).
+  - **Household:** Shared with the whole family (e.g., gate code, trash schedule).
+  - **Temporary (Session):** Only remembered for the current conversation.
+- **Auto-Cleanup:** Set expiration dates for short-term memories (e.g., parking spot at the mall).
 
 **Example Voice Commands:**
 
 - "Remember the guest Wi-Fi password is `guestshere123`."
-- "Remember I parked at B2, column D5, and forget it after one day."
-- "Remind me that ABC Company's address is 123 Main Street, Anytown."
-- "Search for the memory about my parking spot."
-- "What is the guest Wi-Fi password?"
+- "Save my parking spot as B2 column D5, remember for 1 day only."
+- "Remind me the doctor's phone number is 0912345678."
+- "Find where the car is parked."
+- "What was the guest Wi-Fi password?"
 
 **Use Cases:**
 
-- **Secure & Personal:** Store rarely used but important personal info (passport numbers, membership IDs, warranty details) with `user` scope.
-- **Household Convenience:** Save shared information for the family (guest Wi-Fi password, gate code) with `household` scope.
-- **Temporary Notes:** Save temporary, expiring information (parking spots, temporary addresses, a recommended book title).
+- Securely store rarely used but critical information.
+- Share common household info without texting back and forth.
+- Quickly note down to-dos or item locations the moment you think of them.
 
 _Choose the version you want to use:_
 
@@ -118,24 +127,26 @@ _Choose the version you want to use:_
 
 ## Voice Assist - Camera Image Analysis
 
-Give Voice Assist eyes on your surroundings by allowing it to access your cameras and answer questions about what's happening.
+Turn your security cameras into "smart eyes" for your virtual assistant. No need to open the app and check every angle-just let Voice Assist look for you.
 
 **Key Features:**
 
-- **Image Analysis:** Extracts content from camera snapshots to answer your questions.
-- **Multi-Camera Support:** Configure multiple cameras to give Voice Assist a wider field of view.
-- **Instant Responses:** Get answers almost immediately after asking.
+- **Visual Intelligence:** Voice Assist can "see" images from your cameras and describe in detail what is happening.
+- **Comprehensive View:** Supports connecting multiple cameras at once (gate, yard, living room...) for a complete overview.
+- **Instant Response:** Captures and analyzes the image the moment you ask.
 
 **Example Voice Commands:**
 
-- "Check the cameras to see where the cat is."
-- "Look at the gate camera to see if anyone's there."
-- "Is there a strange car in the yard?"
+- "Check the gate camera, is anyone standing there?"
+- "Check if the cat is in the front yard or the back yard?"
+- "Look to see if the garage door is closed."
+- "Is there any strange car in the yard?"
 
 **Use Cases:**
 
-- Quickly check your yard, a child's room, or your front door without opening the camera app.
-- Find a pet or confirm unusual activity when you're not near a screen.
+- **Security:** Quickly check the situation around the house when you hear a strange noise at night.
+- **Monitoring:** Keep an eye on children or pets without being glued to your phone screen.
+- **Convenience:** Quickly confirm physical states (door open/closed, lights on/off) that sensors might miss.
 
 To use this feature, you need to install **both blueprints**:
 
@@ -148,34 +159,34 @@ To use this feature, you need to install **both blueprints**:
 
 ## Voice Assist - Calendar & Event Management
 
-Manage your personal schedule effectively using natural voice commands.
+Effortlessly manage your personal schedule using natural voice commands, making organization simpler and more intuitive.
 
 ### Create Calendar Events
 
-Plan your schedule by voice as if you were talking to an assistant. This blueprint automates creating events for reminders, meetings, and trips in your calendar.
+Organize your schedule by voice as if you're conversing with an assistant. This blueprint automates event creation for all your reminders, meetings, and trips directly into your calendar.
 
 **Key Features:**
 
-- **Natural Language Processing:** Automatically parses dates, times, and durations from your commands.
-- **Quick Event Creation:** Add events to your calendar without manual typing.
-- **Seamless Integration:** Works perfectly with Google Calendars configured in Home Assistant.
+- **Intuitive Language Recognition:** Automatically parses dates, times, and durations from your spoken commands.
+- **Rapid Event Creation:** Add events to your calendar without manual input.
+- **Seamless Integration:** Works perfectly with Google Calendars already configured in Home Assistant.
 
 **Example Voice Commands:**
 
-- "Schedule a haircut tomorrow at 2 PM."
-- "Schedule a 3-hour meeting tomorrow at 9 AM."
+- "Schedule a haircut for tomorrow at 2 PM."
+- "Set up a 3-hour meeting tomorrow at 9 AM."
 - "Add an event this Saturday to visit family."
 
 **Use Cases:**
 
-- Quickly create reminders and appointments while driving or busy.
-- Add family or work events to your calendar the moment you think of them.
+- Quickly create reminders and appointments while driving or when your hands are full.
+- Add family or work events to your calendar the moment they come to mind.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 
 ### Calendar Events Lookup
 
-Ask about and get information on existing events in your calendar, such as birthdays, appointments, or anniversaries.
+Inquire about and retrieve information regarding existing events in your calendar, such as birthdays, appointments, or anniversaries.
 
 **Example Voice Commands:**
 
@@ -184,7 +195,7 @@ Ask about and get information on existing events in your calendar, such as birth
 
 **Use Cases:**
 
-- Get a quick overview of your day or week without opening the calendar app.
+- Get a quick overview of your day or week without needing to open your calendar app.
 - Ensure you don't miss any important events.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
@@ -193,34 +204,36 @@ Ask about and get information on existing events in your calendar, such as birth
 
 ## Voice Assist - Lunar Calendar Lookup & Conversion
 
-Tools to help you accurately track and manage events based on the Lunar calendar.
+Bring traditional culture into your smart home. Lookup Lunar dates, check auspicious days, or countdown to Tet right on Home Assistant.
 
 ### Lunar Calendar Conversion & Lookup
 
-Instantly convert between Solar and Lunar calendars, 100% offline. Provides full traditional details like Can Chi, solar terms, auspicious/inauspicious days, and lucky hours.
+A powerful Solar-Lunar calendar conversion tool that works completely **Offline** (no internet needed), ensuring instant response speeds.
 
 **Key Features:**
 
-- **Offline Functionality:** Extremely fast and requires no internet connection.
-- **Detailed Information:** Provides comprehensive traditional lunar calendar data.
-- **Event Countdown:** Shows the number of days remaining until major holidays like Lunar New Year.
+- **Fast & Private:** Processed locally, independent of external APIs.
+- **In-Depth Information:** Provides full Can Chi (Year/Month/Day stems and branches), Solar Terms, and Lucky Hours.
+- **Good/Bad Day Advice:** Know immediately what to do or avoid according to customs.
+- **Event Countdown:** Always know exactly how many days are left until Lunar New Year or major holidays.
 
 **Example Voice Commands:**
 
-- "What's the lunar date this Sunday?"
-- "How many days until Tet?"
-- "Is tomorrow a good or bad day?"
+- "What is today's lunar date?"
+- "Is this Sunday a good or bad day?"
+- "How many days left until Tet?"
+- "Convert November 20th solar to lunar."
 
 **Use Cases:**
 
-- Check the lunar date for festivals, memorials, and cultural ceremonies.
-- Look up auspicious/inauspicious days for important life events.
+- Plan for important tasks (weddings, groundbreakings, grand openings).
+- Keep track of the 1st and 15th of the lunar month for traditional observances.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 
 ### Create Lunar Calendar Events
 
-Automatically add important events based on the Lunar calendar (memorials, anniversaries, etc.) to your calendar.
+Automatically add important events based on the Lunar calendar (memorials, anniversaries, etc.) to your calendar, ensuring you never miss a traditional date.
 
 **Note:** This blueprint is designed for **manual execution** or via automation, requiring users to fill in information directly through the Home Assistant UI. It **does not support voice commands** via Voice Assist.
 
@@ -240,18 +253,18 @@ Automatically add important events based on the Lunar calendar (memorials, anniv
 
 ## Interactive Smart Home Chatbot
 
-Build a bot to chat with and control Home Assistant via Telegram or Zalo. The bot can ask clarifying questions and send/receive images.
+Don't just command; converse with your home. Create Telegram or Zalo Bots to control your home remotely with contextual understanding and smart responses.
 
 **Key Features:**
 
-- **Conversational AI:** The bot can ask clarifying questions before taking action.
-- **Rich Media Support:** Send camera snapshots for analysis or receive files from the bot.
-- **Smart Home Control:** Issue commands directly in the chat interface to control devices.
+- **Two-Way Conversation:** The Bot doesn't just receive commands but can ask clarifying questions (e.g., "Which room do you want the AC on in?")
+- **Image Recognition:** Send a photo of a broken device or an unknown plant, and the bot will analyze and respond.
+- **Anywhere, Anytime Control:** Turn off lights, open gates, or check cameras directly from your familiar chat interface.
 
 **Use Cases:**
 
-- Control your home remotely via a chat app without opening the Home Assistant app.
-- Send a photo of a plant in your garden and ask, "What plant is this and how do I care for it?".
+- At work and want to check if you turned off the stove? Just message the bot.
+- Send a photo of your electricity/water meter for the bot to read the index for you.
 
 _Install the webhook blueprint for your chosen platform. For image analysis, also install the Analyzer blueprint._
 
@@ -271,24 +284,24 @@ _Install the webhook blueprint for your chosen platform. For image analysis, als
 
 ## Voice Assist - Send Messages & Images
 
-Use your voice to send text messages, photos, locations, or search results to friends and group chats via Telegram or Zalo.
+Driving or hands messy? Use your voice to send messages, share your location, or send camera images to loved ones via Telegram/Zalo.
 
 **Key Features:**
 
-- **Multi-Content Support:** Send text messages, photos from your cameras, or media files.
-- **Maps & Search Integration:** Automatically attach Google Maps links for locations and Google Search links for other content.
-- **Group or Private:** Supports sending messages to both private chats and groups.
+- **Hands-Free Messaging:** Dictate your message, and Assistant will send it immediately.
+- **Smart Sharing:** Automatically attach Google Maps links when you mention a location.
+- **Image Reporting:** Command to take a photo from a security camera and send it directly to a family chat group.
 
 **Example Voice Commands:**
 
 - "Send a list of good restaurants in Nha Trang to the Telegram family group."
-- "Send the address of the Thang Long Citadel to my wife Zalo."
-- "Send the photo from the gate camera to the Telegram group."
+- "Send the Thang Long Citadel location via Zalo to my wife."
+- "Take a photo from the gate camera and send it to the chat group."
 
 **Use Cases:**
 
-- Quickly share a location, image, or interesting piece of information with someone while on the go.
-- Forward voice search results to others for their reference.
+- Quickly inform family when you're busy and can't use your phone.
+- Instantly share an interesting moment or a beautiful place you've just discovered.
 
 _Install the blueprint for the platform you want to send messages to:_
 
@@ -305,23 +318,25 @@ _Install the blueprint for the platform you want to send messages to:_
 
 ## Voice Assist - Internet Knowledge Search
 
-Run sophisticated Google searches by voice and hear concise, summarized, and up-to-date answers.
+Don't let Assistant just toggle lights. Turn it into a living encyclopedia, ready to answer any question with up-to-date data from Google.
 
 **Key Features:**
 
-- **Smart Summarization:** Returns a brief, direct answer instead of a long list of search results.
-- **Understands Open-Ended Questions:** Handles complex questions that require information synthesis.
-- **Always Current:** Fetches the latest data directly from Google's search results.
+- **Infinite Knowledge:** Access Google's massive database to answer everything from history and geography to current news.
+- **Smart Summarization:** No reading through long lists of links. Assistant synthesizes and provides concise, to-the-point answers.
+- **Real-time Updates:** Know today's gold price, last night's football scores, or trending events on social media.
 
 **Example Voice Commands:**
 
-- "What's the entry score for Hanoi University of Science and Technology this year?"
-- "Which AI technologies are trending this week?"
+- "What is the entry score for Hanoi University of Science and Technology this year?"
+- "Summarize the main events of the last World Cup final."
+- "What is the current price of iPhone 16 Pro Max?"
+- "Recipe for authentic Northern beef Pho."
 
 **Use Cases:**
 
-- Quickly look up facts, events, or knowledge without sifting through websites.
-- Settle everyday questions and debates instantly ("who was the main actor in movie X?").
+- Quickly look up information while cooking, driving, or chatting with friends.
+- Answer children's questions about the world around them accurately.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_google_search_full_llm.yaml)
 
@@ -329,23 +344,24 @@ Run sophisticated Google searches by voice and hear concise, summarized, and up-
 
 ## Voice Assist - YouTube Search & Playback
 
-Search YouTube and play videos on any media device using conversation alone.
+Transform your TV into a smart home cinema. No remote needed, no typing required-just say what you want to watch.
 
 **Key Features:**
 
-- **Semantic Search:** Finds videos based on topics, people, or events, not just keywords.
-- **Automatic Playback:** Automatically selects the most relevant video and plays it on your designated device.
-- **Knowledge Questions:** Answers questions by finding and playing a relevant video.
+- **Understands Your Intent:** Find videos by describing content ("relaxing morning music," "VinFast car review") instead of rigid keywords.
+- **Smart Selection:** Automatically choose the most relevant video (high views, good quality) to play.
+- **Learn & Entertain:** Find lecture videos for your kids or music videos for your parents in an instant.
 
 **Example Voice Commands:**
 
-- "Find a video about the life and career of Le Duc Tho."
-- "Who was the most outstanding female scientist of the 20th century? Find a video about her."
+- "Play some soft instrumental music for reading."
+- "Find a documentary about the Battle of Dien Bien Phu."
+- "Show me the latest iPhone 17 Pro Max review."
 
 **Use Cases:**
 
-- Find and play a tutorial for cooking or repairs while your hands are busy.
-- Quickly play entertainment or music videos for the whole family.
+- Help seniors and children easily watch their favorite content without complicated remote operations.
+- Cook while commanding Assistant to play a recipe tutorial video.
 
 To use this feature, you need to install **both blueprints**:
 
@@ -358,23 +374,23 @@ To use this feature, you need to install **both blueprints**:
 
 ## Voice Assist - Favorite YouTube Channels
 
-Automatically surface the newest videos from your must-watch channels and play them on your chosen devices.
+Are you a die-hard fan of "MrBeast" or "Linus Tech Tips"? This blueprint ensures you never miss the latest videos from your favorite creators.
 
 **Key Features:**
 
-- **New Video Checks:** Automatically checks your pre-configured favorite YouTube channels for new content.
-- **Play Latest Video:** Easily play the most recently uploaded video with a simple command.
-- **Optional Notifications:** Can be configured to notify you the moment a new video drops.
+- **Stay Updated:** Automatically check your subscribed channels for new content.
+- **Instant Playback:** A command like "Are there new videos?" will automatically play the latest release on your TV.
+- **Proactive Notifications:** Receive messages as soon as your favorite channels upload new content.
 
 **Example Voice Commands:**
 
-- "Does Hoa Ban Food have a new video?"
-- "Play the latest video from Sang vlog on the TV."
+- "Does Outdoor Boys have anything new?"
+- "Play the latest video from Gordon Ramsay."
 
 **Use Cases:**
 
-- Create a "morning brief" automation that plays the latest news from your trusted channels.
-- Ensure you never miss content from your favorite creators.
+- Watch morning news from trusted channels with just a voice command after waking up.
+- Enjoy evening entertainment with the latest travel vlogs without endless scrolling.
 
 [**View the detailed guide**](/home_assistant_play_favorite_youtube_channel_videos_en.md)
 
@@ -389,24 +405,24 @@ To use this feature, you need to install **both blueprints**:
 
 ## Voice Assist - Smart Fan Control
 
-Adjust the speed and oscillation of one or many fans across your home with simple voice prompts.
+Feeling hot? Just say the word, and your fan will speed up. This blueprint helps you precisely control the airflow to your liking.
 
 **Key Features:**
 
-- **Speed Control:** Increase, decrease, or set a specific fan speed percentage.
-- **Oscillation Control:** Toggle the fan's oscillation mode on or off.
-- **Multi-Fan Support:** Command multiple fans at once.
+- **Flexible Adjustment:** Increase/decrease speed by a specific percentage or desired level.
+- **Oscillation Control:** Turn oscillation (swing) on/off with your voice.
+- **Synchronized Control:** Command a specific fan or all fans in the house simultaneously.
 
 **Example Voice Commands:**
 
-- "Increase the kitchen fan speed."
-- "Set the bedroom fan speed to 50%."
-- "Start oscillation for the living room fan."
+- "Increase the living room fan to maximum."
+- "Turn on oscillation for the bedroom fan, it's too hot."
+- "Reduce the dining table fan speed to 30%."
 
 **Use Cases:**
 
-- Adjust fan comfort level without getting up.
-- Quickly change the airflow in a room to suit your needs.
+- Adjust the airflow to suit the room's temperature without leaving your bed or sofa.
+- Quickly turn off all fans when leaving the house.
 
 _Install the blueprint for the function you want to use:_
 
@@ -420,23 +436,23 @@ _Install the blueprint for the function you want to use:_
 
 ## Voice Assist - Device Location & Find
 
-Track down mobile devices or BLE tags in your home by voice and make them ring to locate them easily.
+"Where's my phone?" - The classic morning question. Let Assistant help you find it instantly.
 
 **Key Features:**
 
-- **Location Reporting:** Reports the approximate location (by room) of the device in your home.
-- **Trigger Ringing:** Makes the device ring so you can find it by sound.
-- **Multi-Device Support:** Search for multiple phones or tablets at once.
+- **Indoor Positioning:** Tells you which room your phone is in (based on Bluetooth/Wi-Fi signals).
+- **Trigger Ringing:** Make your phone ring loudly, even if it's on silent mode.
+- **Multi-Device Support:** Find iPhones, Androids, iPads, or any device with the Home Assistant app installed.
 
 **Example Voice Commands:**
 
-- "Where are the phones right now?"
-- "Find the iPad and make it ring."
+- "Where is Dad's phone right now?"
+- "Make the iPad ring, I can't find it."
 
 **Use Cases:**
 
-- Quickly find a misplaced phone or tablet inside the house.
-- Check if your kids have left their devices at home.
+- Save time searching for misplaced items when you're rushing out the door.
+- Check if your kids have safely arrived home (device connected to home network).
 
 [**View the detailed guide**](/home_assistant_device_location_lookup_guide_en.md)
 
@@ -451,19 +467,25 @@ To use this feature, you need to install **both blueprints**:
 
 ## Voice Assist - Traffic Fine Lookup
 
-Check for traffic fines for any vehicle by voice, using live data from the national traffic police portal.
+Drive with peace of mind. Check traffic violation status for any vehicle by voice, using live data from the national traffic police portal.
 
 **Note:** This feature is only applicable to the traffic fine system in Vietnam.
 
+**Key Features:**
+
+- **Real-time Checks:** Instantly query the official database for traffic violations.
+- **Any Vehicle:** Check fines for your car, motorbike, or even a vehicle you're considering buying.
+- **Proactive Awareness:** Stay informed and avoid accumulating late fees.
+
 **Example Voice Commands:**
 
-- "Check traffic fines for the car 30G-123.45."
-- "Does the motorbike 29-T1 567.89 have any fines?"
+- "Check traffic fines for car 30G-123.45."
+- "Does motorbike 29-T1 567.89 have any fines?"
 
 **Use Cases:**
 
 - Periodically check your family's vehicles for fines.
-- Check a used car for outstanding fines before purchasing.
+- Verify a used car's history for outstanding fines before purchase.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
 
@@ -471,20 +493,20 @@ Check for traffic fines for any vehicle by voice, using live data from the natio
 
 ## Automatic Traffic Fine Notifications
 
-Get an alert as soon as a new traffic violation is recorded for your vehicle in the national police system.
+Never miss an important alert. Receive instant notifications the moment a new traffic violation is recorded for your vehicle in the national police system.
 
 **Note:** This feature is only applicable to the traffic fine system in Vietnam.
 
 **Key Features:**
 
-- **Automatic Checks:** Periodically scans the system for new violations.
-- **Instant Notifications:** Sends a notification to Home Assistant as soon as a fine is detected.
-- **Multi-Vehicle Support:** Easily configure to monitor multiple license plates.
+- **Continuous Monitoring:** Periodically scans the system to detect new violations automatically.
+- **Instant Alerts:** Get a notification directly to Home Assistant as soon as a fine is detected.
+- **Multi-Vehicle Support:** Easily configure to monitor multiple license plates for your entire family.
 
 **Use Cases:**
 
-- Stay informed about violations early to handle them in time and avoid late fees.
-- Automatically manage the fine status for all family vehicles.
+- Act quickly on violations to handle them in time and avoid escalating penalties.
+- Automate the management of traffic fine status for all your household vehicles.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
@@ -492,12 +514,12 @@ Get an alert as soon as a new traffic violation is recorded for your vehicle in 
 
 ## Device State Synchronization
 
-Synchronize the `on/off` state between multiple devices, acting like a virtual two-way staircase switch.
+Seamlessly synchronize the `on/off` state between multiple devices, acting like a virtual two-way staircase switch for enhanced control.
 
 **Use Cases:**
 
-- A physical switch can control a smart bulb that it's not directly wired to.
-- Turning on one light can trigger other lights in the same area to turn on as well.
+- Control a smart bulb wirelessly from a physical switch that's not directly wired to it.
+- Turning on one light can automatically activate other lights in the same area for coordinated ambiance.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Flink_multiple_devices.yaml)
 

@@ -1,59 +1,44 @@
 blueprint:
   name: Voice - Perform YouTube Search
   author: luuquangvu
-  description: >-
+  description: |
     # Tool for searching YouTube videos used for Voice Assistant
 
     ## Blueprint Setup
 
     ### Required
 
-    * The Pyscript integration needs to be installed through HACS and properly configured.
-
-    * The `scripts/youtube_data_tool.py` script needs to be copied into the `config/pyscript` folder.
-
-    * The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
-
-    * The mentioned file(s) is/are included in the repository.
-
-    * Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
-
-    * A YouTube API key needs to be configured in `config/configuration.yaml` and `config/secrets.yaml`.
+    - The Pyscript integration needs to be installed through HACS and properly configured.
+    - The `scripts/youtube_data_tool.py` script needs to be copied into the `config/pyscript` folder.
+    - The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
+    - The mentioned file(s) is/are included in the repository.
+    - Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
+    - A YouTube API key needs to be configured in `config/configuration.yaml` and `config/secrets.yaml`.
 
     ```
-
     #File configuration.yaml
-
     pyscript:
       allow_all_imports: true
       hass_is_global: true
       youtube_api_key: !secret youtube_api_key
-
     ```
 
     ```
-
     #File secrets.yaml
-
     youtube_api_key: XXXXXX     # Retrieve the key from the Google Cloud Console.
-
     ```
 
     ### Optional
 
-    * Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
+    - Adjust the prompts for each field used in the script. The descriptions guide the LLM to provide the correct input.
 
     ### Note
 
-    * The `play_youtube_video_full_llm.yaml` blueprint needs to be installed to play YouTube videos on a smart TV.
-
-    * Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to search videos from YouTube.
-
-    * Make sure to expose the script to Assist after the script has been saved.
-
-    * Do not alter the default script name.
-
-    * Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+    - The `play_youtube_video_full_llm.yaml` blueprint needs to be installed to play YouTube videos on a smart TV.
+    - Provide a concise and precise description for the script. This description will enable the LLM to recognize that the script is designed to search videos from YouTube.
+    - Make sure to expose the script to Assist after the script has been saved.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
   domain: script
   homeassistant:
     min_version: 2024.10.0
@@ -84,13 +69,10 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is mandatory and must always be included.
-
             Specify the search string to obtain a list of videos.
-
             If the query contains errors caused by user mispronunciation, correct it to the most likely accurate search string and ask the user for confirmation before proceeding.
-
             After obtaining the results, prompt the user to select a video to play on the TV. Add an ordinal number to each video to simplify selection. Do not include the Media ID in the response.
         page_token_prompt:
           name: Page Token Prompt
@@ -98,11 +80,9 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: >-
+          default: |
             This argument is optional.
-
             Specify the page token to obtain additional videos.
-
             Use it when the initial query results are unsatisfying and the user wants to find more videos.
 mode: parallel
 max_exceeded: silent
@@ -155,7 +135,7 @@ sequence:
     else:
       - variables:
           response:
-            entries: >-
+            entries: |
               {% for entry in response.get('items') if entry.id.kind == 'youtube#video' -%}
               - channel: {{ entry.snippet.channelTitle | lower }}
                 title: {{ entry.snippet.title | lower }}

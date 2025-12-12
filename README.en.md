@@ -320,6 +320,8 @@ _Install the blueprint for the platform you want to send messages to:_
 
 Don't let Assistant just toggle lights. Turn it into a living encyclopedia, ready to answer any question with up-to-date data from Google.
 
+**Note:** This feature is only applicable to Gemini, as it is integrated with Google Search to access and provide up-to-date information.
+
 **Key Features:**
 
 - **Infinite Knowledge:** Access Google's massive database to answer everything from history and geography to current news.
@@ -330,7 +332,7 @@ Don't let Assistant just toggle lights. Turn it into a living encyclopedia, read
 
 - "What is the entry score for Hanoi University of Science and Technology this year?"
 - "Summarize the main events of the last World Cup final."
-- "What is the current price of iPhone 16 Pro Max?"
+- "What is the current price of iPhone 17 Pro Max?"
 - "Recipe for authentic Northern beef Pho."
 
 **Use Cases:**

@@ -126,107 +126,105 @@ sequence:
       ac_entities: "{{ ac_entities | default('') | trim }}"
       hvac_mode: "{{ hvac_mode | default('') | trim | lower }}"
       fan_mode: "{{ fan_mode | default('') | trim | lower }}"
-  - alias: Validate inputs
+      alias_map:
+        auto: ["auto", "automatic"]
+        automatic: ["automatic", "auto"]
+        low: ["low", "1", "speed1", "minimum", "lowest"]
+        lowmid: ["lowmid", "2", "speed2", "lowmedium", "mediumlow"]
+        mid: ["mid", "medium", "3", "speed3"]
+        highmid: ["highmid", "4", "speed4", "mediumhigh"]
+        high: ["high", "5", "speed5", "max", "maximum", "highest"]
+  - alias: Resolve Entities and Check Existence
     variables:
-      validation_result: |
-        {% set result = namespace(invalid=false, reasons=[], hvac_missing=[], fan_missing=[]) %}
-        {% set alias_map = {
-          'auto': ['auto', 'automatic'],
-          'automatic': ['automatic', 'auto'],
-          'low': ['low', '1', 'speed1', 'minimum', 'lowest'],
-          'lowmid': ['lowmid', '2', 'speed2', 'lowmedium', 'mediumlow'],
-          'mid': ['mid', 'medium', '3', 'speed3'],
-          'highmid': ['highmid', '4', 'speed4', 'mediumhigh'],
-          'high': ['high', '5', 'speed5', 'max', 'maximum', 'highest']
-        } %}
-        {% set input_fan_norm = fan_mode | default('') | lower | replace(' ', '') | replace('_', '') %}
-        {% set val_state = namespace(canonical_input=input_fan_norm) %}
-        {% for canon, aliases in alias_map.items() %}
-          {% if input_fan_norm in aliases %}
-            {% set val_state.canonical_input = canon %}
-          {% endif %}
-        {% endfor %}
+      resolution: |
+        {% set res = namespace(entities=[], missing_names=[]) %}
         {% for entity in ac_entities.split(';') %}
           {% set name = entity.strip() %}
-          {% if not name %}
-            {% set result.invalid = true %}
-            {% set result.reasons = result.reasons + ['Missing AC name'] %}
-          {% elif not ((states.climate | selectattr('attributes.friendly_name', '==', name) | list) or
-            (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', name) | list)) %}
-            {% set result.invalid = true %}
-            {% set result.reasons = result.reasons + ['AC not found: ' ~ name] %}
+          {% if name %}
+            {% set exact_match = states.climate | selectattr('attributes.friendly_name', '==', name) | map(attribute='entity_id') | list %}
+            {% if exact_match %}
+              {% set res.entities = res.entities + exact_match %}
+            {% else %}
+              {% set alias_match = state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', name) | map(attribute='entity_id') | list %}
+              {% if alias_match %}
+                {% set res.entities = res.entities + alias_match %}
+              {% else %}
+                {% set res.missing_names = res.missing_names + [name] %}
+              {% endif %}
+            {% endif %}
           {% endif %}
         {% endfor %}
+        {{ { 'entities': res.entities | unique | list, 'missing': res.missing_names } }}
+  - alias: Validate Modes and Prepare Execution Data
+    variables:
+      processed_data: |
+        {% set result = namespace(invalid=false, reasons=[], hvac_missing=[], fan_missing=[], resolved_fans=[]) %}
+        {% if resolution.missing | length > 0 %}
+          {% set result.invalid = true %}
+          {% set result.reasons = result.reasons + ['AC not found: ' ~ (resolution.missing | join(', '))] %}
+        {% endif %}
         {% if (not hvac_mode) and (not fan_mode) %}
           {% set result.invalid = true %}
           {% set result.reasons = result.reasons + ['Missing both hvac_mode and fan_mode'] %}
         {% endif %}
-        {% if hvac_mode %}
-          {% for entity in ac_entities.split(';') %}
-            {% set target = entity.strip() %}
-            {% if (states.climate | selectattr('attributes.friendly_name', '==', target) | list) %}
-              {% set device = (states.climate | selectattr('attributes.friendly_name', '==', target) | map(attribute='entity_id') | list)[0] %}
-            {% else %}
-              {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') %}
-            {% endif %}
-            {% set supported_hvac = state_attr(device, 'hvac_modes') | default([]) %}
+        {% set input_fan_norm = fan_mode | replace(' ', '') | replace('_', '') %}
+
+        {% for entity_id in resolution.entities %}
+          {% set device_name = state_attr(entity_id, 'friendly_name') %}
+          
+          {% if hvac_mode %}
+            {% set supported_hvac = state_attr(entity_id, 'hvac_modes') | default([]) %}
             {% set hvac_support = namespace(modes=[]) %}
             {% for m in supported_hvac %}
               {% set val = m %}
-              {% if m.value is defined %}
-                {% set val = m.value %}
-              {% else %}
+              {% if m.value is defined %}{% set val = m.value %}{% else %}
                 {% set s = m | string %}
-                {% if 'HVACMode.' in s and ':' in s %}
-                   {% set val = s.split(':')[1].strip(" '>") %}
-                {% elif 'hvacmode.' in s|lower %}
-                   {% set val = s.lower().split('hvacmode.', 1)[1] %}
+                {% if 'HVACMode.' in s and ':' in s %}{% set val = s.split(':')[1].strip(" '>") %}
+                {% elif 'hvacmode.' in s|lower %}{% set val = s.lower().split('hvacmode.', 1)[1] %}
                 {% endif %}
               {% endif %}
               {% set hvac_support.modes = hvac_support.modes + [val | string | lower] %}
             {% endfor %}
             {% if hvac_mode not in hvac_support.modes %}
               {% set result.invalid = true %}
-              {% set result.hvac_missing = result.hvac_missing + [target ~ ' supports: ' ~ (hvac_support.modes | join(', '))] %}
+              {% set result.hvac_missing = result.hvac_missing + [device_name ~ ' supports: ' ~ (hvac_support.modes | join(', '))] %}
               {% set result.reasons = result.reasons + ['hvac_mode ' ~ hvac_mode ~ ' not in ' ~ (hvac_support.modes | join(', '))] %}
             {% endif %}
-          {% endfor %}
-        {% endif %}
-        {% if fan_mode %}
-          {% for entity in ac_entities.split(';') %}
-            {% set target = entity.strip() %}
-            {% if (states.climate | selectattr('attributes.friendly_name', '==', target) | list) %}
-              {% set device = (states.climate | selectattr('attributes.friendly_name', '==', target) | map(attribute='entity_id') | list)[0] %}
-            {% else %}
-              {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') %}
-            {% endif %}
-            {% set supported = state_attr(device, 'fan_modes') | default([]) %}
-            {% set loop_status = namespace(matched=false) %}
+          {% endif %}
+
+          {% if fan_mode %}
+            {% set supported_fan = state_attr(entity_id, 'fan_modes') | default([]) %}
+            {% set fan_check = namespace(matched=false, resolved_mode='') %}
             {% set fan_support = namespace(aliases=[]) %}
-            {% for mode in supported %}
+            
+            {% for mode in supported_fan %}
               {% set norm_mode = mode | lower | replace(' ', '') | replace('_', '') %}
-              {% set found_aliases = [norm_mode] %}
+              {% set mode_aliases = [norm_mode] %}
               {% for canon, aliases in alias_map.items() %}
-                {% if norm_mode == canon %}
-                  {% set found_aliases = found_aliases + aliases %}
-                {% elif norm_mode in aliases %}
-                  {% set found_aliases = found_aliases + aliases %}
+                {% if norm_mode == canon or norm_mode in aliases %}
+                  {% set mode_aliases = mode_aliases + aliases %}
                 {% endif %}
               {% endfor %}
-              {% set fan_support.aliases = fan_support.aliases + found_aliases %}
+
+              {% if input_fan_norm in mode_aliases %}
+                {% set fan_check.matched = true %}
+                {% set fan_check.resolved_mode = mode %}
+              {% endif %}
+              {% set fan_support.aliases = fan_support.aliases + mode_aliases %}
             {% endfor %}
 
-            {% if input_fan_norm in fan_support.aliases %}
-              {% set loop_status.matched = true %}
-            {% endif %}
-
-            {% if not loop_status.matched %}
+            {% if not fan_check.matched %}
               {% set result.invalid = true %}
-              {% set result.fan_missing = result.fan_missing + [target ~ ' supports: ' ~ (supported | map('string') | list | join(', '))] %}
-              {% set result.reasons = result.reasons + ['fan_mode ' ~ fan_mode ~ ' not in ' ~ (supported | map('string') | list | join(', '))] %}
+              {% set result.fan_missing = result.fan_missing + [device_name ~ ' supports: ' ~ (supported_fan | map('string') | list | join(', '))] %}
+              {% set result.reasons = result.reasons + ['fan_mode ' ~ fan_mode ~ ' not in supported list'] %}
+            {% else %}
+              {% set result.resolved_fans = result.resolved_fans + [fan_check.resolved_mode] %}
             {% endif %}
-          {% endfor %}
-        {% endif %}
+          {% else %}
+            {% set result.resolved_fans = result.resolved_fans + [''] %}
+          {% endif %}
+        {% endfor %}
+
         {% if result.invalid %}
           {% set result.reasons = result.reasons + ['invalid=true'] %}
         {% endif %}
@@ -234,121 +232,63 @@ sequence:
           'invalid': result.invalid,
           'reasons': result.reasons,
           'hvac_missing': result.hvac_missing,
-          'fan_missing': result.fan_missing
+          'fan_missing': result.fan_missing,
+          'resolved_fans': result.resolved_fans
         } }}
-  - alias: Check if variables were set correctly
+
+  - alias: Error Handling
     if:
       - condition: template
-        value_template: "{{ validation_result.invalid }}"
+        value_template: "{{ processed_data.invalid }}"
     then:
-      - alias: Set variable for error message
-        variables:
+      - variables:
           response:
             error: |
-              Unable to control the air conditioner. Specify valid AC names and at least one of: hvac_mode (supported by the device) or fan_mode (supported by the device).
-              {{ 'HVAC mismatch: ' ~ validation_result.hvac_missing | join(' | ') if validation_result.hvac_missing | length > 0 else '' }}
-              {{ 'Fan mismatch: ' ~ validation_result.fan_missing | join(' | ') if validation_result.fan_missing | length > 0 else '' }}
-              {{ 'Reasons: ' ~ validation_result.reasons | join(' | ') if validation_result.reasons | length > 0 else '' }}
-      - alias: Stop the script
-        stop: |
-          Unable to control the air conditioner. Specify valid AC names and at least one of: hvac_mode (supported by the device) or fan_mode (supported by the device).
-          {{ 'HVAC mismatch: ' ~ validation_result.hvac_missing | join(' | ') if validation_result.hvac_missing | length > 0 else '' }}
-          {{ 'Fan mismatch: ' ~ validation_result.fan_missing | join(' | ') if validation_result.fan_missing | length > 0 else '' }}
-          {{ 'Reasons: ' ~ validation_result.reasons | join(' | ') if validation_result.reasons | length > 0 else '' }}
+              Unable to control the air conditioner.
+              {{ 'HVAC mismatch: ' ~ processed_data.hvac_missing | join(' | ') if processed_data.hvac_missing else '' }}
+              {{ 'Fan mismatch: ' ~ processed_data.fan_missing | join(' | ') if processed_data.fan_missing else '' }}
+              {{ 'Reasons: ' ~ processed_data.reasons | join(' | ') if processed_data.reasons else '' }}
+      - stop: "Validation failed"
         response_variable: response
-  - variables:
-      devices: |
-        {% set device = namespace(entities=[]) -%}
-        {% for entity in ac_entities.split(';') -%}
-          {% set name = entity.strip() -%}
-          {% if not name -%}
-            {% continue -%}
-          {% endif -%}
-          {% if (states.climate | selectattr('attributes.friendly_name', '==', name) | list) -%}
-            {% set device.entities = device.entities + (states.climate | selectattr('attributes.friendly_name', '==', name) | map(attribute='entity_id') | list) -%}
-          {% else -%}
-            {% set device.entities = device.entities + (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', name) | map(attribute='entity_id') | list) -%}
-          {% endif -%}
-        {% endfor -%}
-        {{ device.entities }}
-  - variables:
-      friendly_acs: |
-        {% set names = namespace(values=[]) -%}
-        {% for name in ac_entities.split(';') -%}
-          {% if name | trim -%}
-            {% set names.values = names.values + [name.strip()] -%}
-          {% endif -%}
-        {% endfor -%}
-        {{ names.values }}
-  - variables:
-      resolved_fan_modes: |
-        {% set alias_map = {
-          'auto': ['auto', 'automatic'],
-          'automatic': ['automatic', 'auto'],
-          'low': ['low', '1', 'speed1', 'minimum', 'lowest'],
-          'lowmid': ['lowmid', '2', 'speed2', 'lowmedium', 'mediumlow'],
-          'mid': ['mid', 'medium', '3', 'speed3'],
-          'highmid': ['highmid', '4', 'speed4', 'mediumhigh'],
-          'high': ['high', '5', 'speed5', 'max', 'maximum', 'highest']
-        } -%}
-        {% set input_norm = fan_mode | default('') | lower | replace(' ', '') | replace('_', '') -%}
-        {% set result = namespace(values=[]) -%}
-        {% for entity in devices -%}
-          {% set supported = state_attr(entity, 'fan_modes') | default([]) -%}
-          {% set match_state = namespace(found='') -%}
-          {% for mode in supported -%}
-            {% set norm_mode = mode | lower | replace(' ', '') | replace('_', '') -%}
-            {% set mode_aliases = [norm_mode] -%}
-            {% for canon, aliases in alias_map.items() -%}
-              {% if norm_mode == canon -%}
-                {% set mode_aliases = mode_aliases + aliases -%}
-              {% elif norm_mode in aliases -%}
-                {% set mode_aliases = mode_aliases + aliases -%}
-              {% endif -%}
-            {% endfor -%}
-            {% if input_norm in mode_aliases -%}
-              {% set match_state.found = mode -%}
-            {% endif -%}
-          {% endfor -%}
-          {% set result.values = result.values + [match_state.found] -%}
-        {% endfor -%}
-        {{ result.values }}
-  - repeat:
-      count: "{{ devices | length }}"
+
+  - alias: Execution
+    repeat:
+      count: "{{ resolution.entities | length }}"
       sequence:
+        - variables:
+            entity_id: "{{ resolution.entities[repeat.index - 1] }}"
+            target_fan: "{{ processed_data.resolved_fans[repeat.index - 1] }}"
         - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ hvac_mode != '' }}"
+            - conditions: "{{ hvac_mode != '' }}"
               sequence:
                 - action: climate.set_hvac_mode
                   target:
-                    entity_id: "{{ devices[repeat.index - 1] }}"
+                    entity_id: "{{ entity_id }}"
                   data:
                     hvac_mode: "{{ hvac_mode }}"
         - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ fan_mode != '' }}"
+            - conditions: "{{ fan_mode != '' }}"
               sequence:
                 - action: climate.set_fan_mode
                   target:
-                    entity_id: "{{ devices[repeat.index - 1] }}"
+                    entity_id: "{{ entity_id }}"
                   data:
-                    fan_mode: "{{ resolved_fan_modes[repeat.index - 1] }}"
-  - alias: Prepare success response for Assist
+                    fan_mode: "{{ target_fan }}"
+
+  - alias: Success Response
     variables:
       response:
         success: |
-          {%- set target = friendly_acs | join(', ') -%}
-          {%- if hvac_mode and fan_mode -%}
-            Set {{ target }} to {{ hvac_mode }} mode with fan mode {{ fan_mode }}.
-          {%- elif hvac_mode -%}
-            Set {{ target }} to {{ hvac_mode }} mode.
-          {%- elif fan_mode -%}
-            Set fan mode {{ fan_mode }} for {{ target }}.
-          {%- else -%}
-            Updated AC settings for {{ target }}.
-          {%- endif -%}
-  - stop: Finish and return response data
+          {% set count = resolution.entities | length %}
+          {% set names = ac_entities %}
+          {% if hvac_mode and fan_mode %}
+            Set {{ names }} to {{ hvac_mode }} mode with fan mode {{ fan_mode }}.
+          {% elif hvac_mode %}
+            Set {{ names }} to {{ hvac_mode }} mode.
+          {% elif fan_mode %}
+            Set fan mode {{ fan_mode }} for {{ names }}.
+          {% else %}
+            Updated AC settings for {{ names }}.
+          {% endif %}
+  - stop: Finish
     response_variable: response

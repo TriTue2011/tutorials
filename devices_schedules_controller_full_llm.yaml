@@ -300,7 +300,6 @@ sequence:
           {% set name_alt_norm = (name_alt | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
           {% set match = namespace(done=false) %}
 
-          {# 1) Direct entity_id (case-insensitive) #}
           {% if not match.done %}
             {% for s in states %}
               {% if not match.done %}
@@ -315,7 +314,6 @@ sequence:
             {% endfor %}
           {% endif %}
 
-          {# 2) Friendly name (case-insensitive) #}
           {% if not match.done %}
             {% for s in states %}
               {% if not match.done %}
@@ -332,7 +330,6 @@ sequence:
             {% endfor %}
           {% endif %}
 
-          {# 3) Aliases (case-insensitive) #}
           {% if not match.done %}
             {% for device in alias_list %}
               {% if not match.done %}

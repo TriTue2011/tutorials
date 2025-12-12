@@ -320,6 +320,8 @@ _Cài đặt blueprint cho nền tảng bạn muốn gửi tin đến:_
 
 Đừng để Assistant chỉ biết tắt/bật đèn. Hãy biến nó thành một cuốn bách khoa toàn thư sống, sẵn sàng giải đáp mọi thắc mắc của bạn với dữ liệu cập nhật từ Google.
 
+**Lưu ý:** Tính năng này chỉ áp dụng cho Gemini, vì nó được tích hợp với Google Tìm kiếm để truy cập và cung cấp thông tin cập nhật.
+
 **Tính năng nổi bật:**
 
 - **Kiến thức vô tận:** Truy cập kho dữ liệu khổng lồ của Google để trả lời mọi câu hỏi từ lịch sử, địa lý đến tin tức thời sự.
@@ -330,7 +332,7 @@ _Cài đặt blueprint cho nền tảng bạn muốn gửi tin đến:_
 
 - "Điểm chuẩn Đại học Bách Khoa Hà Nội năm nay là bao nhiêu?"
 - "Tóm tắt diễn biến chính của trận chung kết World Cup vừa rồi."
-- "Giá iPhone 16 Pro Max hiện tại là bao nhiêu?"
+- "Giá iPhone 17 Pro Max hiện tại là bao nhiêu?"
 - "Công thức nấu món Phở bò chuẩn vị Bắc."
 
 **Ứng dụng thực tế:**
@@ -374,7 +376,7 @@ Biến TV của bạn thành rạp chiếu phim thông minh. Không cần remote
 
 ## Voice Assist - Theo dõi Kênh YouTube Yêu thích
 
-Bạn là fan cứng của "MixiGaming"? Blueprint này giúp bạn không bao giờ bỏ lỡ video mới nhất từ các idol.
+Bạn là fan cứng của "Trực Tiếp Game" hay "MixiGaming"? Blueprint này giúp bạn không bao giờ bỏ lỡ video mới nhất từ các idol.
 
 **Tính năng nổi bật:**
 
@@ -385,7 +387,7 @@ Bạn là fan cứng của "MixiGaming"? Blueprint này giúp bạn không bao g
 **Ví dụ lệnh thoại:**
 
 - "Kênh Khoai Lang Thang có gì mới không?"
-- "Mở video mới nhất của Sang vlog"
+- "Mở video mới nhất của HOA BAN FOOD"
 
 **Ứng dụng thực tế:**
 

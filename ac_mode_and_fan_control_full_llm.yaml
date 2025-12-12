@@ -167,7 +167,7 @@ sequence:
           {% set result.invalid = true %}
           {% set result.reasons = result.reasons + ['Missing both hvac_mode and fan_mode'] %}
         {% endif %}
-        {% set input_fan_norm = fan_mode | replace(' ', '') | replace('_', '') %}
+        {% set input_fan_norm = fan_mode | replace(' ', '') | replace('_', '') | lower %}
 
         {% for entity_id in resolution.entities %}
           {% set device_name = state_attr(entity_id, 'friendly_name') %}
@@ -199,18 +199,18 @@ sequence:
             
             {% for mode in supported_fan %}
               {% set norm_mode = mode | lower | replace(' ', '') | replace('_', '') %}
-              {% set mode_aliases = [norm_mode] %}
+              {% set alias_builder = namespace(list=[norm_mode]) %}
               {% for canon, aliases in alias_map.items() %}
                 {% if norm_mode == canon or norm_mode in aliases %}
-                  {% set mode_aliases = mode_aliases + aliases %}
+                  {% set alias_builder.list = alias_builder.list + aliases %}
                 {% endif %}
               {% endfor %}
 
-              {% if input_fan_norm in mode_aliases %}
+              {% if input_fan_norm in alias_builder.list %}
                 {% set fan_check.matched = true %}
                 {% set fan_check.resolved_mode = mode %}
               {% endif %}
-              {% set fan_support.aliases = fan_support.aliases + mode_aliases %}
+              {% set fan_support.aliases = fan_support.aliases + alias_builder.list %}
             {% endfor %}
 
             {% if not fan_check.matched %}

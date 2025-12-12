@@ -29,6 +29,7 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
   - [Voice Assist - YouTube Search \& Playback](#voice-assist---youtube-search--playback)
   - [Voice Assist - Favorite YouTube Channels](#voice-assist---favorite-youtube-channels)
   - [Voice Assist - Smart Fan Control](#voice-assist---smart-fan-control)
+  - [Voice Assist - Smart AC Control](#voice-assist---smart-ac-control)
   - [Voice Assist - Device Location \& Find](#voice-assist---device-location--find)
   - [Voice Assist - Traffic Fine Lookup](#voice-assist---traffic-fine-lookup)
   - [Automatic Traffic Fine Notifications](#automatic-traffic-fine-notifications)
@@ -433,6 +434,33 @@ _Install the blueprint for the function you want to use:_
 
 **Fan Oscillation Control:**
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
+
+---
+
+## Voice Assist - Smart AC Control
+
+Maintain fresh air and ideal temperatures in your home using just your voice. This blueprint gives you comprehensive control over your air conditioner, from operating modes to fan speed.
+
+**Key Features:**
+
+- **Mode Control:** Easily switch between cooling, heating, dry, fan-only, or auto modes.
+- **Fan Speed Adjustment:** Set fan speed to preset levels (low, medium, high) or qualitative values like "maximum," "minimum."
+- **Alias Support:** Recognizes your AC by its friendly name or any name you've configured in Home Assistant.
+- **Multi-Device Handling:** Control one or multiple air conditioners simultaneously.
+
+**Example Voice Commands:**
+
+- "Set the living room AC to cool mode and medium fan speed."
+- "Change the bedroom AC to dry mode."
+- "Increase the hallway AC fan speed to high."
+- "Turn off all air conditioners."
+
+**Use Cases:**
+
+- Adjust your home environment to your liking without needing to find the remote.
+- Save energy by setting appropriate modes and speeds.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fac_mode_and_fan_control_full_llm.yaml)
 
 ---
 

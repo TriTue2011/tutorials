@@ -236,9 +236,10 @@ sequence:
         {% set result = namespace(values=[]) -%}
         {% if oscillating is boolean -%}
           {% for entity_id in devices -%}
-            {% set supported = state_attr(entity_id, 'supported_features') | int(0) -%}
+            {% set feats = (state_attr(entity_id, 'supported_features') | int(0)) -%}
             {% set device_name = state_attr(entity_id, 'friendly_name') | default(entity_id) -%}
-            {% set osc_ok = ((supported & 2) != 0) or (state_attr(entity_id, 'oscillating') is not none) -%}
+            {# Feature bit assumptions: speed=1, oscillate=2 (matches FanEntityFeature in HA) #}
+            {% set osc_ok = (((feats // 2) % 2) == 1) or (state_attr(entity_id, 'oscillating') is not none) -%}
             {% if not osc_ok -%}
               {% set result.values = result.values + [device_name] -%}
             {% endif -%}
@@ -253,9 +254,9 @@ sequence:
         {% set wants_speed = has_pct or has_adj -%}
         {% if wants_speed -%}
           {% for entity_id in devices -%}
-            {% set supported = state_attr(entity_id, 'supported_features') | int(0) -%}
+            {% set feats = (state_attr(entity_id, 'supported_features') | int(0)) -%}
             {% set device_name = state_attr(entity_id, 'friendly_name') | default(entity_id) -%}
-            {% set speed_ok = ((supported & 1) != 0) or (state_attr(entity_id, 'percentage') is not none) or (state_attr(entity_id, 'percentage_step') is not none) -%}
+            {% set speed_ok = ((feats % 2) == 1) or (state_attr(entity_id, 'percentage') is not none) or (state_attr(entity_id, 'percentage_step') is not none) -%}
             {% if not speed_ok -%}
               {% set result.values = result.values + [device_name] -%}
             {% endif -%}

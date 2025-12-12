@@ -29,6 +29,7 @@ Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ s
   - [Voice Assist - Tìm kiếm \& Phát Video YouTube](#voice-assist---tìm-kiếm--phát-video-youtube)
   - [Voice Assist - Theo dõi Kênh YouTube Yêu thích](#voice-assist---theo-dõi-kênh-youtube-yêu-thích)
   - [Voice Assist - Điều khiển Quạt Thông minh](#voice-assist---điều-khiển-quạt-thông-minh)
+  - [Voice Assist - Điều khiển Điều hòa Thông minh](#voice-assist---điều-khiển-điều-hòa-thông-minh)
   - [Voice Assist - Định vị \& Tìm kiếm Thiết bị](#voice-assist---định-vị--tìm-kiếm-thiết-bị)
   - [Voice Assist - Tra cứu Phạt nguội](#voice-assist---tra-cứu-phạt-nguội)
   - [Tự động Cảnh báo Phạt nguội](#tự-động-cảnh-báo-phạt-nguội)
@@ -433,6 +434,33 @@ _Cài đặt blueprint cho chức năng bạn muốn sử dụng:_
 
 **Điều khiển Xoay quạt:**
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
+
+---
+
+## Voice Assist - Điều khiển Điều hòa Thông minh
+
+Giữ không khí trong lành và nhiệt độ lý tưởng trong nhà chỉ bằng giọng nói. Blueprint này giúp bạn kiểm soát máy điều hòa một cách toàn diện, từ chế độ hoạt động đến tốc độ quạt.
+
+**Tính năng nổi bật:**
+
+- **Kiểm soát chế độ:** Chuyển đổi giữa các chế độ làm mát, sưởi ấm, hút ẩm, chỉ quạt hoặc tự động một cách dễ dàng.
+- **Điều chỉnh tốc độ quạt:** Thiết lập tốc độ quạt theo các mức cài đặt sẵn (thấp, trung bình, cao) hoặc các giá trị định lượng như "mạnh nhất", "nhẹ nhất".
+- **Hỗ trợ alias:** Nhận diện điều hòa qua tên thân mật hoặc tên bạn đã đặt trong Home Assistant.
+- **Xử lý nhiều thiết bị:** Điều khiển một hoặc nhiều điều hòa cùng lúc.
+
+**Ví dụ lệnh thoại:**
+
+- "Bật điều hòa phòng khách sang chế độ làm mát và quạt tốc độ trung bình."
+- "Chuyển điều hòa phòng ngủ sang chế độ khô."
+- "Tăng quạt điều hòa ở hành lang lên tốc độ cao."
+- "Tắt tất cả điều hòa."
+
+**Ứng dụng thực tế:**
+
+- Điều chỉnh môi trường sống theo ý muốn mà không cần tìm remote.
+- Tiết kiệm năng lượng bằng cách thiết lập chế độ phù hợp.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fac_mode_and_fan_control_full_llm.yaml)
 
 ---
 

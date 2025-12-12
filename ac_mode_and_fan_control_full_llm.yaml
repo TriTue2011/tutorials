@@ -170,7 +170,7 @@ sequence:
               {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') %}
             {% endif %}
             {% set supported_hvac = state_attr(device, 'hvac_modes') | default([]) %}
-            {% set normalized_hvac = [] %}
+            {% set hvac_support = namespace(modes=[]) %}
             {% for m in supported_hvac %}
               {% set val = m %}
               {% if m.value is defined %}
@@ -183,12 +183,12 @@ sequence:
                    {% set val = s.lower().split('hvacmode.', 1)[1] %}
                 {% endif %}
               {% endif %}
-              {% set normalized_hvac = normalized_hvac + [val | string | lower] %}
+              {% set hvac_support.modes = hvac_support.modes + [val | string | lower] %}
             {% endfor %}
-            {% if hvac_mode not in normalized_hvac %}
+            {% if hvac_mode not in hvac_support.modes %}
               {% set result.invalid = true %}
-              {% set result.hvac_missing = result.hvac_missing + [target ~ ' supports: ' ~ (normalized_hvac | join(', ')) ~ ' (Device: ' ~ device ~ ', Raw HVAC Modes: ' ~ state_attr(device, 'hvac_modes') | string ~ ')'] %}
-              {% set result.reasons = result.reasons + ['hvac_mode ' ~ hvac_mode ~ ' not in ' ~ (normalized_hvac | join(', '))] %}
+              {% set result.hvac_missing = result.hvac_missing + [target ~ ' supports: ' ~ (hvac_support.modes | join(', '))] %}
+              {% set result.reasons = result.reasons + ['hvac_mode ' ~ hvac_mode ~ ' not in ' ~ (hvac_support.modes | join(', '))] %}
             {% endif %}
           {% endfor %}
         {% endif %}

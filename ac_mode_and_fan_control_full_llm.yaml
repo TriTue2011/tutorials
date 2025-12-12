@@ -131,6 +131,7 @@ sequence:
       - condition: template
         value_template: |
           {% set validation = namespace(invalid=false) %}
+          {% set reasons = [] %}
           {% set hvac_missing = [] %}
           {% set fan_missing = [] %}
           {% set alias_map = {
@@ -153,13 +154,16 @@ sequence:
             {% set name = entity.strip() %}
             {% if not name %}
               {% set validation.invalid = true %}
+              {% set reasons = reasons + ['Missing AC name'] %}
             {% elif not ((states.climate | selectattr('attributes.friendly_name', '==', name) | list) or
               (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', name) | list)) %}
               {% set validation.invalid = true %}
+              {% set reasons = reasons + ['AC not found: ' ~ name] %}
             {% endif %}
           {% endfor %}
           {% if (not hvac_mode) and (not fan_mode) %}
             {% set validation.invalid = true %}
+            {% set reasons = reasons + ['Missing both hvac_mode and fan_mode'] %}
           {% endif %}
           {% if hvac_mode %}
             {% for entity in ac_entities.split(';') %}
@@ -181,6 +185,7 @@ sequence:
               {% if hvac_mode not in normalized_hvac %}
                 {% set validation.invalid = true %}
                 {% set hvac_missing = hvac_missing + [target ~ ' supports: ' ~ (normalized_hvac | join(', '))] %}
+                {% set reasons = reasons + ['hvac_mode ' ~ hvac_mode ~ ' not in ' ~ (normalized_hvac | join(', '))] %}
               {% endif %}
             {% endfor %}
           {% endif %}
@@ -209,8 +214,12 @@ sequence:
               {% if not matched %}
                 {% set validation.invalid = true %}
                 {% set fan_missing = fan_missing + [target ~ ' supports: ' ~ (supported | map('string') | list | join(', '))] %}
+                {% set reasons = reasons + ['fan_mode ' ~ fan_mode ~ ' not in ' ~ (supported | map('string') | list | join(', '))] %}
               {% endif %}
             {% endfor %}
+          {% endif %}
+          {% if validation.invalid %}
+            {% set reasons = reasons + ['invalid=true'] %}
           {% endif %}
           {{ validation.invalid }}
     then:
@@ -221,6 +230,7 @@ sequence:
               Unable to control the air conditioner. Specify valid AC names and at least one of: hvac_mode (supported by the device) or fan_mode (supported by the device).
               {{ 'HVAC mismatch: ' ~ hvac_missing | join(' | ') if hvac_missing | length > 0 else '' }}
               {{ 'Fan mismatch: ' ~ fan_missing | join(' | ') if fan_missing | length > 0 else '' }}
+              {{ 'Reasons: ' ~ reasons | join(' | ') if reasons | length > 0 else '' }}
       - alias: Stop the script
         stop: |
           Unable to control the air conditioner. Specify valid AC names and at least one of: hvac_mode (supported by the device) or fan_mode (supported by the device).

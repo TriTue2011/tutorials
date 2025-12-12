@@ -130,7 +130,7 @@ sequence:
     if:
       - condition: template
         value_template: |
-          {% set validation = namespace(invalid=false) -%}
+          {% set validation = namespace(invalid=false) %}
           {% set alias_map = {
             'auto': ['auto', 'automatic'],
             'automatic': ['automatic', 'auto'],
@@ -139,72 +139,75 @@ sequence:
             'mid': ['mid', 'medium', '3', 'speed3'],
             'highmid': ['highmid', '4', 'speed4', 'mediumhigh'],
             'high': ['high', '5', 'speed5', 'max', 'maximum', 'highest']
-          } -%}
-          {% set input_fan_norm = fan_mode | default('') | lower | replace(' ', '') | replace('_', '') -%}
-          {% set canonical_input = input_fan_norm -%}
-          {% for canon, aliases in alias_map.items() -%}
-            {% if input_fan_norm in aliases -%}
-              {% set canonical_input = canon -%}
-            {% endif -%}
-          {% endfor -%}
-          {% for entity in ac_entities.split(';') -%}
-            {% set name = entity.strip() -%}
-            {% if not name -%}
-              {% set validation.invalid = true -%}
+          } %}
+          {% set input_fan_norm = fan_mode | default('') | lower | replace(' ', '') | replace('_', '') %}
+          {% set canonical_input = input_fan_norm %}
+          {% for canon, aliases in alias_map.items() %}
+            {% if input_fan_norm in aliases %}
+              {% set canonical_input = canon %}
+            {% endif %}
+          {% endfor %}
+          {% for entity in ac_entities.split(';') %}
+            {% set name = entity.strip() %}
+            {% if not name %}
+              {% set validation.invalid = true %}
             {% elif not ((states.climate | selectattr('attributes.friendly_name', '==', name) | list) or
-              (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', name) | list)) -%}
-              {% set validation.invalid = true -%}
-            {% endif -%}
-          {% endfor -%}
-          {% if (not hvac_mode) and (not fan_mode) -%}
-            {% set validation.invalid = true -%}
-          {% endif -%}
-          {% if hvac_mode -%}
-            {% for entity in ac_entities.split(';') -%}
-              {% set target = entity.strip() -%}
-              {% if (states.climate | selectattr('attributes.friendly_name', '==', target) | list) -%}
-                {% set device = (states.climate | selectattr('attributes.friendly_name', '==', target) | map(attribute='entity_id') | list)[0] -%}
-              {% else -%}
-                {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') -%}
-              {% endif -%}
-              {% set supported_hvac = state_attr(device, 'hvac_modes') | default([]) -%}
-              {% set normalized_hvac = namespace(values=[]) -%}
-              {% for m in supported_hvac -%}
-                {% set val = (m.value | default(m)) | string | lower -%}
-                {% set normalized_hvac.values = normalized_hvac.values + [val] -%}
-              {% endfor -%}
-              {% if hvac_mode not in normalized_hvac.values -%}
-                {% set validation.invalid = true -%}
-              {% endif -%}
-            {% endfor -%}
-          {% endif -%}
-          {% if fan_mode -%}
-            {% for entity in ac_entities.split(';') -%}
-              {% set target = entity.strip() -%}
-              {% if (states.climate | selectattr('attributes.friendly_name', '==', target) | list) -%}
-                {% set device = (states.climate | selectattr('attributes.friendly_name', '==', target) | map(attribute='entity_id') | list)[0] -%}
-              {% else -%}
-                {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') -%}
-              {% endif -%}
-              {% set supported = state_attr(device, 'fan_modes') | default([]) -%}
-              {% set matched = false -%}
-              {% for mode in supported -%}
-                {% set norm = mode | lower | replace(' ', '') | replace('_', '') -%}
-                {% set canonical_supported = norm -%}
-                {% for canon, aliases in alias_map.items() -%}
-                  {% if norm in aliases -%}
-                    {% set canonical_supported = canon -%}
-                  {% endif -%}
-                {% endfor -%}
-                {% if input_fan_norm == norm or canonical_supported == canonical_input or (input_fan_norm in alias_map.get(canonical_supported, [canonical_supported])) -%}
-                  {% set matched = true -%}
-                {% endif -%}
-              {% endfor -%}
-              {% if not matched -%}
-                {% set validation.invalid = true -%}
-              {% endif -%}
-            {% endfor -%}
-          {% endif -%}
+              (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', name) | list)) %}
+              {% set validation.invalid = true %}
+            {% endif %}
+          {% endfor %}
+          {% if (not hvac_mode) and (not fan_mode) %}
+            {% set validation.invalid = true %}
+          {% endif %}
+          {% if hvac_mode %}
+            {% for entity in ac_entities.split(';') %}
+              {% set target = entity.strip() %}
+              {% if (states.climate | selectattr('attributes.friendly_name', '==', target) | list) %}
+                {% set device = (states.climate | selectattr('attributes.friendly_name', '==', target) | map(attribute='entity_id') | list)[0] %}
+              {% else %}
+                {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') %}
+              {% endif %}
+              {% set supported_hvac = state_attr(device, 'hvac_modes') | default([]) %}
+              {% set normalized_hvac = [] %}
+              {% for m in supported_hvac %}
+                {% set val = (m.value | default(m)) | string | lower %}
+                {% if val.startswith('hvacmode.') %}
+                  {% set val = val.split('hvacmode.', 1)[1] %}
+                {% endif %}
+                {% set normalized_hvac = normalized_hvac + [val] %}
+              {% endfor %}
+              {% if hvac_mode not in normalized_hvac %}
+                {% set validation.invalid = true %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if fan_mode %}
+            {% for entity in ac_entities.split(';') %}
+              {% set target = entity.strip() %}
+              {% if (states.climate | selectattr('attributes.friendly_name', '==', target) | list) %}
+                {% set device = (states.climate | selectattr('attributes.friendly_name', '==', target) | map(attribute='entity_id') | list)[0] %}
+              {% else %}
+                {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') %}
+              {% endif %}
+              {% set supported = state_attr(device, 'fan_modes') | default([]) %}
+              {% set matched = false %}
+              {% for mode in supported %}
+                {% set norm = mode | lower | replace(' ', '') | replace('_', '') %}
+                {% set canonical_supported = norm %}
+                {% for canon, aliases in alias_map.items() %}
+                  {% if norm in aliases %}
+                    {% set canonical_supported = canon %}
+                  {% endif %}
+                {% endfor %}
+                {% if input_fan_norm == norm or canonical_supported == canonical_input or (input_fan_norm in alias_map.get(canonical_supported, [canonical_supported])) %}
+                  {% set matched = true %}
+                {% endif %}
+              {% endfor %}
+              {% if not matched %}
+                {% set validation.invalid = true %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
           {{ validation.invalid }}
     then:
       - alias: Set variable for error message

@@ -35,6 +35,7 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
   - [Automatic Traffic Fine Notifications](#automatic-traffic-fine-notifications)
   - [Device State Synchronization](#device-state-synchronization)
   - [Obsolete Blueprints](#obsolete-blueprints)
+    - [Voice Assist - Smart Fan Control (Legacy)](#voice-assist---smart-fan-control-legacy)
     - [Voice Assist - Device Control Timer (Legacy)](#voice-assist---device-control-timer-legacy)
   - [Additional Tutorials](#additional-tutorials)
     - [How to write custom system instructions for Voice Assist](#how-to-write-custom-system-instructions-for-voice-assist)
@@ -408,32 +409,35 @@ To use this feature, you need to install **both blueprints**:
 
 ## Voice Assist - Smart Fan Control
 
-Feeling hot? Just say the word, and your fan will speed up. This blueprint helps you precisely control the airflow to your liking.
+Feeling hot? Just say the word, and your fan will speed up. This blueprint is a comprehensive upgrade, combining speed and oscillation control into a single tool.
+
+**Why use this Blueprint instead of the built-in HassFanSetSpeed?**
+
+Although Home Assistant already supports basic fan control, this blueprint offers a more natural and powerful experience:
+
+- **2-in-1 Combination:** Controls both speed and oscillation in a single command, which the default tool cannot do.
+- **Relative Adjustment:** Supports commands like "increase speed" or "decrease speed" instead of only setting fixed levels.
+- **Smart Recognition:** Integrates advanced alias lookup, allowing you to refer to fans by your preferred names (e.g., "Standing fan," "Ceiling fan") without changing the original entity name.
 
 **Key Features:**
 
-- **Flexible Adjustment:** Increase/decrease speed by a specific percentage or desired level.
-- **Oscillation Control:** Turn oscillation (swing) on/off with your voice.
-- **Synchronized Control:** Command a specific fan or all fans in the house simultaneously.
+- **Flexible Adjustment:** Increase/decrease speed by a specific percentage, custom steps, or desired level.
+- **Comprehensive Control:** Turn oscillation on/off and adjust airflow simultaneously.
+- **Synchronized Control:** Command a specific fan or all fans in the house.
 
 **Example Voice Commands:**
 
-- "Increase the living room fan to maximum."
-- "Turn on oscillation for the bedroom fan, it's too hot."
-- "Reduce the dining table fan speed to 30%."
+- "Increase the living room fan to maximum and turn on oscillation."
+- "Reduce the ceiling fan speed a bit."
+- "Turn on oscillation for all fans."
+- "Set the table fan to 50%."
 
 **Use Cases:**
 
 - Adjust the airflow to suit the room's temperature without leaving your bed or sofa.
-- Quickly turn off all fans when leaving the house.
+- Quickly set a "breeze" mode (low speed and oscillation) for the bedroom when going to sleep.
 
-_Install the blueprint for the function you want to use:_
-
-**Fan Speed Control:**
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
-
-**Fan Oscillation Control:**
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_and_oscillation_control_full_llm.yaml)
 
 ---
 
@@ -556,6 +560,18 @@ Seamlessly synchronize the `on/off` state between multiple devices, acting like 
 ---
 
 ## Obsolete Blueprints
+
+**Important Note:** To ensure optimal LLM performance and avoid confusion in tool selection, it is NOT RECOMMENDED to install blueprints in this section concurrently with their corresponding new versions. Always prioritize using the latest and recommended blueprints.
+
+### Voice Assist - Smart Fan Control (Legacy)
+
+**Use the new [Voice Assist - Smart Fan Control](#voice-assist---smart-fan-control) that integrates both speed and oscillation.**
+
+**Fan Speed Control:**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
+
+**Fan Oscillation Control:**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
 
 ### Voice Assist - Device Control Timer (Legacy)
 

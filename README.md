@@ -35,6 +35,7 @@ Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ s
   - [Tự động Cảnh báo Phạt nguội](#tự-động-cảnh-báo-phạt-nguội)
   - [Đồng bộ Trạng thái Thiết bị](#đồng-bộ-trạng-thái-thiết-bị)
   - [Các Blueprint đã lỗi thời](#các-blueprint-đã-lỗi-thời)
+    - [Voice Assist - Điều khiển Quạt (Cũ)](#voice-assist---điều-khiển-quạt-cũ)
     - [Voice Assist - Hẹn giờ Bật/Tắt Thiết bị (Cũ)](#voice-assist---hẹn-giờ-bậttắt-thiết-bị-cũ)
   - [Hướng dẫn Thêm](#hướng-dẫn-thêm)
     - [Tùy chỉnh chỉ dẫn hệ thống (system instruction) cho Voice Assist](#tùy-chỉnh-chỉ-dẫn-hệ-thống-system-instruction-cho-voice-assist)
@@ -408,32 +409,35 @@ Bạn là fan cứng của "Trực Tiếp Game" hay "MixiGaming"? Blueprint này
 
 ## Voice Assist - Điều khiển Quạt Thông minh
 
-Nóng quá? Chỉ cần than thở một câu, quạt sẽ tự tăng tốc. Blueprint giúp bạn điều khiển luồng gió chính xác theo ý muốn.
+Nóng quá? Chỉ cần than thở một câu, quạt sẽ tự tăng tốc. Blueprint này là phiên bản nâng cấp toàn diện, kết hợp điều khiển tốc độ và tuốc năng (quay) trong một công cụ duy nhất.
+
+**Tại sao nên dùng Blueprint này thay vì tính năng có sẵn (Built-in HassFanSetSpeed)?**
+
+Mặc dù Home Assistant đã hỗ trợ điều khiển quạt cơ bản, nhưng blueprint này mang lại trải nghiệm tự nhiên và mạnh mẽ hơn:
+
+- **Kết hợp 2 trong 1:** Điều khiển cả tốc độ và chế độ quay (oscillation) trong cùng một câu lệnh, điều mà công cụ mặc định chưa làm được.
+- **Điều chỉnh tương đối:** Hỗ trợ các lệnh "tăng số", "giảm số" thay vì chỉ cài đặt mức cố định.
+- **Nhận diện thông minh:** Tích hợp tra cứu alias nâng cao, giúp bạn gọi tên quạt theo ý thích (ví dụ "Quạt cây", "Quạt trần") mà không cần đổi tên entity gốc.
 
 **Tính năng nổi bật:**
 
-- **Điều chỉnh linh hoạt:** Tăng/giảm tốc độ theo phần trăm cụ thể hoặc mức độ mong muốn.
-- **Kiểm soát hướng gió:** Bật/tắt tuốc năng (quay) bằng giọng nói.
-- **Đồng bộ:** Ra lệnh cho một quạt cụ thể hoặc tất cả quạt trong nhà cùng lúc.
+- **Điều chỉnh linh hoạt:** Tăng/giảm tốc độ theo phần trăm, bước nhảy tùy chỉnh hoặc mức độ mong muốn.
+- **Kiểm soát toàn diện:** Bật/tắt tuốc năng và chỉnh gió cùng lúc.
+- **Đồng bộ:** Ra lệnh cho một quạt cụ thể hoặc tất cả quạt trong nhà.
 
 **Ví dụ lệnh thoại:**
 
-- "Tăng quạt phòng khách lên mạnh nhất."
-- "Cho quạt phòng ngủ quay đi, nóng quá."
-- "Giảm tốc độ quạt bàn ăn xuống 30%."
+- "Tăng quạt phòng khách lên mạnh nhất và cho quay đi."
+- "Giảm tốc độ quạt trần xuống một chút."
+- "Bật tuốc năng cho tất cả quạt."
+- "Đặt quạt bàn mức 50%."
 
 **Ứng dụng thực tế:**
 
 - Điều chỉnh gió cho phù hợp với nhiệt độ phòng mà không cần rời khỏi giường hay ghế sofa.
-- Tắt nhanh tất cả quạt khi ra khỏi nhà.
+- Thiết lập nhanh chế độ "gió thoảng" (tốc độ thấp và quay) cho phòng ngủ khi đi ngủ.
 
-_Cài đặt blueprint cho chức năng bạn muốn sử dụng:_
-
-**Điều khiển Tốc độ quạt:**
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
-
-**Điều khiển Xoay quạt:**
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_and_oscillation_control_full_llm.yaml)
 
 ---
 
@@ -550,6 +554,18 @@ Nhận cảnh báo ngay khi có vi phạm giao thông mới được ghi nhận 
 ---
 
 ## Các Blueprint đã lỗi thời
+
+**Lưu ý quan trọng:** Để đảm bảo LLM hoạt động hiệu quả và tránh nhầm lẫn trong việc lựa chọn công cụ, KHÔNG NÊN cài đặt đồng thời các blueprint trong mục này với các phiên bản blueprint mới tương ứng. Hãy luôn ưu tiên sử dụng các blueprint mới nhất và được khuyến nghị.
+
+### Voice Assist - Điều khiển Quạt (Cũ)
+
+**Sử dụng phiên bản mới [Voice Assist - Điều khiển Quạt Thông minh](#voice-assist---điều-khiển-quạt-thông-minh) tích hợp cả tốc độ và tuốc năng.**
+
+**Điều khiển Tốc độ quạt:**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_control_full_llm.yaml)
+
+**Điều khiển Xoay quạt:**
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_oscillation_control_full_llm.yaml)
 
 ### Voice Assist - Hẹn giờ Bật/Tắt Thiết bị (Cũ)
 

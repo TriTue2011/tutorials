@@ -167,8 +167,12 @@ sequence:
               {% else -%}
                 {% set device = (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'climate\.') | selectattr('aliases', 'contains', target) | map(attribute='entity_id') | list)[0] | default('') -%}
               {% endif -%}
-              {% set supported_hvac = (state_attr(device, 'hvac_modes') | default([]) | map('string') | list) -%}
-              {% if not (hvac_mode in supported_hvac) -%}
+              {% set supported_hvac = namespace(values=[]) -%}
+              {% for mode in state_attr(device, 'hvac_modes') | default([]) -%}
+                {% set val = (mode.value | default(mode)) | string | lower -%}
+                {% set supported_hvac.values = supported_hvac.values + [val] -%}
+              {% endfor -%}
+              {% if not (hvac_mode in supported_hvac.values) -%}
                 {% set validation.invalid = true -%}
               {% endif -%}
             {% endfor -%}

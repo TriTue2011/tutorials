@@ -172,11 +172,18 @@ sequence:
             {% set supported_hvac = state_attr(device, 'hvac_modes') | default([]) %}
             {% set normalized_hvac = [] %}
             {% for m in supported_hvac %}
-              {% set val = (m.value | default(m)) | string | lower %}
-              {% if val.startswith('hvacmode.') %}
-                {% set val = val.split('hvacmode.', 1)[1] %}
+              {% set val = m %}
+              {% if m.value is defined %}
+                {% set val = m.value %}
+              {% else %}
+                {% set s = m | string %}
+                {% if 'HVACMode.' in s and ':' in s %}
+                   {% set val = s.split(':')[1].strip(" '>") %}
+                {% elif 'hvacmode.' in s|lower %}
+                   {% set val = s.lower().split('hvacmode.', 1)[1] %}
+                {% endif %}
               {% endif %}
-              {% set normalized_hvac = normalized_hvac + [val] %}
+              {% set normalized_hvac = normalized_hvac + [val | string | lower] %}
             {% endfor %}
             {% if hvac_mode not in normalized_hvac %}
               {% set result.invalid = true %}
@@ -195,7 +202,7 @@ sequence:
             {% endif %}
             {% set supported = state_attr(device, 'fan_modes') | default([]) %}
             {% set loop_status = namespace(matched=false) %}
-            {% set all_supported_aliases = [] %}
+            {% set fan_support = namespace(aliases=[]) %}
             {% for mode in supported %}
               {% set norm_mode = mode | lower | replace(' ', '') | replace('_', '') %}
               {% set found_aliases = [norm_mode] %}
@@ -206,10 +213,10 @@ sequence:
                   {% set found_aliases = found_aliases + aliases %}
                 {% endif %}
               {% endfor %}
-              {% set all_supported_aliases = all_supported_aliases + found_aliases %}
+              {% set fan_support.aliases = fan_support.aliases + found_aliases %}
             {% endfor %}
 
-            {% if input_fan_norm in all_supported_aliases %}
+            {% if input_fan_norm in fan_support.aliases %}
               {% set loop_status.matched = true %}
             {% endif %}
 
@@ -285,31 +292,25 @@ sequence:
           'high': ['high', '5', 'speed5', 'max', 'maximum', 'highest']
         } -%}
         {% set input_norm = fan_mode | default('') | lower | replace(' ', '') | replace('_', '') -%}
-        {% set canonical_input = input_norm -%}
-        {% for canon, aliases in alias_map.items() -%}
-          {% if input_norm in aliases -%}
-            {% set canonical_input = canon -%}
-          {% endif -%}
-        {% endfor -%}
         {% set result = namespace(values=[]) -%}
         {% for entity in devices -%}
           {% set supported = state_attr(entity, 'fan_modes') | default([]) -%}
-          {% set matched = '' -%}
+          {% set match_state = namespace(found='') -%}
           {% for mode in supported -%}
-            {% set norm = mode | lower | replace(' ', '') | replace('_', '') -%}
-            {% set canonical_supported = norm -%}
+            {% set norm_mode = mode | lower | replace(' ', '') | replace('_', '') -%}
+            {% set mode_aliases = [norm_mode] -%}
             {% for canon, aliases in alias_map.items() -%}
-              {% if norm in aliases -%}
-                {% set canonical_supported = canon -%}
+              {% if norm_mode == canon -%}
+                {% set mode_aliases = mode_aliases + aliases -%}
+              {% elif norm_mode in aliases -%}
+                {% set mode_aliases = mode_aliases + aliases -%}
               {% endif -%}
             {% endfor -%}
-            {% if (input_norm == norm) or (canonical_supported == canonical_input) or (input_norm in alias_map.get(canonical_supported, [canonical_supported])) -%}
-              {% if not matched -%}
-                {% set matched = mode -%}
-              {% endif -%}
+            {% if input_norm in mode_aliases -%}
+              {% set match_state.found = mode -%}
             {% endif -%}
           {% endfor -%}
-          {% set result.values = result.values + [matched] -%}
+          {% set result.values = result.values + [match_state.found] -%}
         {% endfor -%}
         {{ result.values }}
   - repeat:

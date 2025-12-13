@@ -74,9 +74,9 @@ Blueprint này biến Voice Assist thành một trợ lý quản lý thời gian
 
 **Ứng dụng thực tế:**
 
-- **Tiết kiệm điện:** Hẹn giờ tắt máy sưởi, bình nóng lạnh hoặc quạt khi đi ngủ.
-- **Tiện nghi:** Tự động điều chỉnh ánh sáng, rèm cửa theo ngữ cảnh sinh hoạt mà không cần cầm điện thoại.
-- **Yên tâm:** Không lo quên tắt các thiết bị quan trọng nhờ tính năng tự động khôi phục sau khởi động lại.
+- **Bảo vệ Pin:** "Sạc điện thoại 2 tiếng rồi tắt ổ cắm" - Giúp bạn sạc qua đêm mà không lo chai pin.
+- **Nấu nướng rảnh tay:** "Bật hút mùi 20 phút nữa tắt" - Khi bạn kho cá xong và muốn ra ngoài đi dạo.
+- **Giấc ngủ ngon:** "Bật quạt số nhỏ nhất trong 1 tiếng rồi tắt hẳn" - Tránh bị lạnh hoặc khô họng khi về sáng.
 
 Để sử dụng đầy đủ tính năng, bạn cần cài đặt **cả 3 blueprint** sau:
 
@@ -113,9 +113,9 @@ Bạn hay quên mật khẩu Wi-Fi? Hay không nhớ đã để xe ở cột nà
 
 **Ứng dụng thực tế:**
 
-- Lưu trữ an toàn các thông tin ít dùng nhưng quan trọng.
-- Chia sẻ thông tin chung cho các thành viên trong gia đình mà không cần nhắn tin đi lại.
-- Ghi chú nhanh các việc cần làm hoặc vị trí đồ vật ngay khi vừa nghĩ ra.
+- **Truy tìm đồ thất lạc:** "Hộ chiếu cất ở đâu?" - Cứu cánh cho những lúc cần gấp mà không nhớ đã cất ở ngăn kéo nào.
+- **Thông tin lắt léo:** Lưu mật khẩu Wifi dài ngoằng hoặc số tài khoản ngân hàng để khi khách hỏi là có ngay.
+- **Trợ lý mua sắm:** Lưu size quần áo, giày dép của vợ/chồng/con để order online chính xác mà không cần hỏi lại.
 
 _Tùy chọn phiên bản bạn muốn sử dụng:_
 
@@ -146,9 +146,9 @@ Biến camera an ninh thành "đôi mắt" thông minh cho trợ lý ảo. Khôn
 
 **Ứng dụng thực tế:**
 
-- **An ninh:** Kiểm tra nhanh tình hình quanh nhà khi nghe tiếng động lạ vào ban đêm.
-- **Giám sát:** Trông chừng trẻ nhỏ hoặc thú cưng mà không cần dán mắt vào màn hình điện thoại.
-- **Tiện lợi:** Xác nhận nhanh các trạng thái vật lý (cửa đóng/mở, đèn sáng/tắt) mà cảm biến có thể bỏ sót.
+- **Shipper đến:** "Xem có gói hàng nào trước cửa không?" khi bạn đang ở tầng 3 ngại chạy xuống.
+- **Trị bệnh "Hay lo":** Đã lên giường đắp chăn nhưng chợt giật mình "Cổng đã đóng chưa?", chỉ cần hỏi để Assistant nhìn giúp.
+- **Trông chừng "Boss":** Xem thú cưng đang ngủ ngoan hay đang đào bới ngoài vườn.
 
 Để sử dụng tính năng này, bạn cần cài đặt **cả 2 blueprint**:
 
@@ -181,8 +181,8 @@ Sắp xếp lịch trình bằng giọng nói như đang trò chuyện với tr�
 
 **Ứng dụng thực tế:**
 
-- Nhanh chóng tạo lời nhắc, lịch hẹn khi đang lái xe hoặc bận tay.
-- Thêm các sự kiện gia đình, công việc vào lịch ngay khi nghĩ ra.
+- **Lên kế hoạch mọi lúc:** Nhanh chóng tạo lời nhắc, lịch hẹn khi đang lái xe, nấu ăn hoặc ngay cả khi vừa nảy ra một ý tưởng bất chợt.
+- **Không bỏ lỡ:** Tự động hóa việc thêm các sự kiện quan trọng của gia đình hay công việc vào lịch mà không cần thao tác tay.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 
@@ -197,8 +197,8 @@ Hỏi và nhận thông tin về các sự kiện đã có trong lịch của b�
 
 **Ứng dụng thực tế:**
 
-- Kiểm tra nhanh lịch trình trong ngày hoặc tuần mà không cần mở ứng dụng lịch.
-- Đảm bảo bạn không bỏ lỡ các sự kiện quan trọng.
+- **Trước khi ra khỏi nhà:** Nhanh chóng kiểm tra lịch trình trong ngày hoặc tuần mà không cần mở ứng dụng lịch trên điện thoại.
+- **Xác nhận kế hoạch:** Dễ dàng kiểm tra để đảm bảo không trùng lịch hoặc bỏ lỡ các sự kiện quan trọng.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
 
@@ -228,8 +228,8 @@ Công cụ chuyển đổi lịch Âm - Dương mạnh mẽ, hoạt động hoà
 
 **Ứng dụng thực tế:**
 
-- Lên kế hoạch cho các công việc quan trọng (cưới hỏi, động thổ, khai trương).
-- Theo dõi các ngày rằm, mùng 1 để chuẩn bị đồ cúng lễ.
+- **Phong thủy & Tâm linh:** Lên kế hoạch cho các công việc trọng đại (cưới hỏi, động thổ, khai trương) dựa trên ngày tốt/xấu, giờ hoàng đạo.
+- **Văn hóa truyền thống:** Theo dõi các ngày rằm, mùng 1, ngày giỗ chạp để chuẩn bị đồ cúng lễ tươm tất.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 
@@ -246,8 +246,8 @@ Tự động thêm các sự kiện quan trọng tính theo lịch Âm (giỗ, n
 
 **Ứng dụng thực tế:**
 
-- Đảm bảo không bao giờ bỏ lỡ các ngày giỗ, cúng bái quan trọng của gia đình.
-- Tự động nhắc nhở các ngày kỷ niệm, sinh nhật tính theo lịch âm.
+- **Nhớ ngày giỗ chạp:** Đảm bảo không bao giờ bỏ lỡ các ngày giỗ, cúng bái quan trọng của gia đình.
+- **Sinh nhật âm lịch:** Tự động nhắc nhở các ngày kỷ niệm, sinh nhật tính theo lịch âm của người thân.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
 
@@ -265,8 +265,8 @@ Tự động thêm các sự kiện quan trọng tính theo lịch Âm (giỗ, n
 
 **Ứng dụng thực tế:**
 
-- Bạn đang đi làm và muốn kiểm tra xem đã tắt bếp chưa? Chỉ cần nhắn tin hỏi bot.
-- Gửi ảnh đồng hồ điện/nước để bot đọc chỉ số giúp bạn.
+- **Kiểm tra từ xa:** Đang trên đường đi làm chợt không nhớ đã tắt bếp/tắt đèn chưa? Chỉ cần nhắn tin hỏi bot.
+- **Giám sát "thầm lặng":** Muốn biết con đã về nhà chưa (qua trạng thái thiết bị) mà không làm phiền? Hỏi bot thay vì gọi điện.
 
 _Cài đặt blueprint webhook cho nền tảng bạn chọn. Để phân tích hình ảnh, cài thêm blueprint Phân tích._
 
@@ -302,8 +302,9 @@ _Cài đặt blueprint webhook cho nền tảng bạn chọn. Để phân tích 
 
 **Ứng dụng thực tế:**
 
-- Thông báo nhanh cho người thân khi bạn đang bận không thể cầm điện thoại.
-- Chia sẻ ngay lập tức một khoảnh khắc thú vị hoặc một địa điểm đẹp vừa tìm thấy.
+- **An toàn khi lái xe:** "Nhắn cho vợ là anh về muộn khoảng 30 phút" - Gửi thông báo quan trọng mà không cần rời tay khỏi vô lăng, tập trung lái xe.
+- **Thông báo khẩn:** Về nhà muộn? "Gửi tin nhắn cho mẹ là con đang trên đường về" - Nhanh chóng thông báo mà không cần gõ phím.
+- **Chia sẻ khoảnh khắc:** "Chụp ảnh camera sân gửi vào nhóm gia đình" - Chia sẻ ngay lập tức những hình ảnh thú vị.
 
 _Cài đặt blueprint cho nền tảng bạn muốn gửi tin đến:_
 
@@ -339,8 +340,9 @@ _Cài đặt blueprint cho nền tảng bạn muốn gửi tin đến:_
 
 **Ứng dụng thực tế:**
 
-- Tra cứu nhanh thông tin khi đang làm bếp, lái xe hoặc trò chuyện cùng bạn bè.
-- Giải đáp thắc mắc của trẻ nhỏ về thế giới xung quanh một cách chính xác.
+- **Trọng tài gia đình:** Đang cãi nhau với vợ/chồng về một vấn đề gì đó? "Giá vàng hôm nay là bao nhiêu?" - Giải quyết tranh luận nhanh gọn.
+- **Fact-check nhanh:** Đang nấu ăn mà quên công thức? "Công thức làm bánh flan bằng nồi cơm điện?" - Tra cứu ngay mà không cần dừng tay.
+- **Tiện ích mọi lúc:** Đang lái xe hay bận tay vẫn có thể hỏi về thời tiết, tin tức, lịch sử...
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_google_search_full_llm.yaml)
 
@@ -364,8 +366,9 @@ Biến TV của bạn thành rạp chiếu phim thông minh. Không cần remote
 
 **Ứng dụng thực tế:**
 
-- Giúp người lớn tuổi và trẻ nhỏ dễ dàng xem nội dung yêu thích mà không cần thao tác phức tạp trên remote.
-- Vừa nấu ăn vừa ra lệnh mở video hướng dẫn công thức.
+- **Dỗ trẻ:** "Mở Baby Shark" ngay lập tức để dỗ bé đang khóc mà không cần tìm remote.
+- **Thân thiện với người lớn tuổi:** Ông bà muốn nghe Cải lương/Chèo nhưng mắt kém ngại gõ phím tìm kiếm, chỉ cần nói là có.
+- **Tập trung làm việc:** "Mở nhạc Lofi Chill" để tạo không gian làm việc mà không cần thao tác trên máy tính.
 
 Để sử dụng tính năng này, bạn cần cài đặt **cả 2 blueprint**:
 
@@ -393,8 +396,8 @@ Bạn là fan cứng của "Trực Tiếp Game" hay "MixiGaming"? Blueprint này
 
 **Ứng dụng thực tế:**
 
-- Xem tin tức buổi sáng từ các kênh thời sự uy tín chỉ với một câu lệnh khi vừa thức dậy.
-- Giải trí buổi tối với các vlog du lịch mới nhất mà không cần lướt điện thoại tìm kiếm.
+- **Không bỏ lỡ idol:** Tự động thông báo khi kênh YouTube yêu thích của bạn (streamer, vlogger...) đăng tải video mới, không cần phải kiểm tra thủ công.
+- **Giải trí theo gu:** Vừa thức dậy đã có thể nói "Kênh VTV Thời sự có gì mới không?" để cập nhật tin tức hoặc "Mở video mới nhất của FAPTV" để thư giãn.
 
 [**Xem hướng dẫn chi tiết**](/home_assistant_play_favorite_youtube_channel_videos.md)
 
@@ -434,8 +437,8 @@ Mặc dù Home Assistant đã hỗ trợ điều khiển quạt cơ bản, nhưn
 
 **Ứng dụng thực tế:**
 
-- Điều chỉnh gió cho phù hợp với nhiệt độ phòng mà không cần rời khỏi giường hay ghế sofa.
-- Thiết lập nhanh chế độ "gió thoảng" (tốc độ thấp và quay) cho phòng ngủ khi đi ngủ.
+- **Thoải mái trên giường/sofa:** Điều chỉnh gió cho phù hợp với nhiệt độ phòng mà không cần rời khỏi vị trí thoải mái.
+- **Tạo "gió thoảng" nhanh:** Thiết lập nhanh chế độ "gió thoảng" (tốc độ thấp và quay) cho phòng ngủ khi đi ngủ.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_and_oscillation_control_full_llm.yaml)
 
@@ -443,26 +446,40 @@ Mặc dù Home Assistant đã hỗ trợ điều khiển quạt cơ bản, nhưn
 
 ## Voice Assist - Điều khiển Điều hòa Thông minh
 
-Giữ không khí trong lành và nhiệt độ lý tưởng trong nhà chỉ bằng giọng nói. Blueprint này giúp bạn kiểm soát máy điều hòa một cách toàn diện, từ chế độ hoạt động đến tốc độ quạt.
+Giữ không khí trong lành và nhiệt độ lý tưởng trong nhà chỉ bằng giọng nói. Blueprint này giúp bạn kiểm soát máy điều hòa một cách toàn diện, từ chế độ hoạt động, nhiệt độ đến tốc độ quạt.
+
+**Tại sao nên dùng Blueprint này thay vì tính năng có sẵn (Built-in)?**
+
+Các action mặc định của Home Assistant (`HassClimateSetTemperature`, `HassTurnOn/Off`) thường chỉ tập trung vào việc bật/tắt hoặc chỉnh nhiệt độ. Chúng **không hỗ trợ chỉnh tốc độ gió (fan speed)** và rất hạn chế trong việc chuyển đổi linh hoạt giữa các chế độ (Cool, Dry, Heat...) trong cùng một câu lệnh.
+
+Blueprint này giải quyết triệt để các hạn chế đó:
+
+- **Điều khiển Toàn diện (Mode + Fan + Temp):** Bạn có thể ra lệnh trọn gói: _"Bật máy lạnh 24 độ, chế độ mát, gió to nhất"_ và hệ thống sẽ thực hiện chính xác chỉ trong **một lần xử lý**.
+- **Logic thông minh:**
+  - **Tự động làm tròn:** Nếu máy chỉ hỗ trợ tăng giảm 1 độ nhưng bạn lỡ nói "24.5 độ", script sẽ tự làm tròn thay vì báo lỗi.
+  - **Xử lý đơn vị:** Tự động nhận diện và xử lý khi người dùng nói độ F (Fahrenheit) cho máy dùng độ C (Celsius) và ngược lại, đảm bảo an toàn với các giới hạn min/max.
+  - **Kiểm tra trước khi lệnh:** Tự động kiểm tra xem nhiệt độ có nằm trong ngưỡng cho phép (min/max) của thiết bị không trước khi gửi lệnh.
+- **Hỗ trợ Alias:** Tìm kiếm thiết bị chính xác qua tên gọi tắt (alias) mà bạn tự định nghĩa, hoạt động tốt hơn cơ chế mặc định trong các tình huống phức tạp.
 
 **Tính năng nổi bật:**
 
-- **Kiểm soát chế độ:** Chuyển đổi giữa các chế độ làm mát, sưởi ấm, hút ẩm, chỉ quạt hoặc tự động một cách dễ dàng.
-- **Điều chỉnh tốc độ quạt:** Thiết lập tốc độ quạt theo các mức cài đặt sẵn (thấp, trung bình, cao) hoặc các giá trị định lượng như "mạnh nhất", "nhẹ nhất".
-- **Hỗ trợ alias:** Nhận diện điều hòa qua tên thân mật hoặc tên bạn đã đặt trong Home Assistant.
+- **Kiểm soát chế độ:** Chuyển đổi giữa các chế độ làm mát, sưởi ấm, hút ẩm, chỉ quạt hoặc tự động.
+- **Điều chỉnh nhiệt độ:** Cài đặt nhiệt độ chính xác với các cơ chế bảo vệ thông minh.
+- **Điều chỉnh tốc độ quạt:** Thiết lập tốc độ quạt linh hoạt (thấp, trung, cao, tự động...).
 - **Xử lý nhiều thiết bị:** Điều khiển một hoặc nhiều điều hòa cùng lúc.
 
 **Ví dụ lệnh thoại:**
 
-- "Bật điều hòa phòng khách sang chế độ làm mát và quạt tốc độ trung bình."
-- "Chuyển điều hòa phòng ngủ sang chế độ khô."
-- "Tăng quạt điều hòa ở hành lang lên tốc độ cao."
+- "Bật điều hòa phòng khách 24 độ và gió mạnh nhất."
+- "Chuyển điều hòa phòng ngủ sang chế độ hút ẩm."
+- "Tăng nhiệt độ điều hòa hành lang lên 26 độ."
 - "Tắt tất cả điều hòa."
 
 **Ứng dụng thực tế:**
 
-- Điều chỉnh môi trường sống theo ý muốn mà không cần tìm remote.
-- Tiết kiệm năng lượng bằng cách thiết lập chế độ phù hợp.
+- **Chế độ "Đêm khuya":** Khi đang ngủ mà cảm thấy quá lạnh hoặc quá nóng, bạn chỉ cần nói buông quơ để điều chỉnh mà không cần mở mắt tìm remote hay bị lóa mắt bởi màn hình điện thoại.
+- **Thân thiện với người lớn tuổi & trẻ nhỏ:** Thay vì phải nhớ các biểu tượng rắc rối trên remote (bông tuyết, giọt nước, hình mặt trời...), người nhà chỉ cần ra lệnh bằng tiếng Việt tự nhiên: _"Bật chế độ hút ẩm"_.
+- **Rảnh tay tuyệt đối:** Vừa đi làm về, tay xách nách mang, chỉ cần nói một câu: _"Bật máy lạnh 20 độ gió to nhất"_ để tận hưởng không khí mát lạnh ngay lập tức mà không cần thao tác thủ công.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fac_mode_and_fan_control_full_llm.yaml)
 
@@ -485,8 +502,8 @@ Giữ không khí trong lành và nhiệt độ lý tưởng trong nhà chỉ b�
 
 **Ứng dụng thực tế:**
 
-- Tiết kiệm thời gian tìm kiếm đồ đạc mỗi khi vội ra khỏi nhà.
-- Giám sát xem con cái đã đi học về nhà an toàn chưa (thiết bị đã kết nối mạng nhà).
+- **Ác mộng "Chế độ im lặng":** Điện thoại rơi đâu đó trong khe sofa mà lại đang tắt chuông? Assistant sẽ bắt nó đổ chuông ầm ĩ ngay lập tức.
+- **Vội đi làm:** Sáng ra muộn giờ mà không thấy chìa khóa xe hay điện thoại đâu, chỉ cần hỏi để định vị phòng nào.
 
 [**Xem hướng dẫn chi tiết**](/home_assistant_device_location_lookup_guide.md)
 
@@ -512,8 +529,8 @@ Tra cứu tình trạng phạt nguội của bất kỳ phương tiện nào b�
 
 **Ứng dụng thực tế:**
 
-- Kiểm tra định kỳ xe của gia đình.
-- Kiểm tra xe cũ trước khi mua để tránh các khoản phạt tồn đọng.
+- **Kiểm tra định kỳ:** "Kiểm tra phạt nguội xe 30A-123.45" - Đảm bảo phương tiện của bạn không có vi phạm tồn đọng trước khi đi đăng kiểm hoặc làm thủ tục hành chính.
+- **Phòng tránh rắc rối:** Chủ động nắm bắt thông tin phạt nguội của bản thân hoặc người thân để xử lý kịp thời, tránh các phiền phức không đáng có.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
 
@@ -533,8 +550,8 @@ Nhận cảnh báo ngay khi có vi phạm giao thông mới được ghi nhận 
 
 **Ứng dụng thực tế:**
 
-- Giúp bạn nắm được thông tin vi phạm sớm để xử lý kịp thời.
-- Quản lý tình trạng phạt nguội cho tất cả phương tiện của gia đình một cách tự động.
+- **Nắm bắt sớm thông tin:** Nhận cảnh báo ngay lập tức để xử lý phạt nguội kịp thời, tránh tình trạng bị phạt chồng hoặc tăng nặng.
+- **Quản lý chủ động:** Tự động theo dõi và quản lý tình trạng phạt nguội cho tất cả phương tiện của gia đình mà không cần kiểm tra thủ công.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
@@ -546,8 +563,8 @@ Nhận cảnh báo ngay khi có vi phạm giao thông mới được ghi nhận 
 
 **Ứng dụng thực tế:**
 
-- Một công tắc vật lý có thể điều khiển một bóng đèn thông minh không nối dây trực tiếp.
-- Bật một đèn thì các đèn khác trong cùng khu vực cũng bật theo.
+- **Nhà cũ dùng công tắc thông minh:** Bật/tắt đèn ở cầu thang hoặc hành lang linh hoạt từ nhiều công tắc, kể cả công tắc cơ hoặc không dây.
+- **Ánh sáng theo nhóm:** Bật một công tắc vật lý sẽ kích hoạt toàn bộ đèn trong khu vực (đèn trần, đèn hắt, đèn trang trí) cùng lúc, tạo không gian ngay lập tức.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Flink_multiple_devices.yaml)
 

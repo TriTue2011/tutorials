@@ -74,9 +74,9 @@ This blueprint transforms Voice Assist into a true time management assistant. Yo
 
 **Use Cases:**
 
-- **Energy Saving:** Schedule heaters, water heaters, or fans to turn off after you fall asleep.
-- **Comfort:** Automatically adjust lighting and curtains based on your routine without reaching for your phone.
-- **Peace of Mind:** Never worry about forgetting to turn off important devices thanks to the auto-restore feature.
+- **Battery Protection:** "Charge phone for 2 hours then turn off socket" - Helps you charge overnight without worrying about battery degradation.
+- **Hands-Free Cooking:** "Turn off the hood in 20 minutes" - Perfect when you've finished cooking and want to go for a walk.
+- **Sleep Comfort:** "Turn the fan to the lowest speed for 1 hour then turn off" - Avoid waking up cold or with a dry throat.
 
 For full functionality, you need to install **all 3 blueprints**:
 
@@ -113,9 +113,9 @@ Forget where you parked the car? Keep forgetting the Wi-Fi password for guests? 
 
 **Use Cases:**
 
-- Securely store rarely used but critical information.
-- Share common household info without texting back and forth.
-- Quickly note down to-dos or item locations the moment you think of them.
+- **Finding Lost Items:** "Where is the passport?" - A lifesaver when you need it urgently and can't remember which drawer it's in.
+- **Complex Info:** Store long Wi-Fi passwords or bank account numbers so you can provide them instantly when guests ask.
+- **Shopping Assistant:** Save clothing/shoe sizes for your spouse/kids to order online accurately without asking again.
 
 _Choose the version you want to use:_
 
@@ -146,9 +146,9 @@ Turn your security cameras into "smart eyes" for your virtual assistant. No need
 
 **Use Cases:**
 
-- **Security:** Quickly check the situation around the house when you hear a strange noise at night.
-- **Monitoring:** Keep an eye on children or pets without being glued to your phone screen.
-- **Convenience:** Quickly confirm physical states (door open/closed, lights on/off) that sensors might miss.
+- **Delivery Check:** "Is there a package at the door?" when you're on the 3rd floor and too lazy to run down.
+- **Anxiety Relief:** Already in bed but suddenly panicked "Is the gate closed?", just ask Assistant to check for you.
+- **Pet Monitor:** Check if your pet is sleeping nicely or digging up the garden.
 
 To use this feature, you need to install **both blueprints**:
 
@@ -181,8 +181,8 @@ Organize your schedule by voice as if you're conversing with an assistant. This 
 
 **Use Cases:**
 
-- Quickly create reminders and appointments while driving or when your hands are full.
-- Add family or work events to your calendar the moment they come to mind.
+- **Plan Anytime:** Quickly create reminders and appointments while driving, cooking, or when a sudden idea strikes.
+- **Never Miss Out:** Automate adding important family or work events to your calendar without manual input.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_calendar_event_full_llm.yaml)
 
@@ -197,8 +197,8 @@ Inquire about and retrieve information regarding existing events in your calenda
 
 **Use Cases:**
 
-- Get a quick overview of your day or week without needing to open your calendar app.
-- Ensure you don't miss any important events.
+- **Before Leaving Home:** Quickly check your schedule for the day or week without needing to open your calendar app on your phone.
+- **Confirm Plans:** Easily verify to ensure no double-bookings or missed important events.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcalendar_events_lookup_full_llm.yaml)
 
@@ -228,8 +228,8 @@ A powerful Solar-Lunar calendar conversion tool that works completely **Offline*
 
 **Use Cases:**
 
-- Plan for important tasks (weddings, groundbreakings, grand openings).
-- Keep track of the 1st and 15th of the lunar month for traditional observances.
+- **Feng Shui & Spirituality:** Plan important events (weddings, groundbreakings, grand openings) based on auspicious days/hours.
+- **Traditional Observances:** Keep track of the 1st and 15th of the lunar month, or memorial days to prepare offerings.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdate_lookup_and_conversion_full_llm.yaml)
 
@@ -246,8 +246,8 @@ Automatically add important events based on the Lunar calendar (memorials, anniv
 
 **Use Cases:**
 
-- Ensure you never miss important family memorials or ceremonies.
-- Automatically get reminders for anniversaries or birthdays that are celebrated based on the lunar calendar.
+- **Never Miss Memorials:** Ensure you never miss important family memorials or ceremonies.
+- **Lunar Birthdays:** Automatically get reminders for anniversaries or birthdays that are celebrated based on the lunar calendar for loved ones.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcreate_lunar_events.yaml)
 
@@ -265,8 +265,8 @@ Don't just command; converse with your home. Create Telegram or Zalo Bots to con
 
 **Use Cases:**
 
-- At work and want to check if you turned off the stove? Just message the bot.
-- Send a photo of your electricity/water meter for the bot to read the index for you.
+- **Remote Check-ins:** On your way to work and can't remember if you turned off the stove/lights? Just message the bot to check.
+- **Silent Monitoring:** Want to know if your kids are home yet (via device status) without bothering them? Ask the bot instead of calling.
 
 _Install the webhook blueprint for your chosen platform. For image analysis, also install the Analyzer blueprint._
 
@@ -302,8 +302,9 @@ Driving or hands messy? Use your voice to send messages, share your location, or
 
 **Use Cases:**
 
-- Quickly inform family when you're busy and can't use your phone.
-- Instantly share an interesting moment or a beautiful place you've just discovered.
+- **Driving Safety:** "Message my wife I'll be home in 30 minutes" - Send important updates without taking your hands off the wheel, focusing on driving.
+- **Urgent Notifications:** Running late? "Message mom I'm on my way home" - Quickly inform without typing.
+- **Capture Moments:** "Take a photo from the yard camera and send it to the family group" - Instantly share interesting images.
 
 _Install the blueprint for the platform you want to send messages to:_
 
@@ -339,8 +340,9 @@ Don't let Assistant just toggle lights. Turn it into a living encyclopedia, read
 
 **Use Cases:**
 
-- Quickly look up information while cooking, driving, or chatting with friends.
-- Answer children's questions about the world around them accurately.
+- **Family Arbitrator:** Arguing with your spouse about something? "What's the gold price today?" - Settle debates quickly.
+- **Quick Fact-Check:** Cooking and forgot a recipe? "Recipe for flan using a rice cooker?" - Look it up instantly without pausing your cooking.
+- **Convenience Anytime:** Driving or hands full? Still ask about weather, news, history, etc.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fadvanced_google_search_full_llm.yaml)
 
@@ -364,8 +366,9 @@ Transform your TV into a smart home cinema. No remote needed, no typing required
 
 **Use Cases:**
 
-- Help seniors and children easily watch their favorite content without complicated remote operations.
-- Cook while commanding Assistant to play a recipe tutorial video.
+- **Child Soothing:** "Play Baby Shark" instantly to calm a crying baby without hunting for the remote.
+- **Elderly Friendly:** Grandparents who can't type or see well can just ask to listen to their favorite traditional opera.
+- **Work Focus:** "Play Lofi Chill music" to set the mood for work without touching your computer.
 
 To use this feature, you need to install **both blueprints**:
 
@@ -393,8 +396,8 @@ Are you a die-hard fan of "MrBeast" or "Linus Tech Tips"? This blueprint ensures
 
 **Use Cases:**
 
-- Watch morning news from trusted channels with just a voice command after waking up.
-- Enjoy evening entertainment with the latest travel vlogs without endless scrolling.
+- **Never Miss Your Favorite Creator:** Get notified automatically when your favorite YouTube channels (streamers, vloggers...) upload new videos, no manual checking needed.
+- **Personalized Entertainment:** Just woke up? "Is there anything new on VTV News?" for updates, or "Play the latest video from FAPTV" to relax.
 
 [**View the detailed guide**](/home_assistant_play_favorite_youtube_channel_videos_en.md)
 
@@ -434,8 +437,8 @@ Although Home Assistant already supports basic fan control, this blueprint offer
 
 **Use Cases:**
 
-- Adjust the airflow to suit the room's temperature without leaving your bed or sofa.
-- Quickly set a "breeze" mode (low speed and oscillation) for the bedroom when going to sleep.
+- **Comfort from Bed/Sofa:** Adjust the airflow to suit the room's temperature without leaving your comfy spot.
+- **Quick "Breeze" Setup:** Quickly set a "breeze" mode (low speed and oscillation) for the bedroom before going to sleep.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ffan_speed_and_oscillation_control_full_llm.yaml)
 
@@ -443,26 +446,40 @@ Although Home Assistant already supports basic fan control, this blueprint offer
 
 ## Voice Assist - Smart AC Control
 
-Maintain fresh air and ideal temperatures in your home using just your voice. This blueprint gives you comprehensive control over your air conditioner, from operating modes to fan speed.
+Maintain fresh air and ideal temperatures in your home using just your voice. This blueprint gives you comprehensive control over your air conditioner, from operating modes and temperature to fan speed.
+
+**Why use this Blueprint instead of built-in features?**
+
+Home Assistant's default actions (`HassClimateSetTemperature`, `HassTurnOn/Off`) primarily focus on turning devices on/off or setting the temperature. They **do not support fan speed control** and are limited in handling flexible mode switching (Cool, Dry, Heat...) within a single command.
+
+This blueprint solves these limitations entirely:
+
+- **All-in-One Control (Mode + Fan + Temp):** You can issue a complete command like _"Turn on the AC to 24 degrees, cool mode, max fan speed"_, and the system handles it perfectly in a **single turn**.
+- **Smart Logic:**
+  - **Auto-rounding:** If the device only supports 1-degree steps but you say "24.5 degrees", the script automatically rounds it instead of erroring out.
+  - **Unit Handling:** Automatically detects and handles Fahrenheit/Celsius conversions, ensuring safety with min/max limits.
+  - **Pre-check:** Validates if the requested temperature is within the device's allowed range before sending the command.
+- **Alias Support:** Identifies devices accurately via your custom friendly aliases, working better than the default mechanism in complex situations.
 
 **Key Features:**
 
 - **Mode Control:** Easily switch between cooling, heating, dry, fan-only, or auto modes.
+- **Temperature Control:** Set precise temperatures with smart safety mechanisms.
 - **Fan Speed Adjustment:** Set fan speed to preset levels (low, medium, high) or qualitative values like "maximum," "minimum."
-- **Alias Support:** Recognizes your AC by its friendly name or any name you've configured in Home Assistant.
 - **Multi-Device Handling:** Control one or multiple air conditioners simultaneously.
 
 **Example Voice Commands:**
 
-- "Set the living room AC to cool mode and medium fan speed."
+- "Set the living room AC to 24 degrees and max fan speed."
 - "Change the bedroom AC to dry mode."
-- "Increase the hallway AC fan speed to high."
+- "Increase the hallway AC temperature to 26 degrees."
 - "Turn off all air conditioners."
 
 **Use Cases:**
 
-- Adjust your home environment to your liking without needing to find the remote.
-- Save energy by setting appropriate modes and speeds.
+- **"Night Mode":** When you're sleeping and feel too cold or hot, just say a command to adjust it without opening your eyes to find the remote or being blinded by your phone screen.
+- **Elderly & Child Friendly:** Instead of remembering complex symbols on the remote (snowflake, water drop...), family members can just use natural commands: _"Turn on dry mode"_.
+- **Totally Hands-Free:** Just got home with your hands full? Simply say: _"Turn on the AC to 20 degrees, max wind"_ to enjoy cool air instantly without manual operation.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fac_mode_and_fan_control_full_llm.yaml)
 
@@ -485,8 +502,8 @@ Maintain fresh air and ideal temperatures in your home using just your voice. Th
 
 **Use Cases:**
 
-- Save time searching for misplaced items when you're rushing out the door.
-- Check if your kids have safely arrived home (device connected to home network).
+- **The "Silent Mode" Nightmare:** Phone fell in the sofa and it's on silent? Assistant will make it ring loudly instantly.
+- **Morning Rush:** Late for work and can't find your car keys or phone? Just ask to locate which room they are in.
 
 [**View the detailed guide**](/home_assistant_device_location_lookup_guide_en.md)
 
@@ -518,8 +535,8 @@ Drive with peace of mind. Check traffic violation status for any vehicle by voic
 
 **Use Cases:**
 
-- Periodically check your family's vehicles for fines.
-- Verify a used car's history for outstanding fines before purchase.
+- **Periodic Checks:** "Check fines for car 30A-123.45" - Ensure your vehicle has no outstanding violations before inspections or administrative procedures.
+- **Proactive Management:** Proactively check your or your family's traffic fine status to handle them promptly and avoid unnecessary complications.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
 
@@ -539,8 +556,8 @@ Never miss an important alert. Receive instant notifications the moment a new tr
 
 **Use Cases:**
 
-- Act quickly on violations to handle them in time and avoid escalating penalties.
-- Automate the management of traffic fine status for all your household vehicles.
+- **Timely Awareness:** Receive immediate alerts to address traffic fines promptly, preventing accumulating penalties or escalated issues.
+- **Proactive Management:** Automatically monitor and manage the traffic fine status for all your household vehicles without manual checks.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
@@ -552,8 +569,8 @@ Seamlessly synchronize the `on/off` state between multiple devices, acting like 
 
 **Use Cases:**
 
-- Control a smart bulb wirelessly from a physical switch that's not directly wired to it.
-- Turning on one light can automatically activate other lights in the same area for coordinated ambiance.
+- **Old House, Smart Switches:** Flexibly control lights in stairwells or hallways from multiple switches, including mechanical or wireless ones.
+- **Group Lighting:** Flipping one physical switch activates all lights in an area (ceiling light, accent lights, decorative lights) simultaneously, instantly creating the desired ambiance.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Flink_multiple_devices.yaml)
 

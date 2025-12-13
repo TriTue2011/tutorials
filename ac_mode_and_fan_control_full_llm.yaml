@@ -1,8 +1,8 @@
 blueprint:
-  name: Voice - Control AC Mode & Fan Speed
+  name: Voice - Control AC Mode, Temp & Fan Speed
   author: luuquangvu
   description: |
-    # Tool for Controlling Air Conditioner Mode and Fan Speed used for Voice Assistant
+    # Tool for Controlling Air Conditioner Mode, Temperature and Fan Speed used for Voice Assistant
 
     ## Blueprint Setup
 
@@ -40,7 +40,7 @@ blueprint:
 
     ### Note
 
-    - Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling modes and fan speeds of a smart air conditioner.
+    - Provide a concise and precise description for the script. This will be utilized by the LLM to understand it should use this script for controlling modes, temperature, and fan speeds of a smart air conditioner.
     - Make sure to expose the air conditioner entities you want to control to Assist.
     - Make sure to expose the script to Assist after the script has been saved.
     - Do not alter the default script name.
@@ -87,6 +87,17 @@ blueprint:
             Use this argument to set the AC mode. Accepted values: auto, cool, heat, dry, fan_only, off.
             Include this only when the user explicitly requests a mode change; otherwise omit it.
             If the requested mode is not in the device's supported modes, return an error instead of guessing or changing another field.
+        temperature_prompt:
+          name: Temperature Prompt
+          description: The prompt which will be used for the LLM can provide the target temperature.
+          selector:
+            text:
+              multiline: true
+          default: |
+            Use this argument to set the target temperature. Input should be a number (e.g., 24, 25.5).
+            Ensure the number matches the device's unit system (usually Celsius). If the user provides Fahrenheit for a Celsius device, convert it first.
+            Do not include units like 'C' or 'F'.
+            Include this only when the user explicitly requests a temperature change.
         fan_mode_prompt:
           name: Fan Mode Prompt
           description: The prompt which will be used for the LLM can provide the fan speed/mode of the AC.
@@ -100,9 +111,9 @@ blueprint:
             If no supported fan mode matches for a device, return an error instead of guessing or changing another field.
 mode: parallel
 max_exceeded: silent
-description: Controls the mode and/or fan speed of one or more specified air conditioners.
+description: Controls the mode, temperature, and/or fan speed of one or more specified air conditioners.
 variables:
-  version: 20251212
+  version: 20251213
 fields:
   ac_entities:
     name: AC Entities
@@ -115,6 +126,11 @@ fields:
     description: !input hvac_mode_prompt
     selector:
       text:
+  temperature:
+    name: Temperature
+    description: !input temperature_prompt
+    selector:
+      text:
   fan_mode:
     name: Fan Mode
     description: !input fan_mode_prompt
@@ -125,6 +141,7 @@ sequence:
       entity_aliases: !input entity_aliases
       ac_entities: "{{ ac_entities | default('') | trim }}"
       hvac_mode: "{{ hvac_mode | default('') | trim | lower }}"
+      temperature: "{{ temperature | default('') | trim | replace(' degrees', '') | replace(' degree', '') | replace('°C', '') | replace('°F', '') | replace('C', '') | replace('F', '') | replace('°', '') | replace(' ', '') }}"
       fan_mode: "{{ fan_mode | default('') | trim | lower }}"
       alias_map:
         auto: ["auto", "automatic"]
@@ -158,20 +175,19 @@ sequence:
   - alias: Validate Modes and Prepare Execution Data
     variables:
       processed_data: |
-        {% set result = namespace(invalid=false, reasons=[], hvac_missing=[], fan_missing=[], resolved_fans=[]) %}
+        {% set result = namespace(invalid=false, reasons=[], hvac_missing=[], temp_issues=[], fan_missing=[], resolved_fans=[], resolved_temps=[]) %}
         {% if resolution.missing | length > 0 %}
           {% set result.invalid = true %}
           {% set result.reasons = result.reasons + ['AC not found: ' ~ (resolution.missing | join(', '))] %}
         {% endif %}
-        {% if (not hvac_mode) and (not fan_mode) %}
+        {% if (not hvac_mode) and (not fan_mode) and (not temperature) %}
           {% set result.invalid = true %}
-          {% set result.reasons = result.reasons + ['Missing both hvac_mode and fan_mode'] %}
+          {% set result.reasons = result.reasons + ['Missing hvac_mode, temperature, and fan_mode'] %}
         {% endif %}
         {% set input_fan_norm = fan_mode | replace(' ', '') | replace('_', '') | lower %}
 
         {% for entity_id in resolution.entities %}
           {% set device_name = state_attr(entity_id, 'friendly_name') %}
-          
           {% if hvac_mode %}
             {% set supported_hvac = state_attr(entity_id, 'hvac_modes') | default([]) %}
             {% set hvac_support = namespace(modes=[]) %}
@@ -191,12 +207,42 @@ sequence:
               {% set result.reasons = result.reasons + ['hvac_mode ' ~ hvac_mode ~ ' not in ' ~ (hvac_support.modes | join(', '))] %}
             {% endif %}
           {% endif %}
-
+          {% if temperature %}
+             {% set raw_t_val = temperature | float(0) %}
+             {% if raw_t_val == 0 %}
+               {% set result.invalid = true %}
+               {% set result.temp_issues = result.temp_issues + [device_name ~ ' invalid temp format: ' ~ temperature] %}
+               {% set result.reasons = result.reasons + ['Temperature ' ~ temperature ~ ' is not a valid number'] %}
+             {% else %}
+               {% if raw_t_val > 45 %}
+                 {% set def_min = 60 %}
+                 {% set def_max = 86 %}
+               {% else %}
+                 {% set def_min = 16 %}
+                 {% set def_max = 30 %}
+               {% endif %}
+               {% set min_t = state_attr(entity_id, 'min_temp') | default(def_min) | float %}
+               {% set max_t = state_attr(entity_id, 'max_temp') | default(def_max) | float %}
+               {% set step = state_attr(entity_id, 'target_temp_step') | default(1) | float %}
+               {% if step == 1 %}
+                  {% set t_val = raw_t_val | round(0) %}
+               {% else %}
+                  {% set t_val = raw_t_val %}
+               {% endif %}
+               {% if t_val < min_t or t_val > max_t %}
+                  {% set result.invalid = true %}
+                  {% set result.temp_issues = result.temp_issues + [device_name ~ ' limits: ' ~ min_t ~ '-' ~ max_t] %}
+                  {% set result.reasons = result.reasons + ['Temperature ' ~ t_val ~ ' out of range (' ~ min_t ~ '-' ~ max_t ~ ')'] %}
+               {% endif %}
+               {% set result.resolved_temps = result.resolved_temps + [t_val] %}
+             {% endif %}
+          {% else %}
+             {% set result.resolved_temps = result.resolved_temps + [''] %}
+          {% endif %}
           {% if fan_mode %}
             {% set supported_fan = state_attr(entity_id, 'fan_modes') | default([]) %}
             {% set fan_check = namespace(matched=false, resolved_mode='') %}
             {% set fan_support = namespace(aliases=[]) %}
-            
             {% for mode in supported_fan %}
               {% set norm_mode = mode | lower | replace(' ', '') | replace('_', '') %}
               {% set alias_builder = namespace(list=[norm_mode]) %}
@@ -205,14 +251,12 @@ sequence:
                   {% set alias_builder.list = alias_builder.list + aliases %}
                 {% endif %}
               {% endfor %}
-
               {% if input_fan_norm in alias_builder.list %}
                 {% set fan_check.matched = true %}
                 {% set fan_check.resolved_mode = mode %}
               {% endif %}
               {% set fan_support.aliases = fan_support.aliases + alias_builder.list %}
             {% endfor %}
-
             {% if not fan_check.matched %}
               {% set result.invalid = true %}
               {% set result.fan_missing = result.fan_missing + [device_name ~ ' supports: ' ~ (supported_fan | map('string') | list | join(', '))] %}
@@ -224,7 +268,6 @@ sequence:
             {% set result.resolved_fans = result.resolved_fans + [''] %}
           {% endif %}
         {% endfor %}
-
         {% if result.invalid %}
           {% set result.reasons = result.reasons + ['invalid=true'] %}
         {% endif %}
@@ -232,8 +275,10 @@ sequence:
           'invalid': result.invalid,
           'reasons': result.reasons,
           'hvac_missing': result.hvac_missing,
+          'temp_issues': result.temp_issues,
           'fan_missing': result.fan_missing,
-          'resolved_fans': result.resolved_fans
+          'resolved_fans': result.resolved_fans,
+          'resolved_temps': result.resolved_temps
         } }}
 
   - alias: Error Handling
@@ -246,6 +291,7 @@ sequence:
             error: |
               Unable to control the air conditioner.
               {{ 'HVAC mismatch: ' ~ processed_data.hvac_missing | join(' | ') if processed_data.hvac_missing else '' }}
+              {{ 'Temp issues: ' ~ processed_data.temp_issues | join(' | ') if processed_data.temp_issues else '' }}
               {{ 'Fan mismatch: ' ~ processed_data.fan_missing | join(' | ') if processed_data.fan_missing else '' }}
               {{ 'Reasons: ' ~ processed_data.reasons | join(' | ') if processed_data.reasons else '' }}
       - stop: "Validation failed"
@@ -258,8 +304,27 @@ sequence:
         - variables:
             entity_id: "{{ resolution.entities[repeat.index - 1] }}"
             target_fan: "{{ processed_data.resolved_fans[repeat.index - 1] }}"
+            target_temp: "{{ processed_data.resolved_temps[repeat.index - 1] if processed_data.resolved_temps else '' }}"
         - choose:
-            - conditions: "{{ hvac_mode != '' }}"
+            - conditions: "{{ target_temp != '' }}"
+              sequence:
+                - choose:
+                    - conditions: "{{ hvac_mode != '' }}"
+                      sequence:
+                        - action: climate.set_temperature
+                          target:
+                            entity_id: "{{ entity_id }}"
+                          data:
+                            temperature: "{{ target_temp }}"
+                            hvac_mode: "{{ hvac_mode }}"
+                    - conditions: "{{ hvac_mode == '' }}"
+                      sequence:
+                        - action: climate.set_temperature
+                          target:
+                            entity_id: "{{ entity_id }}"
+                          data:
+                            temperature: "{{ target_temp }}"
+            - conditions: "{{ target_temp == '' and hvac_mode != '' }}"
               sequence:
                 - action: climate.set_hvac_mode
                   target:
@@ -281,12 +346,19 @@ sequence:
         success: |
           {% set count = resolution.entities | length %}
           {% set names = ac_entities %}
-          {% if hvac_mode and fan_mode %}
-            Set {{ names }} to {{ hvac_mode }} mode with fan mode {{ fan_mode }}.
-          {% elif hvac_mode %}
-            Set {{ names }} to {{ hvac_mode }} mode.
-          {% elif fan_mode %}
-            Set fan mode {{ fan_mode }} for {{ names }}.
+          {% set parts = [] %}
+          {% if hvac_mode %}
+            {% set parts = parts + ['mode to ' ~ hvac_mode] %}
+          {% endif %}
+          {% if temperature %}
+            {% set parts = parts + ['temperature to ' ~ temperature] %}
+          {% endif %}
+          {% if fan_mode %}
+            {% set parts = parts + ['fan to ' ~ fan_mode] %}
+          {% endif %}
+
+          {% if parts | length > 0 %}
+            Set {{ names }} {{ parts | join(', ') }}.
           {% else %}
             Updated AC settings for {{ names }}.
           {% endif %}

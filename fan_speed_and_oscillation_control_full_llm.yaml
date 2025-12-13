@@ -128,7 +128,7 @@ blueprint:
             Do not include both 'percentage' and 'speed_adjustment'. Prefer 'percentage' when the user specifies an explicit target. Do not ask clarifying questions.
 mode: parallel
 max_exceeded: silent
-description: Controls the speed and oscillation of one or more specified fans.
+description: Controls the speed and/or oscillation of one or more specified fans.
 variables:
   version: 20251212
 fields:
@@ -238,7 +238,6 @@ sequence:
           {% for entity_id in devices -%}
             {% set feats = (state_attr(entity_id, 'supported_features') | int(0)) -%}
             {% set device_name = state_attr(entity_id, 'friendly_name') | default(entity_id) -%}
-            {# Feature bit assumptions: speed=1, oscillate=2 (matches FanEntityFeature in HA) #}
             {% set osc_ok = (((feats // 2) % 2) == 1) or (state_attr(entity_id, 'oscillating') is not none) -%}
             {% if not osc_ok -%}
               {% set result.values = result.values + [device_name] -%}

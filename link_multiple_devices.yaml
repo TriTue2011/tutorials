@@ -22,10 +22,10 @@ blueprint:
       selector:
         entity:
           multiple: true
-mode: restart
+mode: parallel
 max_exceeded: silent
 variables:
-  version: 20251209
+  version: 20251222
   linked_entities: !input linked_entities
 triggers:
   - trigger: state
@@ -36,9 +36,6 @@ triggers:
     to:
       - "off"
       - "on"
-conditions:
-  - condition: template
-    value_template: "{{ trigger.to_state.state != trigger.from_state.state }}"
 actions:
   - variables:
       command: "turn_{{ trigger.to_state.state }}"

@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Ring Device
   author: luuquangvu
-  description: |
+  description: |-
     # Device Ringing Tool used for Voice Assistant
 
     ## Blueprint Setup
@@ -39,7 +39,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the Ring ID of the device you want to activate its ringing function.
 mode: parallel
@@ -96,7 +96,7 @@ sequence:
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: |
+        success: >-
           Sent 5 critical ring notifications to {{ ring_id }} successfully.
   - stop: Finish and return response data
     response_variable: response

@@ -1,7 +1,7 @@
 blueprint:
   name: Check The Device Turns On Manually
   author: luuquangvu
-  description: |
+  description: |-
     # Verify whether the device activated manually or via automation/application
 
     - Prevents false triggers when device comes back from unavailable/unknown state.

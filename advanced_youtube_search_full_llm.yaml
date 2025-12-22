@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Perform YouTube Search
   author: luuquangvu
-  description: |
+  description: |-
     # Tool for searching YouTube videos used for Voice Assistant
 
     ## Blueprint Setup
@@ -69,7 +69,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the search string to obtain a list of videos.
             If the query contains errors caused by user mispronunciation, correct it to the most likely accurate search string and ask the user for confirmation before proceeding.
@@ -80,7 +80,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is optional.
             Specify the page token to obtain additional videos.
             Use it when the initial query results are unsatisfying and the user wants to find more videos.
@@ -135,7 +135,7 @@ sequence:
     else:
       - variables:
           response:
-            entries: |
+            entries: |-
               {% for entry in response.get('items') if entry.id.kind == 'youtube#video' -%}
               - channel: {{ entry.snippet.channelTitle | lower }}
                 title: {{ entry.snippet.title | lower }}

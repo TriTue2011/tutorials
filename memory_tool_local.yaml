@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Memory Tool
   author: luuquangvu
-  description: |
+  description: |-
     # Fully local universal memory tool used for Voice Assistant
 
     ## Blueprint Setup
@@ -211,10 +211,10 @@ variables:
     fourth: 4
     five: 5
     fifth: 5
-  key_norm: |
+  key_norm: >-
     {% set k = (key_phrase or '') | lower | trim -%}
     {{ k }}
-  tags_auto: |
+  tags_auto: >-
     {% set phrase = (key_phrase or '') | lower | trim -%}
     {{ phrase if phrase else 'note' }}
 
@@ -295,7 +295,7 @@ actions:
                 sequence:
                   - variables:
                       matches: "{{ resp_set.matches[:max_choices] }}"
-                      prompt_text: |
+                      prompt_text: |-
                         I found similar entries:
 
                         {% for m in matches -%}
@@ -303,7 +303,7 @@ actions:
 
                         {% endfor -%}
                         Say a number to update that existing entry, or say {{ (create_new_cmds[0] if create_new_cmds else 'create new') }} to save as a new entry, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                      cache_payload: |
+                      cache_payload: >-
                         {% set ns = namespace(items=[]) %}
                         {% for m in matches %}
                         {% set ns.items = ns.items + [{'key': m.key, 'value': (m.value or '') | string | truncate(15)}] %}
@@ -343,11 +343,11 @@ actions:
                 sequence:
                   - variables:
                       kget: "{{ resp_get.key | default(key_norm or key_phrase) }}"
-                      prompt_text: |
+                      prompt_text: |-
                         This entry has expired{% if resp_get.value | default('', true) -%}: {{ resp_get.value | string | truncate(15) }}{% endif -%}.
 
                         Say {{ (restore_cmds[0] if restore_cmds else 'restore') }} to reactivate, say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to store a new value, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                      cache_payload: |
+                      cache_payload: >-
                         {{ {
                           'pending_action': 'get_expired_choice',
                           'key': kget,
@@ -376,7 +376,7 @@ actions:
                       items: "{{ resp_get.matches[:max_choices] }}"
                   - variables:
                       items: "{{ resp_get.matches[:max_choices] }}"
-                      prompt_text: |
+                      prompt_text: |-
                         I found a few candidates:
 
                         {% for it in items -%}
@@ -384,7 +384,7 @@ actions:
 
                         {% endfor -%}
                         Say a number to open it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                      cache_payload: |
+                      cache_payload: >-
                         {% set ns = namespace(items=[]) %}
                         {% for it in items %}
                         {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
@@ -420,7 +420,7 @@ actions:
                       prompt_text: "No matching results for '{{ key_phrase }}'. Say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to create it?"
                   - set_conversation_response: "{{ prompt_text }}"
                   - variables:
-                      cache_payload: |
+                      cache_payload: >-
                         {{ {
                           'pending_action': 'get_expired_choice',
                           'key': key_norm if key_norm|length > 0 else (key_phrase | lower | trim | regex_replace('\\s+', '_')),
@@ -440,7 +440,7 @@ actions:
             default:
               - variables:
                   all_items: "{{ resp_s.results }}"
-                  prompt_text: |
+                  prompt_text: |-
                     {% set total = all_items | length %}
                     {% set start_idx = 0 %}
                     {% set end_idx = [max_choices, total] | min %}
@@ -452,7 +452,7 @@ actions:
 
                     {% endfor -%}
                     Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                  cache_payload: |
+                  cache_payload: >-
                     {{ {
                       'pending_action': 'search_results',
                       'results': all_items,
@@ -474,9 +474,9 @@ actions:
                 value_template: "{{ must_confirm_delete }}"
             then:
               - variables:
-                  prompt_text: |
+                  prompt_text: |-
                     Delete {{ (key_norm or key_phrase) | replace('_', ' ') }}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                  cache_payload: |
+                  cache_payload: >-
                     {{ {
                       'pending_action': 'forget_confirm_primary',
                       'key': key_norm if key_norm|length > 0 else (key_phrase | lower | replace(' ','_')),
@@ -506,7 +506,7 @@ actions:
                     sequence:
                       - variables:
                           itemsd: "{{ resp_forget.matches[:max_choices] }}"
-                          prompt_text: |
+                          prompt_text: |-
                             I found a few candidates:
 
                             {% for it in itemsd -%}
@@ -514,7 +514,7 @@ actions:
 
                             {% endfor -%}
                             Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                          cache_payload: |
+                          cache_payload: >-
                             {% set ns = namespace(items=[]) %}
                             {% for it in itemsd %}
                             {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
@@ -555,7 +555,7 @@ actions:
                           - variables:
                               resume_sentence: "{{ trigger.sentence | default('', true) | string | lower }}"
                               matches_ctx: "{{ resume_payload.matches | default([], true) }}"
-                              pick_num: |
+                              pick_num: >-
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
@@ -632,7 +632,7 @@ actions:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
                               items_ctx: "{{ resume_payload.entries | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
-                              pick_num: |
+                              pick_num: >-
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
@@ -664,12 +664,12 @@ actions:
                                       - conditions: "{{ resp_resume_get.error == 'expired' }}"
                                         sequence:
                                           - variables:
-                                              prompt_text: |
+                                              prompt_text: |-
                                                 This entry has expired{% if resp_resume_get.value | default('', true) -%}: {{ resp_resume_get.value | string | truncate(15) }}{% endif -%}.
 
                                                 Say {{ (restore_cmds[0] if restore_cmds else 'restore') }} to reactivate, say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to store a new value, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                           - variables:
-                                              expired_payload: |
+                                              expired_payload: >-
                                                 {{ {
                                                   'pending_action': 'get_expired_choice',
                                                   'key': chosen_key,
@@ -715,7 +715,7 @@ actions:
                               start_idx: "{{ (page | int) * max_choices }}"
                               end_idx: "{{ [((page | int) * max_choices) + max_choices, (results_list | length)] | min }}"
                               page_items: "{{ results_list[start_idx:end_idx] }}"
-                              pick_num: |
+                              pick_num: >-
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
@@ -741,7 +741,7 @@ actions:
                                           - variables:
                                               next_end: "{{ [next_start + max_choices, total_results] | min }}"
                                               next_items: "{{ results_list[next_start:next_end] }}"
-                                              prompt_text: |
+                                              prompt_text: |-
                                                 Results ({{ next_start + 1 }}-{{ next_end }} of {{ total_results }}):
 
                                                 {% for it in next_items -%}
@@ -749,7 +749,7 @@ actions:
 
                                                 {% endfor -%}
                                                 Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page, say {{ (back_cmds[0] if back_cmds else 'back') }} for previous page, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                                              next_payload: |
+                                              next_payload: >-
                                                 {{ {
                                                   'pending_action': 'search_results',
                                                   'results': results_list,
@@ -787,7 +787,7 @@ actions:
                                               prev_start: "{{ prev_page * max_choices }}"
                                               prev_end: "{{ [prev_start + max_choices, (results_list | length)] | min }}"
                                               prev_items: "{{ results_list[prev_start:prev_end] }}"
-                                              prompt_text: |
+                                              prompt_text: |-
                                                 Results ({{ prev_start + 1 }}-{{ prev_end }} of {{ results_list | length }}):
 
                                                 {% for it in prev_items -%}
@@ -795,7 +795,7 @@ actions:
 
                                                 {% endfor -%}
                                                 Say a number to open it, say {{ (more_cmds[0] if more_cmds else 'more') }} for next page{% if prev_page > 0 %}, say {{ (back_cmds[0] if back_cmds else 'back') }} for previous page{% endif %}, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                                              prev_payload: |
+                                              prev_payload: >-
                                                 {{ {
                                                   'pending_action': 'search_results',
                                                   'results': results_list,
@@ -840,12 +840,12 @@ actions:
                                       - conditions: "{{ resp_resume_search_get.error == 'expired' }}"
                                         sequence:
                                           - variables:
-                                              prompt_text: |
+                                              prompt_text: |-
                                                 This entry has expired{% if resp_resume_search_get.value | default('', true) -%}: {{ resp_resume_search_get.value | string | truncate(15) }}{% endif -%}.
 
                                                 Say {{ (restore_cmds[0] if restore_cmds else 'restore') }} to reactivate, say {{ (update_cmds[0] if update_cmds else 'change to {value}') }} to store a new value, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
                                           - variables:
-                                              expired_payload: |
+                                              expired_payload: >-
                                                 {{ {
                                                   'pending_action': 'get_expired_choice',
                                                   'key': chosen_key,
@@ -911,7 +911,7 @@ actions:
                                         sequence:
                                           - variables:
                                               itemsd: "{{ resp_forget_confirm.matches[:max_choices] }}"
-                                              prompt_text: |
+                                              prompt_text: |-
                                                 I found a few candidates:
 
                                                 {% for it in itemsd -%}
@@ -919,7 +919,7 @@ actions:
 
                                                 {% endfor -%}
                                                 Say a number to delete it, or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                                              cache_payload: |
+                                              cache_payload: >-
                                                 {% set ns = namespace(items=[]) %}
                                                 {% for it in itemsd %}
                                                 {% set ns.items = ns.items + [{'key': it.key, 'value': (it.value or '') | string | truncate(15)}] %}
@@ -964,7 +964,7 @@ actions:
                               resume_sentence: "{{ trigger.sentence | default('', true) | lower }}"
                               items_ctx: "{{ resume_payload.entries | default([], true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
-                              pick_num: |
+                              pick_num: >-
                                 {% if (resume_sentence | int(0)) in numbers -%}
                                 {{ resume_sentence | int(0) }}
                                 {% elif (resume_sentence | string) in num_aliases -%}
@@ -988,9 +988,9 @@ actions:
                                       - conditions: "{{ resume_payload.must_confirm }}"
                                         sequence:
                                           - variables:
-                                              prompt_text: |
+                                              prompt_text: |-
                                                 Confirm delete {{ chosen_key | replace('_', ' ') }}{% if snip_value %}: {{ snip_value }}{% endif %}. Say {{ (yes_cmds[0] if yes_cmds else 'yes') }} or say {{ (no_cmds[0] if no_cmds else 'cancel') }}?
-                                              confirm_payload: |
+                                              confirm_payload: >-
                                                 {{ {
                                                   'pending_action': 'forget_confirm_secondary',
                                                   'key': chosen_key,

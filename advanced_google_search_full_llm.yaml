@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Perform Google Search
   author: luuquangvu
-  description: |
+  description: |-
     # Tool for searching Google information used for Voice Assistant
 
     ## Blueprint Setup
@@ -54,7 +54,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the search string to obtain information from Google.
             If the query seems misspelled or misheard, silently correct it to the most likely intended search string and proceed. Do not ask clarifying questions; instead, briefly note the correction in the response.
@@ -64,7 +64,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the output language of the response using an IETF BCP 47 language tag (e.g., vi-VN, en-US). The value must match the user's language.
 mode: parallel
@@ -105,7 +105,7 @@ sequence:
     response_variable: response
     data:
       agent_id: !input agent_id
-      text: |
+      text: |-
         Use Google Search to gather accurate, comprehensive information about:
         {{ query_string }}
 

@@ -101,8 +101,8 @@ actions:
       - action: persistent_notification.create
         data:
           notification_id: "{{ notify_tag }}"
-          title: "⚠️ Thiết bị mất kết nối"
-          message: >
+          title: "Thiết bị mất kết nối"
+          message: |-
             ### Có {{ devices | count }} thiết bị ({{ entities | count }} thực thể) gặp sự cố.
 
             **Thiết bị:**
@@ -168,8 +168,8 @@ Bạn có thể thêm thẻ Markdown này vào giao diện. Nó sẽ tự độn
 
 ```yaml
 type: markdown
-title: ⚠️ Thiết bị Mất Kết nối
-content: >
+title: Thiết bị Mất Kết nối
+content: |-
   {% set entities = state_attr('binary_sensor.unavailable_devices', 'entities') | default([], true) -%}
   {% set devices = state_attr('binary_sensor.unavailable_devices', 'devices') | default([], true) -%}
 

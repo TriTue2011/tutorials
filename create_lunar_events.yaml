@@ -1,7 +1,7 @@
 blueprint:
   name: Create Lunar Events
   author: luuquangvu
-  description: |
+  description: |-
     # Tool help to create Lunar calendar events
 
     ## Blueprint Setup
@@ -99,7 +99,7 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: |
+        value_template: >-
           {{ start_date == 'n/a' or not event_summary }}
     then:
       - alias: Stop the script
@@ -108,7 +108,7 @@ sequence:
   - alias: Verify whether the calendar entity has write permissions.
     if:
       - condition: template
-        value_template: |
+        value_template: >-
           {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
           {{ (feats % 2) != 1 }}
     then:
@@ -131,19 +131,19 @@ sequence:
             leap_month: "{{ leap_month }}"
           response_variable: response
         - variables:
-            solar_date: |
+            solar_date: >-
               {{ response.date if (response is defined and response.get('date')) }}
         - action: calendar.create_event
           data:
             summary: "{{ event_summary }}"
             description: "{{ event_description }}"
             start_date: "{{ solar_date }}"
-            end_date: |
+            end_date: >-
               {{ (as_datetime(solar_date) + timedelta(days=days)).date() }}
           target:
             entity_id: !input calendar
         - variables:
-            start_date: |
+            start_date: >-
               {{ as_datetime(start_date).replace(year=as_datetime(start_date).year + 1).date() }}
         - alias: Add a small delay when creating Google Calendar events.
           if:

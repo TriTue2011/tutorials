@@ -1,7 +1,7 @@
 blueprint:
   name: Traffic Fine Notification
   author: luuquangvu
-  description: |
+  description: |-
     # Nhận thông báo khi có thông tin phạt nguội
 
     - Dữ liệu được tra cứu trực tiếp từ Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).

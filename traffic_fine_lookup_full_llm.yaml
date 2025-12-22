@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Check Traffic Fine
   author: luuquangvu
-  description: |
+  description: |-
     # Tool for checking traffic fines used for Voice Assistant
 
     ## Blueprint Setup
@@ -54,7 +54,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the vehicle's license plate number to check for any traffic fines.
             A license plate number consists of a continuous sequence of alphanumeric characters with no spaces.
@@ -65,7 +65,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the type of vehicle to check for any traffic fines.
             It must be one of the following three values: '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.

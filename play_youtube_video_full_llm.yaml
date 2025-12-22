@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Play YouTube Video
   author: luuquangvu
-  description: |
+  description: |-
     # Tool plays YouTube videos on a smart TV used for Voice Assistant
 
     ## Blueprint Setup
@@ -49,7 +49,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the Media ID of the video you want to play.
 mode: parallel
@@ -94,7 +94,7 @@ sequence:
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: |
+        success: >-
           Playing YouTube video {{ media_id }} on {{ media_player_name }}.
   - stop: Finish and return response data
     response_variable: response

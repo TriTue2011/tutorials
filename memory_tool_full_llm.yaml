@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Memory Tool
   author: luuquangvu
-  description: |
+  description: |-
     # Universal memory tool used for Voice Assistant
 
     ## Blueprint Setup
@@ -47,7 +47,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required for every request.
             Choose exactly one operation: set (save/update), get (retrieve), search (find), forget (delete).
             Output exactly one: set|get|search|forget.
@@ -58,7 +58,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required when operation = set|get|forget. Ignored if operation = search.
             Provide a concise key for a piece of information the user has manually saved.
             Use this for retrieving facts, notes, or locations that are not actively tracked by a sensor.
@@ -71,7 +71,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required only when operation = set.
             Value to store for the key. Output the raw value only, plain text or JSON.
             Do not add quotes, labels, or explanations. This is a tool parameter, not a user-facing reply.
@@ -81,7 +81,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required only when operation = set.
             Who it applies to: user|household|session. Output one token only. Default = user.
         expiration_days_prompt:
@@ -90,7 +90,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required only when operation = set.
             Integer days before expiry (0 = forever). Default = 180. Range 0-3650.
         tags_prompt:
@@ -99,7 +99,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required only when operation = set.
             Generate a few short, meaningful keywords in the same language as the user's input.
             If no clear keywords exist, use the main user phrase as a single tag.
@@ -110,7 +110,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Optional, only used when operation = set.
             Output true only if the user explicitly confirms creating a new entry despite duplicate tags.
             Otherwise output false (default).
@@ -121,7 +121,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required only when operation = search.
             Provide a search term for information the user has manually saved.
             Use this for searching memories or notes, not for finding the real-time position of a tracked device.
@@ -133,7 +133,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             Required only when operation = search.
             Integer 1-50. Default = 5. Output an integer only.
 fields:

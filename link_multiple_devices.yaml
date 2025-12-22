@@ -1,7 +1,7 @@
 blueprint:
   name: Link On/Off State of Multiple Devices
   author: luuquangvu
-  description: |
+  description: |-
     # Link On/Off State of Multiple Devices
 
     - Select multiple entities to link their on/off state. If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.
@@ -39,7 +39,7 @@ triggers:
 actions:
   - variables:
       command: "turn_{{ trigger.to_state.state }}"
-      target_entities: |
+      target_entities: >-
         {{ expand(linked_entities)
            | selectattr('entity_id', '!=', trigger.entity_id)
            | selectattr('state', '!=', trigger.to_state.state)

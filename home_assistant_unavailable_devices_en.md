@@ -101,8 +101,8 @@ actions:
       - action: persistent_notification.create
         data:
           notification_id: "{{ notify_tag }}"
-          title: "⚠️ Devices Unavailable"
-          message: >
+          title: "Devices Unavailable"
+          message: |-
             ### {{ devices | count }} devices ({{ entities | count }} entities) are having issues.
 
             **Devices:**
@@ -168,8 +168,8 @@ You can add this Markdown card to your dashboard. It will automatically hide whe
 
 ```yaml
 type: markdown
-title: ⚠️ Unavailable Devices
-content: >
+title: Unavailable Devices
+content: |-
   {% set entities = state_attr('binary_sensor.unavailable_devices', 'entities') | default([], true) -%}
   {% set devices = state_attr('binary_sensor.unavailable_devices', 'devices') | default([], true) -%}
 

@@ -48,7 +48,9 @@ actions:
            | map(attribute='entity_id')
            | list }}
   - choose:
-      - conditions: "{{ target_entities | count > 0 }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ target_entities | count > 0 }}"
         sequence:
           - action: homeassistant.{{ command }}
             target:

@@ -1,15 +1,14 @@
+---
 blueprint:
   name: Link On/Off State of Multiple Devices
   author: luuquangvu
   description: |-
     # Link On/Off State of Multiple Devices
-
     - Select multiple entities to link their on/off state. If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.
     - Uses state filtering to prevent infinite loops and reduce network traffic. It only sends commands to devices that are not already in the desired state.
     - Automatically ignores unavailable or unknown entities to prevent errors.
 
     ## Requirements
-
     - All selected entities must support `homeassistant.turn_on` and `homeassistant.turn_off`.
     - Requires Home Assistant 2024.10.0 or newer.
   domain: automation
@@ -30,15 +29,11 @@ variables:
 triggers:
   - trigger: state
     entity_id: !input linked_entities
-    from:
-      - "on"
-      - "off"
-    to:
-      - "off"
-      - "on"
+    from: [on, off]
+    to: [off, on]
 actions:
   - variables:
-      command: "turn_{{ trigger.to_state.state }}"
+      command: turn_{{ trigger.to_state.state }}
       target_entities: >-
         {{ expand(linked_entities)
            | selectattr('entity_id', '!=', trigger.entity_id)
@@ -46,10 +41,9 @@ actions:
            | rejectattr('state', 'in', ['unavailable', 'unknown'])
            | map(attribute='entity_id')
            | list }}
-
   - choose:
       - conditions: "{{ target_entities | count > 0 }}"
         sequence:
-          - action: "homeassistant.{{ command }}"
+          - action: homeassistant.{{ command }}
             target:
               entity_id: "{{ target_entities }}"

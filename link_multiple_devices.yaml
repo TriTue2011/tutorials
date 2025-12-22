@@ -29,8 +29,12 @@ variables:
 triggers:
   - trigger: state
     entity_id: !input linked_entities
-    from: ["on", "off"]
-    to: ["off, on"]
+    from:
+      - "on"
+      - "off"
+    to:
+      - "off"
+      - "on"
 actions:
   - variables:
       command: turn_{{ trigger.to_state.state }}

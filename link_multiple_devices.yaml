@@ -8,7 +8,7 @@ blueprint:
 
     ### Key Features:
     - **Smart Sync:** Only sends commands to devices that need a state change, preventing infinite loops and network congestion.
-    - **Ultra-Fast Performance:** Optimized with direct string-based filtering (`is_state`) instead of heavy object expansion for near-zero latency.
+    - **Ultra-Fast Performance:** Optimized using direct string-based filtering for near-zero latency.
     - **Fail-Safe:** Automatically excludes the trigger entity and ignores `unavailable/unknown` devices to prevent execution errors and keep system logs clean.
 
     ### Requirements:
@@ -40,11 +40,10 @@ triggers:
       - "on"
 actions:
   - variables:
-      current_target_state: "{{ 'off' if trigger.to_state.state == 'on' else 'on' }}"
       target_entities: >-
         {{ linked_entities
            | reject('eq', trigger.entity_id)
-           | select('is_state', current_target_state)
+           | select('is_state', 'off' if trigger.to_state.state == 'on' else 'on')
            | list }}
   - condition: template
     value_template: "{{ target_entities | length > 0 }}"

@@ -224,10 +224,14 @@ sequence:
       in_limit: "{{ (search_limit | default(5)) | int(5) }}"
       force_new_s: "{{ 'true' if force_new | default(false) else 'false' }}"
   - choose:
-      - conditions: "{{ op == 'set' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ op == 'set' }}"
         sequence:
           - choose:
-              - conditions: "{{ key_t|length > 0 and value_t|length > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ key_t|length > 0 and value_t|length > 0 }}"
                 sequence:
                   - action: pyscript.memory_set
                     data:
@@ -247,10 +251,14 @@ sequence:
                     details:
                       key: "{{ key_t }}"
                       value_present: "{{ value_t|length > 0 }}"
-      - conditions: "{{ op == 'get' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ op == 'get' }}"
         sequence:
           - choose:
-              - conditions: "{{ key_t|length > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ key_t|length > 0 }}"
                 sequence:
                   - action: pyscript.memory_get
                     data:
@@ -264,10 +272,14 @@ sequence:
                     message: "Missing 'key' for get operation."
                     details:
                       key: "{{ key_t }}"
-      - conditions: "{{ op == 'search' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ op == 'search' }}"
         sequence:
           - choose:
-              - conditions: "{{ query_t|length > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ query_t|length > 0 }}"
                 sequence:
                   - action: pyscript.memory_search
                     data:
@@ -282,10 +294,14 @@ sequence:
                     message: "Missing 'query' for search operation."
                     details:
                       query: "{{ query_t }}"
-      - conditions: "{{ op == 'forget' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ op == 'forget' }}"
         sequence:
           - choose:
-              - conditions: "{{ key_t|length > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ key_t|length > 0 }}"
                 sequence:
                   - action: pyscript.memory_forget
                     data:

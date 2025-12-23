@@ -312,7 +312,7 @@ sequence:
                 {% endfor %}
                 {{ ns.out }}
               _same_actions: >-
-                {% if _new_actions | count == 0 %}
+                {% if _new_actions | length == 0 %}
                   false
                 {% else %}
                   {% set ns = namespace(match=false) %}
@@ -613,7 +613,7 @@ sequence:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ _run_actions | count > 0 }}"
+                    value_template: "{{ _run_actions | length > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _run_actions }}"
@@ -673,7 +673,7 @@ sequence:
                 {% else %}
                   {{ [] }}
                 {% endif %}
-              _cancel_latest: "{{ (_cancel_candidates | sort(attribute='created_at'))[-1] if _cancel_candidates|count>0 else none }}"
+              _cancel_latest: "{{ (_cancel_candidates | sort(attribute='created_at'))[-1] if _cancel_candidates|length>0 else none }}"
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_cancel_latest.id if _cancel_latest is mapping else '') }}
           - choose:
@@ -895,7 +895,7 @@ sequence:
                 {% else %}
                   {{ [] }}
                 {% endif %}
-              _extend_latest: "{{ (_extend_candidates | sort(attribute='created_at'))[-1] if _extend_candidates|count>0 else none }}"
+              _extend_latest: "{{ (_extend_candidates | sort(attribute='created_at'))[-1] if _extend_candidates|length>0 else none }}"
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_extend_latest.id if _extend_latest is mapping else '') }}
           - choose:
@@ -1001,7 +1001,7 @@ sequence:
                 {% else %}
                   {{ [] }}
                 {% endif %}
-              _pause_latest: "{{ (_pause_candidates | sort(attribute='created_at'))[-1] if _pause_candidates|count>0 else none }}"
+              _pause_latest: "{{ (_pause_candidates | sort(attribute='created_at'))[-1] if _pause_candidates|length>0 else none }}"
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_pause_latest.id if _pause_latest is mapping else '') }}
           - choose:
@@ -1086,7 +1086,7 @@ sequence:
                 {% else %}
                   {{ [] }}
                 {% endif %}
-              _resume_latest: "{{ (_resume_candidates | sort(attribute='created_at'))[-1] if _resume_candidates|count>0 else none }}"
+              _resume_latest: "{{ (_resume_candidates | sort(attribute='created_at'))[-1] if _resume_candidates|length>0 else none }}"
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_resume_latest.id if _resume_latest is mapping else '') }}
           - choose:
@@ -1228,7 +1228,7 @@ sequence:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ _resume_actions | count > 0 }}"
+                    value_template: "{{ _resume_actions | length > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _resume_actions }}"

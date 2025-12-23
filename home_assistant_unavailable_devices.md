@@ -32,9 +32,9 @@ template:
         unique_id: unavailable_devices
         device_class: problem
         icon: >-
-          {{ iif((this.attributes.raw | default([], true) | count > 0), 'mdi:alert-circle', 'mdi:check-circle') }}
+          {{ iif((this.attributes.raw | default([], true) | length > 0), 'mdi:alert-circle', 'mdi:check-circle') }}
         state: >-
-          {{ this.attributes.raw | default([], true) | count > 0 }}
+          {{ this.attributes.raw | default([], true) | length > 0 }}
         attributes:
           devices: >-
             {{ this.attributes.raw | default([], true) | map('device_id') | reject('none') | unique | map('device_attr', 'name') | list }}
@@ -96,14 +96,14 @@ actions:
       notify_tag: "{{ 'tag_' ~ this.attributes.id }}"
   - if:
       - condition: template
-        value_template: "{{ entities | count > 0 }}"
+        value_template: "{{ entities | length > 0 }}"
     then:
       - action: persistent_notification.create
         data:
           notification_id: "{{ notify_tag }}"
           title: "Thiết bị mất kết nối"
           message: |-
-            ### Có {{ devices | count }} thiết bị ({{ entities | count }} thực thể) gặp sự cố.
+            ### Có {{ devices | length }} thiết bị ({{ entities | length }} thực thể) gặp sự cố.
 
             **Thiết bị:**
             {% for device in devices %}- {{ device }}
@@ -142,13 +142,13 @@ actions:
       notify_tag: "{{ 'tag_' ~ this.attributes.id }}"
   - if:
       - condition: template
-        value_template: "{{ entities | count > 0 }}"
+        value_template: "{{ entities | length > 0 }}"
     then:
       - action: notify.mobile_app_iphone # Thay bằng tên điện thoại của bạn
         data:
           title: "⚠️ Mất kết nối thiết bị"
           message: >-
-            Có {{ devices | count }} thiết bị ({{ entities | count }} thực thể) đang bị mất kết nối.
+            Có {{ devices | length }} thiết bị ({{ entities | length }} thực thể) đang bị mất kết nối.
           data:
             tag: "{{ notify_tag }}"
             url: /lovelace/system # (Tùy chọn) Đường dẫn đến dashboard hệ thống của bạn
@@ -173,7 +173,7 @@ content: |-
   {% set entities = state_attr('binary_sensor.unavailable_devices', 'entities') | default([], true) -%}
   {% set devices = state_attr('binary_sensor.unavailable_devices', 'devices') | default([], true) -%}
 
-  **Tổng quan:** {{ devices | count }} thiết bị - {{ entities | count }} thực thể.
+  **Tổng quan:** {{ devices | length }} thiết bị - {{ entities | length }} thực thể.
 
   ---
   **Danh sách thiết bị:**

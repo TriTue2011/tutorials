@@ -380,12 +380,12 @@ sequence:
           {% else %}
             {% set text = raw | trim %}
             {% set parts = text.split(':') %}
-            {% if parts | count >= 3 %}
+            {% if parts | length >= 3 %}
               {% set hours = (parts[-3] | default('0') | float) %}
               {% set minutes = (parts[-2] | default('0') | float) %}
               {% set seconds = (parts[-1] | default('0') | float) %}
               {{ (hours * 3600 + minutes * 60 + seconds) | round(0) | int }}
-            {% elif parts | count == 2 %}
+            {% elif parts | length == 2 %}
               {% set minutes = (parts[0] | default('0') | float) %}
               {% set seconds = (parts[1] | default('0') | float) %}
               {{ (minutes * 60 + seconds) | round(0) | int }}
@@ -456,7 +456,7 @@ sequence:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ _entity_names | count > 0 and (_missing_entities | count) > 0 }}"
+            value_template: "{{ _entity_names | length > 0 and (_missing_entities | length) > 0 }}"
         sequence:
           - variables:
               response: >-
@@ -466,7 +466,7 @@ sequence:
 
       - conditions:
           - condition: template
-            value_template: "{{ _mode in ['start','cancel','extend','pause','resume'] and (_resolved_entities | count) == 0 }}"
+            value_template: "{{ _mode in ['start','cancel','extend','pause','resume'] and (_resolved_entities | length) == 0 }}"
         sequence:
           - variables:
               response: >-
@@ -597,7 +597,7 @@ sequence:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ _resolved_entities | count > 0 }}"
+                    value_template: "{{ _resolved_entities | length > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _resolved_entities }}"
@@ -664,7 +664,7 @@ sequence:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ _resolved_entities | count > 0 }}"
+                    value_template: "{{ _resolved_entities | length > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _resolved_entities }}"
@@ -697,9 +697,9 @@ sequence:
                       {% if friendly is none or (friendly | string | trim) == '' or (friendly | string | lower) in ['unknown', 'unavailable'] %}
                         {% set alias_list = _alias_list if _alias_list is sequence else [] %}
                         {% set alias_match = alias_list | selectattr('entity_id', 'equalto', entity_id) | map(attribute='aliases') | list %}
-                        {% if alias_match | count > 0 %}
+                        {% if alias_match | length > 0 %}
                           {% set aliases = alias_match[0] if alias_match[0] is sequence else [] %}
-                          {% if aliases | count > 0 %}
+                          {% if aliases | length > 0 %}
                             {% set friendly = aliases[0] %}
                           {% endif %}
                         {% endif %}

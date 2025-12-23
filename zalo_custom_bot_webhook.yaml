@@ -119,7 +119,7 @@ conditions:
       {{ (trigger.json.threadId | string) in thread_ids }}
   - condition: template
     value_template: >-
-      {% if user_ids is list and user_ids | count > 0 -%}
+      {% if user_ids is list and user_ids | length > 0 -%}
         {% if (trigger.json.data.uidFrom | string) in user_ids -%}
         {{ true }}
         {% else -%}

@@ -179,7 +179,7 @@ actions:
                     - choose:
                         - conditions:
                             - condition: template
-                              value_template: "{{ _actions_list | count > 0 }}"
+                              value_template: "{{ _actions_list | length > 0 }}"
                           sequence:
                             - repeat:
                                 for_each: "{{ _actions_list }}"

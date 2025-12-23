@@ -47,7 +47,7 @@ actions:
            | select('is_state', current_target_state)
            | list }}
   - condition: template
-    value_template: "{{ target_entities is defined and target_entities }}"
+    value_template: "{{ target_entities | length > 0 }}"
   - action: "homeassistant.turn_{{ trigger.to_state.state }}"
     target:
       entity_id: "{{ target_entities }}"

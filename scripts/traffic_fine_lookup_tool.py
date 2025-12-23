@@ -64,7 +64,7 @@ POST_HEADERS = {
 
 DB_PATH = Path("/config/cache.db")
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.0-flash"
 GEMINI_API_KEY = pyscript.config.get("gemini_api_key")
 
 if not GEMINI_API_KEY:

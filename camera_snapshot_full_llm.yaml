@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Capture Camera Snapshot
   author: luuquangvu
-  description: |
+  description: |-
     # Tool for capturing camera snapshots used for Voice Assistant
 
     ## Blueprint Setup
@@ -11,7 +11,7 @@ blueprint:
     - A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
@@ -98,7 +98,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the friendly name of the camera you want to capture a snapshot from (e.g., "Front Door Camera").
             If the user's request does not clearly specify a camera, determine and suggest one or more relevant cameras based on context.
@@ -129,7 +129,7 @@ sequence:
   - alias: Validate camera name
     if:
       - condition: template
-        value_template: |
+        value_template: >-
           {% set friendly_match = states.camera | selectattr('attributes.friendly_name', '==', camera_name) | list %}
           {% set alias_match = state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'camera\.') | selectattr('aliases', 'contains', camera_name) | list %}
           {{ not camera_name or (friendly_match | length == 0 and alias_match | length == 0) }}
@@ -144,7 +144,7 @@ sequence:
   - alias: Validate snapshot settings
     if:
       - condition: template
-        value_template: |
+        value_template: >-
           {{ not snapshot_directory }}
     then:
       - alias: Set variable for error message
@@ -155,38 +155,38 @@ sequence:
         stop: Unable to capture a snapshot because the snapshot directory is missing.
         response_variable: response
   - variables:
-      camera_entity_id: |
+      camera_entity_id: >-
         {% set friendly_match = states.camera | selectattr('attributes.friendly_name', '==', camera_name) | map(attribute='entity_id') | first %}
         {% if friendly_match %}
           {{ friendly_match }}
         {% else %}
           {{ state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'camera\.') | selectattr('aliases', 'contains', camera_name) | map(attribute='entity_id') | first }}
         {% endif %}
-      sanitized_prefix: |
+      sanitized_prefix: >-
         {% if snapshot_prefix %}
           {{ snapshot_prefix | regex_replace('[^0-9A-Za-z_-]', '_') }}
         {% else %}
           camera_snapshot_
         {% endif %}
-      sanitized_extension: |
+      sanitized_extension: >-
         {% if snapshot_extension %}
           {% set ext = snapshot_extension | regex_replace('[^0-9a-z]', '') %}
           {{ '.' ~ (ext if ext else 'jpg') }}
         {% else %}
           .jpg
         {% endif %}
-      snapshot_directory_normalized: |
+      snapshot_directory_normalized: >-
         {% if snapshot_directory %}
           {{ snapshot_directory.rstrip('/\\') }}
         {% else %}
           /media
         {% endif %}
       snapshot_random_suffix: "{{ '%05d' | format(range(0, 100000) | random) }}"
-      snapshot_filename: |
+      snapshot_filename: >-
         {{ sanitized_prefix ~ now().strftime('%Y%m%d%H%M%S%f') ~ '_' ~ snapshot_random_suffix ~ sanitized_extension }}
-      snapshot_full_path: |
+      snapshot_full_path: >-
         {{ snapshot_directory_normalized ~ '/' ~ snapshot_filename }}
-      returned_image_path: |
+      returned_image_path: >-
         {% set prefix = '/media/' %}
         {% if snapshot_full_path.startswith(prefix) %}
           {{ 'local/' ~ snapshot_full_path[prefix | length:] }}

@@ -1,6 +1,6 @@
 # How to Create a System Prompt for AI
 
-- **This system prompt is optimized to work most effectively with Gemini 2.5 Flash. Other models may require further adjustments to function as desired.**
+- **This system prompt is optimized to work most effectively with Gemini 3.0 Flash. Other models may require further adjustments to function as desired.**
 
 ## Summary
 

@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Find Device
   author: luuquangvu
-  description: |
+  description: |-
     # Find My Device Tool used for Voice Assistant
 
     ## Blueprint Setup
@@ -19,7 +19,7 @@ blueprint:
     - A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
@@ -79,7 +79,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the name of one or more devices whose location is actively tracked by a Home Assistant sensor (device_tracker).
             Use this for finding things that report their own real-time position. This tool cannot retrieve information that a user has manually saved as a memory or note.
@@ -105,7 +105,7 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: |
+        value_template: >-
           {% set validation = namespace(not_exist=false) -%}
           {% for entity in entities.split(';') -%}
           {% if not ((integration_entities('bermuda') | select('match','device_tracker\.') | select('is_state_attr', 'friendly_name', entity.strip()) | list) or
@@ -125,7 +125,7 @@ sequence:
         response_variable: response
   - variables:
       response:
-        devices: |
+        devices: |-
           {% set mobile_devices = integration_entities('mobile_app') | select('match','device_tracker\.') | map('regex_replace', 'device_tracker\.','') | list -%}
           {% for entity in entities.split(';') -%}
           {% set device = namespace(friendly_name=none, entity_id=none, notify_id=none, is_mobile=false, at_home=false) -%}

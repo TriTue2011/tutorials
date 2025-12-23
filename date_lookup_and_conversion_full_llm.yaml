@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Convert Calendar Dates
   author: luuquangvu
-  description: |
+  description: |-
     # Tool converts Solar date to Lunar date and vice versa used for Voice Assistant
 
     ## Blueprint Setup
@@ -14,7 +14,7 @@ blueprint:
     - Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     pyscript:
       allow_all_imports: true
       hass_is_global: true
@@ -46,7 +46,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             It must be one of the following two values: 's2l' to convert a Solar date to a Lunar date, or 'l2s' to convert a Lunar date to a Solar date.
             After obtaining the result, ensure the response clearly specifies the day of the week, the Solar date, the Lunar date, and the number of days remaining or days elapsed.
@@ -56,7 +56,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify the date for the requested conversion using the format YYYY-MM-DD.
             Always include the relevant date: today's date for today's request, tomorrow's date for tomorrow's request.
@@ -67,7 +67,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is optional.
             Use this argument only when converting Lunar dates to Solar dates.
             It must be one of the following two values: 'true' for a leap month, or 'false' for a regular month.

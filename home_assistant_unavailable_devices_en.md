@@ -32,9 +32,9 @@ template:
         unique_id: unavailable_devices
         device_class: problem
         icon: >-
-          {{ iif((this.attributes.raw | default([], true) | count > 0), 'mdi:alert-circle', 'mdi:check-circle') }}
+          {{ iif((this.attributes.raw | default([], true) | length > 0), 'mdi:alert-circle', 'mdi:check-circle') }}
         state: >-
-          {{ this.attributes.raw | default([], true) | count > 0 }}
+          {{ this.attributes.raw | default([], true) | length > 0 }}
         attributes:
           devices: >-
             {{ this.attributes.raw | default([], true) | map('device_id') | reject('none') | unique | map('device_attr', 'name') | list }}
@@ -96,14 +96,14 @@ actions:
       notify_tag: "{{ 'tag_' ~ this.attributes.id }}"
   - if:
       - condition: template
-        value_template: "{{ entities | count > 0 }}"
+        value_template: "{{ entities | length > 0 }}"
     then:
       - action: persistent_notification.create
         data:
           notification_id: "{{ notify_tag }}"
-          title: "⚠️ Devices Unavailable"
-          message: >
-            ### {{ devices | count }} devices ({{ entities | count }} entities) are having issues.
+          title: "Devices Unavailable"
+          message: |-
+            ### {{ devices | length }} devices ({{ entities | length }} entities) are having issues.
 
             **Devices:**
             {% for device in devices %}- {{ device }}
@@ -142,13 +142,13 @@ actions:
       notify_tag: "{{ 'tag_' ~ this.attributes.id }}"
   - if:
       - condition: template
-        value_template: "{{ entities | count > 0 }}"
+        value_template: "{{ entities | length > 0 }}"
     then:
       - action: notify.mobile_app_iphone # Replace with your phone's notification service
         data:
           title: "⚠️ Devices Lost Connection"
           message: >-
-            {{ devices | count }} devices ({{ entities | count }} entities) are currently unavailable.
+            {{ devices | length }} devices ({{ entities | length }} entities) are currently unavailable.
           data:
             tag: "{{ notify_tag }}"
             url: /lovelace/system # (Optional) Path to your system dashboard
@@ -168,12 +168,12 @@ You can add this Markdown card to your dashboard. It will automatically hide whe
 
 ```yaml
 type: markdown
-title: ⚠️ Unavailable Devices
-content: >
+title: Unavailable Devices
+content: |-
   {% set entities = state_attr('binary_sensor.unavailable_devices', 'entities') | default([], true) -%}
   {% set devices = state_attr('binary_sensor.unavailable_devices', 'devices') | default([], true) -%}
 
-  **Overview:** {{ devices | count }} devices - {{ entities | count }} entities.
+  **Overview:** {{ devices | length }} devices - {{ entities | length }} entities.
 
   ---
   **Device List:**

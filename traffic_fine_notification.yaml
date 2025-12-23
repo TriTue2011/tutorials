@@ -1,7 +1,7 @@
 blueprint:
   name: Traffic Fine Notification
   author: luuquangvu
-  description: |
+  description: |-
     # Nhận thông báo khi có thông tin phạt nguội
 
     - Dữ liệu được tra cứu trực tiếp từ Cổng thông tin điện tử Cục Cảnh sát giao thông (https://www.csgt.vn/).
@@ -16,7 +16,7 @@ blueprint:
     - Cần cấu hình 1 khóa Gemini API trong `config/configuration.yaml` và `config/secrets.yaml` sử dụng cho việc giải mã CAPTCHA.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     pyscript:
       allow_all_imports: true
       hass_is_global: true
@@ -24,7 +24,7 @@ blueprint:
     ```
 
     ```
-    #File secrets.yaml
+    # File secrets.yaml
     gemini_api_key: XXXXXX      # Retrieve the key from the Google Cloud Console.
     ```
 
@@ -36,7 +36,7 @@ blueprint:
     - Sensor Biển Số sẽ lưu thông tin phạt nguội của xe.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     template:
       - triggers:
           - trigger: time_pattern

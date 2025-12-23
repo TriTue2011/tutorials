@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Set Fan Oscillation
   author: luuquangvu
-  description: |
+  description: |-
     # Tool for Controlling Fan Oscillation used for Voice Assistant
 
     ## Blueprint Setup
@@ -12,7 +12,7 @@ blueprint:
     - A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
@@ -73,7 +73,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify at least one fan's name to control.
             To control multiple fans, separate each fan name with a semicolon.
@@ -83,7 +83,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Define the oscillation state for the fan you want to set.
             It must be one of the following two values: 'true' turns oscillation on, or 'false' turns oscillation off.
@@ -113,7 +113,7 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: |
+        value_template: >-
           {% set validation = namespace(not_exist=false) -%}
           {% for entity in fan_entities.split(';') -%}
           {% if not ((states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) or
@@ -131,7 +131,7 @@ sequence:
         stop: Unable to control the fan because the fan name is invalid.
         response_variable: response
   - variables:
-      devices: |
+      devices: >-
         {% set device = namespace(entities=[]) -%}
         {% for entity in fan_entities.split(';') -%}
         {% if (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
@@ -142,7 +142,7 @@ sequence:
         {% endfor -%}
         {{ device.entities }}
   - variables:
-      friendly_fans: |
+      friendly_fans: >-
         {% set names = namespace(values=[]) -%}
         {% for name in fan_entities.split(';') -%}
         {% if name | trim -%}
@@ -158,7 +158,7 @@ sequence:
   - alias: Prepare success response for Assist
     variables:
       response:
-        success: |
+        success: >-
           Turned {{ 'on' if oscillating else 'off' }} oscillation for {{
           friendly_fans | join(', ') }}.
   - stop: Finish and return response data

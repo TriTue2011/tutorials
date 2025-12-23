@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - File Content Analyzer
   author: luuquangvu
-  description: |
+  description: |-
     # Tool designed to analyze and extract all types of information from media and document files
 
     ## Blueprint Setup
@@ -50,7 +50,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             The tool can analyze and extract any type of information from an image, video, audio, or document, including text, numbers, objects, speech, and visual features.
             Always specify exactly what data should be extracted.
@@ -61,7 +61,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Always specify a relative file path that starts with `local/`.
         mime_type_prompt:
@@ -70,7 +70,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Always specify the MIME type of the file.
             Choose a value that matches the file contents (for example image/jpeg, video/mp4, audio/mp3, text/plain, or application/pdf).
@@ -113,10 +113,10 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: |
+            error: >-
               Unable to extract data because instructions is missing or incorrect.
       - alias: Stop the script
-        stop: |
+        stop: >-
           Unable to extract data because instructions is missing or incorrect.
         response_variable: response
   - if:
@@ -127,10 +127,10 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: |
+            error: >-
               Unable to extract data because file path is missing or invalid. Specify a path beginning with `local/`, such as `local/folder/file.ext`.
       - alias: Stop the script
-        stop: |
+        stop: >-
           Unable to extract data because file path is missing or invalid.
         response_variable: response
   - if:
@@ -141,10 +141,10 @@ sequence:
       - alias: Set variable for error message
         variables:
           response:
-            error: |
+            error: >-
               Unable to extract data because MIME type is missing or incorrect.
       - alias: Stop the script
-        stop: |
+        stop: >-
           Unable to extract data because MIME type is missing or incorrect.
         response_variable: response
   - variables:

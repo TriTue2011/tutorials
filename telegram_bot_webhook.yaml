@@ -1,7 +1,7 @@
 blueprint:
   name: Telegram Bot Webhook
   author: luuquangvu
-  description: |
+  description: |-
     # A Telegram bot enabling seamless two-way communication with Home Assistant.
 
     ## Blueprint Setup
@@ -19,7 +19,7 @@ blueprint:
     - A Telegram bot token needs to be configured in `config/configuration.yaml` and `config/secrets.yaml`.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     pyscript:
       allow_all_imports: true
       hass_is_global: true
@@ -27,7 +27,7 @@ blueprint:
     ```
 
     ```
-    #File secrets.yaml
+    # File secrets.yaml
     telegram_bot_token: XXXXXX      # Retrieve the token from the Telegram BotFather.
     ```
 
@@ -112,14 +112,14 @@ triggers:
     webhook_id: !input webhook_id
 conditions:
   - condition: template
-    value_template: |
+    value_template: >-
       {{ trigger.json is defined and trigger.json.message is defined }}
   - condition: template
-    value_template: |
+    value_template: >-
       {{ (trigger.json.message.chat.id | string) in chat_ids }}
   - condition: template
-    value_template: |
-      {% if user_ids is list and user_ids | count > 0 -%}
+    value_template: >-
+      {% if user_ids is list and user_ids | length > 0 -%}
         {% if (trigger.json.message.from.id | string) in user_ids -%}
         {{ true }}
         {% else -%}
@@ -130,14 +130,14 @@ conditions:
       {% endif -%}
 actions:
   - variables:
-      chat_id: |
+      chat_id: >-
         {{ ('id_' ~ trigger.json.message.chat.id ~ '_' ~ trigger.json.message.from.id) | slugify }}
   - action: pyscript.memory_cache_get
     data:
       key: "{{ chat_id }}"
     response_variable: get_chat
   - variables:
-      conversation_id: |
+      conversation_id: >-
         {{ get_chat.value if (get_chat.status == 'ok' and get_chat.value | default('', true) | length > 0) }}
   - choose:
       - conditions:
@@ -146,9 +146,9 @@ actions:
         sequence:
           - variables:
               agent_input:
-                system: |
+                system: |-
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: |
+                prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
                   trigger.json.message.reply_to_message.text }} {% endif %} {%
@@ -169,13 +169,13 @@ actions:
             response_variable: file
           - variables:
               agent_input:
-                system: |
+                system: |-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
                   If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
                   Only when no instruction or question exists in the file, return a concise summary of its content.
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: |
+                prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
                   trigger.json.message.reply_to_message.text }} {% endif %} {%
@@ -200,13 +200,13 @@ actions:
             response_variable: file
           - variables:
               agent_input:
-                system: |
+                system: |-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
                   If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
                   Only when no instruction or question exists in the file, return a concise summary of its content.
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: |
+                prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
                   trigger.json.message.reply_to_message.text }} {% endif %} {%
@@ -231,13 +231,13 @@ actions:
             response_variable: file
           - variables:
               agent_input:
-                system: |
+                system: |-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
                   If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
                   Only when no instruction or question exists in the file, return a concise summary of its content.
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: |
+                prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
                   trigger.json.message.reply_to_message.text }} {% endif %} {%
@@ -262,13 +262,13 @@ actions:
             response_variable: file
           - variables:
               agent_input:
-                system: |
+                system: |-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
                   If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
                   Only when no instruction or question exists in the file, return a concise summary of its content.
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: |
+                prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
                   trigger.json.message.reply_to_message.text }} {% endif %} {%
@@ -293,13 +293,13 @@ actions:
             response_variable: file
           - variables:
               agent_input:
-                system: |
+                system: |-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
                   If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
                   Only when no instruction or question exists in the file, return a concise summary of its content.
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: |
+                prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
                   trigger.json.message.reply_to_message.text }} {% endif %} {%
@@ -324,13 +324,13 @@ actions:
             response_variable: file
           - variables:
               agent_input:
-                system: |
+                system: |-
                   Always use the *File Content Analyzer* to analyze file content and identify the user's request.
                   If the prompt is empty, always treat any instruction or question within the file (via transcription/OCR) as the user's request and execute it directly.
                   Only when no instruction or question exists in the file, return a concise summary of its content.
                   Never ask the user for confirmation. Use any other tools as needed, and provide a clear, complete response.
                   Always respond in the user's language: {{ language | trim }}.
-                prompt: |
+                prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
                   trigger.json.message.reply_to_message.text }} {% endif %} {%
@@ -395,7 +395,7 @@ actions:
                 response_variable: result
                 continue_on_error: true
           - variables:
-              response: |
+              response: >-
                 {% if result is defined and result.response is defined and result.response.speech is defined and result.response.speech.plain is defined and (result.response.speech.plain.speech | length) > 0 %}
                   {{ result.response.speech.plain.speech }}
                 {% else %}

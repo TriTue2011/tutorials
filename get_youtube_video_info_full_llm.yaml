@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Get YouTube Video Info
   author: luuquangvu
-  description: |
+  description: |-
     # Tool gets YouTube video info used for Voice Assistant
 
     ## Blueprint Setup
@@ -15,7 +15,7 @@ blueprint:
     - A template sensor stores all information about entity aliases needs to be configured in `config/configuration.yaml`; The sensor is required for friendly-name lookup.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     shell_command:
       get_entity_alias: jq '[.data.entities[] | select(.options.conversation.should_expose == true and (.aliases | length > 0)) | {entity_id, aliases}]' ./.storage/core.entity_registry
     template:
@@ -87,7 +87,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is mandatory and must always be included.
             Specify at least one YouTube channel name to query video information.
             When requesting multiple YouTube channels, separate each channel name with a semicolon.
@@ -100,7 +100,7 @@ blueprint:
           selector:
             text:
               multiline: true
-          default: |
+          default: |-
             This argument is optional.
             It specifies the number of days since the videos were published.
             The default is 3 days. The minimum is 1 day, and the maximum is 30 days. "Today" means 1 day, "This week" means 7 days, and "This month" means 30 days.
@@ -133,7 +133,7 @@ sequence:
   - alias: Check if variables were set correctly
     if:
       - condition: template
-        value_template: |
+        value_template: >-
           {% set validation = namespace(not_exist=false) -%}
           {% for entity in entities.split(';') -%}
           {% if not ((integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list) or
@@ -152,7 +152,7 @@ sequence:
         response_variable: response
   - variables:
       response:
-        entries: |
+        entries: |-
           {% for entity in entities.split(';') -%}
           {% set entity_id = (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | first)
           if (integration_entities('feedparser') | select('is_state_attr', 'friendly_name', entity.strip()) | list)

@@ -454,7 +454,9 @@ sequence:
         {% endif %}
 
   - choose:
-      - conditions: "{{ _entity_names | count > 0 and (_missing_entities | count) > 0 }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _entity_names | count > 0 and (_missing_entities | count) > 0 }}"
         sequence:
           - variables:
               response: >-
@@ -462,7 +464,9 @@ sequence:
           - stop: "Unknown device name(s)"
             response_variable: response
 
-      - conditions: "{{ _mode in ['start','cancel','extend','pause','resume'] and (_resolved_entities | count) == 0 }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode in ['start','cancel','extend','pause','resume'] and (_resolved_entities | count) == 0 }}"
         sequence:
           - variables:
               response: >-
@@ -470,7 +474,9 @@ sequence:
           - stop: "No controllable devices resolved."
             response_variable: response
 
-      - conditions: "{{ _mode in ['start', 'extend'] and _duration_seconds <= 0 }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode in ['start', 'extend'] and _duration_seconds <= 0 }}"
         sequence:
           - variables:
               response: >-
@@ -478,7 +484,9 @@ sequence:
           - stop: "Duration must be greater than zero."
             response_variable: response
 
-      - conditions: "{{ _mode == 'start' and (_action_normalized | string | length) == 0 }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'start' and (_action_normalized | string | length) == 0 }}"
         sequence:
           - variables:
               response: >-
@@ -486,11 +494,13 @@ sequence:
           - stop: "Action is required for start mode."
             response_variable: response
 
-      - conditions: >-
-          {% set need_value = _action_normalized in [
-            'set_position','set_brightness','set_color','set_fan_speed','set_oscillation',
-            'set_temperature','set_humidity','set_hvac_mode','set_volume'] %}
-          {{ _mode == 'start' and need_value and (_value_raw | string | trim | length) == 0 }}
+      - conditions:
+          - condition: template
+            value_template: >-
+              {% set need_value = _action_normalized in [
+                'set_position','set_brightness','set_color','set_fan_speed','set_oscillation',
+                'set_temperature','set_humidity','set_hvac_mode','set_volume'] %}
+              {{ _mode == 'start' and need_value and (_value_raw | string | trim | length) == 0 }}
         sequence:
           - variables:
               response: >-
@@ -498,13 +508,15 @@ sequence:
           - stop: "Value is required for action."
             response_variable: response
 
-      - conditions: >-
-          {% set allowed = [
-            'turn_on','turn_off','activate','run_script','open','close','stop_cover','set_position',
-            'set_brightness','set_color','set_fan_speed','set_oscillation','set_temperature','set_humidity',
-            'set_hvac_mode','media_play','media_pause','media_stop','set_volume','start_vacuum','return_vacuum'
-          ] %}
-          {{ _mode == 'start' and (_action_normalized | string | length) > 0 and (_action_normalized not in allowed) }}
+      - conditions:
+          - condition: template
+            value_template: >-
+              {% set allowed = [
+                'turn_on','turn_off','activate','run_script','open','close','stop_cover','set_position',
+                'set_brightness','set_color','set_fan_speed','set_oscillation','set_temperature','set_humidity',
+                'set_hvac_mode','media_play','media_pause','media_stop','set_volume','start_vacuum','return_vacuum'
+              ] %}
+              {{ _mode == 'start' and (_action_normalized | string | length) > 0 and (_action_normalized not in allowed) }}
         sequence:
           - variables:
               response: >-
@@ -513,7 +525,9 @@ sequence:
             response_variable: response
 
   - choose:
-      - conditions: "{{ _mode == 'start' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'start' }}"
         sequence:
           - repeat:
               for_each: "{{ _resolved_entities }}"
@@ -576,10 +590,14 @@ sequence:
               response: >-
                 {{ dict(mode='start', action=_action_normalized, duration_seconds=_duration_seconds, targets=_resolved_entities, dispatched=_responses) }}
 
-      - conditions: "{{ _mode == 'cancel_all' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'cancel_all' }}"
         sequence:
           - choose:
-              - conditions: "{{ _resolved_entities | count > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _resolved_entities | count > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _resolved_entities }}"
@@ -602,7 +620,9 @@ sequence:
               response: >-
                 {{ dict(mode='cancel_all', targets=_resolved_entities, results=_responses) }}
 
-      - conditions: "{{ _mode == 'extend' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'extend' }}"
         sequence:
           - repeat:
               for_each: "{{ _resolved_entities }}"
@@ -619,7 +639,9 @@ sequence:
               response: >-
                 {{ dict(mode='extend', extend_seconds=_duration_seconds, results=_responses) }}
 
-      - conditions: "{{ _mode in ['cancel', 'pause', 'resume'] }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode in ['cancel', 'pause', 'resume'] }}"
         sequence:
           - repeat:
               for_each: "{{ _resolved_entities }}"
@@ -635,10 +657,14 @@ sequence:
               response: >-
                 {{ dict(mode=_mode, results=_responses) }}
 
-      - conditions: "{{ _mode == 'list' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'list' }}"
         sequence:
           - choose:
-              - conditions: "{{ _resolved_entities | count > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _resolved_entities | count > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _resolved_entities }}"

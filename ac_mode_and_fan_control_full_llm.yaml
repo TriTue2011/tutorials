@@ -306,10 +306,14 @@ sequence:
             target_fan: "{{ processed_data.resolved_fans[repeat.index - 1] }}"
             target_temp: "{{ processed_data.resolved_temps[repeat.index - 1] if processed_data.resolved_temps else '' }}"
         - choose:
-            - conditions: "{{ target_temp != '' }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ target_temp != '' }}"
               sequence:
                 - choose:
-                    - conditions: "{{ hvac_mode != '' }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ hvac_mode != '' }}"
                       sequence:
                         - action: climate.set_temperature
                           target:
@@ -317,14 +321,18 @@ sequence:
                           data:
                             temperature: "{{ target_temp }}"
                             hvac_mode: "{{ hvac_mode }}"
-                    - conditions: "{{ hvac_mode == '' }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ hvac_mode == '' }}"
                       sequence:
                         - action: climate.set_temperature
                           target:
                             entity_id: "{{ entity_id }}"
                           data:
                             temperature: "{{ target_temp }}"
-            - conditions: "{{ target_temp == '' and hvac_mode != '' }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ target_temp == '' and hvac_mode != '' }}"
               sequence:
                 - action: climate.set_hvac_mode
                   target:
@@ -332,7 +340,9 @@ sequence:
                   data:
                     hvac_mode: "{{ hvac_mode }}"
         - choose:
-            - conditions: "{{ fan_mode != '' }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ fan_mode != '' }}"
               sequence:
                 - action: climate.set_fan_mode
                   target:

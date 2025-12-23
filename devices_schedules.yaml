@@ -174,7 +174,9 @@ sequence:
           data: { key: "{{ _prefix }}{{ repeat.item }}" }
           response_variable: _tr
         - choose:
-            - conditions: "{{ _tr.status == 'ok' }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ _tr.status == 'ok' }}"
               sequence:
                 - variables:
                     _IDX_ALIVE: >-
@@ -228,7 +230,9 @@ sequence:
         - variables:
             _ar_data: "{{ _ar.value | default({}) if _ar.status == 'ok' else {} }}"
         - choose:
-            - conditions: "{{ _ar.status == 'ok' and (_ar_data.status|string|lower) in ['running','paused'] }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ _ar.status == 'ok' and (_ar_data.status|string|lower) in ['running','paused'] }}"
               sequence:
                 - variables:
                     _ACTIVE_ITEM: >-
@@ -265,7 +269,9 @@ sequence:
       #######################################################################
       # START
       #######################################################################
-      - conditions: "{{ _mode == 'start' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'start' }}"
         sequence:
           - variables:
               _IDX_DEDUPE_REMOVALS: []
@@ -329,7 +335,9 @@ sequence:
 
           - choose:
               # A) cancel_existing - cancel matching older timers
-              - conditions: "{{ _dedupe_mode == 'cancel_existing' and _is_dup }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _dedupe_mode == 'cancel_existing' and _is_dup }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _ACTIVE if _ACTIVE is sequence else [] }}"
@@ -338,14 +346,16 @@ sequence:
                             _match_entity: "{{ (repeat.item.entity_id | default('') | string | trim | lower) == _entity_norm }}"
                             _match_actions: "{{ (repeat.item.actions | default([])) == _new_actions }}"
                         - choose:
-                            - conditions: >-
-                                {% if _dedupe_match == 'entity' %}
-                                  {{ _match_entity }}
-                                {% elif _dedupe_match == 'actions' %}
-                                  {{ _match_actions }}
-                                {% else %}
-                                  {{ _match_entity and _match_actions }}
-                                {% endif %}
+                            - conditions:
+                                - condition: template
+                                  value_template: >-
+                                    {% if _dedupe_match == 'entity' %}
+                                      {{ _match_entity }}
+                                    {% elif _dedupe_match == 'actions' %}
+                                      {{ _match_actions }}
+                                    {% else %}
+                                      {{ _match_entity and _match_actions }}
+                                    {% endif %}
                               sequence:
                                 - event: device_timer_signal
                                   event_data:
@@ -387,7 +397,9 @@ sequence:
                                       {{ removed }}
 
               # B) reuse_existing - do not create a new one
-              - conditions: "{{ _dedupe_mode == 'reuse_existing' and _is_dup }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _dedupe_mode == 'reuse_existing' and _is_dup }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -405,7 +417,9 @@ sequence:
                     response_variable: _stop_result
 
               # C) error - abort the new timer
-              - conditions: "{{ _dedupe_mode == 'error' and _is_dup }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _dedupe_mode == 'error' and _is_dup }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -452,7 +466,9 @@ sequence:
 
           # Create id + persist per-timer
           - choose:
-              - conditions: "{{ _dur|int <= 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _dur|int <= 0 }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -530,7 +546,9 @@ sequence:
                     _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
                     _wait_reason: "{{ wait.trigger.event.data.reason | default('cancel') if _wait_is_event else '' }}"
                 - choose:
-                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'extend' }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _wait_is_event and (_wait_reason | lower) == 'extend' }}"
                       sequence:
                         - variables:
                             _wait_new_end: "{{ wait.trigger.event.data.new_end | default(_item.end, true) }}"
@@ -538,7 +556,9 @@ sequence:
                             _item: >-
                               {{ dict(_item, **{'end': _wait_new_end, 'remaining': _wait_new_remaining}) }}
                             _end_iso: "{{ _wait_new_end }}"
-                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
                       sequence:
                         - variables:
                             _wait_loop_active: false
@@ -555,7 +575,9 @@ sequence:
                               }}
                         - stop: ""
                           response_variable: _stop_result
-                    - conditions: "{{ _wait_is_event }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _wait_is_event }}"
                       sequence:
                         - variables:
                             _wait_loop_active: false
@@ -589,7 +611,9 @@ sequence:
           - variables:
               _run_actions: "{{ (_item.actions | default([])) | selectattr('action','defined') | list }}"
           - choose:
-              - conditions: "{{ _run_actions | count > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _run_actions | count > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _run_actions }}"
@@ -637,7 +661,9 @@ sequence:
       #######################################################################
       # CANCEL (by id or latest by entity)
       #######################################################################
-      - conditions: "{{ _mode == 'cancel' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'cancel' }}"
         sequence:
           - variables:
               _cancel_candidates: >-
@@ -651,7 +677,9 @@ sequence:
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_cancel_latest.id if _cancel_latest is mapping else '') }}
           - choose:
-              - conditions: "{{ _id_resolved|length == 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _id_resolved|length == 0 }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -734,7 +762,9 @@ sequence:
       #######################################################################
       # CANCEL ALL (optionally filtered by entity)
       #######################################################################
-      - conditions: "{{ _mode == 'cancel_all' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'cancel_all' }}"
         sequence:
           - variables:
               _cancel_all_candidates: >-
@@ -746,7 +776,9 @@ sequence:
                 {% endif %}
               _cancel_all_count: "{{ _cancel_all_candidates | length if _cancel_all_candidates is sequence else 0 }}"
           - choose:
-              - conditions: "{{ _cancel_all_count == 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _cancel_all_count == 0 }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -786,7 +818,9 @@ sequence:
                 - variables:
                     _cancel_all_id: "{{ repeat.item.id | default('') }}"
                 - choose:
-                    - conditions: "{{ _cancel_all_id|length > 0 }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _cancel_all_id|length > 0 }}"
                       sequence:
                         - action: pyscript.memory_cache_get
                           data: { key: "{{ _prefix }}{{ _cancel_all_id }}" }
@@ -849,7 +883,9 @@ sequence:
       #######################################################################
       # EXTEND (+N seconds)
       #######################################################################
-      - conditions: "{{ _mode == 'extend' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'extend' }}"
         sequence:
           - variables:
               _extend_candidates: >-
@@ -863,7 +899,9 @@ sequence:
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_extend_latest.id if _extend_latest is mapping else '') }}
           - choose:
-              - conditions: "{{ _id_resolved|length == 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _id_resolved|length == 0 }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -883,7 +921,9 @@ sequence:
           - variables:
               _tres_data: "{{ _tres.value | default({}) if _tres.status == 'ok' else {} }}"
           - choose:
-              - conditions: "{{ not (_tres.status == 'ok' and (_tres_data.status|string|lower) in ['running','paused']) }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ not (_tres.status == 'ok' and (_tres_data.status|string|lower) in ['running','paused']) }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -949,7 +989,9 @@ sequence:
       #######################################################################
       # PAUSE
       #######################################################################
-      - conditions: "{{ _mode == 'pause' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'pause' }}"
         sequence:
           - variables:
               _pause_candidates: >-
@@ -963,7 +1005,9 @@ sequence:
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_pause_latest.id if _pause_latest is mapping else '') }}
           - choose:
-              - conditions: "{{ _id_resolved|length == 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _id_resolved|length == 0 }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -983,7 +1027,9 @@ sequence:
           - variables:
               _tres_data: "{{ _tres.value | default({}) if _tres.status == 'ok' else {} }}"
           - choose:
-              - conditions: "{{ not (_tres.status == 'ok' and (_tres_data.status|string|lower) == 'running') }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ not (_tres.status == 'ok' and (_tres_data.status|string|lower) == 'running') }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -1028,7 +1074,9 @@ sequence:
       #######################################################################
       # RESUME
       #######################################################################
-      - conditions: "{{ _mode == 'resume' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'resume' }}"
         sequence:
           - variables:
               _resume_candidates: >-
@@ -1042,7 +1090,9 @@ sequence:
               _id_resolved: >-
                 {{ _tid_in if _tid_in|length > 0 else (_resume_latest.id if _resume_latest is mapping else '') }}
           - choose:
-              - conditions: "{{ _id_resolved|length == 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _id_resolved|length == 0 }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -1062,7 +1112,9 @@ sequence:
           - variables:
               _tres_data: "{{ _tres.value | default({}) if _tres.status == 'ok' else {} }}"
           - choose:
-              - conditions: "{{ not (_tres.status == 'ok' and (_tres_data.status|string|lower) == 'paused' and (_tres_data.remaining|int) > 0) }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ not (_tres.status == 'ok' and (_tres_data.status|string|lower) == 'paused' and (_tres_data.remaining|int) > 0) }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -1111,7 +1163,9 @@ sequence:
                     _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
                     _wait_reason: "{{ wait.trigger.event.data.reason | default('cancel') if _wait_is_event else '' }}"
                 - choose:
-                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'extend' }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _wait_is_event and (_wait_reason | lower) == 'extend' }}"
                       sequence:
                         - variables:
                             _wait_new_end: "{{ wait.trigger.event.data.new_end | default(_T.end, true) }}"
@@ -1119,7 +1173,9 @@ sequence:
                             _T: >-
                               {{ dict(_T, **{'end': _wait_new_end, 'remaining': _wait_new_remaining}) }}
                             _current_end_iso: "{{ _wait_new_end }}"
-                    - conditions: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _wait_is_event and (_wait_reason | lower) == 'pause' }}"
                       sequence:
                         - variables:
                             _wait_loop_active: false
@@ -1136,7 +1192,9 @@ sequence:
                               }}
                         - stop: ""
                           response_variable: _stop_result
-                    - conditions: "{{ _wait_is_event }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _wait_is_event }}"
                       sequence:
                         - variables:
                             _wait_loop_active: false
@@ -1168,7 +1226,9 @@ sequence:
           - variables:
               _resume_actions: "{{ (_T.actions | default([])) | selectattr('action','defined') | list }}"
           - choose:
-              - conditions: "{{ _resume_actions | count > 0 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ _resume_actions | count > 0 }}"
                 sequence:
                   - repeat:
                       for_each: "{{ _resume_actions }}"
@@ -1209,7 +1269,9 @@ sequence:
       #######################################################################
       # LIST
       #######################################################################
-      - conditions: "{{ _mode == 'list' }}"
+      - conditions:
+          - condition: template
+            value_template: "{{ _mode == 'list' }}"
         sequence:
           - variables:
               _ALIVE: []
@@ -1222,7 +1284,9 @@ sequence:
                 - variables:
                     _lr_data: "{{ _lr.value | default({}) if _lr.status == 'ok' else {} }}"
                 - choose:
-                    - conditions: "{{ _lr.status == 'ok' }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _lr.status == 'ok' }}"
                       sequence:
                         - variables:
                             _ALIVE: >-

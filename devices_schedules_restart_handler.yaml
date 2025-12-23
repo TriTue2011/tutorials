@@ -116,7 +116,9 @@ actions:
             _status: "{{ _timer_data.status | default('') | string | lower }}"
 
         - choose:
-            - conditions: "{{ _timer_res.status == 'ok' and _status == 'running' }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ _timer_res.status == 'ok' and _status == 'running' }}"
               sequence:
                 - variables:
                     _end_iso: "{{ _timer_data.end | default('') }}"
@@ -129,7 +131,9 @@ actions:
                       {% endif %}
 
                 - choose:
-                    - conditions: "{{ _remaining > 0 }}"
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ _remaining > 0 }}"
                       sequence:
                         - variables:
                             _paused_payload: >-
@@ -153,7 +157,9 @@ actions:
                           response_variable: cache_set_timer_id
 
                         - choose:
-                            - conditions: "{{ _script_entity | length > 0 }}"
+                            - conditions:
+                                - condition: template
+                                  value_template: "{{ _script_entity | length > 0 }}"
                               sequence:
                                 - service: script.turn_on
                                   target:
@@ -171,13 +177,17 @@ actions:
                           {{ raw if raw is sequence else [] }}
 
                     - choose:
-                        - conditions: "{{ _actions_list | count > 0 }}"
+                        - conditions:
+                            - condition: template
+                              value_template: "{{ _actions_list | count > 0 }}"
                           sequence:
                             - repeat:
                                 for_each: "{{ _actions_list }}"
                                 sequence:
                                   - choose:
-                                      - conditions: "{{ repeat.item.action is defined and repeat.item.action | string | length > 0 }}"
+                                      - conditions:
+                                          - condition: template
+                                            value_template: "{{ repeat.item.action is defined and repeat.item.action | string | length > 0 }}"
                                         sequence:
                                           - service: "{{ repeat.item.action }}"
                                             target: "{{ repeat.item.target | default({}) }}"
@@ -207,7 +217,9 @@ actions:
                     - variables:
                         _should_remove: true
 
-            - conditions: "{{ _timer_res.status == 'ok' and _status == 'paused' }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ _timer_res.status == 'ok' and _status == 'paused' }}"
               sequence: []
 
           default:
@@ -215,7 +227,9 @@ actions:
                 _should_remove: true
 
         - choose:
-            - conditions: "{{ _should_remove }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ _should_remove }}"
               sequence:
                 - variables:
                     _ids_to_remove: >-

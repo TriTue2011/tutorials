@@ -17,7 +17,7 @@ blueprint:
     - A Zalo bot token needs to be configured in `config/configuration.yaml` and `config/secrets.yaml`.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     pyscript:
       allow_all_imports: true
       hass_is_global: true
@@ -25,7 +25,7 @@ blueprint:
     ```
 
     ```
-    #File secrets.yaml
+    # File secrets.yaml
     zalo_bot_token: XXXXXX      # Retrieve the token from the OA Zalo Bot Manager.
     ```
 

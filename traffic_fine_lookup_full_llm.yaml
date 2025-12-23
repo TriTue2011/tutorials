@@ -16,7 +16,7 @@ blueprint:
     - A Gemini API key needs to be configured in `config/configuration.yaml` and `config/secrets.yaml`, as it's required for solving CAPTCHAs.
 
     ```
-    #File configuration.yaml
+    # File configuration.yaml
     pyscript:
       allow_all_imports: true
       hass_is_global: true
@@ -24,7 +24,7 @@ blueprint:
     ```
 
     ```
-    #File secrets.yaml
+    # File secrets.yaml
     gemini_api_key: XXXXXX      # Retrieve the key from the Google Cloud Console.
     ```
 

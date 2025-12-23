@@ -1,17 +1,18 @@
----
 blueprint:
   name: Link On/Off State of Multiple Devices
   author: luuquangvu
   description: |-
-    # Link On/Off State of Multiple Devices
+    # Link State of Multiple Devices (Ultra-Fast)
 
-    - Select multiple entities to link their on/off state. If any selected entity is turned on or off, the other selected entities will be sent a matching on or off command.
-    - Uses state filtering to prevent infinite loops and reduce network traffic. It only sends commands to devices that are not already in the desired state.
-    - Automatically ignores unavailable or unknown entities to prevent errors.
+    Synchronize On/Off states across multiple entities instantly. If one device is toggled, others follow.
 
-    ## Requirements
+    ### Key Features:
+    - **Smart Sync:** Only sends commands to devices that need a state change, preventing infinite loops and network congestion.
+    - **Ultra-Fast Performance:** Optimized with direct string-based filtering (`is_state`) instead of heavy object expansion for near-zero latency.
+    - **Fail-Safe:** Automatically excludes the trigger entity and ignores `unavailable/unknown` devices to prevent execution errors and keep system logs clean.
 
-    - All selected entities must support `homeassistant.turn_on` and `homeassistant.turn_off`.
+    ### Requirements:
+    - Entities must support `homeassistant.turn_on/off`.
     - Requires Home Assistant 2024.10.0 or newer.
   domain: automation
   homeassistant:
@@ -26,7 +27,7 @@ blueprint:
 mode: parallel
 max_exceeded: silent
 variables:
-  version: 20251222
+  version: 20251223
   linked_entities: !input linked_entities
 triggers:
   - trigger: state
@@ -39,19 +40,14 @@ triggers:
       - "on"
 actions:
   - variables:
-      command: turn_{{ trigger.to_state.state }}
+      current_target_state: "{{ 'off' if trigger.to_state.state == 'on' else 'on' }}"
       target_entities: >-
-        {{ expand(linked_entities)
-           | selectattr('entity_id', '!=', trigger.entity_id)
-           | selectattr('state', '!=', trigger.to_state.state)
-           | rejectattr('state', 'in', ['unavailable', 'unknown'])
-           | map(attribute='entity_id')
+        {{ linked_entities
+           | reject('eq', trigger.entity_id)
+           | select('is_state', current_target_state)
            | list }}
-  - choose:
-      - conditions:
-          - condition: template
-            value_template: "{{ target_entities | count > 0 }}"
-        sequence:
-          - action: homeassistant.{{ command }}
-            target:
-              entity_id: "{{ target_entities }}"
+  - condition: template
+    value_template: "{{ target_entities }}"
+  - action: "homeassistant.turn_{{ trigger.to_state.state }}"
+    target:
+      entity_id: "{{ target_entities }}"

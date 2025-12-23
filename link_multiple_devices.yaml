@@ -12,7 +12,7 @@ blueprint:
     - **Fail-Safe:** Automatically excludes the trigger entity and ignores `unavailable/unknown` devices to prevent execution errors and keep system logs clean.
 
     ### Requirements:
-    - Entities must support `homeassistant.turn_on/off`.
+    - Entities must support `homeassistant.turn_on` and `homeassistant.turn_off`.
     - Requires Home Assistant 2024.10.0 or newer.
   domain: automation
   homeassistant:

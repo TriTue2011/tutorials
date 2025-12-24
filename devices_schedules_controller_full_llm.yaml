@@ -22,6 +22,8 @@ blueprint:
     - **Scripts:** `run_script` (to execute another Home Assistant script).
     - **Media Players:** `media_play`, `media_pause`, `media_stop`, `set_volume` (with a value 0-100%).
     - **Vacuum Robots:** `start_vacuum`, `return_vacuum`.
+    - **Buttons:** `press` (to press a button or input_button).
+    - **Notifications:** `announce` (to speak a text message via TTS, requires a text value and TTS configuration).
 
     ## Blueprint Setup
 
@@ -85,6 +87,14 @@ blueprint:
               filter:
                 - domain: sensor
                   integration: template
+        tts_entity:
+          name: TTS Provider Entity
+          description: The TTS entity to use (e.g., tts.google_translate_en_com, tts.google_cloud). Required only if you use 'announce' action.
+          selector:
+            entity:
+              filter:
+                - domain: tts
+          default: ""
     prompt_settings:
       name: Prompt settings for the LLM
       icon: mdi:robot
@@ -144,6 +154,8 @@ blueprint:
             - media_play / media_pause / media_stop: control media players.
             - set_volume: set media player volume percent (0-100).
             - start_vacuum / return_vacuum: control robot vacuums.
+            - press: press a button or input_button.
+            - announce: speak a text message via TTS (requires text value).
             Leave this field empty when mode is not start.
         value_prompt:
           name: Value prompt
@@ -158,6 +170,7 @@ blueprint:
             - HVAC mode: cool, heat, dry, fan_only, auto, off.
             - Colors: textual names (red, blue, warm_white, etc.).
             - Booleans: true/false for oscillation.
+            - Text: the message content for 'announce' action.
             Return an empty string when no value is needed.
         duration_prompt:
           name: Duration prompt
@@ -173,7 +186,7 @@ mode: parallel
 max_exceeded: silent
 description: Manages and controls schedules/timers for various devices.
 variables:
-  version: 20251211
+  version: 20251224
 fields:
   mode:
     name: Mode
@@ -235,6 +248,10 @@ fields:
             value: start_vacuum
           - label: Return Vacuum
             value: return_vacuum
+          - label: Press Button
+            value: press
+          - label: Announce (TTS)
+            value: announce
   action_value:
     name: Action Value
     description: !input value_prompt
@@ -250,6 +267,7 @@ sequence:
   - variables:
       _timer_script: !input timer_script
       _entity_aliases: !input entity_aliases
+      _tts_entity: !input tts_entity
       _mode: "{{ (mode | default('list', true)) | string | lower | replace('-', '_') | replace(' ', '_') | trim('_') }}"
       _entities_raw: "{{ entities | default('', true) }}"
       _action_raw: "{{ action | default('', true) }}"
@@ -449,6 +467,8 @@ sequence:
           {{ (v | string | lower | trim) }}
         {% elif a == 'set_color' %}
           {{ (v | string | trim) }}
+        {% elif a == 'announce' %}
+          {{ (v | string | trim) }}
         {% else %}
           {{ v }}
         {% endif %}
@@ -486,6 +506,17 @@ sequence:
 
       - conditions:
           - condition: template
+            value_template: >-
+              {{ _resolved_entities | select('match', 'lock\.') | list | length > 0 }}
+        sequence:
+          - variables:
+              response: >-
+                {{ dict(error='Security Violation: Scheduling actions for locks (smart locks) is strictly prohibited.', mode=_mode) }}
+          - stop: "Security restriction: Lock control denied."
+            response_variable: response
+
+      - conditions:
+          - condition: template
             value_template: "{{ _mode == 'start' and (_action_normalized | string | length) == 0 }}"
         sequence:
           - variables:
@@ -510,11 +541,22 @@ sequence:
 
       - conditions:
           - condition: template
+            value_template: "{{ _mode == 'start' and _action_normalized == 'announce' and (_tts_entity | default('', true) | length) == 0 }}"
+        sequence:
+          - variables:
+              response: >-
+                {{ dict(error='Configuration Error: TTS Entity is not configured in the blueprint.', mode=_mode) }}
+          - stop: "TTS Entity missing configuration."
+            response_variable: response
+
+      - conditions:
+          - condition: template
             value_template: >-
               {% set allowed = [
                 'turn_on','turn_off','activate','run_script','open','close','stop_cover','set_position',
                 'set_brightness','set_color','set_fan_speed','set_oscillation','set_temperature','set_humidity',
-                'set_hvac_mode','media_play','media_pause','media_stop','set_volume','start_vacuum','return_vacuum'
+                'set_hvac_mode','media_play','media_pause','media_stop','set_volume','start_vacuum','return_vacuum',
+                'announce','press'
               ] %}
               {{ _mode == 'start' and (_action_normalized | string | length) > 0 and (_action_normalized not in allowed) }}
         sequence:
@@ -536,18 +578,23 @@ sequence:
                     _current_entity: "{{ repeat.item }}"
                     _item_target_service: >-
                       {% set current_entity_id = _current_entity | default('') %}
-                      {% if _action_normalized == 'set_temperature' and 'water_heater.' in current_entity_id %}
+                      {% set domain = current_entity_id.split('.')[0] %}
+                      {% if domain in ['button', 'input_button'] %}
+                        {{ domain }}.press
+                      {% elif _action_normalized == 'set_temperature' and domain == 'water_heater' %}
                         water_heater.set_temperature
                       {% elif _action_normalized in ['open','close'] %}
-                        {% if 'cover.' in current_entity_id %}
+                        {% if domain == 'cover' %}
                           {% if _action_normalized == 'open' %}cover.open_cover{% else %}cover.close_cover{% endif %}
-                        {% elif 'valve.' in current_entity_id %}
+                        {% elif domain == 'valve' %}
                           {% if _action_normalized == 'open' %}valve.open_valve{% else %}valve.close_valve{% endif %}
                         {% else %}
                           {{ _action_service_map.get(_action_normalized, '') }}
                         {% endif %}
-                      {% elif _action_normalized == 'set_position' and 'valve.' in current_entity_id %}
+                      {% elif _action_normalized == 'set_position' and domain == 'valve' %}
                         valve.set_valve_position
+                      {% elif _action_normalized == 'announce' %}
+                        tts.speak
                       {% else %}
                         {{ _action_service_map.get(_action_normalized, '') }}
                       {% endif %}
@@ -571,8 +618,16 @@ sequence:
                         {% set d = dict(hvac_mode=_clean_value) %}
                       {% elif _action_normalized == 'set_volume' %}
                         {% set d = dict(volume_level=_clean_value) %}
+                      {% elif _action_normalized == 'announce' %}
+                        {% set d = dict(media_player_entity_id=_current_entity, message=_clean_value) %}
                       {% endif %}
                       {{ d }}
+                    _item_target_dict: >-
+                      {% if _action_normalized == 'announce' %}
+                        {{ {'entity_id': _tts_entity} }}
+                      {% else %}
+                        {{ {'entity_id': _current_entity} }}
+                      {% endif %}
                 - service: script.turn_on
                   target:
                     entity_id: "{{ _timer_script }}"
@@ -583,6 +638,7 @@ sequence:
                       duration_seconds: "{{ _duration_seconds }}"
                       expire_actions:
                         - action: "{{ _item_target_service }}"
+                          target: "{{ _item_target_dict }}"
                           data: "{{ _item_service_data }}"
                 - variables:
                     _responses: "{{ (_responses | default([])) + [dict(mode='start', entity=_current_entity, status='queued', duration_seconds=_duration_seconds, action=_action_normalized, value=_clean_value)] }}"

@@ -87,7 +87,7 @@ blueprint:
                   integration: template
         tts_entity:
           name: TTS Provider Entity
-          description: The TTS entity to use (e.g., tts.google_translate_en_com, tts.piper, tts.google_cloud). Required only if you use 'announce' action.
+          description: The TTS entity to use (e.g., tts.google_translate_en_com, tts.google_cloud). Required only if you use 'announce' action.
           selector:
             entity:
               filter:

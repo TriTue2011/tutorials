@@ -70,30 +70,31 @@ Automation này sẽ tự động chuyển sang chế độ Sáng khi mặt tr�
 ```yaml
 alias: "System: Auto change iOS themes"
 description: "Tự động đổi theme Sáng/Tối và chọn màu ngẫu nhiên"
-triggers:
+ttriggers:
   - trigger: sun
     event: sunrise
-    offset: 0
-    id: Sunrise
+    id: sun_event
   - trigger: sun
     event: sunset
-    offset: 0
-    id: Sunset
+    id: sun_event
   - trigger: state
     entity_id:
       - input_select.ios_themes
       - input_boolean.ios_themes_dark_mode
       - input_boolean.ios_themes_local_backgrounds
-    id: iOS Themes
+    id: apply_theme
 conditions: []
 actions:
   - choose:
       - conditions:
           - condition: trigger
-            id:
-              - Sunrise
+            id: sun_event
+          - condition: state
+            entity_id: input_select.choose_default_theme
+            state: iOS Themes
         sequence:
-          - action: input_boolean.turn_off
+          - action: >-
+              input_boolean.turn_{{ 'on' if trigger.event == 'sunset' else 'off' }}
             target:
               entity_id: input_boolean.ios_themes_dark_mode
           - action: input_select.random
@@ -101,27 +102,21 @@ actions:
               entity_id: input_select.ios_themes
       - conditions:
           - condition: trigger
-            id:
-              - Sunset
-        sequence:
-          - action: input_boolean.turn_on
-            target:
-              entity_id: input_boolean.ios_themes_dark_mode
-          - action: input_select.random
-            target:
-              entity_id: input_select.ios_themes
-      - conditions:
-          - condition: trigger
-            id:
-              - iOS Themes
+            id: apply_theme
         sequence:
           - action: frontend.set_theme
             data:
               name: >-
-                {% set which = 'dark' if is_state('input_boolean.ios_themes_dark_mode', 'on') else 'light' -%}
-                {% set name = states('input_select.ios_themes') -%}
-                {% set suffix = '-alternative' if is_state('input_boolean.ios_themes_local_backgrounds', 'on') else '' -%}
-                ios-{{ which }}-mode-{{ name }}{{ suffix }}
+                {% set is_dark = is_state('input_boolean.ios_themes_dark_mode', 'on') %}
+                {% set mode = 'dark' if is_dark else 'light' %}
+                {% set color = states('input_select.ios_themes') %}
+                {% set suffix = '-alternative' if is_state('input_boolean.ios_themes_local_backgrounds', 'on') else '' %}
+                ios-{{ mode }}-mode-{{ color }}{{ suffix }}
+          - action: input_select.select_option
+            target:
+              entity_id: input_select.choose_default_theme
+            data:
+              option: iOS Themes
 mode: queued
 max: 10
 ```
@@ -132,32 +127,3 @@ max: 10
 
 1.  Nhấn vào biểu tượng **Hồ sơ người dùng (User Profile)** ở góc dưới cùng bên trái thanh menu.
 2.  Tại mục **Theme**, chọn **Use default theme**.
-
-## 5. Đưa công cụ điều khiển ra Dashboard (Tùy chọn)
-
-Nếu bạn muốn tự tay đổi màu hoặc chế độ Sáng/Tối ngay trên màn hình chính.
-_Yêu cầu: Đã cài đặt [Mushroom Cards](https://github.com/piitaya/lovelace-mushroom)._
-
-```yaml
-type: grid
-square: false
-columns: 2
-cards:
-  - type: custom:mushroom-select-card
-    entity: input_select.ios_themes
-    secondary_info: none
-    icon_color: primary
-    layout: horizontal
-    tap_action:
-      action: perform-action
-      perform_action: input_select.random
-      target:
-        entity_id: input_select.ios_themes
-  - type: tile
-    entity: input_boolean.ios_themes_dark_mode
-    hide_state: true
-    color: primary
-    vertical: true
-    icon_tap_action:
-      action: toggle
-```

@@ -41,31 +41,27 @@ template:
           entities: >-
             {{ this.attributes.raw | default([], true) }}
           raw: >-
-            {% set ignored_label = 'ignored' -%}
-            {% set ignored_domains = ['button', 'input_button', 'scene'] -%}
-            {% set ignored_integrations = ['demo', 'private_ble_device'] -%}
-
-            {% set ignored_integration_entities = namespace(entities=[]) -%}
-            {% for integration in ignored_integrations -%}
-              {% set ignored_integration_entities.entities = ignored_integration_entities.entities + integration_entities(integration) -%}
-            {% endfor -%}
-
-            {% set ignored_devices = label_devices(ignored_label) -%}
-            {% set ignored_device_entities = namespace(entities=[]) -%}
-            {% for device in ignored_devices -%}
-              {% set ignored_device_entities.entities = ignored_device_entities.entities + device_entities(device) -%}
-            {% endfor -%}
-
-            {% set ignored_individual_entities = label_entities(ignored_label) -%}
-
-            {{ states
-              | selectattr('state', 'in', ['unavailable', 'unknown'])
+            {% set ignored_domains = ['button', 'event', 'input_button', 'scene', 'stt', 'tts', 'zone'] %}
+            {% set ignored_integrations = ['browser_mod', 'demo', 'group', 'mobile_app', 'private_ble_device'] %}
+            {% set ignored_label = 'ignored' %}
+            {% set ignored_integration_entities = namespace(entities=[]) %}
+            {% for integration in ignored_integrations %}
+              {% set ignored_integration_entities.entities = ignored_integration_entities.entities + integration_entities(integration) %}
+            {% endfor %}
+            {% set candidates = states
+              | selectattr('state', 'in', ['unavailable'])
               | rejectattr('domain', 'in', ignored_domains)
               | rejectattr('entity_id', 'in', ignored_integration_entities.entities)
-              | rejectattr('entity_id', 'in', ignored_device_entities.entities)
-              | rejectattr('entity_id', 'in', ignored_individual_entities)
               | map(attribute='entity_id')
-              | list }}
+              | list %}
+            {% set ns = namespace(final=[]) %}
+            {% for entity_id in candidates %}
+              {% set dev_id = device_id(entity_id) %}
+              {% if ignored_label not in labels(entity_id) and (not dev_id or ignored_label not in labels(dev_id)) %}
+                {% set ns.final = ns.final + [entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.final }}
 ```
 
 _Sau khi lưu file, hãy **Khởi động lại (Restart)** Home Assistant để áp dụng._
@@ -146,7 +142,7 @@ actions:
     then:
       - action: notify.mobile_app_iphone # Thay bằng tên điện thoại của bạn
         data:
-          title: "⚠️ Mất kết nối thiết bị"
+          title: "Mất kết nối thiết bị"
           message: >-
             Có {{ devices | length }} thiết bị ({{ entities | length }} thực thể) đang bị mất kết nối.
           data:

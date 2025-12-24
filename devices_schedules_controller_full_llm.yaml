@@ -22,6 +22,8 @@ blueprint:
     - **Scripts:** `run_script` (to execute another Home Assistant script).
     - **Media Players:** `media_play`, `media_pause`, `media_stop`, `set_volume` (with a value 0-100%).
     - **Vacuum Robots:** `start_vacuum`, `return_vacuum`.
+    - **Buttons:** `press` (to press a button or input_button).
+    - **Notifications:** `announce` (to speak a text message via TTS, requires a text value and TTS configuration).
 
     ## Blueprint Setup
 

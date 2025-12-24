@@ -184,7 +184,7 @@ mode: parallel
 max_exceeded: silent
 description: Manages and controls schedules/timers for various devices.
 variables:
-  version: 20251211
+  version: 20251224
 fields:
   mode:
     name: Mode

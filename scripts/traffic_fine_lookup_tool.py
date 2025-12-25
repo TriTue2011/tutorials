@@ -698,7 +698,7 @@ async def traffic_fine_lookup_tool(
         cached_value, ttl = await _cache_get(cache_key)
         if cached_value is not None:
             if ttl is not None and ttl < CACHE_REFRESH_THRESHOLD:
-                task.create(_check_license_plate, license_plate, vehicle_type)
+                asyncio.create_task(_check_license_plate(license_plate, vehicle_type))
             return json.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)
     except Exception as error:

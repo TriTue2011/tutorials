@@ -418,25 +418,26 @@ def _external_url() -> str | None:
         return None
 
 
+@pyscript_compile
+def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
+    """Native Python function to perform disk cleanup safely."""
+    if not os.path.exists(directory):
+        return
+    with os.scandir(directory) as it:
+        for entry in it:
+            try:
+                if entry.is_file():
+                    if entry.stat().st_mtime < cutoff:
+                        os.remove(entry.path)
+            except Exception:
+                pass
+
+
 async def _cleanup_old_files(directory: str, days: int = 30) -> None:
     """Delete files in the directory older than the specified number of days."""
     now = time.time()
     cutoff = now - (days * 86400)
-
-    def _cleanup_sync() -> None:
-        if not os.path.exists(directory):
-            return
-        for filename in os.listdir(directory):
-            file_path = os.path.join(directory, filename)
-            try:
-                if os.path.isfile(file_path):
-                    t = os.path.getmtime(file_path)
-                    if t < cutoff:
-                        os.remove(file_path)
-            except Exception:
-                pass
-
-    await asyncio.to_thread(_cleanup_sync)
+    await asyncio.to_thread(_cleanup_disk_sync, directory, cutoff)
 
 
 @time_trigger("shutdown")

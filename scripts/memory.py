@@ -78,11 +78,13 @@ def _ensure_result_entity_name(force: bool = False) -> None:
         result_entity_name = _build_result_entity_name()
 
 
+@pyscript_compile
 def _utcnow_iso() -> str:
     """Return the current UTC time as an ISO 8601 string."""
     return datetime.now(timezone.utc).isoformat()
 
 
+@pyscript_compile
 def _dt_from_iso(s: str) -> datetime | None:
     """Parse an ISO string into datetime; return None if invalid."""
     try:

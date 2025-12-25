@@ -656,4 +656,4 @@ async def send_zalo_photo(
     finally:
         # Ensure deletion is scheduled even if an error occurred
         if published_path:
-            asyncio.create_task(_delayed_remove(published_path, 30))
+            task.create(_delayed_remove, published_path, 30)

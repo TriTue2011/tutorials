@@ -194,6 +194,7 @@ def _ensure_db_once(force: bool = False) -> None:
             _DB_READY = True
 
 
+@pyscript_compile
 def _normalize_value(s: str) -> str:
     """Normalize a text value for storage (NFC)."""
     if s is None:
@@ -201,6 +202,7 @@ def _normalize_value(s: str) -> str:
     return unicodedata.normalize("NFC", str(s))
 
 
+@pyscript_compile
 def _strip_diacritics(value: str) -> str:
     """Remove diacritics and normalize locale-specific letters (Vietnamese, Turkish, Spanish, Germanic, Nordic)."""
     if value is None:
@@ -219,6 +221,7 @@ def _strip_diacritics(value: str) -> str:
     return "".join(filtered)
 
 
+@pyscript_compile
 def _normalize_search_text(value: str | None) -> str:
     """Lowercase, strip diacritics, and collapse whitespace for search usage."""
     if value is None:
@@ -230,11 +233,13 @@ def _normalize_search_text(value: str | None) -> str:
     return re.sub(r"\s+", " ", cleaned).strip()
 
 
+@pyscript_compile
 def _normalize_tags(s: str) -> str:
     """Normalize tags similarly to keys but retain space-separated words."""
     return _normalize_search_text(s)
 
 
+@pyscript_compile
 def _normalize_key(s: str) -> str:
     """Normalize a key to [a-z0-9_], lowercase, no accents."""
     if s is None:
@@ -267,6 +272,7 @@ def _condense_candidate_for_selection(
     return data
 
 
+@pyscript_compile
 def _calculate_match_score(
     source_tokens: set[str], candidate_tokens: set[str], bm25_raw: float | None
 ) -> float:
@@ -480,6 +486,7 @@ def _reset_db_ready() -> None:
         _DB_READY = False
 
 
+@pyscript_compile
 def _memory_set_db_sync(
     key_norm: str,
     value_norm: str,
@@ -528,6 +535,7 @@ def _memory_set_db_sync(
     return False
 
 
+@pyscript_compile
 def _memory_key_exists_db_sync(key_norm: str) -> bool:
     """Return True if a memory row already exists for key."""
     for attempt in range(2):
@@ -549,6 +557,7 @@ def _memory_key_exists_db_sync(key_norm: str) -> bool:
     return False
 
 
+@pyscript_compile
 def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     """Fetch a memory by key, updating access time and handling expiry."""
     for attempt in range(2):
@@ -587,6 +596,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     return "error", None
 
 
+@pyscript_compile
 def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     """Run the primary search query, returning matching memory rows."""
     normalized_query = _normalize_search_text(query)
@@ -690,6 +700,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     return []
 
 
+@pyscript_compile
 def _memory_forget_db_sync(key_norm: str) -> int:
     """Delete a memory row by key and return the number of rows removed."""
     for attempt in range(2):
@@ -711,6 +722,7 @@ def _memory_forget_db_sync(key_norm: str) -> int:
     return 0
 
 
+@pyscript_compile
 def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     """Remove expired rows older than the grace period and report how many were purged."""
     grace = max(int(grace_days), 0)
@@ -738,6 +750,7 @@ def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     return 0
 
 
+@pyscript_compile
 def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     """Rebuild the FTS index, returning counts before and after the rebuild."""
     for attempt in range(2):
@@ -817,6 +830,7 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     return 0, 0
 
 
+@pyscript_compile
 def _memory_health_check_db_sync() -> tuple[int, int, int]:
     """Return basic health counts (total, expired, FTS rows) for diagnostics."""
     for attempt in range(2):

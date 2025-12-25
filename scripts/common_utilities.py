@@ -106,6 +106,7 @@ def _cache_prepare_db_sync(force: bool = False) -> bool:
     return True
 
 
+@pyscript_compile
 def _prune_expired_sync() -> None:
     """Prune expired entries from the cache database."""
     for attempt in range(2):
@@ -126,6 +127,7 @@ def _prune_expired_sync() -> None:
             return
 
 
+@pyscript_compile
 def _cache_get_sync(key: str) -> str | None:
     """Retrieve the cached value for a key if it exists and has not expired."""
     for attempt in range(2):
@@ -155,6 +157,7 @@ def _cache_get_sync(key: str) -> str | None:
     return None
 
 
+@pyscript_compile
 def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     """Persist a cache entry with the provided TTL."""
     for attempt in range(2):
@@ -184,6 +187,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     return False
 
 
+@pyscript_compile
 def _cache_delete_sync(key: str) -> int:
     """Remove the cache entry identified by key if it exists."""
     for attempt in range(2):

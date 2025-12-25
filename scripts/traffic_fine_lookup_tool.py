@@ -64,7 +64,7 @@ POST_HEADERS = {
 
 DB_PATH = Path("/config/cache.db")
 
-GEMINI_MODEL = "gemini-3.0-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_API_KEY = pyscript.config.get("gemini_api_key")
 
 if not GEMINI_API_KEY:
@@ -276,7 +276,6 @@ async def prune_cache_db() -> None:
     await _prune_expired()
 
 
-@pyscript_compile
 def _build_ssl_ctx() -> ssl.SSLContext:
     """Build an SSL context compatible with target site requirements.
 
@@ -294,7 +293,6 @@ def _build_ssl_ctx() -> ssl.SSLContext:
     return ctx
 
 
-@pyscript_compile
 def _build_gemini_client() -> Any:
     """Create a Gemini client using the configured API key.
 
@@ -330,6 +328,7 @@ async def _ensure_gemini_client() -> None:
                 GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
 
 
+@pyscript_compile
 def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     """Parse violations from the result HTML page.
 
@@ -431,6 +430,7 @@ async def _get_captcha(
         return None, f"An unexpected error during retrieve CAPTCHA image: {error}"
 
 
+@pyscript_compile
 def _process_captcha(
     image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
@@ -474,6 +474,14 @@ def _process_captcha(
     return img
 
 
+@pyscript_compile
+def _generate_gemini_content(_prompt: str, _image: Image.Image) -> Any:
+    """Generate content using Gemini model synchronously."""
+    return GEMINI_CLIENT.models.generate_content(
+        model=GEMINI_MODEL, contents=[_prompt, _image]
+    )
+
+
 async def _solve_captcha(
     image: Image.Image, retry_count: int = 1
 ) -> tuple[str, None] | tuple[None, str]:
@@ -489,13 +497,8 @@ async def _solve_captcha(
     prompt = "Analyze the image and extract the CAPTCHA text, which consists of exactly 6 alphanumeric characters. Return ONLY the extracted text. Do not include any other words, spaces, or markdown."
     await _ensure_gemini_client()
 
-    def _solve_captcha_sync(_prompt: str, _image: Image.Image) -> Any:
-        return GEMINI_CLIENT.models.generate_content(
-            model=GEMINI_MODEL, contents=[_prompt, _image]
-        )
-
     try:
-        response = await asyncio.to_thread(_solve_captcha_sync, prompt, image)
+        response = await asyncio.to_thread(_generate_gemini_content, prompt, image)
         if (
             response.candidates
             and response.candidates[0].content
@@ -698,7 +701,7 @@ async def traffic_fine_lookup_tool(
         cached_value, ttl = await _cache_get(cache_key)
         if cached_value is not None:
             if ttl is not None and ttl < CACHE_REFRESH_THRESHOLD:
-                asyncio.create_task(_check_license_plate(license_plate, vehicle_type))
+                task.create(_check_license_plate, license_plate, vehicle_type)
             return json.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)
     except Exception as error:

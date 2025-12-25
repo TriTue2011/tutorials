@@ -78,11 +78,13 @@ def _ensure_result_entity_name(force: bool = False) -> None:
         result_entity_name = _build_result_entity_name()
 
 
+@pyscript_compile
 def _utcnow_iso() -> str:
     """Return the current UTC time as an ISO 8601 string."""
     return datetime.now(timezone.utc).isoformat()
 
 
+@pyscript_compile
 def _dt_from_iso(s: str) -> datetime | None:
     """Parse an ISO string into datetime; return None if invalid."""
     try:
@@ -91,6 +93,7 @@ def _dt_from_iso(s: str) -> datetime | None:
         return None
 
 
+@pyscript_compile
 def _get_db_connection() -> sqlite3.Connection:
     """Create a properly configured database connection."""
     conn = sqlite3.connect(DB_PATH)
@@ -101,6 +104,7 @@ def _get_db_connection() -> sqlite3.Connection:
     return conn
 
 
+@pyscript_compile
 def _ensure_db() -> None:
     """Ensure database exists and tables/indices are created.
 
@@ -179,6 +183,7 @@ def _ensure_db() -> None:
         conn.commit()
 
 
+@pyscript_compile
 def _ensure_db_once(force: bool = False) -> None:
     """Ensure the database schema exists once per runtime."""
     global _DB_READY
@@ -194,6 +199,7 @@ def _ensure_db_once(force: bool = False) -> None:
             _DB_READY = True
 
 
+@pyscript_compile
 def _normalize_value(s: str) -> str:
     """Normalize a text value for storage (NFC)."""
     if s is None:
@@ -201,6 +207,7 @@ def _normalize_value(s: str) -> str:
     return unicodedata.normalize("NFC", str(s))
 
 
+@pyscript_compile
 def _strip_diacritics(value: str) -> str:
     """Remove diacritics and normalize locale-specific letters (Vietnamese, Turkish, Spanish, Germanic, Nordic)."""
     if value is None:
@@ -219,6 +226,7 @@ def _strip_diacritics(value: str) -> str:
     return "".join(filtered)
 
 
+@pyscript_compile
 def _normalize_search_text(value: str | None) -> str:
     """Lowercase, strip diacritics, and collapse whitespace for search usage."""
     if value is None:
@@ -230,11 +238,13 @@ def _normalize_search_text(value: str | None) -> str:
     return re.sub(r"\s+", " ", cleaned).strip()
 
 
+@pyscript_compile
 def _normalize_tags(s: str) -> str:
     """Normalize tags similarly to keys but retain space-separated words."""
     return _normalize_search_text(s)
 
 
+@pyscript_compile
 def _normalize_key(s: str) -> str:
     """Normalize a key to [a-z0-9_], lowercase, no accents."""
     if s is None:
@@ -267,6 +277,7 @@ def _condense_candidate_for_selection(
     return data
 
 
+@pyscript_compile
 def _calculate_match_score(
     source_tokens: set[str], candidate_tokens: set[str], bm25_raw: float | None
 ) -> float:
@@ -365,6 +376,7 @@ async def _find_tag_matches_for_query(
     ]
 
 
+@pyscript_compile
 def _tokenize_query(q: str) -> list[str]:
     """Tokenize a free-text query into normalized word tokens for FTS."""
     normalized = _normalize_search_text(q)
@@ -373,6 +385,7 @@ def _tokenize_query(q: str) -> list[str]:
     return normalized.split()
 
 
+@pyscript_compile
 def _near_distance_for_tokens(n: int) -> int:
     """Compute dynamic NEAR distance based on token count."""
     if n <= 1:
@@ -385,6 +398,7 @@ def _near_distance_for_tokens(n: int) -> int:
     return val
 
 
+@pyscript_compile
 def _build_fts_queries(raw_query: str) -> list[str]:
     """Build a list of FTS5 MATCH query variants to improve recall.
 
@@ -438,6 +452,7 @@ def _build_fts_queries(raw_query: str) -> list[str]:
     return out
 
 
+@pyscript_compile
 def _fetch_with_expiry(
     cur: sqlite3.Cursor, key: str
 ) -> tuple[bool, sqlite3.Row | None]:
@@ -473,6 +488,7 @@ def _set_result(state_value: str = "ok", **attrs: Any) -> None:
     state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)
 
 
+@pyscript_compile
 def _reset_db_ready() -> None:
     """Mark the cached DB-ready flag as stale so the next call rebuilds."""
     global _DB_READY
@@ -480,6 +496,7 @@ def _reset_db_ready() -> None:
         _DB_READY = False
 
 
+@pyscript_compile
 def _memory_set_db_sync(
     key_norm: str,
     value_norm: str,
@@ -528,6 +545,7 @@ def _memory_set_db_sync(
     return False
 
 
+@pyscript_compile
 def _memory_key_exists_db_sync(key_norm: str) -> bool:
     """Return True if a memory row already exists for key."""
     for attempt in range(2):
@@ -549,6 +567,7 @@ def _memory_key_exists_db_sync(key_norm: str) -> bool:
     return False
 
 
+@pyscript_compile
 def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     """Fetch a memory by key, updating access time and handling expiry."""
     for attempt in range(2):
@@ -587,6 +606,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     return "error", None
 
 
+@pyscript_compile
 def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     """Run the primary search query, returning matching memory rows."""
     normalized_query = _normalize_search_text(query)
@@ -690,6 +710,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     return []
 
 
+@pyscript_compile
 def _memory_forget_db_sync(key_norm: str) -> int:
     """Delete a memory row by key and return the number of rows removed."""
     for attempt in range(2):
@@ -711,6 +732,7 @@ def _memory_forget_db_sync(key_norm: str) -> int:
     return 0
 
 
+@pyscript_compile
 def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     """Remove expired rows older than the grace period and report how many were purged."""
     grace = max(int(grace_days), 0)
@@ -738,6 +760,7 @@ def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     return 0
 
 
+@pyscript_compile
 def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     """Rebuild the FTS index, returning counts before and after the rebuild."""
     for attempt in range(2):
@@ -817,6 +840,7 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     return 0, 0
 
 
+@pyscript_compile
 def _memory_health_check_db_sync() -> tuple[int, int, int]:
     """Return basic health counts (total, expired, FTS rows) for diagnostics."""
     for attempt in range(2):

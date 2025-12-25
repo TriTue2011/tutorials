@@ -11,6 +11,7 @@ import math
 from typing import Any
 
 
+@pyscript_compile
 def jd_from_date(dd: int, mm: int, yy: int) -> int:
     # Compute the (integral) Julian day number of day dd/mm/yyyy,
     # i.e., the number of days between 1/1/4713 BC (Julian calendar) and dd/mm/yyyy.
@@ -31,6 +32,7 @@ def jd_from_date(dd: int, mm: int, yy: int) -> int:
     return jd
 
 
+@pyscript_compile
 def jd_to_date(
     jd: int,
 ) -> list[int]:  # Convert a Julian day number to day/month/year. jd is an integer.
@@ -51,6 +53,7 @@ def jd_to_date(
     return [day, month, year]
 
 
+@pyscript_compile
 def new_moon(k: int) -> float:
     # Compute the time of the k-th new moon after the new moon of 1/1/1900 13:52 UCT
     # measured as the number of days since 1/1/4713 BC noon UCT, e.g., 2451545.125 is 1/1/2000 15:00 UTC.
@@ -96,6 +99,7 @@ def new_moon(k: int) -> float:
     return jd_new
 
 
+@pyscript_compile
 def sun_longitude(jdn: float) -> float:
     # Compute the longitude of the sun at any time.
     # Parameter: floating number jdn, the number of days since 1/1/4713 BC noon.
@@ -119,6 +123,7 @@ def sun_longitude(jdn: float) -> float:
     return l
 
 
+@pyscript_compile
 def get_sun_longitude(day_number: int, time_zone: int) -> int:
     # Compute sun position at midnight of the day with the given Julian day number.
     # The time zone if the time difference between local time and UTC: 7.0 for UTC+7:00.
@@ -128,12 +133,14 @@ def get_sun_longitude(day_number: int, time_zone: int) -> int:
     return int(sun_longitude(day_number - 0.5 - time_zone / 24.0) / math.pi * 6)
 
 
+@pyscript_compile
 def get_new_moon_day(k: int, time_zone: int) -> int:
     # Compute the day of the k-th new moon in the given time zone.
     # The time zone if the time difference between local time and UTC: 7.0 for UTC+7:00.
     return int(new_moon(k) + 0.5 + time_zone / 24.0)
 
 
+@pyscript_compile
 def get_lunar_month_11(yy: int, time_zone: int) -> int:
     # Find the day that starts the lunar month 11 of the given year for the given time zone.
 
@@ -148,6 +155,7 @@ def get_lunar_month_11(yy: int, time_zone: int) -> int:
     return nm
 
 
+@pyscript_compile
 def get_leap_month_offset(a11: int, time_zone: int) -> int:
     # Find the index of the leap month after the month starting on the day a11.
     k = int((a11 - 2415021.076998695) / 29.530588853 + 0.5)
@@ -162,6 +170,7 @@ def get_leap_month_offset(a11: int, time_zone: int) -> int:
     return i - 1
 
 
+@pyscript_compile
 def solar_to_lunar(dd: int, mm: int, yy: int, time_zone: int = 7) -> list[int]:
     # Convert solar date dd/mm/yyyy to the corresponding lunar date.
     day_number = jd_from_date(dd, mm, yy)
@@ -194,6 +203,7 @@ def solar_to_lunar(dd: int, mm: int, yy: int, time_zone: int = 7) -> list[int]:
     return [lunar_day, lunar_month, lunar_year, lunar_leap, day_number]
 
 
+@pyscript_compile
 def lunar_to_solar(
     lunar_day: int,
     lunar_month: int,
@@ -225,6 +235,7 @@ def lunar_to_solar(
     return jd_to_date(month_start + lunar_day - 1)
 
 
+@pyscript_compile
 def get_solar_term(day_number: int, time_zone: int) -> int:
     """Calculate the solar term index (0-23) for a given Julian Day number."""
     return int((sun_longitude(day_number - 0.5 - time_zone / 24.0) / math.pi) * 12)

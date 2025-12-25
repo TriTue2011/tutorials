@@ -51,6 +51,7 @@ def _acquire_index_lock(key: str):
     return _IndexLockContext(key)
 
 
+@pyscript_compile
 def _get_db_connection() -> sqlite3.Connection:
     """Establish a database connection with optimized settings."""
     conn = sqlite3.connect(DB_PATH)
@@ -60,6 +61,7 @@ def _get_db_connection() -> sqlite3.Connection:
     return conn
 
 
+@pyscript_compile
 def _ensure_cache_db() -> None:
     """Create the cache database directory, SQLite file, and schema if they do not already exist."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -78,6 +80,7 @@ def _ensure_cache_db() -> None:
         conn.commit()
 
 
+@pyscript_compile
 def _ensure_cache_db_once(force: bool = False) -> None:
     """Ensure the cache database exists, optionally forcing a rebuild."""
     global _CACHE_READY
@@ -93,6 +96,7 @@ def _ensure_cache_db_once(force: bool = False) -> None:
             _CACHE_READY = True
 
 
+@pyscript_compile
 def _reset_cache_ready() -> None:
     """Mark the cache database schema as stale so it will be recreated."""
     global _CACHE_READY
@@ -106,6 +110,7 @@ def _cache_prepare_db_sync(force: bool = False) -> bool:
     return True
 
 
+@pyscript_compile
 def _prune_expired_sync() -> None:
     """Prune expired entries from the cache database."""
     for attempt in range(2):
@@ -126,6 +131,7 @@ def _prune_expired_sync() -> None:
             return
 
 
+@pyscript_compile
 def _cache_get_sync(key: str) -> str | None:
     """Retrieve the cached value for a key if it exists and has not expired."""
     for attempt in range(2):
@@ -155,6 +161,7 @@ def _cache_get_sync(key: str) -> str | None:
     return None
 
 
+@pyscript_compile
 def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     """Persist a cache entry with the provided TTL."""
     for attempt in range(2):
@@ -184,6 +191,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     return False
 
 
+@pyscript_compile
 def _cache_delete_sync(key: str) -> int:
     """Remove the cache entry identified by key if it exists."""
     for attempt in range(2):

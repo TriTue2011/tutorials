@@ -41,6 +41,12 @@ Bạn có thể thêm code vào `configuration.yaml` hoặc tạo bằng giao di
 
 ```yaml
 input_select:
+  choose_default_theme:
+    name: Choose Default Theme
+    icon: mdi:palette-outline
+    options:
+      - iOS Themes
+      - Frosted Glass Themes
   ios_themes:
     name: iOS Themes
     icon: mdi:palette
@@ -65,60 +71,50 @@ input_boolean:
 
 ### 3.2. Tạo Automation
 
-Automation này sẽ tự động chuyển sang chế độ Sáng khi mặt trời mọc và Tối khi mặt trời lặn, đồng thời áp dụng hình nền ngẫu nhiên mỗi ngày.
+**Automation tối ưu:** Một automation duy nhất xử lý mọi thứ và chỉ chạy khi iOS Themes đang hoạt động để tránh ghi đè các tùy chọn giao diện khác.
 
 ```yaml
-alias: "System: Auto change iOS themes"
-description: "Tự động đổi theme Sáng/Tối và chọn màu ngẫu nhiên"
-ttriggers:
+alias: Auto change iOS themes
+description: Tự động đổi theme Sáng/Tối và chọn màu ngẫu nhiên
+triggers:
   - trigger: sun
     event: sunrise
-    id: sun_event
+    id: sun
   - trigger: sun
     event: sunset
-    id: sun_event
+    id: sun
   - trigger: state
     entity_id:
       - input_select.ios_themes
       - input_boolean.ios_themes_dark_mode
       - input_boolean.ios_themes_local_backgrounds
-    id: apply_theme
-conditions: []
+    id: apply
+conditions:
+  - condition: state
+    entity_id: input_select.choose_default_theme
+    state: iOS Themes
 actions:
-  - choose:
-      - conditions:
-          - condition: trigger
-            id: sun_event
-          - condition: state
-            entity_id: input_select.choose_default_theme
-            state: iOS Themes
-        sequence:
-          - action: >-
-              input_boolean.turn_{{ 'on' if trigger.event == 'sunset' else 'off' }}
-            target:
-              entity_id: input_boolean.ios_themes_dark_mode
-          - action: input_select.random
-            target:
-              entity_id: input_select.ios_themes
-      - conditions:
-          - condition: trigger
-            id: apply_theme
-        sequence:
-          - action: frontend.set_theme
-            data:
-              name: >-
-                {% set is_dark = is_state('input_boolean.ios_themes_dark_mode', 'on') %}
-                {% set mode = 'dark' if is_dark else 'light' %}
-                {% set color = states('input_select.ios_themes') %}
-                {% set suffix = '-alternative' if is_state('input_boolean.ios_themes_local_backgrounds', 'on') else '' %}
-                ios-{{ mode }}-mode-{{ color }}{{ suffix }}
-          - action: input_select.select_option
-            target:
-              entity_id: input_select.choose_default_theme
-            data:
-              option: iOS Themes
-mode: queued
-max: 10
+  - if:
+      - condition: trigger
+        id: sun
+    then:
+      - action: input_boolean.turn_{{ 'on' if trigger.event == 'sunset' else 'off' }}
+        target:
+          entity_id: input_boolean.ios_themes_dark_mode
+      - action: input_select.random
+        target:
+          entity_id: input_select.ios_themes
+      - stop: Settings updated. Waiting for re-trigger to apply theme.
+  - delay: "00:00:01"
+  - action: frontend.set_theme
+    data:
+      name: >-
+        {% set is_dark = is_state('input_boolean.ios_themes_dark_mode', 'on') %}
+        {% set mode = 'dark' if is_dark else 'light' %}
+        {% set color = states('input_select.ios_themes') %}
+        {% set suffix = '-alternative' if is_state('input_boolean.ios_themes_local_backgrounds', 'on') else '' %}
+        ios-{{ mode }}-mode-{{ color }}{{ suffix }}
+mode: restart
 ```
 
 ## 4. Kích hoạt Theme trên thiết bị

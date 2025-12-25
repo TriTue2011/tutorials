@@ -276,6 +276,7 @@ async def prune_cache_db() -> None:
     await _prune_expired()
 
 
+@pyscript_compile
 def _build_ssl_ctx() -> ssl.SSLContext:
     """Build an SSL context compatible with target site requirements.
 
@@ -293,6 +294,7 @@ def _build_ssl_ctx() -> ssl.SSLContext:
     return ctx
 
 
+@pyscript_compile
 def _build_gemini_client() -> Any:
     """Create a Gemini client using the configured API key.
 

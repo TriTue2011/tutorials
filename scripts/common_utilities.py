@@ -51,6 +51,7 @@ def _acquire_index_lock(key: str):
     return _IndexLockContext(key)
 
 
+@pyscript_compile
 def _get_db_connection() -> sqlite3.Connection:
     """Establish a database connection with optimized settings."""
     conn = sqlite3.connect(DB_PATH)
@@ -60,6 +61,7 @@ def _get_db_connection() -> sqlite3.Connection:
     return conn
 
 
+@pyscript_compile
 def _ensure_cache_db() -> None:
     """Create the cache database directory, SQLite file, and schema if they do not already exist."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -78,6 +80,7 @@ def _ensure_cache_db() -> None:
         conn.commit()
 
 
+@pyscript_compile
 def _ensure_cache_db_once(force: bool = False) -> None:
     """Ensure the cache database exists, optionally forcing a rebuild."""
     global _CACHE_READY
@@ -93,6 +96,7 @@ def _ensure_cache_db_once(force: bool = False) -> None:
             _CACHE_READY = True
 
 
+@pyscript_compile
 def _reset_cache_ready() -> None:
     """Mark the cache database schema as stale so it will be recreated."""
     global _CACHE_READY

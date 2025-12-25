@@ -91,6 +91,7 @@ def _dt_from_iso(s: str) -> datetime | None:
         return None
 
 
+@pyscript_compile
 def _get_db_connection() -> sqlite3.Connection:
     """Create a properly configured database connection."""
     conn = sqlite3.connect(DB_PATH)
@@ -101,6 +102,7 @@ def _get_db_connection() -> sqlite3.Connection:
     return conn
 
 
+@pyscript_compile
 def _ensure_db() -> None:
     """Ensure database exists and tables/indices are created.
 
@@ -179,6 +181,7 @@ def _ensure_db() -> None:
         conn.commit()
 
 
+@pyscript_compile
 def _ensure_db_once(force: bool = False) -> None:
     """Ensure the database schema exists once per runtime."""
     global _DB_READY
@@ -371,6 +374,7 @@ async def _find_tag_matches_for_query(
     ]
 
 
+@pyscript_compile
 def _tokenize_query(q: str) -> list[str]:
     """Tokenize a free-text query into normalized word tokens for FTS."""
     normalized = _normalize_search_text(q)
@@ -379,6 +383,7 @@ def _tokenize_query(q: str) -> list[str]:
     return normalized.split()
 
 
+@pyscript_compile
 def _near_distance_for_tokens(n: int) -> int:
     """Compute dynamic NEAR distance based on token count."""
     if n <= 1:
@@ -391,6 +396,7 @@ def _near_distance_for_tokens(n: int) -> int:
     return val
 
 
+@pyscript_compile
 def _build_fts_queries(raw_query: str) -> list[str]:
     """Build a list of FTS5 MATCH query variants to improve recall.
 
@@ -444,6 +450,7 @@ def _build_fts_queries(raw_query: str) -> list[str]:
     return out
 
 
+@pyscript_compile
 def _fetch_with_expiry(
     cur: sqlite3.Cursor, key: str
 ) -> tuple[bool, sqlite3.Row | None]:
@@ -479,6 +486,7 @@ def _set_result(state_value: str = "ok", **attrs: Any) -> None:
     state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)
 
 
+@pyscript_compile
 def _reset_db_ready() -> None:
     """Mark the cached DB-ready flag as stale so the next call rebuilds."""
     global _DB_READY

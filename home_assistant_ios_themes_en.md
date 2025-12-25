@@ -41,6 +41,12 @@ You can add the code to `configuration.yaml` or create them via the UI (Settings
 
 ```yaml
 input_select:
+  choose_default_theme:
+    name: Choose Default Theme
+    icon: mdi:palette-outline
+    options:
+      - iOS Themes
+      - Frosted Glass Themes
   ios_themes:
     name: iOS Themes
     icon: mdi:palette
@@ -65,60 +71,50 @@ input_boolean:
 
 ### 3.2. Create Automation
 
-This automation will automatically switch to Light mode at sunrise and Dark mode at sunset, and apply a random background daily.
+**Optimized automation:** This single automation handles everything and only runs when iOS Themes is active to avoid overriding other theme preferences.
 
 ```yaml
-alias: "System: Auto change iOS themes"
-description: "Automatically switch between Light/Dark themes and select random color"
+alias: Auto change iOS themes
+description: Automatically switch between Light/Dark themes and select random color
 triggers:
   - trigger: sun
     event: sunrise
-    id: sun_event
+    id: sun
   - trigger: sun
     event: sunset
-    id: sun_event
+    id: sun
   - trigger: state
     entity_id:
       - input_select.ios_themes
       - input_boolean.ios_themes_dark_mode
       - input_boolean.ios_themes_local_backgrounds
-    id: apply_theme
-conditions: []
+    id: apply
+conditions:
+  - condition: state
+    entity_id: input_select.choose_default_theme
+    state: iOS Themes
 actions:
-  - choose:
-      - conditions:
-          - condition: trigger
-            id: sun_event
-          - condition: state
-            entity_id: input_select.choose_default_theme
-            state: iOS Themes
-        sequence:
-          - action: >-
-              input_boolean.turn_{{ 'on' if trigger.event == 'sunset' else 'off' }}
-            target:
-              entity_id: input_boolean.ios_themes_dark_mode
-          - action: input_select.random
-            target:
-              entity_id: input_select.ios_themes
-      - conditions:
-          - condition: trigger
-            id: apply_theme
-        sequence:
-          - action: frontend.set_theme
-            data:
-              name: >-
-                {% set is_dark = is_state('input_boolean.ios_themes_dark_mode', 'on') %}
-                {% set mode = 'dark' if is_dark else 'light' %}
-                {% set color = states('input_select.ios_themes') %}
-                {% set suffix = '-alternative' if is_state('input_boolean.ios_themes_local_backgrounds', 'on') else '' %}
-                ios-{{ mode }}-mode-{{ color }}{{ suffix }}
-          - action: input_select.select_option
-            target:
-              entity_id: input_select.choose_default_theme
-            data:
-              option: iOS Themes
-mode: queued
-max: 10
+  - if:
+      - condition: trigger
+        id: sun
+    then:
+      - action: input_boolean.turn_{{ 'on' if trigger.event == 'sunset' else 'off' }}
+        target:
+          entity_id: input_boolean.ios_themes_dark_mode
+      - action: input_select.random
+        target:
+          entity_id: input_select.ios_themes
+      - stop: Settings updated. Waiting for re-trigger to apply theme.
+  - delay: "00:00:01"
+  - action: frontend.set_theme
+    data:
+      name: >-
+        {% set is_dark = is_state('input_boolean.ios_themes_dark_mode', 'on') %}
+        {% set mode = 'dark' if is_dark else 'light' %}
+        {% set color = states('input_select.ios_themes') %}
+        {% set suffix = '-alternative' if is_state('input_boolean.ios_themes_local_backgrounds', 'on') else '' %}
+        ios-{{ mode }}-mode-{{ color }}{{ suffix }}
+mode: restart
 ```
 
 ## 4. Activate Theme on Your Device

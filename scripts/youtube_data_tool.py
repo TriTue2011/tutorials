@@ -4,7 +4,7 @@ from typing import Any
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-YOUTUBE_API_KEY = pyscript.config.get("youtube_api_key")
+YOUTUBE_API_KEY = pyscript.config.get("youtube_api_key")  # noqa: F821
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -15,7 +15,7 @@ if not YOUTUBE_API_KEY:
     raise ValueError("You need to configure your YouTube API key")
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _build_youtube_client() -> Any:
     """Build the YouTube API client."""
     return build(
@@ -32,7 +32,7 @@ async def _ensure_youtube_client() -> None:
                 YOUTUBE_CLIENT = await asyncio.to_thread(_build_youtube_client)
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def youtube_search(
     client: Any,
     query: str,
@@ -68,7 +68,7 @@ def youtube_search(
     return search_response
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
     """
     yaml

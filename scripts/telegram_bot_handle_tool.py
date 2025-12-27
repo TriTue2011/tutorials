@@ -11,10 +11,9 @@ import aiohttp
 from homeassistant.helpers import network
 
 DIRECTORY = "/media/telegram"
-TOKEN = pyscript.config.get("telegram_bot_token")
+TOKEN = pyscript.config.get("telegram_bot_token")  # noqa: F821
 
 _session: aiohttp.ClientSession | None = None
-
 
 if not TOKEN:
     raise ValueError("Telegram bot token is missing")
@@ -395,7 +394,7 @@ def _internal_url() -> str | None:
         Internal URL string or None when unavailable.
     """
     try:
-        return network.get_url(hass, allow_external=False)
+        return network.get_url(hass, allow_external=False)  # noqa: F821
     except network.NoURLAvailableError:
         return None
 
@@ -408,7 +407,7 @@ def _external_url() -> str | None:
     """
     try:
         return network.get_url(
-            hass,
+            hass,  # noqa: F821
             allow_internal=False,
             allow_ip=False,
             require_ssl=True,
@@ -418,19 +417,23 @@ def _external_url() -> str | None:
         return None
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
     """Native Python function to perform disk cleanup safely."""
-    if not os.path.exists(directory):
+    path = Path(directory)
+    if not path.exists():
         return
-    with os.scandir(directory) as it:
-        for entry in it:
-            try:
-                if entry.is_file():
-                    if entry.stat().st_mtime < cutoff:
-                        os.remove(entry.path)
-            except Exception:
-                pass
+
+    for entry in path.iterdir():
+        try:
+            if entry.is_file():
+                # Extracting variable for clarity
+                file_mtime = entry.stat().st_mtime
+                if file_mtime < cutoff:
+                    entry.unlink()
+        except OSError:
+            # Silently skip files that are locked or inaccessible
+            pass
 
 
 async def _cleanup_old_files(directory: str, days: int = 30) -> None:
@@ -440,7 +443,7 @@ async def _cleanup_old_files(directory: str, days: int = 30) -> None:
     await asyncio.to_thread(_cleanup_disk_sync, directory, cutoff)
 
 
-@time_trigger("shutdown")
+@time_trigger("shutdown")  # noqa: F821
 async def _close_session() -> None:
     """Close the aiohttp session on shutdown."""
     global _session
@@ -449,13 +452,13 @@ async def _close_session() -> None:
         _session = None
 
 
-@time_trigger("cron(0 0 * * *)")
+@time_trigger("cron(0 0 * * *)")  # noqa: F821
 async def _daily_cleanup() -> None:
     """Run daily cleanup of old files."""
     await _cleanup_old_files(DIRECTORY, days=30)
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def send_telegram_message(
     chat_id: str,
     message: str,
@@ -529,7 +532,7 @@ async def send_telegram_message(
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_telegram_file(file_id: str) -> dict[str, Any]:
     """
     yaml
@@ -562,8 +565,10 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
 
         try:
             await _download_and_save_file(session, online_file_path, file_path)
-        except Exception:
-            return {"error": "Unable to download or save the file from Telegram."}
+        except Exception as error:
+            return {
+                "error": f"Unable to download or save the file from Telegram: {error}"
+            }
 
         mimetypes.add_type("text/plain", ".yaml")
         mime_type, _ = mimetypes.guess_file_type(file_name)
@@ -585,7 +590,7 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_telegram_webhook() -> dict[str, Any]:
     """
     yaml
@@ -599,7 +604,7 @@ async def get_telegram_webhook() -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
@@ -629,7 +634,7 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def delete_telegram_webhook() -> dict[str, Any]:
     """
     yaml
@@ -643,7 +648,7 @@ async def delete_telegram_webhook() -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_telegram_updates(
     timeout: int = 30, offset: int | None = None, limit: int | None = None
 ) -> dict[str, Any]:
@@ -684,7 +689,7 @@ async def get_telegram_updates(
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_telegram_bot_info() -> dict[str, Any]:
     """
     yaml
@@ -698,7 +703,7 @@ async def get_telegram_bot_info() -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def send_telegram_chat_action(
     chat_id: str,
     message_thread_id: int | None = None,
@@ -763,7 +768,7 @@ async def send_telegram_chat_action(
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def send_telegram_photo(
     chat_id: str,
     file_path: str,

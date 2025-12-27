@@ -1,6 +1,6 @@
 # Cách tạo một bản chỉ dẫn hệ thống (System Prompt) cho AI
 
-- **Bản chỉ dẫn hệ thống này được tối ưu hóa để hoạt động hiệu quả nhất với Gemini 3.0 Flash. Các mô hình (model) khác có thể sẽ cần điều chỉnh thêm để hoạt động chính xác như mong muốn.**
+- **Bản chỉ dẫn hệ thống này được tối ưu hóa để hoạt động hiệu quả nhất với các mô hình (model) Gemini Flash. Các mô hình khác có thể sẽ cần điều chỉnh thêm để hoạt động chính xác như mong muốn.**
 
 ## Tóm tắt
 

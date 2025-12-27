@@ -29,6 +29,7 @@ jobs:
       - name: Update URLs dynamically
         run: |
           BRANCH=${GITHUB_REF#refs/heads/}
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
           BASE_URL="https://github.com/${{ github.repository }}/blob/$BRANCH"
 
           echo "Updating source_url for branch: $BRANCH"
@@ -46,8 +47,8 @@ jobs:
 
       - name: Commit and Push changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add .
 
           if ! git diff --quiet --staged; then

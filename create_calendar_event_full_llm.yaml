@@ -1,7 +1,7 @@
 blueprint:
   name: Voice - Create Calendar Event
   author: luuquangvu
-  source_url: SOURCE_URL_PLACEHOLDER
+  source_url: https://github.com/luuquangvu/tutorials/blob/dev/create_calendar_event_full_llm.yaml
   description: |-
     # Tool help to create calendar events used for Voice Assistant
 

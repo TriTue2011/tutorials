@@ -1,6 +1,7 @@
 blueprint:
   name: Traffic Fine Notification
   author: luuquangvu
+  source_url: https://github.com/luuquangvu/tutorials/blob/dev/traffic_fine_notification.yaml
   description: |-
     # Nhận thông báo khi có thông tin phạt nguội
 

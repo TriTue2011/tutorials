@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Control Fan Speed & Oscillation
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool for Controlling Fan Speed and Oscillation used for Voice Assistant
 

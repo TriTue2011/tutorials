@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Find Device
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Find My Device Tool used for Voice Assistant
 

@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - File Content Analyzer
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool designed to analyze and extract all types of information from media and document files
 

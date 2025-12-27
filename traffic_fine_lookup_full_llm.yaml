@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Check Traffic Fine
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool for checking traffic fines used for Voice Assistant
 

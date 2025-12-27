@@ -1,6 +1,7 @@
 blueprint:
   name: Devices Schedules
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Voice assistant friendly multi-device timer controller
 

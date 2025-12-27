@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Play YouTube Video
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool plays YouTube videos on a smart TV used for Voice Assistant
 

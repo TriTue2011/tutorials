@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Get Calendar Events
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool gets events from calendar used for Voice Assistant
 

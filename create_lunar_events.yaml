@@ -1,6 +1,7 @@
 blueprint:
   name: Create Lunar Events
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool help to create Lunar calendar events
 

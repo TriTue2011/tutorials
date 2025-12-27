@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Memory Tool
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Fully local universal memory tool used for Voice Assistant
 

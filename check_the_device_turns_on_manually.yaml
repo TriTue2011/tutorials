@@ -1,6 +1,7 @@
 blueprint:
   name: Check The Device Turns On Manually
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Verify whether the device activated manually or via automation/application
 

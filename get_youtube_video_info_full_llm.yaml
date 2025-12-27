@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Get YouTube Video Info
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool gets YouTube video info used for Voice Assistant
 

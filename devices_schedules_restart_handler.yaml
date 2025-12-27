@@ -1,6 +1,7 @@
 blueprint:
   name: Devices Schedules Restart Handler
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Devices Schedules Restart Handler
 

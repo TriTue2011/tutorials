@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Set Fan Oscillation
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool for Controlling Fan Oscillation used for Voice Assistant
 

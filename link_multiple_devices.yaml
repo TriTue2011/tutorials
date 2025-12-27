@@ -1,6 +1,7 @@
 blueprint:
   name: Link On/Off State of Multiple Devices
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Link State of Multiple Devices (Ultra-Fast)
 

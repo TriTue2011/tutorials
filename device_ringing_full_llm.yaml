@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Ring Device
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Device Ringing Tool used for Voice Assistant
 

@@ -1,6 +1,7 @@
 blueprint:
   name: Voice - Set Fan Speed
   author: luuquangvu
+  source_url: SOURCE_URL_PLACEHOLDER
   description: |-
     # Tool for Controlling Fan Speed used for Voice Assistant
 

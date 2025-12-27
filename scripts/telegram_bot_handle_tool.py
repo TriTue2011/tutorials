@@ -663,7 +663,7 @@ async def get_telegram_updates(
         selector:
           number:
             min: 30
-            max: 60
+            max: 120
             step: 1
         default: 30
       offset:
@@ -684,7 +684,16 @@ async def get_telegram_updates(
     """
     try:
         session = await _ensure_session()
-        return await _get_updates(session, timeout=timeout, offset=offset, limit=limit)
+        response = await _get_updates(
+            session, timeout=timeout, offset=offset, limit=limit
+        )
+        if not response or not response.get("result"):
+            return {
+                "ok": True,
+                "result": [],
+                "description": "No updates found. Please send a message to the bot first to ensure there is data to retrieve.",
+            }
+        return response
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 

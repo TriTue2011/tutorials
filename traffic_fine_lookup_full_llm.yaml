@@ -13,7 +13,7 @@ blueprint:
     - The `scripts/traffic_fine_lookup_tool.py` script needs to be copied into the `config/pyscript` folder.
     - The `scripts/requirements.txt` file needs to be copied into the `config/pyscript` folder.
     - The mentioned file(s) is/are included in the repository.
-    - Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
+    - You need to enable two Pyscript options through the UI or via YAML to allow importing all Python packages and to make hass available as a global variable.
     - A Gemini API key needs to be configured in `config/configuration.yaml` and `config/secrets.yaml`, as it's required for solving CAPTCHAs.
 
     ```

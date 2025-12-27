@@ -16,7 +16,7 @@ blueprint:
     - The `scripts/common_utilities.py` script need to be copied into the `config/pyscript` folder.
     - The `devices_schedules.yaml` blueprint needs to be installed.
     - The mentioned file(s) is/are included in the repository.
-    - Enable two Pyscript configuration options in `config/configuration.yaml` to permit the import of any Python package and to expose hass as a variable.
+    - You need to enable two Pyscript options through the UI or via YAML to allow importing all Python packages and to make hass available as a global variable.
 
     ```
     # File configuration.yaml

@@ -13,7 +13,7 @@ from homeassistant.helpers import network
 
 DIRECTORY = "/media/zalo"
 WWW_DIRECTORY = "/config/www/zalo"
-TOKEN = pyscript.config.get("zalo_bot_token")
+TOKEN = pyscript.config.get("zalo_bot_token")  # noqa: F821
 
 _session: aiohttp.ClientSession | None = None
 
@@ -95,19 +95,23 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
     """Native Python function to perform disk cleanup safely."""
-    if not os.path.exists(directory):
+    path = Path(directory)
+    if not path.exists():
         return
-    with os.scandir(directory) as it:
-        for entry in it:
-            try:
-                if entry.is_file():
-                    if entry.stat().st_mtime < cutoff:
-                        os.remove(entry.path)
-            except Exception:
-                pass
+
+    for entry in path.iterdir():
+        try:
+            if entry.is_file():
+                # Extracting variable for clarity
+                file_mtime = entry.stat().st_mtime
+                if file_mtime < cutoff:
+                    entry.unlink()
+        except OSError:
+            # Silently skip files that are locked or inaccessible
+            pass
 
 
 async def _cleanup_old_files(directory: str, days: int = 30) -> None:
@@ -117,7 +121,9 @@ async def _cleanup_old_files(directory: str, days: int = 30) -> None:
     await asyncio.to_thread(_cleanup_disk_sync, directory, cutoff)
 
 
-async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None:
+async def _download_file(
+    session: aiohttp.ClientSession, url: str
+) -> tuple[str, None] | tuple[None, str]:
     """Download a file from a given URL and save it under DIRECTORY (streaming).
 
     Args:
@@ -149,9 +155,9 @@ async def _download_file(session: aiohttp.ClientSession, url: str) -> str | None
                 async for chunk in resp.content.iter_chunked(4096):
                     await f.write(chunk)
 
-            return file_path
-    except Exception:
-        return None
+            return file_path, None
+    except Exception as error:
+        return None, f"An unexpected error occurred during download: {error}"
 
 
 async def _send_message(
@@ -373,7 +379,7 @@ def _internal_url() -> str | None:
         Internal URL string or None when unavailable.
     """
     try:
-        return network.get_url(hass, allow_external=False)
+        return network.get_url(hass, allow_external=False)  # noqa: F821
     except network.NoURLAvailableError:
         return None
 
@@ -386,7 +392,7 @@ def _external_url() -> str | None:
     """
     try:
         return network.get_url(
-            hass,
+            hass,  # noqa: F821
             allow_internal=False,
             allow_ip=False,
             require_ssl=True,
@@ -396,7 +402,7 @@ def _external_url() -> str | None:
         return None
 
 
-@time_trigger("shutdown")
+@time_trigger("shutdown")  # noqa: F821
 async def _close_session() -> None:
     """Close the aiohttp session on shutdown."""
     global _session
@@ -405,7 +411,7 @@ async def _close_session() -> None:
         _session = None
 
 
-@time_trigger("cron(0 0 * * *)")
+@time_trigger("cron(0 0 * * *)")  # noqa: F821
 async def _daily_cleanup() -> None:
     """Run daily cleanup of old files."""
     await _cleanup_old_files(DIRECTORY, days=30)
@@ -415,7 +421,7 @@ async def _daily_cleanup() -> None:
     )  # Public files should be short-lived
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def send_zalo_message(chat_id: str, message: str) -> dict[str, Any]:
     """
     yaml
@@ -448,7 +454,7 @@ async def send_zalo_message(chat_id: str, message: str) -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_zalo_file(url: str) -> dict[str, Any]:
     """
     yaml
@@ -468,9 +474,9 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
         session = await _ensure_session()
         await _ensure_dir(DIRECTORY)
 
-        file_path = await _download_file(session, url)
+        file_path, error = await _download_file(session, url)
         if not file_path:
-            return {"error": "Unable to download the file from Zalo."}
+            return {"error": f"Unable to download the file from Zalo. {error}"}
 
         mimetypes.add_type("text/plain", ".yaml")
         mime_type, _ = mimetypes.guess_file_type(file_path)
@@ -492,7 +498,7 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_zalo_webhook() -> dict[str, Any]:
     """
     yaml
@@ -506,7 +512,7 @@ async def get_zalo_webhook() -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
@@ -536,7 +542,7 @@ async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def delete_zalo_webhook() -> dict[str, Any]:
     """
     yaml
@@ -550,7 +556,7 @@ async def delete_zalo_webhook() -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
     """
     yaml
@@ -574,7 +580,7 @@ async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def get_zalo_bot_info() -> dict[str, Any]:
     """
     yaml
@@ -588,7 +594,7 @@ async def get_zalo_bot_info() -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def send_zalo_chat_action(chat_id: str) -> dict[str, Any]:
     """
     yaml
@@ -614,7 +620,7 @@ async def send_zalo_chat_action(chat_id: str) -> dict[str, Any]:
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def send_zalo_photo(
     chat_id: str,
     file_path: str,
@@ -656,4 +662,4 @@ async def send_zalo_photo(
     finally:
         # Ensure deletion is scheduled even if an error occurred
         if published_path:
-            task.create(_delayed_remove, published_path, 30)
+            task.create(_delayed_remove, published_path, 30)  # noqa: F821

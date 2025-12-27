@@ -8,13 +8,13 @@ import time
 from contextlib import closing
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 
 import aiohttp
 import google.api_core.exceptions
 from PIL import Image
 from PIL import ImageOps
 from bs4 import BeautifulSoup
-from typing import Any, cast
 
 TTL = 30  # Cache retention period (1-30 days)
 RETRY_LIMIT = 3
@@ -65,7 +65,7 @@ POST_HEADERS = {
 DB_PATH = Path("/config/cache.db")
 
 GEMINI_MODEL = "gemini-2.5-flash"
-GEMINI_API_KEY = pyscript.config.get("gemini_api_key")
+GEMINI_API_KEY = pyscript.config.get("gemini_api_key")  # noqa: F821
 
 if not GEMINI_API_KEY:
     raise ValueError("You need to configure your Gemini API key")
@@ -88,6 +88,7 @@ CACHE_REFRESH_PERIOD = 4 * 60 * 60
 CACHE_REFRESH_THRESHOLD = CACHE_MAX_AGE - CACHE_REFRESH_PERIOD
 
 
+@pyscript_compile  # noqa: F821
 def _connect_db() -> sqlite3.Connection:
     """Create a configured SQLite connection with necessary PRAGMAs."""
     conn = sqlite3.connect(DB_PATH)
@@ -101,6 +102,7 @@ def _connect_db() -> sqlite3.Connection:
     return conn
 
 
+@pyscript_compile  # noqa: F821
 def _ensure_cache_db() -> None:
     """Create the cache database directory, SQLite file, and schema if they do not already exist."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -119,6 +121,7 @@ def _ensure_cache_db() -> None:
         conn.commit()
 
 
+@pyscript_compile  # noqa: F821
 def _ensure_cache_db_once(force: bool = False) -> None:
     """Ensure the cache database exists, optionally forcing a rebuild."""
     global _CACHE_READY
@@ -147,6 +150,7 @@ async def _cache_prepare_db(force: bool = False) -> bool:
     return True
 
 
+@pyscript_compile  # noqa: F821
 def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
     """Fetch a cache record synchronously if it exists and has not expired."""
     for attempt in range(2):
@@ -184,6 +188,7 @@ async def _cache_get(key: str) -> tuple[str | None, int | None]:
     return await asyncio.to_thread(_cache_get_sync, key)
 
 
+@pyscript_compile  # noqa: F821
 def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     """Store or update a cache record synchronously with retry on schema loss."""
     for attempt in range(2):
@@ -218,6 +223,7 @@ async def _cache_set(key: str, value: str, ttl_seconds: int) -> bool:
     return await asyncio.to_thread(_cache_set_sync, key, value, ttl_seconds)
 
 
+@pyscript_compile  # noqa: F821
 def _cache_delete_sync(key: str) -> int:
     """Remove a cache record synchronously and return the rowcount."""
     for attempt in range(2):
@@ -243,6 +249,7 @@ async def _cache_delete(key: str) -> int:
     return await asyncio.to_thread(_cache_delete_sync, key)
 
 
+@pyscript_compile  # noqa: F821
 def _prune_expired_sync() -> int:
     """Prune expired entries from the cache database."""
     for attempt in range(2):
@@ -270,13 +277,13 @@ async def _prune_expired() -> int:
     return await asyncio.to_thread(_prune_expired_sync)
 
 
-@time_trigger("cron(15 3 * * *)")
+@time_trigger("cron(15 3 * * *)")  # noqa: F821
 async def prune_cache_db() -> None:
     """Regularly prune expired entries from the cache database."""
     await _prune_expired()
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _build_ssl_ctx() -> ssl.SSLContext:
     """Build an SSL context compatible with target site requirements.
 
@@ -294,7 +301,7 @@ def _build_ssl_ctx() -> ssl.SSLContext:
     return ctx
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _build_gemini_client() -> Any:
     """Create a Gemini client using the configured API key.
 
@@ -330,7 +337,7 @@ async def _ensure_gemini_client() -> None:
                 GEMINI_CLIENT = await asyncio.to_thread(_build_gemini_client)
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     """Parse violations from the result HTML page.
 
@@ -356,7 +363,8 @@ def _extract_violations_from_html(content: str, url: str) -> dict[str, Any]:
     sections = body_print.find_all(recursive=False)
     current_violation = {}
     for element in sections:
-        if "form-group" in element.get("class", []):
+        classes = element.get("class")
+        if classes and "form-group" in classes:
             if not current_violation:
                 current_violation = {
                     "Biển kiểm soát": "",
@@ -423,7 +431,7 @@ async def _get_captcha(
         async with ss.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
             response.raise_for_status()
             content = await response.read()
-            return BytesIO(cast(bytes, content)), None
+            return BytesIO(content), None
     except asyncio.TimeoutError as error:
         return None, f"TimeoutError during retrieve CAPTCHA image: {error}"
     except aiohttp.ClientError as error:
@@ -432,7 +440,7 @@ async def _get_captcha(
         return None, f"An unexpected error during retrieve CAPTCHA image: {error}"
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _process_captcha(
     image: str | BytesIO, threshold: int = 180, factor: int = 8, padding: int = 35
 ) -> Image.Image:
@@ -476,7 +484,7 @@ def _process_captcha(
     return img
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _generate_gemini_content(_prompt: str, _image: Image.Image) -> Any:
     """Generate content using Gemini model synchronously."""
     return GEMINI_CLIENT.models.generate_content(
@@ -632,7 +640,7 @@ async def _check_license_plate(
                 }
 
 
-@time_trigger("startup")
+@time_trigger("startup")  # noqa: F821
 async def build_cached_ctx() -> None:
     """Run once at HA startup / Pyscript reload."""
     await _cache_prepare_db(force=True)
@@ -641,7 +649,7 @@ async def build_cached_ctx() -> None:
     await _ensure_gemini_client()
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def traffic_fine_lookup_tool(
     license_plate: str, vehicle_type: int, bypass_caching: bool = False
 ) -> dict[str, Any]:
@@ -703,7 +711,7 @@ async def traffic_fine_lookup_tool(
         cached_value, ttl = await _cache_get(cache_key)
         if cached_value is not None:
             if ttl is not None and ttl < CACHE_REFRESH_THRESHOLD:
-                task.create(_check_license_plate, license_plate, vehicle_type)
+                task.create(_check_license_plate, license_plate, vehicle_type)  # noqa: F821
             return json.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)
     except Exception as error:

@@ -78,13 +78,13 @@ def _ensure_result_entity_name(force: bool = False) -> None:
         result_entity_name = _build_result_entity_name()
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _utcnow_iso() -> str:
     """Return the current UTC time as an ISO 8601 string."""
     return datetime.now(timezone.utc).isoformat()
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _dt_from_iso(s: str) -> datetime | None:
     """Parse an ISO string into datetime; return None if invalid."""
     try:
@@ -93,7 +93,7 @@ def _dt_from_iso(s: str) -> datetime | None:
         return None
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _get_db_connection() -> sqlite3.Connection:
     """Create a properly configured database connection."""
     conn = sqlite3.connect(DB_PATH)
@@ -104,7 +104,7 @@ def _get_db_connection() -> sqlite3.Connection:
     return conn
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _ensure_db() -> None:
     """Ensure database exists and tables/indices are created.
 
@@ -183,7 +183,7 @@ def _ensure_db() -> None:
         conn.commit()
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _ensure_db_once(force: bool = False) -> None:
     """Ensure the database schema exists once per runtime."""
     global _DB_READY
@@ -199,7 +199,7 @@ def _ensure_db_once(force: bool = False) -> None:
             _DB_READY = True
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _normalize_value(s: str) -> str:
     """Normalize a text value for storage (NFC)."""
     if s is None:
@@ -207,7 +207,7 @@ def _normalize_value(s: str) -> str:
     return unicodedata.normalize("NFC", str(s))
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _strip_diacritics(value: str) -> str:
     """Remove diacritics and normalize locale-specific letters (Vietnamese, Turkish, Spanish, Germanic, Nordic)."""
     if value is None:
@@ -226,7 +226,7 @@ def _strip_diacritics(value: str) -> str:
     return "".join(filtered)
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _normalize_search_text(value: str | None) -> str:
     """Lowercase, strip diacritics, and collapse whitespace for search usage."""
     if value is None:
@@ -238,13 +238,13 @@ def _normalize_search_text(value: str | None) -> str:
     return re.sub(r"\s+", " ", cleaned).strip()
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _normalize_tags(s: str) -> str:
     """Normalize tags similarly to keys but retain space-separated words."""
     return _normalize_search_text(s)
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _normalize_key(s: str) -> str:
     """Normalize a key to [a-z0-9_], lowercase, no accents."""
     if s is None:
@@ -277,7 +277,7 @@ def _condense_candidate_for_selection(
     return data
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _calculate_match_score(
     source_tokens: set[str], candidate_tokens: set[str], bm25_raw: float | None
 ) -> float:
@@ -319,7 +319,7 @@ async def _search_tag_candidates(
     try:
         raw_matches = await _memory_search_db(tags_search, limit=limit_value)
     except Exception as lookup_err:
-        log.error(f"memory {log_context} failed for '{tags_search}': {lookup_err}")
+        log.error(f"memory {log_context} failed for '{tags_search}': {lookup_err}")  # noqa: F821
         return []
     if not raw_matches:
         return []
@@ -376,7 +376,7 @@ async def _find_tag_matches_for_query(
     ]
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _tokenize_query(q: str) -> list[str]:
     """Tokenize a free-text query into normalized word tokens for FTS."""
     normalized = _normalize_search_text(q)
@@ -385,7 +385,7 @@ def _tokenize_query(q: str) -> list[str]:
     return normalized.split()
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _near_distance_for_tokens(n: int) -> int:
     """Compute dynamic NEAR distance based on token count."""
     if n <= 1:
@@ -398,7 +398,7 @@ def _near_distance_for_tokens(n: int) -> int:
     return val
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _build_fts_queries(raw_query: str) -> list[str]:
     """Build a list of FTS5 MATCH query variants to improve recall.
 
@@ -452,7 +452,7 @@ def _build_fts_queries(raw_query: str) -> list[str]:
     return out
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _fetch_with_expiry(
     cur: sqlite3.Cursor, key: str
 ) -> tuple[bool, sqlite3.Row | None]:
@@ -485,10 +485,10 @@ def _set_result(state_value: str = "ok", **attrs: Any) -> None:
     """Set result sensor state and attributes."""
     _ensure_result_entity_name()
     attrs.update(result_entity_name)
-    state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)
+    state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)  # noqa: F821
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _reset_db_ready() -> None:
     """Mark the cached DB-ready flag as stale so the next call rebuilds."""
     global _DB_READY
@@ -496,7 +496,7 @@ def _reset_db_ready() -> None:
         _DB_READY = False
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_set_db_sync(
     key_norm: str,
     value_norm: str,
@@ -545,7 +545,7 @@ def _memory_set_db_sync(
     return False
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_key_exists_db_sync(key_norm: str) -> bool:
     """Return True if a memory row already exists for key."""
     for attempt in range(2):
@@ -567,7 +567,7 @@ def _memory_key_exists_db_sync(key_norm: str) -> bool:
     return False
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     """Fetch a memory by key, updating access time and handling expiry."""
     for attempt in range(2):
@@ -606,7 +606,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     return "error", None
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     """Run the primary search query, returning matching memory rows."""
     normalized_query = _normalize_search_text(query)
@@ -645,7 +645,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             (mv, limit),
                         ).fetchall()
                     except sqlite3.Error as error:
-                        log.warning(f"FTS variant failed: {error}")
+                        log.warning(f"FTS variant failed: {error}")  # noqa: F821
                         continue
                     for row in fetched:
                         key = row["key"]
@@ -710,7 +710,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     return []
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_forget_db_sync(key_norm: str) -> int:
     """Delete a memory row by key and return the number of rows removed."""
     for attempt in range(2):
@@ -732,7 +732,7 @@ def _memory_forget_db_sync(key_norm: str) -> int:
     return 0
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     """Remove expired rows older than the grace period and report how many were purged."""
     grace = max(int(grace_days), 0)
@@ -760,7 +760,7 @@ def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     return 0
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     """Rebuild the FTS index, returning counts before and after the rebuild."""
     for attempt in range(2):
@@ -840,7 +840,7 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     return 0, 0
 
 
-@pyscript_compile
+@pyscript_compile  # noqa: F821
 def _memory_health_check_db_sync() -> tuple[int, int, int]:
     """Return basic health counts (total, expired, FTS rows) for diagnostics."""
     for attempt in range(2):
@@ -925,7 +925,7 @@ async def _memory_health_check_db() -> tuple[int, int, int]:
     return await asyncio.to_thread(_memory_health_check_db_sync)
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def memory_set(
     key: str,
     value: str,
@@ -995,7 +995,7 @@ async def memory_set(
             key=key_norm or "",
             error="key_or_value_missing",
         )
-        log.error("memory_set: missing key or value")
+        log.error("memory_set: missing key or value")  # noqa: F821
         return {
             "status": "error",
             "op": "set",
@@ -1063,7 +1063,7 @@ async def memory_set(
                     error="duplicate_tags",
                     matches=duplicate_options,
                 )
-                log.error("memory_set: duplicate tags detected, refusing to overwrite")
+                log.error("memory_set: duplicate tags detected, refusing to overwrite")  # noqa: F821
                 return {
                     "status": "error",
                     "op": "set",
@@ -1073,7 +1073,7 @@ async def memory_set(
                     "matches": duplicate_options,
                 }
             forced_duplicate_override = True
-            log.warning("memory_set: duplicate tags override forced by force_new")
+            log.warning("memory_set: duplicate tags override forced by force_new")  # noqa: F821
 
         ok_db = await _memory_set_db(
             key_norm=key_norm,
@@ -1121,12 +1121,12 @@ async def memory_set(
             response["duplicate_matches"] = duplicate_options
         return response
     except Exception as e:
-        log.error(f"memory_set failed: {e}")
+        log.error(f"memory_set failed: {e}")  # noqa: F821
         _set_result("error", op="set", key=key_norm, error=str(e))
         return {"status": "error", "op": "set", "key": key_norm, "error": str(e)}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def memory_get(key: str):
     """
     yaml
@@ -1154,7 +1154,7 @@ async def memory_get(key: str):
     try:
         status, payload = await _memory_get_db(key_norm)
     except Exception as e:
-        log.error(f"memory_get failed: {e}")
+        log.error(f"memory_get failed: {e}")  # noqa: F821
         _set_result("error", op="get", key=key_norm, error=str(e))
         return {"status": "error", "op": "get", "key": key_norm, "error": str(e)}
 
@@ -1191,7 +1191,7 @@ async def memory_get(key: str):
     return {"status": "ok", "op": "get", **res}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def memory_search(query: str, limit: int = 5):
     """
     yaml
@@ -1236,7 +1236,7 @@ async def memory_search(query: str, limit: int = 5):
     try:
         results = await _memory_search_db(query, lim)
     except Exception as e:
-        log.error(f"memory_search failed: {e}")
+        log.error(f"memory_search failed: {e}")  # noqa: F821
         _set_result("error", op="search", query=query, error=str(e))
         return {"status": "error", "op": "search", "query": query, "error": str(e)}
 
@@ -1256,7 +1256,7 @@ async def memory_search(query: str, limit: int = 5):
     }
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def memory_forget(key: str):
     """
     yaml
@@ -1283,7 +1283,7 @@ async def memory_forget(key: str):
     try:
         deleted = await _memory_forget_db(key_norm)
     except Exception as e:
-        log.error(f"memory_forget failed: {e}")
+        log.error(f"memory_forget failed: {e}")  # noqa: F821
         _set_result("error", op="forget", key=key_norm, error=str(e))
         return {"status": "error", "op": "forget", "key": key_norm, "error": str(e)}
 
@@ -1311,7 +1311,7 @@ async def memory_forget(key: str):
     return {"status": "ok", "op": "forget", "key": key_norm, "deleted": deleted}
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def memory_purge_expired(grace_days: int | None = None):
     """
     yaml
@@ -1343,7 +1343,7 @@ async def memory_purge_expired(grace_days: int | None = None):
     try:
         removed = await _memory_purge_expired_db(grace)
     except Exception as e:
-        log.error(f"memory_purge_expired failed: {e}")
+        log.error(f"memory_purge_expired failed: {e}")  # noqa: F821
         _set_result("error", op="purge_expired", grace_days=grace, error=str(e))
         return {
             "status": "error",
@@ -1361,7 +1361,7 @@ async def memory_purge_expired(grace_days: int | None = None):
     }
 
 
-@service(supports_response="only")
+@service(supports_response="only")  # noqa: F821
 async def memory_reindex_fts():
     """
     yaml
@@ -1371,7 +1371,7 @@ async def memory_reindex_fts():
     try:
         before, after = await _memory_reindex_fts_db()
     except Exception as e:
-        log.error(f"memory_reindex_fts failed: {e}")
+        log.error(f"memory_reindex_fts failed: {e}")  # noqa: F821
         _set_result("error", op="reindex_fts", error=str(e))
         return {"status": "error", "op": "reindex_fts", "error": str(e)}
 
@@ -1384,8 +1384,8 @@ async def memory_reindex_fts():
     }
 
 
-@time_trigger("startup")
-@service(supports_response="only")
+@time_trigger("startup")  # noqa: F821
+@service(supports_response="only")  # noqa: F821
 async def memory_health_check():
     """
     yaml
@@ -1405,7 +1405,7 @@ async def memory_health_check():
             fts_rows=fts_rows,
             ts=ts,
         )
-        log.info(
+        log.info(  # noqa: F821
             f"memory.py health: rows={rows}, expired={expired}, fts_rows={fts_rows}"
         )
         return {
@@ -1418,15 +1418,15 @@ async def memory_health_check():
             "ts": ts,
         }
     except Exception as e:
-        log.error(f"memory_health_check failed: {e}")
+        log.error(f"memory_health_check failed: {e}")  # noqa: F821
         _set_result("error", op="health", error=str(e))
         return {"status": "error", "op": "health", "error": str(e)}
 
 
-@time_trigger("cron(0 3 * * *)")
+@time_trigger("cron(0 3 * * *)")  # noqa: F821
 async def memory_daily_housekeeping():
     """Daily housekeeping: purge entries older than HOUSEKEEPING_GRACE_DAYS and tidy the FTS index."""
     try:
         await memory_purge_expired(grace_days=HOUSEKEEPING_GRACE_DAYS)
     except Exception as e:
-        log.error(f"memory_daily_housekeeping failed: {e}")
+        log.error(f"memory_daily_housekeeping failed: {e}")  # noqa: F821

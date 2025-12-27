@@ -1,0 +1,59 @@
+name: Update Blueprint Source URL
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - "**.yaml"
+      - "! .github/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-url:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Update URLs dynamically
+        run: |
+          BRANCH=${GITHUB_REF#refs/heads/}
+          BASE_URL="https://github.com/${{ github.repository }}/blob/$BRANCH"
+
+          echo "Updating source_url for branch: $BRANCH"
+
+          find . -type f -name "*.yaml" ! -path "./.github/*" | while read -r file; do
+            if grep -q "^ *source_url:" "$file"; then
+              RELATIVE_PATH=$(echo "$file" | sed 's|^\./||')
+              NEW_URL="${BASE_URL}/${RELATIVE_PATH}"
+
+              sed -i "s|^\( *\)source_url:.*|\1source_url: $NEW_URL|" "$file"
+
+              echo "Processed: $RELATIVE_PATH"
+            fi
+          done
+
+      - name: Commit and Push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+
+          if ! git diff --quiet --staged; then
+            git commit -m "chore: sync source_url to branch $BRANCH [skip ci]"
+            git pull --rebase origin $BRANCH
+            git push origin $BRANCH
+          else
+            echo "No changes to commit."
+          fi

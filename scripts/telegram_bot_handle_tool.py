@@ -687,7 +687,7 @@ async def get_telegram_updates(
         response = await _get_updates(
             session, timeout=timeout, offset=offset, limit=limit
         )
-        if not response or not response.get("result"):
+        if not response:
             return {
                 "ok": True,
                 "result": [],

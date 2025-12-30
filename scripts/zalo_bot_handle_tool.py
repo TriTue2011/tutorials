@@ -576,7 +576,7 @@ async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
     try:
         session = await _ensure_session()
         response = await _get_updates(session, timeout=timeout)
-        if not response or not response.get("result"):
+        if not response:
             return {
                 "ok": True,
                 "result": [],

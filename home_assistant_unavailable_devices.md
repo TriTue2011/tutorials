@@ -52,6 +52,7 @@ template:
               | selectattr('state', 'in', ['unavailable'])
               | rejectattr('domain', 'in', ignored_domains)
               | rejectattr('entity_id', 'in', ignored_integration_entities.entities)
+              | rejectattr('entity_id', 'eq', this.entity_id)
               | map(attribute='entity_id')
               | list %}
             {% set ns = namespace(final=[]) %}

@@ -83,9 +83,9 @@ triggers:
     attribute: entities
 conditions:
   - condition: template
-    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown'] }}"
+    value_template: "{{ trigger.from_state is not none and trigger.from_state.state not in ['unavailable', 'unknown'] }}"
   - condition: template
-    value_template: "{{ trigger.to_state.state not in ['unavailable', 'unknown'] }}"
+    value_template: "{{ trigger.to_state is not none and trigger.to_state.state not in ['unavailable', 'unknown'] }}"
 actions:
   - variables:
       entities: "{{ state_attr(trigger.entity_id, 'entities') | default([], true) }}"
@@ -129,9 +129,9 @@ triggers:
     attribute: entities
 conditions:
   - condition: template
-    value_template: "{{ trigger.from_state.state not in ['unavailable', 'unknown'] }}"
+    value_template: "{{ trigger.from_state is not none and trigger.from_state.state not in ['unavailable', 'unknown'] }}"
   - condition: template
-    value_template: "{{ trigger.to_state.state not in ['unavailable', 'unknown'] }}"
+    value_template: "{{ trigger.to_state is not none and trigger.to_state.state not in ['unavailable', 'unknown'] }}"
 actions:
   - variables:
       entities: "{{ state_attr(trigger.entity_id, 'entities') | default([], true) }}"

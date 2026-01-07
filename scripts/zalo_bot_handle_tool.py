@@ -96,6 +96,12 @@ async def _ensure_dir(path: str) -> None:
 
 
 @pyscript_compile  # noqa: F821
+def _open_file(path: str, mode: str):
+    """Open a file safely using native Python."""
+    return open(path, mode)
+
+
+@pyscript_compile  # noqa: F821
 def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
     """Native Python function to perform disk cleanup safely."""
     path = Path(directory)
@@ -150,7 +156,7 @@ async def _download_file(
 
             file_path = os.path.join(DIRECTORY, file_name)
 
-            f = await asyncio.to_thread(open, file_path, "wb")
+            f = await asyncio.to_thread(_open_file, file_path, "wb")
             try:
                 async for chunk in resp.content.iter_chunked(65536):
                     if chunk:

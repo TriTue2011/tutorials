@@ -157,7 +157,7 @@ async def _download_file(
 
             file_path = os.path.join(DIRECTORY, file_name)
 
-            f = await asyncio.to_thread(open, file_path, "wb")
+            f = await asyncio.to_thread(_open_file, file_path, "wb")
             try:
                 async for chunk in resp.content.iter_chunked(65536):  # 64KB chunks
                     if chunk:
@@ -261,7 +261,7 @@ async def _send_photo(
     if message_thread_id:
         form.add_field("message_thread_id", str(message_thread_id))
 
-    f = await asyncio.to_thread(open, file_path, "rb")
+    f = await asyncio.to_thread(_open_file, file_path, "rb")
     try:
         form.add_field(
             name="photo",
@@ -436,6 +436,12 @@ def _external_url() -> str | None:
         )
     except network.NoURLAvailableError:
         return None
+
+
+@pyscript_compile  # noqa: F821
+def _open_file(path: str, mode: str):
+    """Open a file safely using native Python."""
+    return open(path, mode)
 
 
 @pyscript_compile  # noqa: F821

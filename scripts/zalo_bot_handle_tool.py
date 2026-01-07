@@ -2,12 +2,12 @@ import asyncio
 import mimetypes
 import os
 import secrets
+import shutil
 import time
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-import aiofiles
 import aiohttp
 from homeassistant.helpers import network
 
@@ -139,21 +139,26 @@ async def _download_file(
             content_type = resp.headers.get("Content-Type", "")
             ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
 
-            # Use safe filename from URL or default, then append unique token
             parsed_url = urlparse(url)
             original_name = Path(parsed_url.path).name
             if not Path(original_name).suffix and ext:
                 original_name += ext
 
             base, extension = os.path.splitext(original_name)
-            # Construct unique filename: name_timestamp_random.ext
-            file_name = f"{base}_{int(time.time())}_{secrets.token_hex(4)}{extension}"
+            timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+            file_name = f"{base}_{timestamp}_{secrets.token_hex(4)}{extension}"
 
             file_path = os.path.join(DIRECTORY, file_name)
 
-            async with aiofiles.open(file_path, "wb") as f:
-                async for chunk in resp.content.iter_chunked(4096):
-                    await f.write(chunk)
+            f = await asyncio.to_thread(open, file_path, "wb")
+            try:
+                async for chunk in resp.content.iter_chunked(65536):
+                    if chunk:
+                        await asyncio.to_thread(f.write, chunk)
+                await asyncio.to_thread(f.flush)
+                await asyncio.to_thread(os.fsync, f.fileno())
+            finally:
+                await asyncio.to_thread(f.close)
 
             return file_path, None
     except Exception as error:
@@ -339,15 +344,7 @@ async def _copy_to_www(file_path: str) -> tuple[str, str]:
     name = f"{secrets.token_urlsafe(16)}-{Path(normalized).name}"
     dest_path = os.path.join(WWW_DIRECTORY, name)
 
-    # Streaming copy
-    async with (
-        aiofiles.open(normalized, "rb") as src,
-        aiofiles.open(dest_path, "wb") as dst,
-    ):
-        async for (
-            chunk
-        ) in src:  # aiofiles supports async iteration (default chunk size)
-            await dst.write(chunk)
+    await asyncio.to_thread(shutil.copyfile, normalized, dest_path)
 
     public_url = f"{external}/local/zalo/{name}"
     return public_url, dest_path

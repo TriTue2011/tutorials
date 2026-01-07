@@ -6,7 +6,6 @@ import time
 from pathlib import Path
 from typing import Any
 
-import aiofiles
 import aiohttp
 from homeassistant.helpers import network
 
@@ -130,26 +129,47 @@ async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     return data.get("result", {}).get("file_path")
 
 
-async def _download_and_save_file(
-    session: aiohttp.ClientSession, file_path: str, destination: str
-) -> bool:
-    """Download a file from Telegram and save it directly to disk (streaming).
+async def _download_file(
+    session: aiohttp.ClientSession, file_id: str
+) -> tuple[str, None] | tuple[None, str]:
+    """Download a file from Telegram and save it under DIRECTORY (streaming).
 
     Args:
         session: Shared aiohttp session.
-        file_path: Path returned by Telegram `getFile`.
-        destination: Local destination path.
+        file_id: Telegram file identifier.
 
     Returns:
-        True if successful, False otherwise.
+        Full file path of the saved file, or None on failure.
     """
-    url = f"https://api.telegram.org/file/bot{TOKEN}/{file_path}"
-    async with session.get(url) as resp:
-        resp.raise_for_status()
-        async with aiofiles.open(destination, "wb") as f:
-            async for chunk in resp.content.iter_chunked(4096):
-                await f.write(chunk)
-    return True
+    try:
+        online_file_path = await _get_file(session, file_id)
+        if not online_file_path:
+            return None, "Unable to retrieve the file_path from Telegram."
+
+        url = f"https://api.telegram.org/file/bot{TOKEN}/{online_file_path}"
+        async with session.get(url) as resp:
+            resp.raise_for_status()
+
+            file_name = os.path.basename(online_file_path)
+            base, ext = os.path.splitext(file_name)
+            timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+            file_name = f"{base}_{timestamp}_{secrets.token_hex(4)}{ext}"
+
+            file_path = os.path.join(DIRECTORY, file_name)
+
+            f = await asyncio.to_thread(open, file_path, "wb")
+            try:
+                async for chunk in resp.content.iter_chunked(65536):  # 64KB chunks
+                    if chunk:
+                        await asyncio.to_thread(f.write, chunk)
+                await asyncio.to_thread(f.flush)
+                await asyncio.to_thread(os.fsync, f.fileno())
+            finally:
+                await asyncio.to_thread(f.close)
+
+            return file_path, None
+    except Exception as error:
+        return None, f"An unexpected error occurred during download: {error}"
 
 
 async def _send_message(
@@ -241,20 +261,21 @@ async def _send_photo(
     if message_thread_id:
         form.add_field("message_thread_id", str(message_thread_id))
 
-    async with aiofiles.open(file_path, "rb") as f:
-        file_content = await f.read()
+    f = await asyncio.to_thread(open, file_path, "rb")
+    try:
+        form.add_field(
+            name="photo",
+            value=f,
+            filename=filename,
+            content_type=content_type,
+        )
 
-    form.add_field(
-        name="photo",
-        value=file_content,
-        filename=filename,
-        content_type=content_type,
-    )
-
-    url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-    async with session.post(url, data=form) as resp:
-        resp.raise_for_status()
-        return await resp.json()
+        url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+        async with session.post(url, data=form) as resp:
+            resp.raise_for_status()
+            return await resp.json()
+    finally:
+        await asyncio.to_thread(f.close)
 
 
 async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -552,26 +573,12 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
         session = await _ensure_session()
         await _ensure_dir(DIRECTORY)
 
-        online_file_path = await _get_file(session, file_id)
-        if not online_file_path:
-            return {"error": "Unable to retrieve the file_path from Telegram."}
-
-        file_name = os.path.basename(online_file_path)
-        base, ext = os.path.splitext(file_name)
-        # Use timestamp and random token to prevent filename collisions
-        file_name = f"{base}_{int(time.time())}_{secrets.token_hex(4)}{ext}"
-
-        file_path = os.path.join(DIRECTORY, file_name)
-
-        try:
-            await _download_and_save_file(session, online_file_path, file_path)
-        except Exception as error:
-            return {
-                "error": f"Unable to download or save the file from Telegram: {error}"
-            }
+        file_path, error = await _download_file(session, file_id)
+        if not file_path:
+            return {"error": f"Unable to download the file from Telegram. {error}"}
 
         mimetypes.add_type("text/plain", ".yaml")
-        mime_type, _ = mimetypes.guess_file_type(file_name)
+        mime_type, _ = mimetypes.guess_file_type(file_path)
         file_path = _to_relative_path(file_path)
         response: dict[str, Any] = {"file_path": file_path, "mime_type": mime_type}
         support_file_types = (

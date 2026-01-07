@@ -182,7 +182,7 @@ actions:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ supported is defined and not bool(supported) }}"
+            value_template: "{{ supported is defined and not supported | bool(true) }}"
         sequence:
           - action: zalo_bot.send_message
             data:

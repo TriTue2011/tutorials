@@ -179,7 +179,7 @@ actions:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ supported is defined and not bool(supported) }}"
+            value_template: "{{ supported is defined and not supported | bool(true) }}"
         sequence:
           - action: pyscript.send_zalo_message
             data:

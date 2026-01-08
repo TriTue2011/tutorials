@@ -159,9 +159,11 @@ async def _download_file(
 
             f = await asyncio.to_thread(_open_file, file_path, "wb")
             try:
-                async for chunk in resp.content.iter_chunked(65536):  # 64KB chunks
-                    if chunk:
-                        await asyncio.to_thread(f.write, chunk)
+                while True:
+                    chunk = await resp.content.read(65536)
+                    if not chunk:
+                        break
+                    await asyncio.to_thread(f.write, chunk)
                 await asyncio.to_thread(f.flush)
                 await asyncio.to_thread(os.fsync, f.fileno())
             finally:

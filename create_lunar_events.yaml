@@ -133,7 +133,7 @@ sequence:
           response_variable: response
         - variables:
             solar_date: >-
-              {{ response.date if (response is defined and response.get('date')) }}
+              {{ response.solar_date if (response is defined and response.get('solar_date')) }}
         - action: calendar.create_event
           data:
             summary: "{{ event_summary }}"

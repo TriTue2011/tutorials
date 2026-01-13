@@ -298,82 +298,51 @@ sequence:
         {% else %}
           {% set parsed = raw %}
         {% endif %}
-        {% if parsed is sequence %}
-          {{ parsed }}
-        {% else %}
-          {{ [] }}
-        {% endif %}
+        {{ parsed if parsed is sequence else [] }}
       _resolved_details: >-
         {% set ns = namespace(items=[]) %}
-        {% set alias_list = _alias_list if _alias_list is sequence else [] %}
-        {% for name in _entity_names %}
-          {% set name_l = (name | string | lower | trim) %}
-          {% set prefixes = ['scene ', 'script ', 'light ', 'fan ', 'cover ', 'switch ', 'climate ', 'humidifier ', 'water heater ', 'water_heater ', 'media player ', 'media_player ', 'vacuum ', 'valve '] %}
-          {% set name_alt = name_l %}
-          {% for p in prefixes %}
-            {% if name_alt[0:(p|length)] == p %}
-              {% set name_alt = (name_alt[(p|length):] | trim) %}
-            {% endif %}
-          {% endfor %}
-          {% set name_norm = (name_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-          {% set name_alt_norm = (name_alt | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-          {% set match = namespace(done=false) %}
+        {% set alias_list = _alias_list %}
+        {% set names = _entity_names %}
+        {% for name in names %}
+          {% set name_s = name | string | trim %}
+          {% set name_l = name_s | lower %}
+          {% set match = namespace(done=false, entity_id='') %}
 
-          {% if not match.done %}
-            {% for s in states %}
-              {% if not match.done %}
-                {% set eid = s.entity_id | string %}
-                {% set eid_l = eid | lower %}
-                {% set eid_suffix = (eid_l.split('.')[-1] if '.' in eid_l else eid_l) %}
-                {% if eid_l == name_l or eid_suffix == name_l or eid_suffix == name_alt or eid_suffix == name_norm or eid_suffix == name_alt_norm %}
-                  {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
-                  {% set match.done = true %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+          {% if not match.done and '.' in name_s and states[name_s] is not none %}
+            {% set match.entity_id = name_s %}
+            {% set match.done = true %}
           {% endif %}
 
           {% if not match.done %}
-            {% for s in states %}
-              {% if not match.done %}
-                {% set fn = s.attributes.friendly_name if s.attributes.friendly_name is defined else '' %}
-                {% set fn_l = (fn | string | lower | trim) %}
-                {% set fn_norm = (fn_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-                {% set norm_match = (name_norm | length > 0 and fn_norm | length > 0 and (fn_norm in name_norm or name_norm in fn_norm)) %}
-                {% if fn_l == name_l or fn_l == name_alt or fn_norm == name_norm or fn_norm == name_alt_norm or norm_match %}
-                  {% set eid = s.entity_id | string %}
-                  {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
-                  {% set match.done = true %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
+            {% set s_match = states | selectattr('attributes.friendly_name', 'defined') | selectattr('attributes.friendly_name', 'eq', name_s) | list %}
+            {% if s_match | length > 0 %}
+              {% set match.entity_id = s_match[0].entity_id %}
+              {% set match.done = true %}
+            {% endif %}
           {% endif %}
 
           {% if not match.done %}
             {% for device in alias_list %}
               {% if not match.done %}
                 {% set aliases = device.aliases if device.aliases is sequence else [] %}
-                {% for al in aliases %}
-                  {% if not match.done %}
-                    {% set al_l = (al | string | lower | trim) %}
-                    {% set al_norm = (al_l | regex_replace('[^0-9a-z_ ]', ' ') | replace('  ', ' ') | trim) %}
-                    {% set norm_match = (name_norm | length > 0 and al_norm | length > 0 and (al_norm in name_norm or name_norm in al_norm)) %}
-                    {% if al_l == name_l or al_l == name_alt or al_norm == name_norm or al_norm == name_alt_norm or norm_match %}
-                      {% set eid = device.entity_id | string %}
-                      {% set ns.items = ns.items + [dict(name=name, entity_id=eid)] %}
-                      {% set match.done = true %}
-                    {% endif %}
-                  {% endif %}
-                {% endfor %}
+                {% if name_s in aliases or name_l in (aliases | map('lower') | list) %}
+                  {% set match.entity_id = device.entity_id %}
+                  {% set match.done = true %}
+                {% endif %}
               {% endif %}
             {% endfor %}
+          {% endif %}
+
+          {% if match.done %}
+            {% set ns.items = ns.items + [dict(name=name, entity_id=match.entity_id)] %}
           {% endif %}
         {% endfor %}
         {{ ns.items }}
       _resolved_entities: >-
         {% set ns = namespace(items=[]) %}
+        {% set details = _resolved_details %}
         {% set ignored_domains = ['binary_sensor', 'calendar', 'device_tracker', 'person', 'sensor', 'sun', 'todo', 'weather', 'zone'] %}
-        {% for item in _resolved_details %}
+        {% for item in details %}
           {% set eid = item.entity_id | default('', true) | string %}
           {% set domain = eid.split('.')[0] if '.' in eid else '' %}
           {% if eid | length > 0 and eid not in ns.items and domain not in ignored_domains %}
@@ -382,9 +351,11 @@ sequence:
         {% endfor %}
         {{ ns.items }}
       _missing_entities: >-
-        {% set resolved_names = _resolved_details | selectattr('entity_id','defined') | map(attribute='name') | list %}
+        {% set details = _resolved_details %}
+        {% set resolved_names = details | selectattr('entity_id','defined') | map(attribute='name') | list %}
+        {% set names = _entity_names %}
         {% set ns = namespace(items=[]) %}
-        {% for name in _entity_names %}
+        {% for name in names %}
           {% if name not in resolved_names %}
             {% set ns.items = ns.items + [name] %}
           {% endif %}

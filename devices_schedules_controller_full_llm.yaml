@@ -372,9 +372,11 @@ sequence:
         {{ ns.items }}
       _resolved_entities: >-
         {% set ns = namespace(items=[]) %}
+        {% set ignored_domains = ['binary_sensor', 'calendar', 'device_tracker', 'person', 'sensor', 'sun', 'todo', 'weather', 'zone'] %}
         {% for item in _resolved_details %}
           {% set eid = item.entity_id | default('', true) | string %}
-          {% if eid | length > 0 and eid not in ns.items %}
+          {% set domain = eid.split('.')[0] if '.' in eid else '' %}
+          {% if eid | length > 0 and eid not in ns.items and domain not in ignored_domains %}
             {% set ns.items = ns.items + [eid] %}
           {% endif %}
         {% endfor %}

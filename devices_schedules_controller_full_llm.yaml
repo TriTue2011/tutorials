@@ -308,7 +308,7 @@ sequence:
           {% set name_l = name_s | lower %}
           {% set match = namespace(done=false, entity_id='') %}
 
-          {% if not match.done and states[name_s] is defined %}
+          {% if not match.done and '.' in name_s and states[name_s] is defined %}
             {% set match.entity_id = name_s %}
             {% set match.done = true %}
           {% endif %}

@@ -117,7 +117,7 @@ sequence:
         value_template: >-
           {% set validation = namespace(not_exist=false) -%}
           {% for entity in fan_entities.split(';') -%}
-          {% if not ((states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) or
+          {% if not ((states.fan | selectattr('attributes.friendly_name', 'eq', entity.strip()) | list) or
           (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | list)) -%}
           {% set validation.not_exist = true -%}
           {% endif -%}
@@ -135,8 +135,8 @@ sequence:
       devices: >-
         {% set device = namespace(entities=[]) -%}
         {% for entity in fan_entities.split(';') -%}
-        {% if (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | list) -%}
-        {% set device.entities = device.entities + (states.fan | selectattr('attributes.friendly_name', '==', entity.strip()) | map(attribute='entity_id') | list) -%}
+        {% if (states.fan | selectattr('attributes.friendly_name', 'eq', entity.strip()) | list) -%}
+        {% set device.entities = device.entities + (states.fan | selectattr('attributes.friendly_name', 'eq', entity.strip()) | map(attribute='entity_id') | list) -%}
         {% else -%}
         {% set device.entities = device.entities + (state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'fan\.') | selectattr('aliases', 'contains', entity.strip()) | map(attribute='entity_id') | list) -%}
         {% endif -%}

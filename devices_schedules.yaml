@@ -670,7 +670,7 @@ sequence:
               _cancel_candidates: >-
                 {% if _entity_norm|length > 0 %}
                   {% set active = _ACTIVE if _ACTIVE is sequence else [] %}
-                  {{ active | selectattr('entity_id', 'equalto', _entity_norm) | list }}
+                  {{ active | selectattr('entity_id', 'eq', _entity_norm) | list }}
                 {% else %}
                   {{ [] }}
                 {% endif %}
@@ -771,7 +771,7 @@ sequence:
               _cancel_all_candidates: >-
                 {% set active = _ACTIVE if _ACTIVE is sequence else [] %}
                 {% if _entity_norm|length > 0 %}
-                  {{ active | selectattr('entity_id', 'equalto', _entity_norm) | list }}
+                  {{ active | selectattr('entity_id', 'eq', _entity_norm) | list }}
                 {% else %}
                   {{ active }}
                 {% endif %}
@@ -892,7 +892,7 @@ sequence:
               _extend_candidates: >-
                 {% if _entity_norm|length > 0 %}
                   {% set active = _ACTIVE if _ACTIVE is sequence else [] %}
-                  {{ active | selectattr('entity_id', 'equalto', _entity_norm) | list }}
+                  {{ active | selectattr('entity_id', 'eq', _entity_norm) | list }}
                 {% else %}
                   {{ [] }}
                 {% endif %}
@@ -998,7 +998,7 @@ sequence:
               _pause_candidates: >-
                 {% if _entity_norm|length > 0 %}
                   {% set active = _ACTIVE if _ACTIVE is sequence else [] %}
-                  {{ active | selectattr('entity_id', 'equalto', _entity_norm) | list }}
+                  {{ active | selectattr('entity_id', 'eq', _entity_norm) | list }}
                 {% else %}
                   {{ [] }}
                 {% endif %}
@@ -1083,7 +1083,7 @@ sequence:
               _resume_candidates: >-
                 {% if _entity_norm|length > 0 %}
                   {% set active = _ACTIVE if _ACTIVE is sequence else [] %}
-                  {{ active | selectattr('entity_id', 'equalto', _entity_norm) | list }}
+                  {{ active | selectattr('entity_id', 'eq', _entity_norm) | list }}
                 {% else %}
                   {{ [] }}
                 {% endif %}

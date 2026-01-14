@@ -159,7 +159,7 @@ sequence:
         {% for entity in ac_entities.split(';') %}
           {% set name = entity.strip() %}
           {% if name %}
-            {% set exact_match = states.climate | selectattr('attributes.friendly_name', '==', name) | map(attribute='entity_id') | list %}
+            {% set exact_match = states.climate | selectattr('attributes.friendly_name', 'eq', name) | map(attribute='entity_id') | list %}
             {% if exact_match %}
               {% set res.entities = res.entities + exact_match %}
             {% else %}

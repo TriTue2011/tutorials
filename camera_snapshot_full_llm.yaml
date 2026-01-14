@@ -131,7 +131,7 @@ sequence:
     if:
       - condition: template
         value_template: >-
-          {% set friendly_match = states.camera | selectattr('attributes.friendly_name', '==', camera_name) | list %}
+          {% set friendly_match = states.camera | selectattr('attributes.friendly_name', 'eq', camera_name) | list %}
           {% set alias_match = state_attr(entity_aliases, 'entities') | default([]) | selectattr('entity_id', 'match', 'camera\.') | selectattr('aliases', 'contains', camera_name) | list %}
           {{ not camera_name or (friendly_match | length == 0 and alias_match | length == 0) }}
     then:
@@ -157,7 +157,7 @@ sequence:
         response_variable: response
   - variables:
       camera_entity_id: >-
-        {% set friendly_match = states.camera | selectattr('attributes.friendly_name', '==', camera_name) | map(attribute='entity_id') | first %}
+        {% set friendly_match = states.camera | selectattr('attributes.friendly_name', 'eq', camera_name) | map(attribute='entity_id') | first %}
         {% if friendly_match %}
           {{ friendly_match }}
         {% else %}

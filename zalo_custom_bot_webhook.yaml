@@ -148,7 +148,7 @@ actions:
           - variables:
               agent_input:
                 system: |-
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {{ trigger.json.data.quote.msg if (trigger.json.data.quote is defined and trigger.json.data.quote.msg is defined) }}
                   {{ trigger.json.data.content }}
@@ -170,7 +170,7 @@ actions:
                   If the prompt text is empty, treat any instruction or question found within the file (via transcription/OCR) as the user's request and execute it directly.
                   Return a concise summary ONLY when no specific instruction exists in the file.
                   NEVER ask the user for confirmation.
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {{ trigger.json.data.content.title }}
                 file_path: "{{ file.file_path if file.file_path is defined }}"

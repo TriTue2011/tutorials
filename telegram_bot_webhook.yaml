@@ -148,7 +148,7 @@ actions:
           - variables:
               agent_input:
                 system: |-
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -175,7 +175,7 @@ actions:
                   If the prompt text is empty, treat any instruction or question found within the file (via transcription/OCR) as the user's request and execute it directly.
                   Return a concise summary ONLY when no specific instruction exists in the file.
                   NEVER ask the user for confirmation.
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -206,7 +206,7 @@ actions:
                   If the prompt text is empty, treat any instruction or question found within the file (via transcription/OCR) as the user's request and execute it directly.
                   Return a concise summary ONLY when no specific instruction exists in the file.
                   NEVER ask the user for confirmation.
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -237,7 +237,7 @@ actions:
                   If the prompt text is empty, treat any instruction or question found within the file (via transcription/OCR) as the user's request and execute it directly.
                   Return a concise summary ONLY when no specific instruction exists in the file.
                   NEVER ask the user for confirmation.
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -268,7 +268,7 @@ actions:
                   If the prompt text is empty, treat any instruction or question found within the file (via transcription/OCR) as the user's request and execute it directly.
                   Return a concise summary ONLY when no specific instruction exists in the file.
                   NEVER ask the user for confirmation.
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -299,7 +299,7 @@ actions:
                   If the prompt text is empty, treat any instruction or question found within the file (via transcription/OCR) as the user's request and execute it directly.
                   Return a concise summary ONLY when no specific instruction exists in the file.
                   NEVER ask the user for confirmation.
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{
@@ -330,7 +330,7 @@ actions:
                   If the prompt text is empty, treat any instruction or question found within the file (via transcription/OCR) as the user's request and execute it directly.
                   Return a concise summary ONLY when no specific instruction exists in the file.
                   NEVER ask the user for confirmation.
-                  Always respond in the user's language: {{ language | trim }}.
+                  Always respond in the user language: {{ language | trim }}.
                 prompt: |-
                   {% if trigger.json.message.reply_to_message is defined %} {%
                   if trigger.json.message.reply_to_message.text is defined %} {{

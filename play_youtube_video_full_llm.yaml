@@ -51,13 +51,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the Media ID of the video you want to play.
+            Mandatory. YouTube video ID. Do not guess.
 mode: parallel
 max_exceeded: silent
-description: Plays a specified YouTube video on a compatible device.
+description: Initiates playback of a specific YouTube video (by ID) on a supported media player device.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   media_id:
     name: Media ID

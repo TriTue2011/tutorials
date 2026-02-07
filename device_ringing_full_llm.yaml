@@ -41,13 +41,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the Ring ID of the device you want to activate its ringing function.
+            Mandatory. Valid Ring ID (starts with `notify.mobile_app_`). Do not guess.
 mode: parallel
 max_exceeded: silent
-description: Triggers a specified device to ring.
+description: Triggers a notification or sound on a mobile device to help locate it. Requires a valid Ring ID.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   ring_id:
     name: Ring ID

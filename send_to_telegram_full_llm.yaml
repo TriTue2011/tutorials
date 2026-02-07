@@ -76,12 +76,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify a brief overview, such as the name of a person, object, or location title.
-            Keep it short (ideally <= 10 words). No extra commentary, no markdown, emojis, or HTML.
-            If content_type is image, write a concise caption that clearly describes the image subject.
-            Return only the plain text value.
-            When submitting multiple items, make sure each one must be sent separately through a separate tool call.
+            Mandatory. ≤10 words overview (person/object/location). If image, write caption. Plain text only. For multiple items, use separate tool calls.
         detail_prompt:
           name: Detail Prompt
           description: Prompt shown to the LLM to request optional supporting details for the message or image.
@@ -89,12 +84,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is optional.
-            Specify clear and specific details, such as comprehensive information or a detailed description of the subject.
-            No links, no markdown/emojis, no additional commentary, and avoid repeating the summary.
-            If content_type is image, provide short optional supporting text to appear under the image (leave blank if not needed).
-            Return only the plain text value.
-            When submitting multiple items, make sure each one must be sent separately through a separate tool call.
+            Optional. Full details. No links/markdown/emojis. Avoid repeating summary. Return plain text only.
         content_type_prompt:
           name: Content Type Prompt
           description: Prompt shown to the LLM to decide if the tool should send information, a location, or an image.
@@ -102,14 +92,8 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Return exactly one of the following options: information, location, image.
-            Return only the word, without quotes or extra text.
-            Choose location for any place/address/directions/map intent.
-            Do not choose information in these cases.
-            Choose image when the user asks to send, share, or forward a picture, photo, screenshot, or any visual media. Do not choose other types in these cases. When selecting image, you must also supply image_path with a valid media path.
-            Otherwise choose information.
-            When submitting multiple items, make sure each one must be sent separately through a separate tool call.
+            Mandatory. exactly one: information, location, image. location=place/address/map. image=visual media (+ image_path).
+            When submitting multiple items, use separate tool calls for each.
         location_prompt:
           name: Location Prompt
           description: Prompt shown to the LLM to request the location value when sending a place.
@@ -117,10 +101,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is optional. Use only when content_type is location.
-            Return the address of the location. Names only; no commas, prefixes or punctuation; single spaces.
-            If content_type is not location: leave this blank.
-            Return only the value.
+            Optional for location. Address only. No commas/punctuation. Regular spaces.
         image_path_prompt:
           name: Image Path Prompt
           description: Prompt shown to the LLM to request the media path when sending an image.
@@ -128,12 +109,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is optional. Use only when content_type is image.
-            Specify the local or media path to the image that should be sent (for example: /media/... or local/...).
-            The path must already exist in Home Assistant and point to an actual image file.
-            When unknown or not specified by the user, leave this blank and do not guess.
-            If content_type is not image: leave this blank.
-            Return only the value.
+            Optional for image. Existing path (local/ or /media/). Do not guess if unknown.
         chat_id_override_prompt:
           name: Chat ID Override Prompt
           description: Prompt shown to the LLM to request an alternate chat when needed.
@@ -141,10 +117,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is optional. Specify only when the user explicitly wants to send the message to a different chat than the default configuration.
-            Return the exact Telegram chat ID (accept negative IDs for supergroups). No spaces, words, or extra commentary.
-            If the user does not specify a chat ID, leave this blank.
-            Return only the value.
+            Optional. User-specified Telegram ID. Digits only (can be negative). No commentary.
         message_thread_id_override_prompt:
           name: Message Thread ID Override Prompt
           description: Prompt shown to the LLM to request a different topic when needed.
@@ -152,16 +125,13 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is optional. Specify only when the user requests a specific message thread (topic) different from the default configuration.
-            Return the numeric thread (topic) ID. Digits only; no punctuation or additional text.
-            If the user does not specify a thread ID, leave this blank.
-            Return only the value.
+            Optional. User-specified numeric thread/topic ID. Digits only.
 mode: queued
 max: 30
 max_exceeded: silent
-description: Sends a message to a specified Telegram chat.
+description: Sends text messages, locations, or images via Telegram. Use for notifications, automated alerts, and sharing location or visual media.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   summary:
     name: Summary

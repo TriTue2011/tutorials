@@ -56,10 +56,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the vehicle's license plate number to check for any traffic fines.
-            A license plate number consists of a continuous sequence of alphanumeric characters with no spaces.
-            If a license plate contains errors caused by user mispronunciation, correct it to the most likely accurate license plate number.
+            Mandatory. Alphanumeric, no spaces. Silence-correct mispronunciations. Correct to most likely intended plate.
         vehicle_type_prompt:
           name: Vehicle Type Prompt
           description: The prompt which will be used for the LLM can provide the type of vehicle for the query.
@@ -67,14 +64,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the type of vehicle to check for any traffic fines.
-            It must be one of the following three values: '1' for a car, '2' for a motorbike, or '3' for an electric bicycle.
+            Mandatory. exact value: '1' (car), '2' (motorbike), '3' (electric bicycle). Do not guess.
 mode: parallel
 max_exceeded: silent
-description: Looks up information about traffic fines.
+description: Queries traffic violation databases using a license plate and vehicle type to retrieve fine details accurately.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   license_plate:
     name: License Plate

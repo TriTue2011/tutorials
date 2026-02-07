@@ -51,9 +51,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Use 'daily' for requests covering full days or periods longer than one day. Use 'hourly' for requests covering part of a day or a specific start time.
-            After obtaining the result, ensure the response includes only the event's day of the week and start date. The event's end date or time is exclusive and should not be included.
+            Mandatory. 'daily' for full days/long periods; 'hourly' for partial days/specific times. Response must only include day of week and start date.
         time_period_length_prompt:
           name: Time Period Length Prompt
           description: The prompt which will be used for the LLM can provide the length of the period.
@@ -61,9 +59,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            The length of the period. This will be measured in days if 'time_period_type' is 'daily', and in hours if 'time_period_type' is 'hourly'.
-            Examples: 1 (day) for today's events, 2 (days) for weekend events, 7 (days) for the next few days, 30 (days) for in the month, 6 (hours) for morning, afternoon, or evening events.
+            Mandatory. Length in days (if daily) or hours (if hourly). E.g. 1 (today), 7 (week), 6 (afternoon).
         date_prompt:
           name: Date Prompt
           description: The prompt which will be used for the LLM can provide the start date for the events period.
@@ -71,10 +67,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the date for the requested period starts using the format YYYY-MM-DD.
-            Always include a date with each request. If the request does not specify a date, you should provide today's date. Examples of dates that can be used include today, this week, this month, etc.
-            When the requested period is for the night, do not use today's date but always use the next day, unless the current time is still before 05:00:00.
+            Mandatory. Start date (YYYY-MM-DD). Default to today if unspecified. For "night", use next day unless current time < 05:00:00.
         time_prompt:
           name: Time Prompt
           description: The prompt which will be used for the LLM can provide the start time for the events period.
@@ -82,14 +75,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the start time using the format HH:MM:SS.
-            Always provide time. For a full day, use 00:00:00. For the current hour, use the start of the hour. Night starts at 00:00:00, morning starts at 06:00:00, afternoon starts at 12:00:00 and evening starts at 18:00:00.
+            Mandatory. Start time (HH:MM:SS). Full day = 00:00:00. Morning = 06:00:00, Afternoon = 12:00:00, Evening = 18:00:00, Night = 00:00:00.
 mode: parallel
 max_exceeded: silent
-description: Retrieves calendar events based on specified time periods.
+description: Retrieves upcoming or past calendar events for a specific time period. Useful for checking schedules and appointments.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   time_period_type:
     name: Time Period Type

@@ -58,76 +58,58 @@ blueprint:
       input:
         summary_prompt:
           name: Summary Prompt
-          description: The prompt which will be used for the LLM can provide the short summary or subject for the event.
+          description: Short summary of the event.
           selector:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            It defines the short summary or subject of the event.
+            Mandatory. Subject or title of the event.
         description_prompt:
           name: Description Prompt
-          description: The prompt which will be used for the LLM can provide a more complete description of the event than the one provided by the summary.
+          description: Detailed description of the event.
           selector:
             text:
               multiline: true
           default: |-
-            This argument is optional.
-            It provides a more complete description of the event than the summary.
+            Optional. Full details of the event.
         start_date_time_prompt:
           name: Start Time Prompt
-          description: The prompt which will be used for the LLM can provide the date and time the event should start.
+          description: Start date and time for timed events.
           selector:
             text:
               multiline: true
           default: |-
-            Use either the start_date_time parameter or the start_date parameter, but not both.
-            This argument specifies the event start date and time in the format YYYY-MM-DD HH:MM:SS.
-            Only populate start_date_time when the request includes a time-of-day (e.g., 10:00, 18:30, morning/afternoon/evening). Otherwise use start_date.
-            When using start_date_time (timed events), you must also provide end_date_time. Do not provide end_date.
-            If the user does not specify an end time, you must still provide end_date_time = start_date_time + 2 hours. Do not ask clarifying questions.
+            Use ONLY for timed events (YYYY-MM-DD HH:MM:SS). Excludes start_date.
         end_date_time_prompt:
           name: End Time Prompt
-          description: The prompt which will be used for the LLM can provide the date and time the event should end.
+          description: End date and time for timed events.
           selector:
             text:
               multiline: true
           default: |-
-            Use either the end_date_time parameter or the end_date parameter, but not both.
-            This argument specifies the event end date and time in the format YYYY-MM-DD HH:MM:SS.
-            For timed events, you must provide end_date_time and it must be on or after start_date_time.
-            Do not provide end_date when start_date_time is used.
-            If the user did not specify an end time, infer and provide end_date_time = start_date_time + 2 hours. Do not ask clarifying questions.
+            Mandatory for timed events. Default: start + 2h. Excludes end_date.
         start_date_prompt:
           name: Start Date Prompt
-          description: The prompt which will be used for the LLM can provide the date the all-day event should start.
+          description: Start date for all-day events.
           selector:
             text:
               multiline: true
           default: |-
-            Use either the start_date parameter or the start_date_time parameter, but not both.
-            This argument specifies the start date of an all-day event in the format YYYY-MM-DD.
-            Use start_date for date-only requests (no time-of-day mentioned).
-            When using start_date (all-day events), you must also provide end_date. Do not provide end_date_time.
-            If the user does not specify an end date, you must still provide end_date = start_date + 1 day. Do not ask clarifying questions.
+            Use ONLY for all-day events (YYYY-MM-DD). Excludes start_date_time.
         end_date_prompt:
           name: End Date Prompt
-          description: The prompt which will be used for the LLM can provide the date the all-day event should end.
+          description: End date for all-day events.
           selector:
             text:
               multiline: true
           default: |-
-            Use either the end_date parameter or the end_date_time parameter, but not both.
-            This argument specifies the end date of an all-day event in the format YYYY-MM-DD.
-            For all-day events, you must provide end_date and it must be on or after start_date.
-            Do not provide end_date_time when start_date is used.
-            If the user did not specify an end date, infer and provide end_date = start_date + 1 day. Do not ask clarifying questions.
+            Mandatory for all-day events. Default: start + 1 day. Excludes end_date_time.
 mode: queued
 max: !input simultaneous
 max_exceeded: silent
-description: Creates a new calendar event with specified details.
+description: Adds a new event to a specified calendar. Handles both timed and all-day events with mandatory start/end details.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   summary:
     selector:

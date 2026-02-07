@@ -6,7 +6,7 @@ _All blueprints in this collection are fine-tuned to work best with **Gemini Fla
 
 Transform Home Assistant into a fully-fledged personal teammate with this curated collection of blueprints and guides. Every scenario has been proven in real homes, backed by clear explanations, example voice prompts, and deployment tips so you can bring each idea to life right away.
 
-**[Vietnamese version click here](/README.md)**
+**[🇻🇳 Tiếng Việt](README.md)**
 
 ---
 

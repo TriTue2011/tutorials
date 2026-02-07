@@ -6,7 +6,7 @@ _Tất cả blueprint trong bộ sưu tập này được tinh chỉnh để ho�
 
 Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ sưu tập blueprint và hướng dẫn chi tiết. Mọi kịch bản đều đã được kiểm chứng trong thực tế, đi kèm giải thích rõ ràng, ví dụ lệnh thoại và mẹo triển khai để bạn có thể áp dụng ngay cho ngôi nhà thông minh của mình.
 
-**[Click here for the English version](/README.en.md)**
+**[🇺🇸 English](README.en.md)**
 
 ---
 

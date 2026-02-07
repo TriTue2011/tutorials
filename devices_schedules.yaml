@@ -91,7 +91,7 @@ max: !input simultaneous
 max_exceeded: silent
 
 variables:
-  version: 20251209
+  version: 20260207
 
 fields:
   mode:

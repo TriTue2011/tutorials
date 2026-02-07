@@ -49,10 +49,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required for every request.
-            Choose exactly one operation: set (save/update), get (retrieve), search (find), forget (delete).
-            Output exactly one: set|get|search|forget.
-            Only fill the fields needed for that operation; leave others empty or default.
+            Mandatory. Choose one: set (save), get (retrieve), search (find), forget (delete). Output exactly: set|get|search|forget.
         key_prompt:
           name: Key Prompt
           description: Instruction shown to the LLM for providing the key.
@@ -60,12 +57,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required when operation = set|get|forget. Ignored if operation = search.
-            Provide a concise key for a piece of information the user has manually saved.
-            Use this for retrieving facts, notes, or locations that are not actively tracked by a sensor.
-            Derive the key from the user's main concept, keeping their original language.
-            Do not translate or paraphrase. If the user provides a key, use it exactly.
-            Output only the key. If unsure, use the 'search' operation instead.
+            Required for set|get|forget. Concise key in user language. No translation/paraphrase. Output only the key. Use 'search' if unsure.
         value_prompt:
           name: Value Prompt
           description: Instruction shown to the LLM for providing the value.
@@ -73,9 +65,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required only when operation = set.
-            Value to store for the key. Output the raw value only, plain text or JSON.
-            Do not add quotes, labels, or explanations. This is a tool parameter, not a user-facing reply.
+            Required for set. Raw value only (text/JSON). No quotes/explanations.
         scope_prompt:
           name: Scope Prompt
           description: Instruction shown to the LLM for choosing the scope.
@@ -83,8 +73,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required only when operation = set.
-            Who it applies to: user|household|session. Output one token only. Default = user.
+            Required for set. user|household|session. One token only. Default: user.
         expiration_days_prompt:
           name: Expiration (days) Prompt
           description: Instruction shown to the LLM for providing expiration.
@@ -92,8 +81,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required only when operation = set.
-            Integer days before expiry (0 = forever). Default = 180. Range 0-3650.
+            Required for set. Days before expiry (0 = forever). Default: 180. Range 0-3650.
         tags_prompt:
           name: Tags Prompt
           description: Instruction shown to the LLM for providing tags.
@@ -101,10 +89,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required only when operation = set.
-            Generate a few short, meaningful keywords in the same language as the user's input.
-            If no clear keywords exist, use the main user phrase as a single tag.
-            If that is not possible, reuse the key.
+            Required for set. Meaningful keywords in user language. Use phrase/key if no keywords.
         force_new_prompt:
           name: Force New Prompt
           description: Instruction shown to the LLM for deciding whether to override duplicate-tag protection.
@@ -112,10 +97,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Optional, only used when operation = set.
-            Output true only if the user explicitly confirms creating a new entry despite duplicate tags.
-            Otherwise output false (default).
-            Output exactly: true|false.
+            Optional for set. true|false. Output 'true' ONLY if user confirms duplicate override. Default: false.
         query_prompt:
           name: Query Prompt
           description: Instruction shown to the LLM for providing the search query.
@@ -123,11 +105,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required only when operation = search.
-            Provide a search term for information the user has manually saved.
-            Use this for searching memories or notes, not for finding the real-time position of a tracked device.
-            If the user's input is short, use it as the query. If long, use only the main keywords.
-            Do not translate, paraphrase, or add punctuation. Output only the query text.
+            Required for search. Search term or keywords. No translation/paraphrase. Output only query text.
         search_limit_prompt:
           name: Search Limit Prompt
           description: Instruction shown to the LLM for providing the search limit.
@@ -135,8 +113,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Required only when operation = search.
-            Integer 1-50. Default = 5. Output an integer only.
+            Required for search. Integer 1-50. Default: 5. Integer only.
 fields:
   operation:
     name: Operation
@@ -210,9 +187,9 @@ fields:
         mode: box
 mode: restart
 max_exceeded: silent
-description: Provides read and write access to user-saved memory, allowing the assistant to store, retrieve, or look up facts, notes, or locations. Not for real-time device tracking. Prefer search for recall, and confirm success only when the backend returns `status=ok`.
+description: Manages personal and household memory. Use to save, retrieve, search, or delete persistent notes and facts reliably. Prefer search for recall.
 variables:
-  version: 20251116
+  version: 20260207
 sequence:
   - variables:
       op: "{{ operation | default('set') }}"

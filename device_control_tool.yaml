@@ -34,7 +34,7 @@ mode: parallel
 max: !input simultaneous
 max_exceeded: silent
 variables:
-  version: 20250923
+  version: 20260207
 fields:
   devices:
     name: Devices

@@ -100,16 +100,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the friendly name of the camera you want to capture a snapshot from (e.g., "Front Door Camera").
-            If the user's request does not clearly specify a camera, determine and suggest one or more relevant cameras based on context.
-            If multiple cameras are needed, submit each camera in a separate tool call.
-            The tool will return a local file path to the generated snapshot.
+            Mandatory. Camera friendly name. If unclear, determine from context or suggest. For multiple cameras, use separate tool calls. Returns local image path.
 mode: parallel
 max_exceeded: silent
-description: Captures a snapshot from a specified camera to visually check the scene. Returns the local file path of the image, which can be used by other tools for analysis or sent to the user.
+description: Captures and saves a camera snapshot. Returns the local file path for analysis or messaging tools. Useful for visual verification of a scene.
 variables:
-  version: 20251209
+  version: 20260207
 fields:
   camera_name:
     name: Camera Name

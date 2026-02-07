@@ -87,9 +87,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify at least one device name to control.
-            When controlling multiple devices, separate each device name with a semicolon.
+            Mandatory. Provide device names to control. Use semicolons (;) to separate multiple names.
         control_prompt:
           name: Control Prompt
           description: The prompt which will be used for the LLM can provide the action.
@@ -97,8 +95,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the desired action using one of the following two values: 'true' to turn on the device, or 'false' to turn off the device.
+            Mandatory. Action: 'true' (ON), 'false' (OFF). Do not guess.
         timer_prompt:
           name: Timer Prompt
           description: The prompt which will be used for the LLM can provide the delay of action.
@@ -106,15 +103,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the delay time using the format HH:MM:SS.
-            The delay is relative to the current time.
-            If a query specifies a particular target time, calculate the delay from the current time to that specified time
+            Mandatory. Delay as HH:MM:SS. Calculate from current time if a target time is specified. Relative to now.
 mode: parallel
 max_exceeded: silent
-description: Sets a timer for controlling one or more specified devices.
+description: Simple one-time timer for turning devices on or off after a delay. Use for basic "turn off in X minutes" requests.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   entities:
     name: Entities

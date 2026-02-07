@@ -81,17 +81,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the name of one or more devices whose location is actively tracked by a Home Assistant sensor (device_tracker).
-            Use this for finding things that report their own real-time position. This tool cannot retrieve information that a user has manually saved as a memory or note.
-            If requesting multiple devices, separate each device name with a semicolon.
-            If the query does not specify a device, provide all relevant devices based on the context.
-            After obtaining the result, if the device supports ringing, prompt the user to activate its ringing function.
+            Mandatory. Provide names of tracked devices (phones, tags, etc.). Use semicolons (;) if multiple. If none specified, provide all relevant tracked devices. Prompt to ring if supported.
 mode: parallel
 max_exceeded: silent
-description: Retrieves the real-time location of tracked electronic devices (phones, watches, tablets, BLE tags, or beacons). Only for devices currently monitored by Home Assistant, not for user-saved information.
+description: Retrieves real-time device locations (phones, tags, etc.) within the home. Use to find missing devices or check room presence.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   entities:
     name: Entities

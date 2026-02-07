@@ -71,10 +71,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify the search string to obtain a list of videos.
-            If the query contains errors caused by user mispronunciation, correct it to the most likely accurate search string and ask the user for confirmation before proceeding.
-            After obtaining the results, prompt the user to select a video to play on the TV. Add an ordinal number to each video to simplify selection. Do not include the Media ID in the response.
+            Mandatory. Search query. Silence-correct misspellings. For results, use ordinal numbers for selection; omit Media IDs. Confirm before proceeding if query is ambiguous.
         page_token_prompt:
           name: Page Token Prompt
           description: The prompt which will be used for the LLM can provide the page token to get additional videos that could be obtained.
@@ -82,14 +79,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is optional.
-            Specify the page token to obtain additional videos.
-            Use it when the initial query results are unsatisfying and the user wants to find more videos.
+            Optional. Use to fetch more videos if initial results are unsatisfactory.
 mode: parallel
 max_exceeded: silent
-description: Searches YouTube for videos based on a query string.
+description: Searches YouTube for videos and returns a list of matching results with titles and descriptions. Use to find specific content or playlists.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   query_string:
     name: Query String

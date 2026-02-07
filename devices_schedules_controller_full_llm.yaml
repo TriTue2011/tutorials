@@ -108,86 +108,40 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Provide exactly one keyword: start, cancel, cancel_all, extend, pause, resume, or list.
-            - start: queue new timers and also collect entities, action, optional value, and duration.
-            - cancel: stop the latest active timer per entity.
-            - cancel_all: stop every active timer (entities input narrows the scope).
-            - extend: add duration to active timers; duration input is required.
-            - pause: freeze the latest active timer per entity.
-            - resume: restart paused timers.
-            - list: report active timers (entities input narrows the scope).
-            Respond with the bare keyword, for example: start
+            Mandatory. exactly one: start (queue), cancel (stop latest), cancel_all (stop every), extend (add duration), pause (freeze), resume (restart), list (report). Output bare keyword only.
         entities_prompt:
           name: Entities prompt
           selector:
             text:
               multiline: true
           default: |-
-            Provide the entities to control.
-            - Required when mode is start, cancel, extend, pause, or resume; optional for list or cancel_all.
-            - Accept entity_id, friendly name, or alias (scenes/scripts may use their spoken name).
-            - Respond with a semicolon-separated list (preferred). Commas or newlines are also valid.
-            - Remove duplicates. Leave blank only when the user wants every timer listed or canceled.
-            Examples:
-            lamp; bedroom fan
-            light.bedroom_lamp, fan.living_room
-            scene Cozy Evening
+            Entities to control (name/ID/alias). Semicolon-separated. Required for start, cancel, extend, pause, resume. Optional for list, cancel_all. Remove duplicates.
         action_prompt:
           name: Action prompt
           selector:
             text:
               multiline: true
           default: |-
-            Required only when mode = start. Use lowercase snake_case.
-            - turn_on / turn_off: generic on/off for switches, lights, fans, media players, or simple climate devices.
-            - activate: activate a scene.
-            - run_script: execute another Home Assistant script.
-            - open / close: operate covers or valves.
-            - stop_cover: stop cover movement.
-            - set_position: set cover/valve position (requires 0-100 value).
-            - set_brightness: set light brightness percent (0-100).
-            - set_color: set light color name.
-            - set_fan_speed: set fan speed percent (0-100).
-            - set_oscillation: set fan oscillation true/false.
-            - set_temperature: set climate or water_heater temperature.
-            - set_humidity: set humidifier target percent (0-100).
-            - set_hvac_mode: set climate mode (cool, heat, auto, etc.).
-            - media_play / media_pause / media_stop: control media players.
-            - set_volume: set media player volume percent (0-100).
-            - start_vacuum / return_vacuum: control robot vacuums.
-            - press: press a button or input_button.
-            - announce: speak a text message via TTS (requires text value).
-            Leave this field empty when mode is not start.
+            Required for start. use snake_case: turn_on/off, set_brightness/fan_speed/temperature/humidity/hvac_mode/volume, activate (scene), run_script, open/close, stop_cover, set_position, media_play/pause/stop, start/return_vacuum, press (button), announce (TTS).
         value_prompt:
           name: Value prompt
           selector:
             text:
               multiline: true
           default: |-
-            Provide a value only when mode = start and the chosen action requires one.
-            - Percentages (0-100): set_position, set_brightness, set_fan_speed, set_humidity.
-            - Volume: 0-100 (converted to 0.00-1.00 internally).
-            - Temperature: numeric in the system unit.
-            - HVAC mode: cool, heat, dry, fan_only, auto, off.
-            - Colors: textual names (red, blue, warm_white, etc.).
-            - Booleans: true/false for oscillation.
-            - Text: the message content for 'announce' action.
-            Return an empty string when no value is needed.
+            Required for start if action needs value: 0-100 (pct/vol), numeric (temp), hvac_mode (cool/heat/etc), color name, boolean (oscillation), or text (announce). Empty if not needed.
         duration_prompt:
           name: Duration prompt
           selector:
             text:
               multiline: true
           default: |-
-            Provide a duration when mode is start or extend.
-            Accepted formats: HH:MM:SS, MM:SS, or integer seconds.
-            Examples: 00:10:00 (ten minutes), 01:30 (ninety seconds), 600.
-            Return an empty string only when the selected mode does not require duration.
+            Required for start or extend. Formats: HH:MM:SS, MM:SS, or seconds (e.g., 00:10:00, 600). Empty if not needed.
 mode: parallel
 max_exceeded: silent
-description: Manages and controls schedules/timers for various devices.
+description: Advanced controller for managing multiple device timers. Can start, cancel, pause, resume, or list scheduled actions for various entities.
 variables:
-  version: 20260114
+  version: 20260207
 fields:
   mode:
     name: Mode

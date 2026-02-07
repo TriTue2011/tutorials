@@ -89,12 +89,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is mandatory and must always be included.
-            Specify at least one YouTube channel name to query video information.
-            When requesting multiple YouTube channels, separate each channel name with a semicolon.
-            If the query does not specify a particular channel, provide all relevant channels based on the context.
-            If the query contains errors caused by user mispronunciation, correct it to the most likely accurate channel name.
-            After obtaining the results, prompt the user to select a video to play on the TV. Add an ordinal number to each video to simplify selection. Do not include the Media ID in your response.
+            Mandatory. YouTube channel names. Semicolon-separated if multiple. Silence-correct mispronunciations. After results, ask to play; use ordinal numbers, omit Media IDs.
         period_length_prompt:
           name: Period Length Prompt
           description: The prompt which will be used for the LLM can provide the length of the period for the query.
@@ -102,14 +97,12 @@ blueprint:
             text:
               multiline: true
           default: |-
-            This argument is optional.
-            It specifies the number of days since the videos were published.
-            The default is 3 days. The minimum is 1 day, and the maximum is 30 days. "Today" means 1 day, "This week" means 7 days, and "This month" means 30 days.
+            Optional. Days since published (1-30). Default: 3. Today=1, Week=7, Month=30.
 mode: parallel
 max_exceeded: silent
-description: Retrieves a list of recent videos from one or more specified YouTube channels.
+description: Fetches a list of the most recent video uploads from one or more specified YouTube channels within a set timeframe.
 variables:
-  version: 20251116
+  version: 20260207
 fields:
   entities:
     name: Entities

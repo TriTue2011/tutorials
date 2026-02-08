@@ -1,5 +1,6 @@
 blueprint:
   name: Voice - Control Music
+  author: luuquangvu
   source_url: https://github.com/luuquangvu/tutorials/blob/dev/control_music_full_llm.yaml
   description: |-
     # Tool for controlling music used for Voice Assistant
@@ -21,7 +22,6 @@ blueprint:
 
     - Special thanks to the original blueprint from [music-assistant/voice-support](https://github.com/music-assistant/voice-support). This version has been refined and optimized specifically for use with Gemini.
   domain: script
-  author: TheFes
   homeassistant:
     min_version: 2024.6.0
   input:

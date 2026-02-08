@@ -1,5 +1,5 @@
 blueprint:
-  name: Voice - Memory Tool
+  name: Voice - Memory Tool Local
   author: luuquangvu
   source_url: https://github.com/luuquangvu/tutorials/blob/dev/memory_tool_local.yaml
   description: |-

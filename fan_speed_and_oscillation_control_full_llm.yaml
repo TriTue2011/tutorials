@@ -229,7 +229,7 @@ sequence:
           {% for entity_id in devices -%}
             {% set feats = (state_attr(entity_id, 'supported_features') | int(0)) -%}
             {% set device_name = state_attr(entity_id, 'friendly_name') | default(entity_id) -%}
-            {% set osc_ok = (((feats // 2) % 2) == 1) or (state_attr(entity_id, 'oscillating') is not none) -%}
+            {% set osc_ok = (feats | bitwise_and(2)) or (state_attr(entity_id, 'oscillating') is not none) -%}
             {% if not osc_ok -%}
               {% set result.values = result.values + [device_name] -%}
             {% endif -%}
@@ -246,7 +246,7 @@ sequence:
           {% for entity_id in devices -%}
             {% set feats = (state_attr(entity_id, 'supported_features') | int(0)) -%}
             {% set device_name = state_attr(entity_id, 'friendly_name') | default(entity_id) -%}
-            {% set speed_ok = ((feats % 2) == 1) or (state_attr(entity_id, 'percentage') is not none) or (state_attr(entity_id, 'percentage_step') is not none) -%}
+            {% set speed_ok = (feats | bitwise_and(1)) or (state_attr(entity_id, 'percentage') is not none) or (state_attr(entity_id, 'percentage_step') is not none) -%}
             {% if not speed_ok -%}
               {% set result.values = result.values + [device_name] -%}
             {% endif -%}

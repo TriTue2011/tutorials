@@ -111,7 +111,7 @@ sequence:
       - condition: template
         value_template: >-
           {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
-          {{ (feats % 2) != 1 }}
+          {{ not (feats | bitwise_and(1)) }}
     then:
       - alias: Stop the script
         stop: The event could not be added because the calendar entity lacks write permissions.

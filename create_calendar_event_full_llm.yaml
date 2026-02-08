@@ -170,7 +170,7 @@ sequence:
       - condition: template
         value_template: >-
           {% set feats = (state_attr(calendar, 'supported_features') | int(0)) -%}
-          {{ (feats % 2) != 1 }}
+          {{ not (feats | bitwise_and(1)) }}
     then:
       - alias: Set variable for error message
         variables:

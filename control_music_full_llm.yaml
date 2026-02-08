@@ -1,0 +1,284 @@
+blueprint:
+  name: Voice - Control Music
+  source_url: https://github.com/luuquangvu/tutorials/blob/dev/control_music_full_llm.yaml
+  description: |-
+    # Tool for controlling music used for Voice Assistant
+
+    ### Blueprint setup
+
+    ### Optional
+
+    - Adjust the prompts for each field. Descriptions guide the LLM to provide accurate music selection.
+
+    ### Note
+
+    - Provide a concise and precise description for the script. This helps the LLM understand it should use this script for music playback.
+    - Make sure to expose the script to Assist after saving.
+    - Do not alter the default script name.
+    - Once the script is created, click the three dots in the top right corner, choose "Edit in YAML," and remove the `description: ...` line to restore the default. This step is important because it helps the LLM better understand the script's purpose.
+
+    ### Credit
+
+    - Special thanks to the original blueprint from [music-assistant/voice-support](https://github.com/music-assistant/voice-support). This version has been refined and optimized specifically for use with Gemini.
+  domain: script
+  author: TheFes
+  homeassistant:
+    min_version: 2024.6.0
+  input:
+    music_assistant_settings:
+      name: Settings for Music Assistant playback
+      icon: mdi:music
+      description:
+        You can use these settings to configure how Music Assistant playback
+        is handled.
+      input:
+        default_player:
+          name: Default Player
+          description: |-
+            The default Music Assistant player which will be used if it is not clear from the request in which area or on which player the request should be played.
+
+            Leave empty if you do not want a default player.
+          selector:
+            entity:
+              filter:
+                - integration: music_assistant
+                  domain:
+                    - media_player
+              multiple: false
+          default:
+        play_continuously:
+          name: Radio Mode
+          description: |-
+            Determines if the "radio_mode" setting should be set for the play media action.
+
+            When set to "Use player settings" it will use the "Don't stop the music" setting on the Music Assistant Player.
+
+            When set to "Always" the player will continuously add new songs to the playlist.
+
+            When set to "Never" the player will stop playing after the songs selected by the LLM are finished.
+          selector:
+            select:
+              options:
+                - Use player settings
+                - Always
+                - Never
+              multiple: false
+              custom_value: false
+              sort: false
+          default: Use player settings
+    prompt_settings:
+      name: Prompt settings for the LLM
+      icon: mdi:robot
+      description:
+        You can use these settings to fine-tune the prompts for your specific
+        LLM (model).  In most cases the defaults should be fine.
+      collapsed: true
+      input:
+        media_type_prompt:
+          name: Media Type Prompt
+          description: The prompt that the LLM will use to provide the media_type.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: |-
+            Mandatory. Values: track (single/list), album, artist, playlist, radio. Default to 'track' for genre/mood requests and list matching songs in media_id.
+        artist_prompt:
+          name: Artist Prompt
+          description: The prompt that the LLM will use to provide the artist.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            Requested artist or track artist. Empty string if unknown or multiple artists requested.
+        album_prompt:
+          name: Album Prompt
+          description: The prompt that the LLM will use to provide the album.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            Requested album. Empty string if unknown or multiple albums requested.
+        media_id_prompt:
+          name: Media ID Prompt
+          description: The prompt that the LLM will use to provide the media_id.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default: |-
+            Mandatory. Specific name(s).
+            - Tracks/Albums: Provide names (semicolon separated). If ambiguous, use "Artist - Track".
+            - Artists/Playlists/Radio: Provide exact name. Remove "playlist" keyword (e.g., "Favorites").
+        media_description_prompt:
+          name: Media Description Prompt
+          description: The prompt that the LLM will use to provide the media description.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            The "media_description" key is used to describe the media which
+            will be played. This can be taken from the voice command query, but it
+            should be only the part which is relevant for the media. So if the voice
+            request is "Play the best Queen songs on the living room player" the value
+            for "media_description" should be "the best Queen songs"
+        area_prompt:
+          name: Area Prompt
+          description: The prompt that the LLM will use to provide the area.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            Requested area(s). Default to the area of the initiating device. Omit if player is specified unless both are explicitly named.
+        media_player_prompt:
+          name: Media Player Prompt
+          description: The prompt that the LLM will use to provide the media player.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            Target Music Assistant media_player entity_id(s). Use ONLY if specifically mentioned.
+        shuffle_prompt:
+          name: Shuffle Prompt
+          description: The prompt that the LLM will use to determine whether to turn on shuffle or not.
+          selector:
+            text:
+              multiline: true
+              multiple: false
+          default:
+            Mandatory. Boolean. Set true ONLY if the user specifically mentions shuffling. Otherwise false. Do not guess.
+    addition_conditions_actions:
+      name: Additional actions
+      icon: mdi:wrench
+      description:
+        You can add additional actions to be performed after the Music
+        Assistant play media action is started. Variables which can always be used
+        are media_id, media_type, album, artist. Based on the request, the variables
+        area and media_player can also be available.
+      collapsed: true
+      input:
+        actions:
+          name: Additional actions
+          selector:
+            action: {}
+          default: []
+mode: parallel
+max_exceeded: silent
+description: Plays music via Music Assistant. Supports tracks, albums, artists, playlists, and radio. Requires media type, ID, and shuffle status.
+fields:
+  media_type:
+    selector:
+      select:
+        options:
+          - track
+          - album
+          - artist
+          - playlist
+          - radio
+    name: Media Type
+    description: !input media_type_prompt
+    required: true
+  artist:
+    selector:
+      text:
+    name: Artist
+    description: !input artist_prompt
+    required: true
+  album:
+    selector:
+      text:
+    name: Album
+    description: !input album_prompt
+    required: true
+  media_id:
+    selector:
+      text:
+    name: Media ID
+    description: !input media_id_prompt
+    required: true
+  media_description:
+    selector:
+      text:
+    name: Media Description
+    description: !input media_description_prompt
+    required: true
+  area:
+    selector:
+      area:
+        entity:
+          integration: music_assistant
+          domain: media_player
+        multiple: true
+    name: Area
+    description: !input area_prompt
+  media_player:
+    selector:
+      entity:
+        filter:
+          integration: music_assistant
+          domain: media_player
+        multiple: true
+    name: Media Player
+    description: !input media_player_prompt
+  shuffle:
+    selector:
+      boolean:
+    name: Shuffle
+    description: !input shuffle_prompt
+sequence:
+  - variables:
+      version: 20260208
+      default_player: !input default_player
+      shuffle: "{{ shuffle | default(false, true) | bool(false) }}"
+      player_data: >-
+        {% set ma = integration_entities('music_assistant') %}
+        {% set ma_names = ma | map('state_attr', 'friendly_name') | list %}
+        {% set players_in = media_player if media_player is list else ([media_player] if media_player else []) %}
+        {% set ns = namespace(players=[]) %}
+        {% for player in players_in %}
+          {% if player in ma %}
+            {% set ns.players = ns.players + [player] %}
+          {% elif player in ma_names %}
+            {% set entity = ma | select('is_state_attr', 'friendly_name', player) | list %}
+            {% set ns.players = ns.players + entity %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.players }}
+      target_data:
+        area_id: "{{ area | default('NA', true) }}"
+        entity_id: >-
+          {{ 'NA' if area | default and not player_data else (player_data or default_player) | default('NA', true) }}
+      invalid_target:
+        response: Unable to find valid target
+  - if:
+      - condition: template
+        value_template: "{{ not (area | default or player_data or default_player) }}"
+    then:
+      - stop: No valid target for Music Assistant Voice script found
+        response_variable: invalid_target
+  - variables:
+      play_continuously: !input play_continuously
+      action_data:
+        media_id: >-
+          {{ media_id if media_id is list else (media_id.split(';') | map('trim') | list if ';' in media_id else media_id) }}
+        media_type: "{{ media_type }}"
+        artist: "{{ artist | default('NA', true) }}"
+        album: "{{ album | default('NA', true) }}"
+        radio_mode: >-
+          {{ false if play_continuously == 'Never' else play_continuously == 'Always' and media_type != 'radio' or 'NA' }}
+  - alias: Play music using Music Assistant
+    action: music_assistant.play_media
+    data: "{{ dict(action_data.items() | rejectattr('1', 'eq', 'NA')) }}"
+    target: "{{ dict(target_data.items() | rejectattr('1', 'eq', 'NA')) }}"
+  - alias: Enable/Disable shuffle on a Music Assistant Media Player
+    action: media_player.shuffle_set
+    continue_on_error: true
+    data:
+      shuffle: "{{ shuffle }}"
+    target: "{{ dict(target_data.items() | rejectattr('1', 'eq', 'NA')) }}"
+  - sequence: !input actions

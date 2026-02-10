@@ -1,5 +1,6 @@
 import asyncio
-import json
+import orjson
+import random
 import re
 import sqlite3
 import ssl
@@ -21,50 +22,14 @@ RETRY_LIMIT = 3
 GET_URL = "https://www.csgt.vn/"
 POST_URL = "https://www.csgt.vn/?mod=contact&task=tracuu_post&ajax"
 CAPTCHA_URL = "https://www.csgt.vn/lib/captcha/captcha.class.php"
-GET_HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-    "Accept-Encoding": "gzip, deflate, br, zstd",
-    "Accept-Language": "en-US,en;q=0.9,vi;q=0.8",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "DNT": "1",
-    "Host": "www.csgt.vn",
-    "Pragma": "no-cache",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-    "Upgrade-Insecure-Requests": "1",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
-    "sec-ch-ua": '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"Windows"',
-}
-POST_HEADERS = {
-    "Accept": "*/*",
-    "Accept-Encoding": "gzip, deflate, br, zstd",
-    "Accept-Language": "en-US,en;q=0.9,vi;q=0.8",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "Content-Type": "application/x-www-form-urlencoded",
-    "DNT": "1",
-    "Host": "www.csgt.vn",
-    "Origin": "https://www.csgt.vn",
-    "Pragma": "no-cache",
-    "Referer": "https://www.csgt.vn/",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
-    "X-Requested-With": "XMLHttpRequest",
-    "sec-ch-ua": '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"Windows"',
-}
+USER_AGENTS_URL = (
+    "https://cdn.jsdelivr.net/gh/microlinkhq/top-user-agents@master/src/desktop.json"
+)
+USER_AGENTS_CACHE_KEY = "user_agents_list"
 
 DB_PATH = Path("/config/cache.db")
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = pyscript.config.get("gemini_model", default="gemini-2.5-flash")  # noqa: F821
 GEMINI_API_KEY = pyscript.config.get("gemini_api_key")  # noqa: F821
 
 if not GEMINI_API_KEY:
@@ -275,6 +240,93 @@ def _prune_expired_sync() -> int:
 async def _prune_expired() -> int:
     """Async wrapper for pruning expired entries."""
     return await asyncio.to_thread(_prune_expired_sync)
+
+
+async def _refresh_user_agents() -> list[str]:
+    """Fetch user agents from remote and update cache."""
+    try:
+        async with aiohttp.ClientSession() as ss:
+            async with ss.get(
+                USER_AGENTS_URL, timeout=aiohttp.ClientTimeout(total=60)
+            ) as resp:
+                resp.raise_for_status()
+                agents = await resp.json()
+                if isinstance(agents, list) and agents:
+                    await _cache_set(
+                        USER_AGENTS_CACHE_KEY,
+                        orjson.dumps(agents).decode("utf-8"),
+                        7 * 24 * 60 * 60,
+                    )
+                    return agents
+    except Exception as e:
+        print(f"Error refreshing user agents: {e}")
+
+    # Fallback to a default UA if fetch fails
+    return [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+    ]
+
+
+async def _get_user_agents() -> list[str]:
+    """Fetch user agents from cache or remote if missing/expired."""
+    cached_value, ttl = await _cache_get(USER_AGENTS_CACHE_KEY)
+
+    if cached_value:
+        agents = orjson.loads(cached_value)
+        # Refresh in background if getting old (less than 1 day remaining)
+        if ttl is not None and ttl < 24 * 60 * 60:
+            task.create(_refresh_user_agents)  # noqa: F821
+        return agents
+
+    return await _refresh_user_agents()
+
+
+async def _get_dynamic_headers(method: str = "GET", ua: str = None) -> dict[str, str]:
+    """Generate dynamic headers with a random or provided User-Agent."""
+    if not ua:
+        agents = await _get_user_agents()
+        ua = random.choice(agents)
+
+    origin = GET_URL.rstrip("/")
+    referer = GET_URL
+
+    base_headers = {
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "en-US,en;q=0.9,vi;q=0.8",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "DNT": "1",
+        "Host": "www.csgt.vn",
+        "Pragma": "no-cache",
+        "User-Agent": ua,
+    }
+
+    if method == "GET":
+        base_headers.update(
+            {
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "Referer": referer,
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Upgrade-Insecure-Requests": "1",
+            }
+        )
+    else:
+        base_headers.update(
+            {
+                "Accept": "*/*",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Origin": origin,
+                "Referer": referer,
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-origin",
+                "X-Requested-With": "XMLHttpRequest",
+            }
+        )
+    return base_headers
 
 
 @time_trigger("cron(15 3 * * *)")  # noqa: F821
@@ -563,10 +615,14 @@ async def _check_license_plate(
         Parsed response dict with status and details, or error.
     """
     await _ensure_ssl_ctx()
+    headers_get = await _get_dynamic_headers("GET")
+    ua = headers_get["User-Agent"]
+    headers_post = await _get_dynamic_headers("POST", ua=ua)
+
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=SSL_CTX)) as ss:
         try:
             async with ss.get(
-                GET_URL, headers=GET_HEADERS, timeout=aiohttp.ClientTimeout(total=60)
+                GET_URL, headers=headers_get, timeout=aiohttp.ClientTimeout(total=60)
             ) as response_1st:
                 response_1st.raise_for_status()
                 image, error = await _get_captcha(ss, CAPTCHA_URL)
@@ -586,7 +642,7 @@ async def _check_license_plate(
 
                 async with ss.post(
                     url=POST_URL,
-                    headers=POST_HEADERS,
+                    headers=headers_post,
                     data=data,
                     timeout=aiohttp.ClientTimeout(total=60),
                 ) as response_2nd:
@@ -611,7 +667,9 @@ async def _check_license_plate(
                             }
 
                     async with ss.get(
-                        url=url, timeout=aiohttp.ClientTimeout(total=60)
+                        url=url,
+                        headers=headers_get,
+                        timeout=aiohttp.ClientTimeout(total=60),
                     ) as response_3rd:
                         response_3rd.raise_for_status()
                         text_content = await response_3rd.text()
@@ -620,7 +678,7 @@ async def _check_license_plate(
                         if response and response.get("status") == "success":
                             await _cache_set(
                                 f"{license_plate}-{vehicle_type}",
-                                json.dumps(response, ensure_ascii=False),
+                                orjson.dumps(response).decode("utf-8"),
                                 CACHE_MAX_AGE,
                             )
                         return response
@@ -712,7 +770,7 @@ async def traffic_fine_lookup_tool(
         if cached_value is not None:
             if ttl is not None and ttl < CACHE_REFRESH_THRESHOLD:
                 task.create(_check_license_plate, license_plate, vehicle_type)  # noqa: F821
-            return json.loads(cached_value)
+            return orjson.loads(cached_value)
         return await _check_license_plate(license_plate, vehicle_type)
     except Exception as error:
         return {"error": f"An unexpected error occurred during processing: {error}"}

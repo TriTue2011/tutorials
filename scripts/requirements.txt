@@ -1,5 +1,6 @@
 # Common packages are included in many tools.
 aiohttp
+orjson
 
 # youtube_data_tool
 google-api-python-client

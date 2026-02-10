@@ -1,5 +1,5 @@
 import asyncio
-import json
+import orjson
 import sqlite3
 import threading
 import time
@@ -275,7 +275,7 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
     try:
         raw_value = await _cache_get(key)
         if raw_value is not None:
-            value = json.loads(raw_value)
+            value = orjson.loads(raw_value)
             return {
                 "status": "ok",
                 "op": "get",
@@ -368,7 +368,7 @@ async def memory_cache_set(
             mode: box
     """
     ttl = ttl_seconds if ttl_seconds is not None and ttl_seconds > 0 else TTL
-    stored_value = json.dumps(value, ensure_ascii=False)
+    stored_value = orjson.dumps(value).decode("utf-8")
     try:
         async with _acquire_index_lock(key):
             success = await _cache_set(key, stored_value, ttl)
@@ -495,14 +495,14 @@ async def memory_cache_index_update(
                 existing_raw = await _cache_get(cleaned_key)
                 if existing_raw:
                     try:
-                        parsed = json.loads(existing_raw)
+                        parsed = orjson.loads(existing_raw)
                         if isinstance(parsed, list):
                             for item in parsed:
                                 value = str(item).strip()
                                 if value and value not in seen:
                                     entries.append(value)
                                     seen.add(value)
-                    except json.JSONDecodeError:
+                    except orjson.JSONDecodeError:
                         entries = []
 
             for value in add_list:
@@ -518,7 +518,7 @@ async def memory_cache_index_update(
                     entries = filtered
                     changed = True
 
-            stored_value = json.dumps(entries, ensure_ascii=False)
+            stored_value = orjson.dumps(entries).decode("utf-8")
             success = await _cache_set(cleaned_key, stored_value, ttl)
 
             if not success:

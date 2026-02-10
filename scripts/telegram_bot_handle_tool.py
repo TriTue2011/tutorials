@@ -7,12 +7,18 @@ from pathlib import Path
 from typing import Any
 
 import aiohttp
+import orjson
 from homeassistant.helpers import network
 
 DIRECTORY = "/media/telegram"
 TOKEN = pyscript.config.get("telegram_bot_token")  # noqa: F821
 
 _session: aiohttp.ClientSession | None = None
+
+
+def _orjson_dumps(v, *, default=None):
+    return orjson.dumps(v, default=default).decode("utf-8")
+
 
 if not TOKEN:
     raise ValueError("Telegram bot token is missing")
@@ -99,7 +105,9 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
+        _session = aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=300), json_serialize=_orjson_dumps
+        )
     return _session
 
 
@@ -125,7 +133,7 @@ async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
     url = f"https://api.telegram.org/bot{TOKEN}/getFile"
     async with session.post(url, json={"file_id": file_id}) as resp:
         resp.raise_for_status()
-        data = await resp.json()
+        data = await resp.json(loads=orjson.loads)
     return data.get("result", {}).get("file_path")
 
 
@@ -212,7 +220,7 @@ async def _send_message(
         payload["parse_mode"] = parse_mode
     async with session.post(url, json=payload) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(loads=orjson.loads)
 
 
 async def _send_photo(
@@ -275,7 +283,7 @@ async def _send_photo(
         url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
         async with session.post(url, data=form) as resp:
             resp.raise_for_status()
-            return await resp.json()
+            return await resp.json(loads=orjson.loads)
     finally:
         await asyncio.to_thread(f.close)
 
@@ -292,7 +300,7 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://api.telegram.org/bot{TOKEN}/getWebhookInfo"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(loads=orjson.loads)
 
 
 async def _set_webhook(
@@ -315,7 +323,7 @@ async def _set_webhook(
     }
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(loads=orjson.loads)
 
 
 async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -331,7 +339,7 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     params = {"drop_pending_updates": True}
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(loads=orjson.loads)
 
 
 async def _get_updates(
@@ -359,7 +367,7 @@ async def _get_updates(
         params["limit"] = limit
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(loads=orjson.loads)
 
 
 async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -374,7 +382,7 @@ async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://api.telegram.org/bot{TOKEN}/getMe"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(loads=orjson.loads)
 
 
 async def _send_chat_action(
@@ -407,7 +415,7 @@ async def _send_chat_action(
         params["message_thread_id"] = message_thread_id
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
-        return await resp.json()
+        return await resp.json(loads=orjson.loads)
 
 
 def _internal_url() -> str | None:

@@ -9,6 +9,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import aiohttp
+import orjson
 from homeassistant.helpers import network
 
 DIRECTORY = "/media/zalo"
@@ -16,6 +17,11 @@ WWW_DIRECTORY = "/config/www/zalo"
 TOKEN = pyscript.config.get("zalo_bot_token")  # noqa: F821
 
 _session: aiohttp.ClientSession | None = None
+
+
+def _orjson_dumps(v, *, default=None):
+    return orjson.dumps(v, default=default).decode("utf-8")
+
 
 if not TOKEN:
     raise ValueError("Zalo bot token is missing")
@@ -82,7 +88,9 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
+        _session = aiohttp.ClientSession(
+            timeout=aiohttp.ClientTimeout(total=300), json_serialize=_orjson_dumps
+        )
     return _session
 
 
@@ -193,7 +201,7 @@ async def _send_message(
     payload = {"chat_id": chat_id, "text": text}
     async with session.post(url, json=payload) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _send_photo(
@@ -219,7 +227,7 @@ async def _send_photo(
         payload["caption"] = caption
     async with session.post(url, json=payload) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -234,7 +242,7 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/getWebhookInfo"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _set_webhook(
@@ -257,7 +265,7 @@ async def _set_webhook(
     }
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -272,7 +280,7 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/deleteWebhook"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _get_updates(
@@ -290,7 +298,7 @@ async def _get_updates(
     url = f"https://bot-api.zapps.me/bot{TOKEN}/getUpdates"
     async with session.post(url, json={"timeout": timeout}) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
@@ -305,7 +313,7 @@ async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
     url = f"https://bot-api.zapps.me/bot{TOKEN}/getMe"
     async with session.get(url) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _send_chat_action(
@@ -325,7 +333,7 @@ async def _send_chat_action(
     params = {"chat_id": chat_id, "action": action}
     async with session.post(url, json=params) as resp:
         resp.raise_for_status()
-        return await resp.json(content_type=None)
+        return await resp.json(content_type=None, loads=orjson.loads)
 
 
 async def _copy_to_www(file_path: str) -> tuple[str, str]:

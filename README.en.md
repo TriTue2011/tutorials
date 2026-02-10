@@ -30,6 +30,8 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
   - [Voice Assist - Favorite YouTube Channels](#voice-assist---favorite-youtube-channels)
   - [Voice Assist - Smart Fan Control](#voice-assist---smart-fan-control)
   - [Voice Assist - Smart AC Control](#voice-assist---smart-ac-control)
+  - [Voice Assist - Weather Forecast](#voice-assist---weather-forecast)
+  - [Voice Assist - Music Control](#voice-assist---music-control)
   - [Voice Assist - Device Location \& Find](#voice-assist---device-location--find)
   - [Voice Assist - Traffic Fine Lookup](#voice-assist---traffic-fine-lookup)
   - [Automatic Traffic Fine Notifications](#automatic-traffic-fine-notifications)
@@ -482,6 +484,54 @@ This blueprint solves these limitations entirely:
 - **Totally Hands-Free:** Just got home with your hands full? Simply say: _"Turn on the AC to 20 degrees, max wind"_ to enjoy cool air instantly without manual operation.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fac_mode_and_fan_control_full_llm.yaml)
+
+---
+
+## Voice Assist - Weather Forecast
+
+Retrieve home weather forecasts for specific periods (hourly or daily) using natural voice commands.
+
+**Key Features:**
+
+- **Detailed Info:** Supports both hourly and daily forecasts.
+- **Flexible Queries:** Ask about weather for today, tomorrow, the weekend, or specific times like "this afternoon" or "tomorrow night".
+- **Smart Averaging:** Automatically summarizes data to provide concise responses (e.g., average temperature, most frequent condition).
+
+**Example Voice Commands:**
+
+- "What's the weather like today?"
+- "Will it rain this afternoon?"
+- "What's the forecast for this weekend?"
+
+**Credit:**
+
+- Special thanks to the original blueprint from [TheFes/ha-blueprints](https://github.com/TheFes/ha-blueprints). This version has been refined and optimized specifically for use with Gemini.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fweather_forecast_full_llm.yaml)
+
+---
+
+## Voice Assist - Music Control
+
+Control music via Music Assistant using voice commands. Supports searching by track, album, artist, playlist, and radio.
+
+**Key Features:**
+
+- **Smart Search:** Finds and plays the exact content you request.
+- **Broad Support:** Works with tracks, albums, artists, playlists, and radio stations.
+- **Flexible Customization:** Supports selecting playback areas, specific players, and shuffle mode.
+
+**Example Voice Commands:**
+
+- "Play music by Queen in the living room."
+- "Start the 'Chill Hits' playlist and turn on shuffle."
+- "Play the song 'Bohemian Rhapsody'."
+
+**Credit:**
+
+- Special thanks to the original blueprint from [music-assistant/voice-support](https://github.com/music-assistant/voice-support). This version has been refined and optimized specifically for use with Gemini.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcontrol_music_full_llm.yaml)
 
 ---
 

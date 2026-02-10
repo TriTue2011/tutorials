@@ -29,7 +29,7 @@ USER_AGENTS_CACHE_KEY = "user_agents_list"
 
 DB_PATH = Path("/config/cache.db")
 
-GEMINI_MODEL = pyscript.config.get("gemini_model", default="gemini-2.5-flash")  # noqa: F821
+GEMINI_MODEL = pyscript.config.get("gemini_model", "gemini-2.5-flash")  # noqa: F821
 GEMINI_API_KEY = pyscript.config.get("gemini_api_key")  # noqa: F821
 
 if not GEMINI_API_KEY:

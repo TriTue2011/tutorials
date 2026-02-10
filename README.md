@@ -30,6 +30,8 @@ Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ s
   - [Voice Assist - Theo dõi Kênh YouTube Yêu thích](#voice-assist---theo-dõi-kênh-youtube-yêu-thích)
   - [Voice Assist - Điều khiển Quạt Thông minh](#voice-assist---điều-khiển-quạt-thông-minh)
   - [Voice Assist - Điều khiển Điều hòa Thông minh](#voice-assist---điều-khiển-điều-hòa-thông-minh)
+  - [Voice Assist - Dự báo Thời tiết](#voice-assist---dự-báo-thời-tiết)
+  - [Voice Assist - Điều khiển Nhạc](#voice-assist---điều-khiển-nhạc)
   - [Voice Assist - Định vị \& Tìm kiếm Thiết bị](#voice-assist---định-vị--tìm-kiếm-thiết-bị)
   - [Voice Assist - Tra cứu Phạt nguội](#voice-assist---tra-cứu-phạt-nguội)
   - [Tự động Cảnh báo Phạt nguội](#tự-động-cảnh-báo-phạt-nguội)
@@ -482,6 +484,54 @@ Blueprint này giải quyết triệt để các hạn chế đó:
 - **Rảnh tay tuyệt đối:** Vừa đi làm về, tay xách nách mang, chỉ cần nói một câu: _"Bật máy lạnh 20 độ gió to nhất"_ để tận hưởng không khí mát lạnh ngay lập tức mà không cần thao tác thủ công.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fac_mode_and_fan_control_full_llm.yaml)
+
+---
+
+## Voice Assist - Dự báo Thời tiết
+
+Tra cứu dự báo thời tiết tại nhà cho các khoảng thời gian cụ thể (theo giờ hoặc theo ngày) bằng giọng nói.
+
+**Tính năng nổi bật:**
+
+- **Thông tin chi tiết:** Hỗ trợ dự báo theo giờ (hourly) hoặc theo ngày (daily).
+- **Linh hoạt:** Hỏi về thời tiết hôm nay, ngày mai, cuối tuần, hoặc một thời điểm cụ thể như "chiều nay", "tối mai".
+- **Tính toán trung bình:** Tự động tổng hợp dữ liệu để trả lời ngắn gọn (ví dụ: nhiệt độ trung bình, tình trạng phổ biến nhất).
+
+**Ví dụ lệnh thoại:**
+
+- "Thời tiết hôm nay thế nào?"
+- "Chiều nay có mưa không?"
+- "Dự báo thời tiết cuối tuần này."
+
+**Credit:**
+
+- Gửi lời cảm ơn đặc biệt đến blueprint gốc từ [TheFes/ha-blueprints](https://github.com/TheFes/ha-blueprints). Phiên bản này đã được tinh chỉnh và tối ưu hóa riêng cho Gemini.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fweather_forecast_full_llm.yaml)
+
+---
+
+## Voice Assist - Điều khiển Nhạc
+
+Điều khiển âm nhạc qua Music Assistant bằng giọng nói. Hỗ trợ tìm kiếm theo bài hát, album, nghệ sĩ, danh sách phát và radio.
+
+**Tính năng nổi bật:**
+
+- **Tìm kiếm thông minh:** Tìm và phát chính xác nội dung bạn yêu cầu.
+- **Hỗ trợ đa dạng:** Làm việc với track, album, artist, playlist và radio.
+- **Tùy chỉnh linh hoạt:** Hỗ trợ chọn khu vực phát (area), thiết bị phát (player) và chế độ trộn bài (shuffle).
+
+**Ví dụ lệnh thoại:**
+
+- "Phát nhạc của Sơn Tùng M-TP ở phòng khách."
+- "Bật playlist Nhạc Trẻ Remix và cho trộn bài."
+- "Phát bài hát Lối Nhỏ."
+
+**Credit:**
+
+- Gửi lời cảm ơn đặc biệt đến blueprint gốc từ [music-assistant/voice-support](https://github.com/music-assistant/voice-support). Phiên bản này đã được tinh chỉnh và tối ưu hóa riêng cho Gemini.
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fcontrol_music_full_llm.yaml)
 
 ---
 

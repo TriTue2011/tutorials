@@ -251,7 +251,7 @@ async def _refresh_user_agents() -> list[str]:
             )
             async with resp:
                 resp.raise_for_status()
-                agents = await resp.json()
+                agents = await resp.json(loads=orjson.loads)
                 if isinstance(agents, list) and agents:
                     await _cache_set(
                         USER_AGENTS_CACHE_KEY,
@@ -651,7 +651,9 @@ async def _check_license_plate(
                 )
                 async with resp_2nd:
                     resp_2nd.raise_for_status()
-                    response_2nd_json = await resp_2nd.json(content_type="text/html")
+                    response_2nd_json = await resp_2nd.json(
+                        content_type="text/html", loads=orjson.loads
+                    )
                     url = response_2nd_json.get("href")
 
                     if not url:

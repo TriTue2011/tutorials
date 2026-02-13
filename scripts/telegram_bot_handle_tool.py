@@ -18,10 +18,6 @@ if TOKEN:
 _session: aiohttp.ClientSession | None = None
 
 
-def _orjson_dumps(v, *, default=None):
-    return orjson.dumps(v, default=default).decode("utf-8")
-
-
 if not TOKEN:
     raise ValueError("Telegram bot token is missing")
 
@@ -107,9 +103,7 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(total=300), json_serialize=_orjson_dumps
-        )
+        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
     return _session
 
 
@@ -133,7 +127,11 @@ async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
         File path on Telegram's file server, or None.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/getFile"
-    resp = await session.post(url, json={"file_id": file_id})
+    payload = {"file_id": file_id}
+    data = orjson.dumps(payload).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
     async with resp:
         resp.raise_for_status()
         data = await resp.json(loads=orjson.loads)
@@ -222,7 +220,10 @@ async def _send_message(
                 f"Unsupported parse_mode: {parse_mode}. Allowed: {', '.join(PARSE_MODES)}"
             )
         payload["parse_mode"] = parse_mode
-    resp = await session.post(url, json=payload)
+    data = orjson.dumps(payload).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
     async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
@@ -328,7 +329,10 @@ async def _set_webhook(
         "url": f"{base_url}/api/webhook/{webhook_id}",
         "drop_pending_updates": True,
     }
-    resp = await session.post(url, json=params)
+    data = orjson.dumps(params).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
     async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
@@ -345,7 +349,10 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     """
     url = f"https://api.telegram.org/bot{TOKEN}/deleteWebhook"
     params = {"drop_pending_updates": True}
-    resp = await session.post(url, json=params)
+    data = orjson.dumps(params).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
     async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
@@ -374,7 +381,10 @@ async def _get_updates(
         params["offset"] = offset
     if limit is not None:
         params["limit"] = limit
-    resp = await session.post(url, json=params)
+    data = orjson.dumps(params).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
     async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
@@ -424,7 +434,10 @@ async def _send_chat_action(
     }
     if message_thread_id:
         params["message_thread_id"] = message_thread_id
-    resp = await session.post(url, json=params)
+    data = orjson.dumps(params).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
     async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)

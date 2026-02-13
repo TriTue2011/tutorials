@@ -246,9 +246,10 @@ async def _refresh_user_agents() -> list[str]:
     """Fetch user agents from remote and update cache."""
     try:
         async with aiohttp.ClientSession() as ss:
-            async with ss.get(
+            resp = await ss.get(
                 USER_AGENTS_URL, timeout=aiohttp.ClientTimeout(total=60)
-            ) as resp:
+            )
+            async with resp:
                 resp.raise_for_status()
                 agents = await resp.json()
                 if isinstance(agents, list) and agents:
@@ -480,9 +481,10 @@ async def _get_captcha(
         (BytesIO, None) on success or (None, error_message) on failure.
     """
     try:
-        async with ss.get(url, timeout=aiohttp.ClientTimeout(total=60)) as response:
-            response.raise_for_status()
-            content = await response.read()
+        resp = await ss.get(url, timeout=aiohttp.ClientTimeout(total=60))
+        async with resp:
+            resp.raise_for_status()
+            content = await resp.read()
             return BytesIO(content), None
     except asyncio.TimeoutError as error:
         return None, f"TimeoutError during retrieve CAPTCHA image: {error}"
@@ -621,10 +623,11 @@ async def _check_license_plate(
 
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=SSL_CTX)) as ss:
         try:
-            async with ss.get(
+            resp_1st = await ss.get(
                 GET_URL, headers=headers_get, timeout=aiohttp.ClientTimeout(total=60)
-            ) as response_1st:
-                response_1st.raise_for_status()
+            )
+            async with resp_1st:
+                resp_1st.raise_for_status()
                 image, error = await _get_captcha(ss, CAPTCHA_URL)
 
                 if not image:
@@ -640,16 +643,15 @@ async def _check_license_plate(
 
                 data = f"BienKS={license_plate}&Xe={vehicle_type}&captcha={captcha}&ipClient=9.9.9.91&cUrl=1"
 
-                async with ss.post(
+                resp_2nd = await ss.post(
                     url=POST_URL,
                     headers=headers_post,
                     data=data,
                     timeout=aiohttp.ClientTimeout(total=60),
-                ) as response_2nd:
-                    response_2nd.raise_for_status()
-                    response_2nd_json = await response_2nd.json(
-                        content_type="text/html"
-                    )
+                )
+                async with resp_2nd:
+                    resp_2nd.raise_for_status()
+                    response_2nd_json = await resp_2nd.json(content_type="text/html")
                     url = response_2nd_json.get("href")
 
                     if not url:
@@ -666,13 +668,14 @@ async def _check_license_plate(
                                 "error": f"Retry limit ({retry_count}/{RETRY_LIMIT}) reached"
                             }
 
-                    async with ss.get(
+                    resp_3rd = await ss.get(
                         url=url,
                         headers=headers_get,
                         timeout=aiohttp.ClientTimeout(total=60),
-                    ) as response_3rd:
-                        response_3rd.raise_for_status()
-                        text_content = await response_3rd.text()
+                    )
+                    async with resp_3rd:
+                        resp_3rd.raise_for_status()
+                        text_content = await resp_3rd.text()
                         response = _extract_violations_from_html(text_content, url)
 
                         if response and response.get("status") == "success":

@@ -12,6 +12,8 @@ from homeassistant.helpers import network
 
 DIRECTORY = "/media/telegram"
 TOKEN = pyscript.config.get("telegram_bot_token")  # noqa: F821
+if TOKEN:
+    TOKEN = TOKEN.strip()
 
 _session: aiohttp.ClientSession | None = None
 
@@ -131,7 +133,8 @@ async def _get_file(session: aiohttp.ClientSession, file_id: str) -> str | None:
         File path on Telegram's file server, or None.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/getFile"
-    async with session.post(url, json={"file_id": file_id}) as resp:
+    resp = await session.post(url, json={"file_id": file_id})
+    async with resp:
         resp.raise_for_status()
         data = await resp.json(loads=orjson.loads)
     return data.get("result", {}).get("file_path")
@@ -155,7 +158,8 @@ async def _download_file(
             return None, "Unable to retrieve the file_path from Telegram."
 
         url = f"https://api.telegram.org/file/bot{TOKEN}/{online_file_path}"
-        async with session.get(url) as resp:
+        resp = await session.get(url)
+        async with resp:
             resp.raise_for_status()
 
             file_name = os.path.basename(online_file_path)
@@ -218,7 +222,8 @@ async def _send_message(
                 f"Unsupported parse_mode: {parse_mode}. Allowed: {', '.join(PARSE_MODES)}"
             )
         payload["parse_mode"] = parse_mode
-    async with session.post(url, json=payload) as resp:
+    resp = await session.post(url, json=payload)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
 
@@ -281,7 +286,8 @@ async def _send_photo(
         )
 
         url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-        async with session.post(url, data=form) as resp:
+        resp = await session.post(url, data=form)
+        async with resp:
             resp.raise_for_status()
             return await resp.json(loads=orjson.loads)
     finally:
@@ -298,7 +304,8 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
         Telegram API JSON response as a dict.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/getWebhookInfo"
-    async with session.get(url) as resp:
+    resp = await session.get(url)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
 
@@ -321,7 +328,8 @@ async def _set_webhook(
         "url": f"{base_url}/api/webhook/{webhook_id}",
         "drop_pending_updates": True,
     }
-    async with session.post(url, json=params) as resp:
+    resp = await session.post(url, json=params)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
 
@@ -337,7 +345,8 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
     """
     url = f"https://api.telegram.org/bot{TOKEN}/deleteWebhook"
     params = {"drop_pending_updates": True}
-    async with session.post(url, json=params) as resp:
+    resp = await session.post(url, json=params)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
 
@@ -365,7 +374,8 @@ async def _get_updates(
         params["offset"] = offset
     if limit is not None:
         params["limit"] = limit
-    async with session.post(url, json=params) as resp:
+    resp = await session.post(url, json=params)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
 
@@ -380,7 +390,8 @@ async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
         Telegram API JSON response as a dict.
     """
     url = f"https://api.telegram.org/bot{TOKEN}/getMe"
-    async with session.get(url) as resp:
+    resp = await session.get(url)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
 
@@ -413,7 +424,8 @@ async def _send_chat_action(
     }
     if message_thread_id:
         params["message_thread_id"] = message_thread_id
-    async with session.post(url, json=params) as resp:
+    resp = await session.post(url, json=params)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(loads=orjson.loads)
 

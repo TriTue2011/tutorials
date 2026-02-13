@@ -119,7 +119,8 @@ async def _download_file(
         Full file path of the saved file, or None on failure.
     """
     try:
-        async with session.get(url) as resp:
+        resp = await session.get(url)
+        async with resp:
             resp.raise_for_status()
             content_type = resp.headers.get("Content-Type", "")
             ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""

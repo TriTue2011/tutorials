@@ -15,12 +15,10 @@ from homeassistant.helpers import network
 DIRECTORY = "/media/zalo"
 WWW_DIRECTORY = "/config/www/zalo"
 TOKEN = pyscript.config.get("zalo_bot_token")  # noqa: F821
+if TOKEN:
+    TOKEN = TOKEN.strip()
 
 _session: aiohttp.ClientSession | None = None
-
-
-def _orjson_dumps(v, *, default=None):
-    return orjson.dumps(v, default=default).decode("utf-8")
 
 
 if not TOKEN:
@@ -88,9 +86,7 @@ async def _ensure_session() -> aiohttp.ClientSession:
     """
     global _session
     if _session is None or _session.closed:
-        _session = aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(total=300), json_serialize=_orjson_dumps
-        )
+        _session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=300))
     return _session
 
 
@@ -148,7 +144,8 @@ async def _download_file(
         Full file path of the saved file, or None on failure.
     """
     try:
-        async with session.get(url) as resp:
+        resp = await session.get(url)
+        async with resp:
             resp.raise_for_status()
             content_type = resp.headers.get("Content-Type", "")
             ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
@@ -199,7 +196,11 @@ async def _send_message(
     if len(text) > 2000:
         text = text[:1997] + "..."
     payload = {"chat_id": chat_id, "text": text}
-    async with session.post(url, json=payload) as resp:
+    data = orjson.dumps(payload).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 
@@ -225,7 +226,11 @@ async def _send_photo(
     payload: dict[str, Any] = {"chat_id": chat_id, "photo": photo_url}
     if caption:
         payload["caption"] = caption
-    async with session.post(url, json=payload) as resp:
+    data = orjson.dumps(payload).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 
@@ -240,7 +245,8 @@ async def _get_webhook_info(session: aiohttp.ClientSession) -> dict[str, Any]:
         Zalo API JSON response as a dict.
     """
     url = f"https://bot-api.zapps.me/bot{TOKEN}/getWebhookInfo"
-    async with session.get(url) as resp:
+    resp = await session.get(url)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 
@@ -263,7 +269,11 @@ async def _set_webhook(
         "url": f"{base_url}/api/webhook/{webhook_id}",
         "secret_token": secrets.token_urlsafe(),  # A required parameter but ignored by Home Assistant.
     }
-    async with session.post(url, json=params) as resp:
+    data = orjson.dumps(params).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 
@@ -278,7 +288,8 @@ async def _delete_webhook(session: aiohttp.ClientSession) -> dict[str, Any]:
         Zalo API JSON response as a dict.
     """
     url = f"https://bot-api.zapps.me/bot{TOKEN}/deleteWebhook"
-    async with session.get(url) as resp:
+    resp = await session.get(url)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 
@@ -296,7 +307,12 @@ async def _get_updates(
         Zalo API JSON response as a dict.
     """
     url = f"https://bot-api.zapps.me/bot{TOKEN}/getUpdates"
-    async with session.post(url, json={"timeout": timeout}) as resp:
+    payload = {"timeout": timeout}
+    data = orjson.dumps(payload).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 
@@ -311,7 +327,8 @@ async def _get_me(session: aiohttp.ClientSession) -> dict[str, Any]:
         Zalo API JSON response as a dict.
     """
     url = f"https://bot-api.zapps.me/bot{TOKEN}/getMe"
-    async with session.get(url) as resp:
+    resp = await session.get(url)
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 
@@ -331,7 +348,11 @@ async def _send_chat_action(
     """
     url = f"https://bot-api.zapps.me/bot{TOKEN}/sendChatAction"
     params = {"chat_id": chat_id, "action": action}
-    async with session.post(url, json=params) as resp:
+    data = orjson.dumps(params).decode("utf-8")
+    resp = await session.post(
+        url, data=data, headers={"Content-Type": "application/json"}
+    )
+    async with resp:
         resp.raise_for_status()
         return await resp.json(content_type=None, loads=orjson.loads)
 

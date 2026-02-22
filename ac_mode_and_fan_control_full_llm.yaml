@@ -104,7 +104,7 @@ mode: parallel
 max_exceeded: silent
 description: Controls mode, temperature, and fan speed for air conditioners. Supports auto, cool, heat, dry, and fan_only modes.
 variables:
-  version: 20260207
+  version: 20260222
 fields:
   ac_entities:
     name: AC Entities
@@ -212,9 +212,9 @@ sequence:
                  {% set def_min = 16 %}
                  {% set def_max = 30 %}
                {% endif %}
-               {% set min_t = state_attr(entity_id, 'min_temp') | default(def_min) | float %}
-               {% set max_t = state_attr(entity_id, 'max_temp') | default(def_max) | float %}
-               {% set step = state_attr(entity_id, 'target_temp_step') | default(1) | float %}
+               {% set min_t = state_attr(entity_id, 'min_temp') | default(def_min) | float(def_min) %}
+               {% set max_t = state_attr(entity_id, 'max_temp') | default(def_max) | float(def_max) %}
+               {% set step = state_attr(entity_id, 'target_temp_step') | default(1) | float(1) %}
                {% if step == 1 %}
                   {% set t_val = raw_t_val | round(0) %}
                {% else %}

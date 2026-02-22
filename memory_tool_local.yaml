@@ -175,7 +175,7 @@ mode: single
 max_exceeded: silent
 
 variables:
-  version: 20251208
+  version: 20260222
   store_key: "memory_tool"
   trigger_id: "{{ (trigger.id | string) if (trigger.id is defined and (trigger.id | length) > 0) else '' }}"
   key_phrase: "{{ trigger.slots.key_phrase | default('', true) }}"
@@ -775,8 +775,8 @@ actions:
                               results_list: "{{ resume_payload.results | default([], true) }}"
                               page: "{{ resume_payload.page | default(0, true) }}"
                               prompt_text: "{{ resume_payload.prompt }}"
-                              start_idx: "{{ (page | int) * max_choices }}"
-                              end_idx: "{{ [((page | int) * max_choices) + max_choices, (results_list | length)] | min }}"
+                              start_idx: "{{ (page | int(0)) * max_choices }}"
+                              end_idx: "{{ [((page | int(0)) * max_choices) + max_choices, (results_list | length)] | min }}"
                               page_items: "{{ results_list[start_idx:end_idx] }}"
                               pick_num: >-
                                 {% if (resume_sentence | int(0)) in numbers -%}
@@ -800,8 +800,8 @@ actions:
                                 sequence:
                                   - variables:
                                       total_results: "{{ results_list | length }}"
-                                      next_page: "{{ (page | int) + 1 }}"
-                                      next_start: "{{ ((page | int) + 1) * max_choices }}"
+                                      next_page: "{{ (page | int(0)) + 1 }}"
+                                      next_start: "{{ ((page | int(0)) + 1) * max_choices }}"
                                   - choose:
                                       - conditions:
                                           - condition: template
@@ -850,7 +850,7 @@ actions:
                                     value_template: "{{ trigger_id == 'resume_back' }}"
                                 sequence:
                                   - variables:
-                                      prev_page: "{{ (page | int) - 1 }}"
+                                      prev_page: "{{ (page | int(0)) - 1 }}"
                                   - choose:
                                       - conditions:
                                           - condition: template

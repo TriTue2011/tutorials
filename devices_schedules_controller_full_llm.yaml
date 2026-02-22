@@ -141,7 +141,7 @@ mode: parallel
 max_exceeded: silent
 description: Advanced controller for managing multiple device timers. Can start, cancel, pause, resume, or list scheduled actions for various entities.
 variables:
-  version: 20260207
+  version: 20260222
 fields:
   mode:
     name: Mode
@@ -313,25 +313,25 @@ sequence:
       _duration_seconds: >-
         {% set raw = _duration_raw %}
         {% if raw is number %}
-          {{ raw | round(0) | int }}
+          {{ raw | round(0) | int(0) }}
         {% elif raw is string and raw | trim | length > 0 %}
           {% set td = as_timedelta(raw) %}
           {% if td is not none and td is not string %}
-            {{ td.total_seconds() | round(0) | int }}
+            {{ td.total_seconds() | round(0) | int(0) }}
           {% else %}
             {% set text = raw | trim %}
             {% set parts = text.split(':') %}
             {% if parts | length >= 3 %}
-              {% set hours = (parts[-3] | default('0') | float) %}
-              {% set minutes = (parts[-2] | default('0') | float) %}
-              {% set seconds = (parts[-1] | default('0') | float) %}
-              {{ (hours * 3600 + minutes * 60 + seconds) | round(0) | int }}
+              {% set hours = (parts[-3] | default('0') | float(0)) %}
+              {% set minutes = (parts[-2] | default('0') | float(0)) %}
+              {% set seconds = (parts[-1] | default('0') | float(0)) %}
+              {{ (hours * 3600 + minutes * 60 + seconds) | round(0) | int(0) }}
             {% elif parts | length == 2 %}
-              {% set minutes = (parts[0] | default('0') | float) %}
-              {% set seconds = (parts[1] | default('0') | float) %}
-              {{ (minutes * 60 + seconds) | round(0) | int }}
+              {% set minutes = (parts[0] | default('0') | float(0)) %}
+              {% set seconds = (parts[1] | default('0') | float(0)) %}
+              {{ (minutes * 60 + seconds) | round(0) | int(0) }}
             {% else %}
-              {{ parts[0] | default('0') | float | round(0) | int }}
+              {{ parts[0] | float(0) | round(0) | int(0) }}
             {% endif %}
           {% endif %}
         {% else %}
@@ -369,7 +369,7 @@ sequence:
           {% set num = (v | float(0)) %}
           {% if num < 0 %}{% set num = 0 %}{% endif %}
           {% if num > 100 %}{% set num = 100 %}{% endif %}
-          {{ num | round(0) | int }}
+          {{ num | round(0) | int(0) }}
         {% elif a == 'set_volume' %}
           {% set num = (v | float(0)) %}
           {% if num < 0 %}{% set num = 0 %}{% endif %}

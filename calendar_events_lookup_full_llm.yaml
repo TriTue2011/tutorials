@@ -80,7 +80,7 @@ mode: parallel
 max_exceeded: silent
 description: Retrieves upcoming or past calendar events for a specific time period. Useful for checking schedules and appointments.
 variables:
-  version: 20260207
+  version: 20260222
 fields:
   time_period_type:
     name: Time Period Type
@@ -120,7 +120,7 @@ sequence:
       end: >-
         {% if start != 'n/a' %}
         {% set start = as_datetime(start) %}
-        {% set add = time_period_length | default(1) | abs %}
+        {% set add = (time_period_length | default(1) | float(1)) | abs %}
         {% set type = time_period_type if (time_period_type | default) in ['daily', 'hourly'] else 'daily' %}
         {{ (start + timedelta(days = add if type == 'daily' else 0, hours = add if type == 'hourly' else 0)) | as_local }}
         {% endif %}

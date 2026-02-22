@@ -91,7 +91,7 @@ max: !input simultaneous
 max_exceeded: silent
 
 variables:
-  version: 20260207
+  version: 20260222
 
 fields:
   mode:
@@ -369,7 +369,7 @@ sequence:
                                     key: "{{ _prefix }}{{ repeat.item.id }}"
                                     value: >-
                                       {{ dict(repeat.item, **{'status':'canceled','canceled_at': now().isoformat()}) }}
-                                    ttl_seconds: "{{ _buf|int }}"
+                                    ttl_seconds: "{{ _buf|int(0) }}"
                                   response_variable: cache_set_timer_id
                                 - variables:
                                     _IDX_ALIVE: >-
@@ -469,7 +469,7 @@ sequence:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ _dur|int <= 0 }}"
+                    value_template: "{{ _dur|int(0) <= 0 }}"
                 sequence:
                   - variables:
                       _stop_result: >-
@@ -493,7 +493,7 @@ sequence:
                   {% set entropy = '%05x' % (range(100000) | random) %}
                   {{ slug ~ '__' ~ ts ~ '_' ~ entropy }}
                 {% endif %}
-              _end_dt: "{{ now() + timedelta(seconds=_dur|int) }}"
+              _end_dt: "{{ now() + timedelta(seconds=_dur|int(0)) }}"
               _end_iso: "{{ as_datetime(_end_dt).isoformat() }}"
               _item: >-
                 {{ dict(
@@ -502,7 +502,7 @@ sequence:
                   status='running',
                   created_at=now().isoformat(),
                   end=_end_iso,
-                  remaining=_dur|int,
+                  remaining=_dur|int(0),
                   actions=_new_actions
 
                 ) }}
@@ -510,7 +510,7 @@ sequence:
             data:
               key: "{{ _prefix }}{{ _id }}"
               value: "{{ _item }}"
-              ttl_seconds: "{{ (_dur|int) + (_buf|int) }}"
+              ttl_seconds: "{{ (_dur|int(0)) + (_buf|int(0)) }}"
             response_variable: cache_set_timer_id
 
           # Update index (append id if missing)
@@ -541,7 +541,7 @@ sequence:
                     - trigger: event
                       event_type: device_timer_signal
                       event_data: { timer_id: "{{ _id }}" }
-                  timeout: "{{ (as_datetime(_end_iso) - now()).total_seconds()|int + 5 }}"
+                  timeout: "{{ (as_datetime(_end_iso) - now()).total_seconds()|int(0) + 5 }}"
                   continue_on_timeout: true
                 - variables:
                     _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
@@ -553,7 +553,7 @@ sequence:
                       sequence:
                         - variables:
                             _wait_new_end: "{{ wait.trigger.event.data.new_end | default(_item.end, true) }}"
-                            _wait_new_remaining: "{{ (wait.trigger.event.data.new_remaining | default(_item.remaining, true)) | int }}"
+                            _wait_new_remaining: "{{ (wait.trigger.event.data.new_remaining | default(_item.remaining, true)) | int(0) }}"
                             _item: >-
                               {{ dict(_item, **{'end': _wait_new_end, 'remaining': _wait_new_remaining}) }}
                             _end_iso: "{{ _wait_new_end }}"
@@ -588,7 +588,7 @@ sequence:
                             key: "{{ _prefix }}{{ _id }}"
                             value: >-
                               {{ dict(_item, **{'status':'canceled','canceled_at': now().isoformat()}) }}
-                            ttl_seconds: "{{ _buf|int }}"
+                            ttl_seconds: "{{ _buf|int(0) }}"
                           response_variable: cache_set_timer_id
                         - variables:
                             _stop_result: >-
@@ -641,7 +641,7 @@ sequence:
               key: "{{ _prefix }}{{ _id }}"
               value: >-
                 {{ dict(_item, **{'status':'expired','expired_at': now().isoformat(),'remaining':0}) }}
-              ttl_seconds: "{{ _buf|int }}"
+              ttl_seconds: "{{ _buf|int(0) }}"
             response_variable: cache_set_timer_id
           - variables:
               _stop_result: >-
@@ -741,7 +741,7 @@ sequence:
               key: "{{ _prefix }}{{ _id_resolved }}"
               value: >-
                 {{ dict(_T2, **{'status':'canceled','canceled_at':now().isoformat()}) }}
-              ttl_seconds: "{{ _buf|int }}"
+              ttl_seconds: "{{ _buf|int(0) }}"
             response_variable: cache_set_timer_id
           # Notify running instance to stop
           - event: device_timer_signal
@@ -851,7 +851,7 @@ sequence:
                           data:
                             key: "{{ _prefix }}{{ _cancel_all_id }}"
                             value: "{{ _cancel_all_updated }}"
-                            ttl_seconds: "{{ _buf|int }}"
+                            ttl_seconds: "{{ _buf|int(0) }}"
                           response_variable: cache_set_timer_id
                         - event: device_timer_signal
                           event_data:
@@ -1047,7 +1047,7 @@ sequence:
                     response_variable: _stop_result
           - variables:
               _T: "{{ _tres_data }}"
-              _remain: "{{ (as_timestamp(as_datetime(_T.end | default(now()))) - as_timestamp(now())) | int }}"
+              _remain: "{{ (as_timestamp(as_datetime(_T.end | default(now()))) - as_timestamp(now())) | int(0) }}"
               _remain2: "{{ iif(_remain>0, _remain, 0) }}"
           - action: pyscript.memory_cache_set
             data:
@@ -1158,7 +1158,7 @@ sequence:
                     - trigger: event
                       event_type: device_timer_signal
                       event_data: { timer_id: "{{ _id_resolved }}" }
-                  timeout: "{{ (as_datetime(_current_end_iso) - now()).total_seconds()|int + 5 }}"
+                  timeout: "{{ (as_datetime(_current_end_iso) - now()).total_seconds()|int(0) + 5 }}"
                   continue_on_timeout: true
                 - variables:
                     _wait_is_event: "{{ wait.trigger is not none and wait.trigger.platform == 'event' }}"
@@ -1170,7 +1170,7 @@ sequence:
                       sequence:
                         - variables:
                             _wait_new_end: "{{ wait.trigger.event.data.new_end | default(_T.end, true) }}"
-                            _wait_new_remaining: "{{ (wait.trigger.event.data.new_remaining | default(_T.remaining, true)) | int }}"
+                            _wait_new_remaining: "{{ (wait.trigger.event.data.new_remaining | default(_T.remaining, true)) | int(0) }}"
                             _T: >-
                               {{ dict(_T, **{'end': _wait_new_end, 'remaining': _wait_new_remaining}) }}
                             _current_end_iso: "{{ _wait_new_end }}"
@@ -1204,7 +1204,7 @@ sequence:
                             key: "{{ _prefix }}{{ _id_resolved }}"
                             value: >-
                               {{ dict(_T, **{'status':'canceled','canceled_at': now().isoformat(),'remaining':0}) }}
-                            ttl_seconds: "{{ _buf|int }}"
+                            ttl_seconds: "{{ _buf|int(0) }}"
                           response_variable: cache_set_timer_id
                         - variables:
                             _stop_result: >-
@@ -1242,7 +1242,7 @@ sequence:
               key: "{{ _prefix }}{{ _id_resolved }}"
               value: >-
                 {{ dict(_T, **{'status':'expired','expired_at': now().isoformat(),'end': _current_end_iso,'remaining':0}) }}
-              ttl_seconds: "{{ _buf|int }}"
+              ttl_seconds: "{{ _buf|int(0) }}"
             response_variable: cache_set_timer_id
           # Remove from index
           - action: pyscript.memory_cache_index_update
@@ -1307,7 +1307,7 @@ sequence:
                     {% if st == 'running' %}
                       {% set remain_calc = (as_timestamp(as_datetime(t['end'] | default(now()))) - as_timestamp(now())) | int(0) %}
                     {% else %}
-                      {% set remain_calc = t['remaining'] | default(0) | int %}
+                      {% set remain_calc = t['remaining'] | default(0) | int(0) %}
                     {% endif %}
                     {% if remain_calc < 0 %}
                       {% set remain_calc = 0 %}

@@ -121,7 +121,7 @@ mode: parallel
 max_exceeded: silent
 description: Comprehensive fan control for adjusting speed (percentage/relative) and oscillation state for specified fans.
 variables:
-  version: 20260207
+  version: 20260222
 fields:
   fan_entities:
     name: Fan Entities
@@ -280,8 +280,8 @@ sequence:
                     entity_id: "{{ devices[repeat.index - 1] }}"
                   data:
                     percentage: >-
-                      {% if (percentage | int) > (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) -%}
-                      {{ percentage | int }}
+                      {% if (percentage | int(0)) > (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) -%}
+                      {{ percentage | int(0) }}
                       {% else -%}
                       {{ state_attr(devices[repeat.index - 1], 'percentage_step') | int(1) }}
                       {% endif -%}
@@ -327,7 +327,7 @@ sequence:
         success: >-
           {% set msgs = namespace(values=[]) -%}
           {% if (percentage | int(0)) >= 1 -%}
-          {% set msgs.values = msgs.values + ['Set fan speed to ' ~ (percentage | int) ~ '%'] -%}
+          {% set msgs.values = msgs.values + ['Set fan speed to ' ~ (percentage | int(0)) ~ '%'] -%}
           {% elif speed_adjustment is boolean and speed_adjustment -%}
           {% set msgs.values = msgs.values + ['Increased fan speed'] -%}
           {% elif speed_adjustment is boolean and (not speed_adjustment) -%}

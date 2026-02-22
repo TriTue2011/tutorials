@@ -112,6 +112,8 @@ blueprint:
 mode: parallel
 max_exceeded: silent
 description: Retrieves home weather forecasts for specific periods (hourly or daily). Mandatory input for period type, length, start date, and time. Use 'daily' for full days and 'hourly' for partial day requests.
+variables:
+  version: 20260222
 fields:
   time_period_type:
     name: Time Period Type
@@ -144,7 +146,6 @@ fields:
     required: true
 sequence:
   - variables:
-      version: 20260208
       weather_entity: !input weather_entity
       supported: >
         {% set sf = state_attr(weather_entity, 'supported_features') | int(0) %}

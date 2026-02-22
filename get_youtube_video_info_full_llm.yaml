@@ -102,7 +102,7 @@ mode: parallel
 max_exceeded: silent
 description: Fetches a list of the most recent video uploads from one or more specified YouTube channels within a set timeframe.
 variables:
-  version: 20260207
+  version: 20260222
 fields:
   entities:
     name: Entities
@@ -123,7 +123,7 @@ sequence:
       entity_aliases: !input entity_aliases
       short_videos: !input short_videos
       entities: "{{ entities | default('') | trim }}"
-      period_length: "{{ period_length | default(3) | abs }}"
+      period_length: "{{ (period_length | default(3) | float(3)) | abs }}"
   - alias: Check if variables were set correctly
     if:
       - condition: template

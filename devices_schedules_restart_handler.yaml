@@ -71,7 +71,7 @@ mode: queued
 max_exceeded: silent
 
 variables:
-  version: 20260207
+  version: 20260222
 
 triggers:
   - trigger: homeassistant
@@ -126,7 +126,7 @@ actions:
                     _end_dt: "{{ as_datetime(_end_iso, none) }}"
                     _remaining: >-
                       {% if _end_dt is not none %}
-                         {{ (as_timestamp(_end_dt) - as_timestamp(now())) | int }}
+                         {{ (as_timestamp(_end_dt) - as_timestamp(now())) | int(0) }}
                       {% else %}
                          -1
                       {% endif %}
@@ -148,7 +148,7 @@ actions:
                                   }
                                 )
                               }}
-                            _ttl_seconds: "{{ (_remaining | int) + (_buf | int) }}"
+                            _ttl_seconds: "{{ (_remaining | int(0)) + (_buf | int(0)) }}"
 
                         - action: pyscript.memory_cache_set
                           data:

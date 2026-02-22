@@ -110,7 +110,7 @@ mode: parallel
 max_exceeded: silent
 description: Simple fan speed control (percentage/relative) for specified fans. Use for basic speed adjustments.
 variables:
-  version: 20260207
+  version: 20260222
 fields:
   fan_entities:
     name: Fan Entities
@@ -195,7 +195,7 @@ sequence:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ (percentage | int) >= 1 }}"
+            value_template: "{{ (percentage | int(0)) >= 1 }}"
         sequence:
           - repeat:
               count: "{{ devices | length }}"
@@ -205,8 +205,8 @@ sequence:
                     entity_id: "{{ devices[repeat.index - 1] }}"
                   data:
                     percentage: >-
-                      {% if (percentage | int) > (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) -%}
-                      {{ percentage | int }}
+                      {% if (percentage | int(0)) > (state_attr(devices[repeat.index - 1], 'percentage_step') | int(1)) -%}
+                      {{ percentage | int(0) }}
                       {% else -%}
                       {{ state_attr(devices[repeat.index - 1], 'percentage_step') | int(1) }}
                       {% endif -%}
@@ -240,8 +240,8 @@ sequence:
     variables:
       response:
         success: >-
-          {%- if (percentage | int) >= 1 -%}
-          Set fan speed to {{ percentage | int }}% for {{ friendly_fans |
+          {%- if (percentage | int(0)) >= 1 -%}
+          Set fan speed to {{ percentage | int(0) }}% for {{ friendly_fans |
           join(', ') }}.
           {%- elif speed_adjustment is boolean and speed_adjustment -%}
           Increased fan speed for {{ friendly_fans | join(', ') }}.

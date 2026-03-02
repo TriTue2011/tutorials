@@ -32,9 +32,10 @@ _CACHE_READY = False
 _CACHE_READY_LOCK = threading.Lock()
 
 CACHE_MAX_AGE = TTL * 24 * 60 * 60
-# Update cache in background if data is older than 4 hours
 CACHE_REFRESH_PERIOD = 4 * 60 * 60
 CACHE_REFRESH_THRESHOLD = CACHE_MAX_AGE - CACHE_REFRESH_PERIOD
+
+BROWSERS = ["chrome", "safari", "safari_ios"]
 
 
 @pyscript_compile  # noqa: F821
@@ -235,8 +236,9 @@ async def prune_cache_db() -> None:
 async def _get_recaptcha_version(ss: AsyncSession) -> str | None:
     """Fetch the current reCAPTCHA JS version from Google's API."""
     try:
-        api_url = f"https://www.google.com/recaptcha/api.js?render={RECAPTCHA_SITEKEY}"
-        resp = await ss.get(api_url)
+        url = f"https://www.google.com/recaptcha/api.js?render={RECAPTCHA_SITEKEY}"
+        headers = {"Referer": LOOKUP_URL}
+        resp = await ss.get(url, headers=headers)
         resp.raise_for_status()
         match = re.search(r"/recaptcha/releases/([^/]+)/", resp.text)
         return match.group(1) if match else None
@@ -251,15 +253,24 @@ async def _get_recaptcha_token(ss: AsyncSession) -> tuple[str, None] | tuple[Non
         if not version:
             return None, "Failed to fetch reCAPTCHA version"
 
-        anchor_url = (
-            f"https://www.google.com/recaptcha/api2/anchor?"
-            f"ar=1&k={RECAPTCHA_SITEKEY}"
-            f"&co={RECAPTCHA_CO}"
-            f"&hl=en&v={version}"
-            f"&size=invisible&cb={int(time.time() * 1000)}"
-        )
+        cb_str = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=12))
+        anchor_params = {
+            "ar": "1",
+            "k": RECAPTCHA_SITEKEY,
+            "co": RECAPTCHA_CO,
+            "hl": "en",
+            "v": version,
+            "size": "invisible",
+            "cb": cb_str,
+        }
+        anchor_params_str = urllib.parse.urlencode(anchor_params)
+        anchor_url = f"https://www.google.com/recaptcha/api2/anchor?{anchor_params_str}"
 
-        resp_anchor = await ss.get(anchor_url)
+        anchor_headers = {
+            "Referer": BASE_URL + "/",
+        }
+
+        resp_anchor = await ss.get(anchor_url, headers=anchor_headers)
         resp_anchor.raise_for_status()
 
         match = re.search(r'id="recaptcha-token"\s+value="([^"]+)"', resp_anchor.text)
@@ -271,7 +282,8 @@ async def _get_recaptcha_token(ss: AsyncSession) -> tuple[str, None] | tuple[Non
         reload_url = (
             f"https://www.google.com/recaptcha/api2/reload?k={RECAPTCHA_SITEKEY}"
         )
-        reload_data = {
+
+        reload_params = {
             "v": version,
             "reason": "q",
             "c": anchor_token,
@@ -286,10 +298,24 @@ async def _get_recaptcha_token(ss: AsyncSession) -> tuple[str, None] | tuple[Non
         }
 
         resp_reload = await ss.post(
-            reload_url, data=reload_data, headers=reload_headers
+            reload_url, data=reload_params, headers=reload_headers
         )
         resp_reload.raise_for_status()
 
+        response_text = resp_reload.text.lstrip(")]}'")
+        try:
+            rresp_data = orjson.loads(response_text)
+            if (
+                isinstance(rresp_data, list)
+                and len(rresp_data) > 1
+                and rresp_data[0] == "rresp"
+            ):
+                token = rresp_data[1]
+                if token:
+                    return token, None
+                return None, "Google returned a null token (Bot detected)"
+        except orjson.JSONDecodeError:
+            pass
         rresp_match = re.search(r'"rresp","([^"]+)"', resp_reload.text)
         if not rresp_match:
             return None, "Failed to extract response token"
@@ -391,8 +417,9 @@ async def _check_license_plate(
     license_plate: str, vehicle_type: str, retry_count: int = 0
 ) -> dict[str, Any]:
     """Execute the end-to-end lookup flow against csgt.vn with retries."""
-    browsers = ["chrome", "safari", "safari_ios"]
-    async with AsyncSession(impersonate=random.choice(browsers), timeout=60) as ss:
+
+    browser = BROWSERS[retry_count % len(BROWSERS)]
+    async with AsyncSession(impersonate=browser, timeout=60) as ss:
         try:
             await ss.get(BASE_URL)
             await asyncio.sleep(random.uniform(3, 6))
@@ -407,7 +434,6 @@ async def _check_license_plate(
 
             csrf_token = token_match.group(1)
 
-            await asyncio.sleep(random.uniform(3, 6))
             recaptcha_token, error = await _get_recaptcha_token(ss)
             if not recaptcha_token:
                 if retry_count < RETRY_LIMIT:
@@ -423,21 +449,20 @@ async def _check_license_plate(
 
             xsrf_token = urllib.parse.unquote(dict(ss.cookies).get("XSRF-TOKEN", ""))
             headers = {
-                "Accept": "*/*",
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                "Origin": BASE_URL,
-                "Referer": LOOKUP_URL,
                 "X-Requested-With": "XMLHttpRequest",
                 "X-XSRF-TOKEN": xsrf_token,
+                "Origin": BASE_URL,
+                "Referer": LOOKUP_URL,
             }
-            form_data = urllib.parse.urlencode(
-                {
-                    "_token": csrf_token,
-                    "g-recaptcha-response": recaptcha_token,
-                    "vehicle_type": vehicle_type,
-                    "plate_number": license_plate,
-                }
-            )
+            form_data = {
+                "_token": csrf_token,
+                "g-recaptcha-response": recaptcha_token,
+                "vehicle_type": vehicle_type,
+                "plate_number": license_plate,
+            }
+
+            await asyncio.sleep(random.uniform(3, 6))
 
             resp = await ss.post(POST_URL, data=form_data, headers=headers)
 

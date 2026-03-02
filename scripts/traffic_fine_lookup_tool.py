@@ -237,7 +237,7 @@ async def _get_recaptcha_version(ss: AsyncSession) -> str | None:
     """Fetch the current reCAPTCHA JS version from Google's API."""
     try:
         url = f"https://www.google.com/recaptcha/api.js?render={RECAPTCHA_SITEKEY}"
-        headers = {"Referer": LOOKUP_URL}
+        headers = {"Referer": BASE_URL + "/"}
         resp = await ss.get(url, headers=headers)
         resp.raise_for_status()
         match = re.search(r"/recaptcha/releases/([^/]+)/", resp.text)
@@ -246,13 +246,9 @@ async def _get_recaptcha_version(ss: AsyncSession) -> str | None:
         return None
 
 
-async def _get_recaptcha_token(ss: AsyncSession) -> tuple[str, None] | tuple[None, str]:
-    """Obtain a reCAPTCHA v3 token via the anchor+reload API flow."""
+async def _get_recaptcha_anchor(ss: AsyncSession, version: str) -> str | None:
+    """Initialize reCAPTCHA v3 session and obtain an anchor token."""
     try:
-        version = await _get_recaptcha_version(ss)
-        if not version:
-            return None, "Failed to fetch reCAPTCHA version"
-
         cb_str = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=12))
         anchor_params = {
             "ar": "1",
@@ -266,23 +262,24 @@ async def _get_recaptcha_token(ss: AsyncSession) -> tuple[str, None] | tuple[Non
         anchor_params_str = urllib.parse.urlencode(anchor_params)
         anchor_url = f"https://www.google.com/recaptcha/api2/anchor?{anchor_params_str}"
 
-        anchor_headers = {
-            "Referer": BASE_URL + "/",
-        }
+        anchor_headers = {"Referer": BASE_URL + "/"}
+        resp = await ss.get(anchor_url, headers=anchor_headers)
+        resp.raise_for_status()
 
-        resp_anchor = await ss.get(anchor_url, headers=anchor_headers)
-        resp_anchor.raise_for_status()
+        match = re.search(r'id="recaptcha-token"\s+value="([^"]+)"', resp.text)
+        return match.group(1) if match else None
+    except RequestsError:
+        return None
 
-        match = re.search(r'id="recaptcha-token"\s+value="([^"]+)"', resp_anchor.text)
-        if not match:
-            return None, "Failed to extract anchor token"
 
-        anchor_token = match.group(1)
-
+async def _get_recaptcha_reload(
+    ss: AsyncSession, anchor_token: str, version: str
+) -> tuple[str, None] | tuple[None, str]:
+    """Execute reCAPTCHA reload to obtain the action token."""
+    try:
         reload_url = (
             f"https://www.google.com/recaptcha/api2/reload?k={RECAPTCHA_SITEKEY}"
         )
-
         reload_params = {
             "v": version,
             "reason": "q",
@@ -294,15 +291,14 @@ async def _get_recaptcha_token(ss: AsyncSession) -> tuple[str, None] | tuple[Non
         }
         reload_headers = {
             "Content-Type": "application/x-www-form-urlencoded",
-            "Referer": anchor_url,
+            "Origin": "https://www.google.com",
+            "Referer": f"https://www.google.com/recaptcha/api2/anchor?k={RECAPTCHA_SITEKEY}",
         }
 
-        resp_reload = await ss.post(
-            reload_url, data=reload_params, headers=reload_headers
-        )
-        resp_reload.raise_for_status()
+        resp = await ss.post(reload_url, data=reload_params, headers=reload_headers)
+        resp.raise_for_status()
 
-        response_text = resp_reload.text.lstrip(")]}'")
+        response_text = resp.text.lstrip(")]}'")
         try:
             rresp_data = orjson.loads(response_text)
             if (
@@ -316,14 +312,24 @@ async def _get_recaptcha_token(ss: AsyncSession) -> tuple[str, None] | tuple[Non
                 return None, "Google returned a null token (Bot detected)"
         except orjson.JSONDecodeError:
             pass
-        rresp_match = re.search(r'"rresp","([^"]+)"', resp_reload.text)
+
+        rresp_match = re.search(r'"rresp","([^"]+)"', resp.text)
         if not rresp_match:
             return None, "Failed to extract response token"
 
         return rresp_match.group(1), None
-
     except RequestsError as error:
-        return None, f"reCAPTCHA retrieval failed: {error}"
+        return None, f"reCAPTCHA reload failed: {error}"
+
+
+async def _get_recaptcha_clr(ss: AsyncSession) -> None:
+    """Send reCAPTCHA clr request to clean up the session."""
+    try:
+        url = f"https://www.google.com/recaptcha/api2/clr?k={RECAPTCHA_SITEKEY}"
+        headers = {"Origin": BASE_URL, "Referer": BASE_URL + "/"}
+        await ss.post(url, headers=headers)
+    except RequestsError:
+        pass
 
 
 @pyscript_compile  # noqa: F821
@@ -419,10 +425,11 @@ async def _check_license_plate(
     """Execute the end-to-end lookup flow against csgt.vn with retries."""
 
     browser = BROWSERS[retry_count % len(BROWSERS)]
-    async with AsyncSession(impersonate=browser, timeout=60) as ss:
+    async with AsyncSession(impersonate=browser, timeout=60, http_version="v3") as ss:
         try:
-            await ss.get(BASE_URL)
-            await asyncio.sleep(random.uniform(3, 6))
+            homepage = await ss.get(BASE_URL)
+            homepage.raise_for_status()
+            await asyncio.sleep(random.uniform(3, 5))
 
             resp_page = await ss.get(LOOKUP_URL)
             resp_page.raise_for_status()
@@ -434,7 +441,21 @@ async def _check_license_plate(
 
             csrf_token = token_match.group(1)
 
-            recaptcha_token, error = await _get_recaptcha_token(ss)
+            version = await _get_recaptcha_version(ss)
+            if not version:
+                log.error(f"reCAPTCHA version fetch failed for {license_plate}")  # noqa: F821
+                return {"error": "Failed to fetch reCAPTCHA version"}
+
+            anchor_token = await _get_recaptcha_anchor(ss, version)
+            if not anchor_token:
+                log.error(f"reCAPTCHA anchor failed for {license_plate}")  # noqa: F821
+                return {"error": "reCAPTCHA initialization failed"}
+
+            await asyncio.sleep(random.uniform(5, 10))
+
+            recaptcha_token, error = await _get_recaptcha_reload(
+                ss, anchor_token, version
+            )
             if not recaptcha_token:
                 if retry_count < RETRY_LIMIT:
                     log.warning(  # noqa: F821
@@ -447,11 +468,9 @@ async def _check_license_plate(
                 log.error(f"reCAPTCHA failed for {license_plate}: {error}")  # noqa: F821
                 return {"error": f"reCAPTCHA retrieval failed: {error}"}
 
-            xsrf_token = urllib.parse.unquote(dict(ss.cookies).get("XSRF-TOKEN", ""))
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                 "X-Requested-With": "XMLHttpRequest",
-                "X-XSRF-TOKEN": xsrf_token,
                 "Origin": BASE_URL,
                 "Referer": LOOKUP_URL,
             }
@@ -462,9 +481,9 @@ async def _check_license_plate(
                 "plate_number": license_plate,
             }
 
-            await asyncio.sleep(random.uniform(3, 6))
-
             resp = await ss.post(POST_URL, data=form_data, headers=headers)
+
+            await _get_recaptcha_clr(ss)
 
             if resp.status_code == 429:
                 try:

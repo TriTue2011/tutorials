@@ -13,8 +13,10 @@ import orjson
 from bs4 import BeautifulSoup
 from curl_cffi.requests import AsyncSession, RequestsError
 
-TTL = 30  # Cache retention period (1-30 days)
+TTL = 30
 RETRY_LIMIT = 3
+RETRY_DELAY = (30, 60)
+PAGE_DELAY = (1.0, 2.5)
 BASE_URL = "https://www.csgt.vn"
 LOOKUP_URL = f"{BASE_URL}/tra-cuu-phat-nguoi"
 POST_URL = f"{BASE_URL}/tra-cuu-vi-pham-qua-hinh-anh"
@@ -262,7 +264,10 @@ async def _get_recaptcha_anchor(ss: AsyncSession, version: str) -> str | None:
         anchor_params_str = urllib.parse.urlencode(anchor_params)
         anchor_url = f"https://www.google.com/recaptcha/api2/anchor?{anchor_params_str}"
 
-        anchor_headers = {"Referer": BASE_URL + "/"}
+        anchor_headers = {
+            "Referer": BASE_URL + "/",
+            "Accept-Language": "en-US,en;q=0.9,vi;q=0.8",
+        }
         resp = await ss.get(anchor_url, headers=anchor_headers)
         resp.raise_for_status()
 
@@ -293,6 +298,7 @@ async def _get_recaptcha_reload(
             "Content-Type": "application/x-www-form-urlencoded",
             "Origin": "https://www.google.com",
             "Referer": f"https://www.google.com/recaptcha/api2/anchor?k={RECAPTCHA_SITEKEY}",
+            "Accept-Language": "en-US,en;q=0.9,vi;q=0.8",
         }
 
         resp = await ss.post(reload_url, data=reload_params, headers=reload_headers)
@@ -420,19 +426,24 @@ def _extract_violations_from_html(result_html: str) -> dict[str, Any]:
 
 
 async def _check_license_plate(
-    license_plate: str, vehicle_type: str, retry_count: int = 0
+    license_plate: str,
+    vehicle_type: str,
+    retry_count: int = 0,
+    browser: str | None = None,
 ) -> dict[str, Any]:
     """Execute the end-to-end lookup flow against csgt.vn with retries."""
 
-    browser = BROWSERS[retry_count % len(BROWSERS)]
-    async with AsyncSession(impersonate=browser, timeout=60, http_version="v3") as ss:
+    if browser is None:
+        browser = random.choice(BROWSERS)
+    async with AsyncSession(impersonate=browser, timeout=60) as ss:
         try:
             homepage = await ss.get(BASE_URL)
             homepage.raise_for_status()
-            await asyncio.sleep(random.uniform(3, 5))
+            await asyncio.sleep(random.uniform(*PAGE_DELAY))
 
             resp_page = await ss.get(LOOKUP_URL)
             resp_page.raise_for_status()
+            await asyncio.sleep(random.uniform(*PAGE_DELAY))
 
             token_match = re.search(r'name="_token"\s+value="([^"]+)"', resp_page.text)
             if not token_match:
@@ -451,7 +462,7 @@ async def _check_license_plate(
                 log.error(f"reCAPTCHA anchor failed for {license_plate}")  # noqa: F821
                 return {"error": "reCAPTCHA initialization failed"}
 
-            await asyncio.sleep(random.uniform(5, 10))
+            await asyncio.sleep(random.uniform(0.5, 2.5))
 
             recaptcha_token, error = await _get_recaptcha_reload(
                 ss, anchor_token, version
@@ -461,9 +472,12 @@ async def _check_license_plate(
                     log.warning(  # noqa: F821
                         f"reCAPTCHA failed (Retry {retry_count + 1}/{RETRY_LIMIT}): {error}"
                     )
-                    await asyncio.sleep(random.uniform(30, 60))
+                    next_browser = random.choice([b for b in BROWSERS if b != browser])
+                    await asyncio.sleep(
+                        random.uniform(*RETRY_DELAY) * (retry_count + 1)
+                    )
                     return await _check_license_plate(
-                        license_plate, vehicle_type, retry_count + 1
+                        license_plate, vehicle_type, retry_count + 1, next_browser
                     )
                 log.error(f"reCAPTCHA failed for {license_plate}: {error}")  # noqa: F821
                 return {"error": f"reCAPTCHA retrieval failed: {error}"}
@@ -499,9 +513,12 @@ async def _check_license_plate(
                     log.warning(  # noqa: F821
                         f"Rate limited (Retry {retry_count + 1}/{RETRY_LIMIT}): {msg}"
                     )
-                    await asyncio.sleep(random.uniform(30, 60))
+                    next_browser = random.choice([b for b in BROWSERS if b != browser])
+                    await asyncio.sleep(
+                        random.uniform(*RETRY_DELAY) * (retry_count + 1)
+                    )
                     return await _check_license_plate(
-                        license_plate, vehicle_type, retry_count + 1
+                        license_plate, vehicle_type, retry_count + 1, next_browser
                     )
                 return {"error": msg or f"Rate limited after {RETRY_LIMIT} retries"}
 
@@ -512,9 +529,12 @@ async def _check_license_plate(
                     log.warning(  # noqa: F821
                         f"Verification failed (Retry {retry_count + 1}/{RETRY_LIMIT}): {msg}"
                     )
-                    await asyncio.sleep(random.uniform(30, 60))
+                    next_browser = random.choice([b for b in BROWSERS if b != browser])
+                    await asyncio.sleep(
+                        random.uniform(*RETRY_DELAY) * (retry_count + 1)
+                    )
                     return await _check_license_plate(
-                        license_plate, vehicle_type, retry_count + 1
+                        license_plate, vehicle_type, retry_count + 1, next_browser
                     )
                 return {
                     "error": "Verification failed: "
@@ -538,9 +558,10 @@ async def _check_license_plate(
         except (RequestsError, orjson.JSONDecodeError) as error:
             if retry_count < RETRY_LIMIT:
                 log.warning(f"Error (Retry {retry_count + 1}/{RETRY_LIMIT}): {error}")  # noqa: F821
-                await asyncio.sleep(random.uniform(30, 60))
+                next_browser = random.choice([b for b in BROWSERS if b != browser])
+                await asyncio.sleep(random.uniform(*RETRY_DELAY) * (retry_count + 1))
                 return await _check_license_plate(
-                    license_plate, vehicle_type, retry_count + 1
+                    license_plate, vehicle_type, retry_count + 1, next_browser
                 )
             log.error(  # noqa: F821
                 f"Lookup failed for {license_plate} after {RETRY_LIMIT} retries: {error}"

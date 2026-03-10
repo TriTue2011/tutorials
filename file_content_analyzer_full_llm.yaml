@@ -71,7 +71,7 @@ blueprint:
             Mandatory. File MIME type (e.g., image/jpeg, video/mp4, application/pdf). Must match file content.
 mode: parallel
 max_exceeded: silent
-description: Processes and analyzes file content (images, video, audio, or text) to provide summaries, transcriptions, or visual recognition based on instructions.
+description: 'Takes a snapshot from a camera and saves it as an image file. Use ONLY when the user explicitly requests to capture/save/take a photo from a camera, NOT for analyzing or checking what the camera sees.'
 variables:
   version: 20260207
 fields:
@@ -143,21 +143,26 @@ sequence:
           Unable to extract data because MIME type is missing or incorrect.
         response_variable: response
   - variables:
+      # FIX: attachments phải là LIST, không phải object
+      # FIX: template trong media_content_id phải có dấu ngoặc kép
       attachments:
-        media_content_id: media-source://media_source/{{ file_path }}
-        media_content_type: "{{ mime_type }}"
+        - media_content_id: "media-source://media_source/{{ file_path }}"
+          media_content_type: "{{ mime_type }}"
   - if:
       - condition: template
         value_template: "{{ not ai_task_entity }}"
     then:
-      - action: ai_task.generate_data
+      # FIX: thêm continue_on_error phòng AI call fail
+      - continue_on_error: true
+        action: ai_task.generate_data
         data:
           task_name: Analyze content from a media or document file
           instructions: "{{ instructions }}"
           attachments: "{{ attachments }}"
         response_variable: result
     else:
-      - action: ai_task.generate_data
+      - continue_on_error: true
+        action: ai_task.generate_data
         data:
           task_name: Analyze content from a media or document file
           instructions: "{{ instructions }}"
@@ -165,7 +170,8 @@ sequence:
           entity_id: "{{ ai_task_entity }}"
         response_variable: result
   - variables:
+      # FIX: thêm | default({}) phòng result undefined khi AI lỗi
       response:
-        data: "{{ result.data }}"
+        data: "{{ result.data | default({}) }}"
   - stop: ""
     response_variable: response

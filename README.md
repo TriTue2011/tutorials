@@ -9,6 +9,9 @@
 
 _All blueprints in this collection are fine-tuned to work best with **Gemini Flash** models. Other models may require minor adjustments to behave as expected._
 
+> [!IMPORTANT]
+> **Crucial Setup Step:** Please make sure to read each blueprint's **Description** carefully and follow all instructions when installing or updating. Most blueprints require specific manual steps or dependencies that are essential for them to function correctly.
+
 Transform Home Assistant into a fully-fledged personal teammate with this curated collection of blueprints and guides. Every scenario has been proven in real homes, backed by clear explanations, example voice prompts, and deployment tips so you can bring each idea to life right away.
 
 ---
@@ -48,10 +51,6 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
     - [Monitor unavailable devices](#monitor-unavailable-devices)
     - [Auto-switch iOS Themes](#auto-switch-ios-themes)
     - [Device location lookup guide](#device-location-lookup-guide)
-
----
-
-**Note:** Please make sure to read each blueprint's description and follow its instructions when installing or updating.
 
 ---
 

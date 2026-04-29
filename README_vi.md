@@ -9,6 +9,9 @@
 
 _Tất cả blueprint trong bộ sưu tập này được tinh chỉnh để hoạt động tối ưu với các mô hình (model) **Gemini Flash**. Các mô hình ngôn ngữ khác có thể cần điều chỉnh nhỏ để đạt hiệu quả tương tự._
 
+> [!IMPORTANT]
+> **Bước cài đặt quan trọng:** Hãy đảm bảo bạn đã đọc kỹ phần **Mô tả (Description)** của từng blueprint và làm theo hướng dẫn khi cài đặt hoặc cập nhật. Hầu hết các blueprint đều yêu cầu các bước cấu hình thủ công hoặc các thành phần phụ trợ cần thiết để có thể hoạt động chính xác.
+
 Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ sưu tập blueprint và hướng dẫn chi tiết. Mọi kịch bản đều đã được kiểm chứng trong thực tế, đi kèm giải thích rõ ràng, ví dụ lệnh thoại và mẹo triển khai để bạn có thể áp dụng ngay cho ngôi nhà thông minh của mình.
 
 ---
@@ -48,10 +51,6 @@ Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ s
     - [Theo dõi các thiết bị mất kết nối](#theo-dõi-các-thiết-bị-mất-kết-nối)
     - [Tự động chuyển đổi giao diện](#tự-động-chuyển-đổi-giao-diện)
     - [Hướng dẫn cài đặt tìm kiếm vị trí thiết bị](#hướng-dẫn-cài-đặt-tìm-kiếm-vị-trí-thiết-bị)
-
----
-
-**Lưu ý:** Hãy đọc kỹ mô tả và hướng dẫn đi kèm mỗi blueprint trước khi cài đặt hoặc cập nhật.
 
 ---
 

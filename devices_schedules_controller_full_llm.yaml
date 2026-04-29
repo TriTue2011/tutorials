@@ -25,6 +25,8 @@ blueprint:
     - **Vacuum Robots:** `start_vacuum`, `return_vacuum`.
     - **Buttons:** `press` (to press a button or input_button).
     - **Notifications:** `announce` (to speak a text message via TTS, requires a text value and TTS configuration).
+    - **Relative Adjustments:** Supports relative values for numeric actions (e.g., `+2`, `-10`, `+20%`). The controller calculates the final absolute value based on the device's current state before scheduling the timer.
+    - **Flexible Scheduling:** Supports both relative durations (`HH:MM:SS`) and specific absolute timestamps (`YYYY-MM-DD HH:MM:SS`).
 
     ## Blueprint Setup
 
@@ -133,7 +135,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            Parameter value (temp, brightness, etc.)
+            Parameter value (e.g., 25, +2, -10, 50%). Relative (+/-) values use the current state.
         duration_prompt:
           name: Duration prompt
           description: The timer duration or delay (HH:MM:SS), provided by the AI
@@ -141,7 +143,7 @@ blueprint:
             text:
               multiline: true
           default: |-
-            HH:MM:SS or seconds
+            HH:MM:SS (duration) or YYYY-MM-DD HH:MM:SS (fixed time)
 mode: parallel
 max_exceeded: silent
 description: Manages device timers (start, cancel, pause, resume, list)
@@ -316,16 +318,23 @@ sequence:
         {% endfor %}
         {{ ns.items }}
       _duration_seconds: >-
-        {% set raw = _duration_raw %}
-        {% if raw is number %}
-          {{ raw | round(0) | int(0) }}
-        {% elif raw is string and raw | trim | length > 0 %}
+        {% set raw = _duration_raw | string | trim %}
+        {% if '-' in raw and ' ' in raw %}
+          {% set target = as_datetime(raw) %}
+          {% if target is not none %}
+            {% set diff = (as_timestamp(target) - as_timestamp(now())) | int(0) %}
+            {{ diff if diff > 0 else 0 }}
+          {% else %}
+            0
+          {% endif %}
+        {% elif raw | regex_match('^\d+$') %}
+          {{ raw | int(0) }}
+        {% elif raw | length > 0 %}
           {% set td = as_timedelta(raw) %}
           {% if td is not none and td is not string %}
             {{ td.total_seconds() | round(0) | int(0) }}
           {% else %}
-            {% set text = raw | trim %}
-            {% set parts = text.split(':') %}
+            {% set parts = raw.split(':') %}
             {% if parts | length >= 3 %}
               {% set hours = (parts[-3] | default('0') | float(0)) %}
               {% set minutes = (parts[-2] | default('0') | float(0)) %}
@@ -367,6 +376,8 @@ sequence:
         start_vacuum: "vacuum.start"
         return_vacuum: "vacuum.return_to_base"
       _responses: []
+      _is_relative: "{{ _value_raw is string and (_value_raw.startswith('+') or _value_raw.startswith('-')) }}"
+      _value_delta: "{{ (_value_raw | replace('%','') | float(0)) if _is_relative else 0 }}"
       _clean_value: >-
         {% set a = _action_normalized %}
         {% set v = _value_raw %}
@@ -504,6 +515,41 @@ sequence:
               sequence:
                 - variables:
                     _current_entity: "{{ repeat.item }}"
+                    _item_final_value: >-
+                      {% set a = _action_normalized %}
+                      {% set eid = _current_entity %}
+                      {% set numeric_actions = ['set_temperature','set_brightness','set_position','set_fan_speed','set_humidity','set_volume'] %}
+                      {% if not _is_relative or a not in numeric_actions %}
+                        {{ _clean_value }}
+                      {% else %}
+                        {% set delta = _value_delta %}
+                        {% if a == 'set_temperature' %}
+                          {% set current = state_attr(eid, 'temperature') | float(state_attr(eid, 'current_temperature') | float(24)) %}
+                          {{ (current + delta) | round(1) }}
+                        {% elif a == 'set_brightness' %}
+                          {% set current = (state_attr(eid, 'brightness') | float(0) / 255.0 * 100) %}
+                          {% set out = (current + delta) | round(0) | int(0) %}
+                          {{ 100 if out > 100 else (0 if out < 0 else out) }}
+                        {% elif a == 'set_position' %}
+                          {% set current = state_attr(eid, 'current_position') | float(0) %}
+                          {% set out = (current + delta) | round(0) | int(0) %}
+                          {{ 100 if out > 100 else (0 if out < 0 else out) }}
+                        {% elif a == 'set_fan_speed' %}
+                          {% set current = state_attr(eid, 'percentage') | float(0) %}
+                          {% set out = (current + delta) | round(0) | int(0) %}
+                          {{ 100 if out > 100 else (0 if out < 0 else out) }}
+                        {% elif a == 'set_humidity' %}
+                          {% set current = state_attr(eid, 'humidity') | float(state_attr(eid, 'current_humidity') | float(50)) %}
+                          {% set out = (current + delta) | round(0) | int(0) %}
+                          {{ 100 if out > 100 else (0 if out < 0 else out) }}
+                        {% elif a == 'set_volume' %}
+                          {% set current = state_attr(eid, 'volume_level') | float(0) * 100 %}
+                          {% set out = (current + delta) / 100.0 %}
+                          {{ 1.0 if out > 1.0 else (0.0 if out < 0 else out | round(2)) }}
+                        {% else %}
+                          {{ _clean_value }}
+                        {% endif %}
+                      {% endif %}
                     _item_target_service: >-
                       {% set current_entity_id = _current_entity | default('') %}
                       {% set domain = current_entity_id.split('.')[0] %}
@@ -529,25 +575,25 @@ sequence:
                     _item_service_data: >-
                       {% set d = dict() %}
                       {% if _action_normalized == 'set_position' %}
-                        {% set d = dict(position=_clean_value) %}
+                        {% set d = dict(position=_item_final_value) %}
                       {% elif _action_normalized == 'set_brightness' %}
-                        {% set d = dict(brightness_pct=_clean_value) %}
+                        {% set d = dict(brightness_pct=_item_final_value) %}
                       {% elif _action_normalized == 'set_color' %}
-                        {% set d = dict(color_name=_clean_value) %}
+                        {% set d = dict(color_name=_item_final_value) %}
                       {% elif _action_normalized == 'set_fan_speed' %}
-                        {% set d = dict(percentage=_clean_value) %}
+                        {% set d = dict(percentage=_item_final_value) %}
                       {% elif _action_normalized == 'set_oscillation' %}
-                        {% set d = dict(oscillating=_clean_value) %}
+                        {% set d = dict(oscillating=_item_final_value) %}
                       {% elif _action_normalized == 'set_temperature' %}
-                        {% set d = dict(temperature=_clean_value) %}
+                        {% set d = dict(temperature=_item_final_value) %}
                       {% elif _action_normalized == 'set_humidity' %}
-                        {% set d = dict(humidity=_clean_value) %}
+                        {% set d = dict(humidity=_item_final_value) %}
                       {% elif _action_normalized == 'set_hvac_mode' %}
-                        {% set d = dict(hvac_mode=_clean_value) %}
+                        {% set d = dict(hvac_mode=_item_final_value) %}
                       {% elif _action_normalized == 'set_volume' %}
-                        {% set d = dict(volume_level=_clean_value) %}
+                        {% set d = dict(volume_level=_item_final_value) %}
                       {% elif _action_normalized == 'announce' %}
-                        {% set d = dict(media_player_entity_id=_current_entity, message=_clean_value) %}
+                        {% set d = dict(media_player_entity_id=_current_entity, message=_item_final_value) %}
                       {% endif %}
                       {{ d }}
                     _item_target_dict: >-
@@ -569,7 +615,7 @@ sequence:
                           target: "{{ _item_target_dict }}"
                           data: "{{ _item_service_data }}"
                 - variables:
-                    _responses: "{{ (_responses | default([])) + [dict(mode='start', entity=_current_entity, status='queued', duration_seconds=_duration_seconds, action=_action_normalized, value=_clean_value)] }}"
+                    _responses: "{{ (_responses | default([])) + [dict(mode='start', entity=_current_entity, status='queued', duration_seconds=_duration_seconds, action=_action_normalized, value=_item_final_value)] }}"
           - variables:
               response: >-
                 {{ dict(mode='start', action=_action_normalized, duration_seconds=_duration_seconds, targets=_resolved_entities, dispatched=_responses) }}

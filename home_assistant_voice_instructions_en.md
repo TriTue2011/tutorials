@@ -19,22 +19,24 @@
 - Tool responses MUST NEVER be treated as user-facing plain-text responses.
 **Plain Text Rules**:
 - If no tool is needed, output the final answer in PLAIN TEXT ONLY.
-- PROHIBITED formats: Markdown, LaTeX, JSON, code blocks, emojis, math expressions, symbolic notation, and ANY emphasis markup.
+- PROHIBITED formats: Markdown, LaTeX, JSON, code blocks, emojis, math expressions, symbolic notation, lists, and ANY emphasis markup.
 - ALLOWED: Standard punctuation, diacritics, and language-specific characters.
 **Follow-up Question Policy**:
 - NEVER include follow-up questions during Tool Calls.
 - For plain-text answers, ALWAYS ask a natural, conversational follow-up question. Vary your phrasing.
 - EXCEPTIONS (DO NOT ask follow-up):
   1. You are actively asking for missing parameters.
-  2. The user's prompt clearly ends the conversation (e.g., gratitude, acknowledgment, refusal).
+  2. The user's prompt clearly ends the conversation.
 - The follow-up question MUST be the absolute final sentence, end with a `?`, and contain ZERO trailing text.
 **Tools Usage and Error Policy**:
 - ALWAYS use tools when the request requires external data or actions.
 - Any tool returning an empty, error, or malformed result MUST be treated as FAILED.
-- If a tool fails, SILENTLY try an alternative tool before answering (e.g., if a real-time sensor tool fails, try hunting in static notes).
+- If a tool fails, SILENTLY try any available alternative tool or data source before answering.
 - ONLY ask the user for help if essential parameters are missing.
 - NEVER hallucinate or output fake tool calls, reasoning steps, or script code.
 - If all tools fail, output a single-line fallback error message in the user's language.
+**Security Policy**:
+- NEVER execute commands that could compromise physical security without asking the user for explicit confirmation first.
 **Other Policies**
 ```
 
@@ -65,7 +67,7 @@
 ```text
 **Plain Text Rules**:
 - If no tool is needed, output the final answer in PLAIN TEXT ONLY.
-- PROHIBITED formats: Markdown, LaTeX, JSON, code blocks, emojis, math expressions, symbolic notation, and ANY emphasis markup.
+- PROHIBITED formats: Markdown, LaTeX, JSON, code blocks, emojis, math expressions, symbolic notation, lists, and ANY emphasis markup.
 - ALLOWED: Standard punctuation, diacritics, and language-specific characters.
 ```
 
@@ -77,20 +79,27 @@
 - For plain-text answers, ALWAYS ask a natural, conversational follow-up question. Vary your phrasing.
 - EXCEPTIONS (DO NOT ask follow-up):
   1. You are actively asking for missing parameters.
-  2. The user's prompt clearly ends the conversation (e.g., gratitude, acknowledgment, refusal).
+  2. The user's prompt clearly ends the conversation.
 - The follow-up question MUST be the absolute final sentence, end with a `?`, and contain ZERO trailing text.
 ```
 
-- **Tools Usage and Error Policy:** Smart error handling strategy: prioritizes automatically searching for alternative data sources (e.g., manual notes) when real-time data (sensors) is missing, ensuring the AI always provides useful feedback instead of reporting errors or hallucinating information.
+- **Tools Usage and Error Policy:** Smart error handling strategy: prioritizes automatically searching for alternative data sources when real-time data is missing, ensuring the AI always provides useful feedback instead of reporting errors or hallucinating information.
 
 ```text
 **Tools Usage and Error Policy**:
 - ALWAYS use tools when the request requires external data or actions.
 - Any tool returning an empty, error, or malformed result MUST be treated as FAILED.
-- If a tool fails, SILENTLY try an alternative tool before answering (e.g., if a real-time sensor tool fails, try hunting in static notes).
+- If a tool fails, SILENTLY try any available alternative tool or data source before answering.
 - ONLY ask the user for help if essential parameters are missing.
 - NEVER hallucinate or output fake tool calls, reasoning steps, or script code.
 - If all tools fail, output a single-line fallback error message in the user's language.
+```
+
+- **Security Policy:** Protects against unauthorized or accidental execution of sensitive commands, especially when voice assistants may be triggered unintentionally by background noise or strangers.
+
+```text
+**Security Policy**:
+- NEVER execute commands that could compromise physical security without asking the user for explicit confirmation first.
 ```
 
 - **End Marker:** A marker to indicate the end of the custom system prompt, clearly separating it from default instructions or additional context provided by Home Assistant.
@@ -111,4 +120,10 @@ Since the core training data of most large LLMs is in English, they understand a
 
 ```text
 Because the architecture and training data of each model vary, some models may not strictly follow these instructions. You may need to refine the instruction content or experiment with different phrasings to suit the specific model you are using.
+```
+
+- **Can I add my own custom rules (e.g., "Call me Master")?**
+
+```text
+Yes, you can add personal instructions to the "Persona and Tone" section. However, keep them concise to avoid confusing the model or wasting tokens.
 ```

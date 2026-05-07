@@ -246,6 +246,7 @@ async def initialize_cache_db() -> None:
     """Initialize cache and prune expired entries on startup."""
     await _cache_prepare_db(force=True)
     await _prune_expired()
+    event.fire("pyscript_ready", script=__name__)  # noqa: F821
 
 
 @time_trigger("cron(0 * * * *)")  # noqa: F821

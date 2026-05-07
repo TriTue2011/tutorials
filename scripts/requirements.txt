@@ -1,5 +1,5 @@
 # common
-h2>=4,<5
+h2
 
 # youtube_data_tool
 google-api-python-client

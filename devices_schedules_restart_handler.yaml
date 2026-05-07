@@ -76,29 +76,14 @@ variables:
 triggers:
   - trigger: homeassistant
     event: start
-    id: homeassistant_start
-  - trigger: event
-    event_type: pyscript_ready
-    event_data:
-      script: common_utilities
-    id: pyscript_ready
 
 conditions: []
 
 actions:
-  - choose:
-      - conditions:
-          - condition: trigger
-            id: homeassistant_start
-        sequence:
-          - wait_for_trigger:
-              - trigger: event
-                event_type: pyscript_ready
-                event_data:
-                  script: common_utilities
-            timeout:
-              seconds: 60
-            continue_on_timeout: true
+  - wait_template: "{{ is_state('binary_sensor.pyscript_common_utilities', 'on') }}"
+    timeout:
+      seconds: 60
+    continue_on_timeout: true
 
   - variables:
       _index_key: !input registry_index_key

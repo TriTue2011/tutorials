@@ -246,6 +246,15 @@ async def initialize_cache_db() -> None:
     """Initialize cache and prune expired entries on startup."""
     await _cache_prepare_db(force=True)
     await _prune_expired()
+    state.set(  # noqa: F821
+        f"binary_sensor.pyscript_{__name__}",
+        "on",
+        {
+            "friendly_name": f"Pyscript {__name__.replace('_', ' ').title()}",
+            "device_class": "connectivity",
+        },
+    )
+    log.info(f"Pyscript {__name__} is ready.")  # noqa: F821
 
 
 @time_trigger("cron(0 * * * *)")  # noqa: F821

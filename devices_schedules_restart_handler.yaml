@@ -71,7 +71,7 @@ mode: queued
 max_exceeded: silent
 
 variables:
-  version: 20260222
+  version: 20260507
 
 triggers:
   - trigger: homeassistant
@@ -80,6 +80,11 @@ triggers:
 conditions: []
 
 actions:
+  - wait_template: "{{ is_state('binary_sensor.pyscript_common_utilities', 'on') }}"
+    timeout:
+      seconds: 60
+    continue_on_timeout: true
+
   - variables:
       _index_key: !input registry_index_key
       _prefix: !input registry_timer_prefix

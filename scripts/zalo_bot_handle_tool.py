@@ -15,7 +15,7 @@ from homeassistant.helpers import network
 
 DIRECTORY = "/media/zalo"
 WWW_DIRECTORY = "/config/www/zalo"
-TOKEN = pyscript.config.get("zalo_bot_token")  # noqa: F821
+TOKEN = pyscript.config.get("zalo_bot_token")  # noqa: F821  # ty:ignore[unresolved-reference]
 if TOKEN:
     TOKEN = TOKEN.strip()
 
@@ -69,13 +69,13 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _open_file(path: str, mode: str):
     """Safely open a file using native Python."""
     return open(path, mode)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
     """Remove files from a directory older than a specified cutoff time."""
     path = Path(directory)
@@ -256,7 +256,7 @@ async def _delayed_remove(path: str, delay_seconds: int = 30) -> None:
 def _internal_url() -> str | None:
     """Return the internal Home Assistant base URL."""
     try:
-        return network.get_url(hass, allow_external=False)  # noqa: F821
+        return network.get_url(hass, allow_external=False)  # noqa: F821  # ty:ignore[unresolved-reference]
     except network.NoURLAvailableError:
         return None
 
@@ -265,7 +265,7 @@ def _external_url() -> str | None:
     """Return the external HTTPS Home Assistant base URL."""
     try:
         return network.get_url(
-            hass,  # noqa: F821
+            hass,  # noqa: F821  # ty:ignore[unresolved-reference]
             allow_internal=False,
             allow_ip=False,
             require_ssl=True,
@@ -275,7 +275,7 @@ def _external_url() -> str | None:
         return None
 
 
-@time_trigger("shutdown")  # noqa: F821
+@time_trigger("shutdown")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def _close_session() -> None:
     """Close the shared AsyncClient on service shutdown."""
     global _session
@@ -284,14 +284,14 @@ async def _close_session() -> None:
         _session = None
 
 
-@time_trigger("cron(0 0 * * *)")  # noqa: F821
+@time_trigger("cron(0 0 * * *)")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def _daily_cleanup() -> None:
     """Perform daily cleanup of archived media and public files."""
     await _cleanup_old_files(DIRECTORY, days=30)
     await _cleanup_old_files(WWW_DIRECTORY, days=1)
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def send_zalo_message(chat_id: str, message: str) -> dict[str, Any]:
     """
     yaml
@@ -321,11 +321,11 @@ async def send_zalo_message(chat_id: str, message: str) -> dict[str, Any]:
             return {"error": "Failed to send message"}
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_zalo_file(url: str) -> dict[str, Any]:
     """
     yaml
@@ -367,11 +367,11 @@ async def get_zalo_file(url: str) -> dict[str, Any]:
             response["supported"] = False
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_zalo_webhook() -> dict[str, Any]:
     """
     yaml
@@ -382,11 +382,11 @@ async def get_zalo_webhook() -> dict[str, Any]:
         client = await _ensure_session()
         return await _get_webhook_info(client)
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
@@ -411,11 +411,11 @@ async def set_zalo_webhook(webhook_id: str | None = None) -> dict[str, Any]:
             response["webhook_id"] = webhook_id
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def delete_zalo_webhook() -> dict[str, Any]:
     """
     yaml
@@ -426,11 +426,11 @@ async def delete_zalo_webhook() -> dict[str, Any]:
         client = await _ensure_session()
         return await _delete_webhook(client)
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
     """
     yaml
@@ -459,11 +459,11 @@ async def get_zalo_updates(timeout: int = 30) -> dict[str, Any]:
             }
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_zalo_bot_info() -> dict[str, Any]:
     """
     yaml
@@ -474,11 +474,11 @@ async def get_zalo_bot_info() -> dict[str, Any]:
         client = await _ensure_session()
         return await _get_me(client)
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def send_zalo_chat_action(chat_id: str) -> dict[str, Any]:
     """
     yaml
@@ -501,11 +501,11 @@ async def send_zalo_chat_action(chat_id: str) -> dict[str, Any]:
             return {"error": "Failed to send message"}
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def send_zalo_photo(
     chat_id: str,
     file_path: str,
@@ -545,8 +545,8 @@ async def send_zalo_photo(
         response = await _send_photo(client, chat_id, public_url, caption=caption)
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
     finally:
         if published_path:
-            task.create(_delayed_remove, published_path, 30)  # noqa: F821
+            task.create(_delayed_remove, published_path, 30)  # noqa: F821  # ty:ignore[unresolved-reference]

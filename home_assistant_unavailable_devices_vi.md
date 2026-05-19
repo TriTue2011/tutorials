@@ -10,8 +10,8 @@ Chúng ta sẽ tạo một `binary_sensor` thông minh, tự động quét toàn
 
 Để tránh báo động giả từ các thiết bị bạn không quan tâm, hãy tạo một nhãn để đánh dấu chúng.
 
-1.  Vào **Settings** > **Devices & Services** > **Labels**.
-2.  Tạo nhãn mới tên là: `ignored`
+1. Vào **Settings** > **Devices & Services** > **Labels**.
+2. Tạo nhãn mới tên là: `ignored`
 
 ![image](images/20250426_GwdtEl.png)
 

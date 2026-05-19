@@ -10,8 +10,8 @@ We will create a smart `binary_sensor` that automatically scans your entire syst
 
 To avoid false alarms from devices you don't care about, create a label to mark them.
 
-1.  Go to **Settings** > **Devices & Services** > **Labels**.
-2.  Create a new label named: `ignored`
+1. Go to **Settings** > **Devices & Services** > **Labels**.
+2. Create a new label named: `ignored`
 
 ![image](images/20250426_GwdtEl.png)
 

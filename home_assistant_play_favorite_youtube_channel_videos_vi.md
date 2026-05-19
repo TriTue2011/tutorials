@@ -23,9 +23,9 @@ Hướng dẫn này cho phép bạn sử dụng Home Assistant Voice để phát
 
 Để tính năng này hoạt động, bạn cần cài đặt hai tích hợp (một từ HACS và một có sẵn):
 
-1.  **Feedparser:** Dùng để đọc dữ liệu RSS từ YouTube.
+1. **Feedparser:** Dùng để đọc dữ liệu RSS từ YouTube.
     [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
-2.  **Media Extractor:** Dùng để trích xuất link video/audio trực tiếp từ YouTube. Đây là một tích hợp **có sẵn (Built-in)** của Home Assistant. Vào **Settings** > **Devices & Services** > **Add Integration** và tìm từ khóa `Media extractor`.
+2. **Media Extractor:** Dùng để trích xuất link video/audio trực tiếp từ YouTube. Đây là một tích hợp **có sẵn (Built-in)** của Home Assistant. Vào **Settings** > **Devices & Services** > **Add Integration** và tìm từ khóa `Media extractor`.
 
 - Sau khi cài đặt xong, hãy **khởi động lại** Home Assistant.
 
@@ -33,9 +33,9 @@ Hướng dẫn này cho phép bạn sử dụng Home Assistant Voice để phát
 
 Bạn cần ID của kênh YouTube để cấu hình sensor.
 
-1.  Mở Google và tìm kiếm `Get YouTube Channel ID`.
-2.  Truy cập một trang bất kỳ (ví dụ: `https://commentpicker.com/youtube-channel-id.php`).
-3.  Nhập đường dẫn (URL) của kênh YouTube bạn muốn theo dõi để lấy ID.
+1. Mở Google và tìm kiếm `Get YouTube Channel ID`.
+2. Truy cập một trang bất kỳ (ví dụ: `https://commentpicker.com/youtube-channel-id.php`).
+3. Nhập đường dẫn (URL) của kênh YouTube bạn muốn theo dõi để lấy ID.
 
 ![image](images/20250527_FdZbGj.png)
 
@@ -87,12 +87,12 @@ sensor:
 
 Để Voice Assist có thể nhận diện và tương tác với các kênh YouTube của bạn:
 
-1.  Sau khi khởi động lại HA, vào **Settings** > **Voice assistants** > **Expose**.
-2.  Tìm và expose các sensor kênh YouTube mới tạo.
+1. Sau khi khởi động lại HA, vào **Settings** > **Voice assistants** > **Expose**.
+2. Tìm và expose các sensor kênh YouTube mới tạo.
 
     ![image](images/20250527_gCfAcK.png)
 
-3.  Tạo thêm các **Alias** cho các kênh (ví dụ: "Hoa Ban", "Sơn Tùng") để dễ nhớ hoặc dễ phát âm bằng giọng nói, đặc biệt là với kênh nước ngoài.
+3. Tạo thêm các **Alias** cho các kênh (ví dụ: "Hoa Ban", "Sơn Tùng") để dễ nhớ hoặc dễ phát âm bằng giọng nói, đặc biệt là với kênh nước ngoài.
 
     ![image](images/20250604_VhChze.png)
 
@@ -142,11 +142,11 @@ Blueprint này giúp Assist lấy thông tin video mới nhất từ kênh YouTu
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fget_youtube_video_info_full_llm.yaml)
 
 - **Bước làm:**
-  1.  Import blueprint.
-  2.  Tạo một **Script** mới từ blueprint này.
-  3.  Chỉ định Template Sensor (`sensor.assist_entity_ids_and_aliases`) đã tạo ở bước 1.5.
-  4.  **Quan trọng:** Giữ nguyên tên Script mặc định.
-  5.  Sau khi tạo xong, **Expose** script đó cho Voice Assist.
+  1. Import blueprint.
+  2. Tạo một **Script** mới từ blueprint này.
+  3. Chỉ định Template Sensor (`sensor.assist_entity_ids_and_aliases`) đã tạo ở bước 1.5.
+  4. **Quan trọng:** Giữ nguyên tên Script mặc định.
+  5. Sau khi tạo xong, **Expose** script đó cho Voice Assist.
 
 ### 2.2. Cài đặt Blueprint Play Video
 
@@ -155,12 +155,12 @@ Blueprint này có nhiệm vụ phát video đã tìm được lên thiết bị
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
 - **Bước làm:**
-  1.  Import blueprint.
-  2.  Tạo một **Script** mới từ blueprint này.
-  3.  Chỉ định Template Sensor (`sensor.assist_entity_ids_and_aliases`) đã tạo ở bước 1.5.
-  4.  Chỉ định một Smart TV hoặc loa **mặc định** sẽ phát video lên (Assist sẽ dùng thiết bị này nếu bạn không chỉ định tên thiết bị cụ thể khi ra lệnh).
-  5.  **Quan trọng:** Giữ nguyên tên Script mặc định.
-  6.  Sau khi tạo xong, **Expose** script đó cho Voice Assist.
+  1. Import blueprint.
+  2. Tạo một **Script** mới từ blueprint này.
+  3. Chỉ định Template Sensor (`sensor.assist_entity_ids_and_aliases`) đã tạo ở bước 1.5.
+  4. Chỉ định một Smart TV hoặc loa **mặc định** sẽ phát video lên (Assist sẽ dùng thiết bị này nếu bạn không chỉ định tên thiết bị cụ thể khi ra lệnh).
+  5. **Quan trọng:** Giữ nguyên tên Script mặc định.
+  6. Sau khi tạo xong, **Expose** script đó cho Voice Assist.
 
 ## 3. Ví dụ lệnh thoại
 

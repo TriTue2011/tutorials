@@ -25,7 +25,7 @@ def _to_relative_path(path: str) -> str:
 def _internal_url() -> str | None:
     """Return the internal Home Assistant base URL."""
     try:
-        return network.get_url(hass, allow_external=False)  # noqa: F821
+        return network.get_url(hass, allow_external=False)  # noqa: F821  # ty:ignore[unresolved-reference]
     except network.NoURLAvailableError:
         return None
 
@@ -34,7 +34,7 @@ def _external_url() -> str | None:
     """Return the external HTTPS Home Assistant base URL."""
     try:
         return network.get_url(
-            hass,  # noqa: F821
+            hass,  # noqa: F821  # ty:ignore[unresolved-reference]
             allow_internal=False,
             allow_ip=False,
             require_ssl=True,
@@ -57,13 +57,13 @@ async def _ensure_dir(path: str) -> None:
     await asyncio.to_thread(os.makedirs, path, exist_ok=True)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _open_file(path: str, mode: str):
     """Safely open a file using native Python."""
     return open(path, mode)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
     """Remove files from a directory older than a specified cutoff time."""
     path = Path(directory)
@@ -119,7 +119,7 @@ async def _download_file(client: httpx.AsyncClient, url: str) -> tuple[str, None
         return None, f"Download failed: {error}"
 
 
-@time_trigger("shutdown")  # noqa: F821
+@time_trigger("shutdown")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def _close_session() -> None:
     """Close the shared AsyncClient on service shutdown."""
     global _session
@@ -128,13 +128,13 @@ async def _close_session() -> None:
         _session = None
 
 
-@time_trigger("cron(0 0 * * *)")  # noqa: F821
+@time_trigger("cron(0 0 * * *)")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def _daily_cleanup() -> None:
     """Perform daily cleanup of archived media files."""
     await _cleanup_old_files(DIRECTORY, days=30)
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
     """
     yaml
@@ -176,11 +176,11 @@ async def get_zalo_file_custom_bot(url: str) -> dict[str, Any]:
             response["supported"] = False
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def generate_webhook_id() -> dict[str, Any]:
     """
     yaml
@@ -202,5 +202,5 @@ async def generate_webhook_id() -> dict[str, Any]:
             response["sample_external_url"] = "The external Home Assistant URL is not found or incorrect."
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}

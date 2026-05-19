@@ -11,13 +11,13 @@ from typing import Any
 
 import orjson
 from curl_cffi import CurlFollow, CurlHttpVersion
-from curl_cffi.requests import AsyncSession, RequestsError
+from curl_cffi.requests import AsyncSession, BrowserTypeLiteral, RequestsError
 
 TTL = 30
 RETRY_LIMIT = 3
 RETRY_DELAY = (30, 60)
 PAGE_DELAY = (1.0, 2.5)
-BASE_URL = "https://www.csgt.vn"
+BASE_URL = "https://csgt.bocongan.gov.vn"
 LOOKUP_URL = f"{BASE_URL}/tra-cuu-phat-nguoi"
 POST_URL = f"{BASE_URL}/tra-cuu-vi-pham-qua-hinh-anh"
 RECAPTCHA_SITEKEY = "6Le8H9ArAAAAAOWw8BZe4rg5mgbagZtxG1dVxv4i"
@@ -37,10 +37,10 @@ CACHE_MAX_AGE = TTL * 24 * 60 * 60
 CACHE_REFRESH_PERIOD = 4 * 60 * 60
 CACHE_REFRESH_THRESHOLD = CACHE_MAX_AGE - CACHE_REFRESH_PERIOD
 
-BROWSERS = ["chrome", "safari", "safari_ios"]
+BROWSERS: list[BrowserTypeLiteral] = ["chrome", "safari", "safari_ios"]
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _connect_db() -> sqlite3.Connection:
     """Create a configured SQLite connection with optimized PRAGMAs."""
     conn = sqlite3.connect(DB_PATH)
@@ -54,7 +54,7 @@ def _connect_db() -> sqlite3.Connection:
     return conn
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _ensure_cache_db() -> None:
     """Initialize the cache database schema and directory."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -73,7 +73,7 @@ def _ensure_cache_db() -> None:
         conn.commit()
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _ensure_cache_db_once(force: bool = False) -> None:
     """Ensure the cache database exists, optionally forcing a rebuild."""
     global _CACHE_READY
@@ -102,7 +102,7 @@ async def _cache_prepare_db(force: bool = False) -> bool:
     return True
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cache_get_sync(key: str) -> tuple[str | None, int | None]:
     """Fetch a cache record synchronously (returns value and remaining TTL)."""
     for attempt in range(2):
@@ -140,7 +140,7 @@ async def _cache_get(key: str) -> tuple[str | None, int | None]:
     return await asyncio.to_thread(_cache_get_sync, key)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     """Store or update a cache record synchronously."""
     for attempt in range(2):
@@ -175,7 +175,7 @@ async def _cache_set(key: str, value: str, ttl_seconds: int) -> bool:
     return await asyncio.to_thread(_cache_set_sync, key, value, ttl_seconds)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cache_delete_sync(key: str) -> int:
     """Remove a cache record synchronously."""
     for attempt in range(2):
@@ -201,7 +201,7 @@ async def _cache_delete(key: str) -> int:
     return await asyncio.to_thread(_cache_delete_sync, key)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _prune_expired_sync() -> int:
     """Remove expired entries from the cache database."""
     for attempt in range(2):
@@ -229,7 +229,7 @@ async def _prune_expired() -> int:
     return await asyncio.to_thread(_prune_expired_sync)
 
 
-@time_trigger("cron(15 3 * * *)")  # noqa: F821
+@time_trigger("cron(15 3 * * *)")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def prune_cache_db() -> None:
     """Daily cleanup of expired cache entries."""
     await _prune_expired()
@@ -332,7 +332,7 @@ async def _get_recaptcha_clr(ss: AsyncSession) -> None:
         pass
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _extract_violations_from_html(result_html: str) -> dict[str, Any]:
     """Parse traffic violations from csgt.vn result HTML."""
     from bs4 import BeautifulSoup
@@ -423,14 +423,14 @@ async def _check_license_plate(
     license_plate: str,
     vehicle_type: str,
     retry_count: int = 0,
-    browser: str | None = None,
+    browser: BrowserTypeLiteral | None = None,
 ) -> dict[str, Any]:
     """Execute the end-to-end lookup flow against csgt.vn with retries."""
 
     if browser is None:
         browser = random.choice(BROWSERS)
     async with AsyncSession(
-        impersonate=browser, timeout=60, allow_redirects=CurlFollow.SAFE, http_version=CurlHttpVersion.V2_0
+        impersonate=browser, timeout=60, allow_redirects=CurlFollow.SAFE, http_version=CurlHttpVersion.V3
     ) as ss:
         try:
             homepage = await ss.get(BASE_URL)
@@ -443,19 +443,19 @@ async def _check_license_plate(
 
             token_match = re.search(r'name="_token"\s+value="([^"]+)"', resp_page.text)
             if not token_match:
-                log.error(f"CSRF token extraction failed for {license_plate}")  # noqa: F821
+                log.error(f"CSRF token extraction failed for {license_plate}")  # noqa: F821  # ty:ignore[unresolved-reference]
                 return {"error": "Failed to extract CSRF token"}
 
             csrf_token = token_match.group(1)
 
             version = await _get_recaptcha_version(ss)
             if not version:
-                log.error(f"reCAPTCHA version fetch failed for {license_plate}")  # noqa: F821
+                log.error(f"reCAPTCHA version fetch failed for {license_plate}")  # noqa: F821  # ty:ignore[unresolved-reference]
                 return {"error": "Failed to fetch reCAPTCHA version"}
 
             anchor_token = await _get_recaptcha_anchor(ss, version)
             if not anchor_token:
-                log.error(f"reCAPTCHA anchor failed for {license_plate}")  # noqa: F821
+                log.error(f"reCAPTCHA anchor failed for {license_plate}")  # noqa: F821  # ty:ignore[unresolved-reference]
                 return {"error": "reCAPTCHA initialization failed"}
 
             await asyncio.sleep(random.uniform(0.5, 2.5))
@@ -463,13 +463,13 @@ async def _check_license_plate(
             recaptcha_token, error = await _get_recaptcha_reload(ss, anchor_token, version)
             if not recaptcha_token:
                 if retry_count < RETRY_LIMIT:
-                    log.warning(  # noqa: F821
+                    log.warning(  # noqa: F821  # ty:ignore[unresolved-reference]
                         f"reCAPTCHA failed (Retry {retry_count + 1}/{RETRY_LIMIT}): {error}"
                     )
                     next_browser = random.choice([b for b in BROWSERS if b != browser])
                     await asyncio.sleep(random.uniform(*RETRY_DELAY) * (retry_count + 1))
                     return await _check_license_plate(license_plate, vehicle_type, retry_count + 1, next_browser)
-                log.error(f"reCAPTCHA failed for {license_plate}: {error}")  # noqa: F821
+                log.error(f"reCAPTCHA failed for {license_plate}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
                 return {"error": f"reCAPTCHA retrieval failed: {error}"}
 
             headers = {
@@ -496,11 +496,11 @@ async def _check_license_plate(
                     msg = ""
 
                 if "Bạn đã vượt quá số lần tra cứu" in msg:
-                    log.error(f"Daily limit reached for {license_plate}: {msg}")  # noqa: F821
+                    log.error(f"Daily limit reached for {license_plate}: {msg}")  # noqa: F821  # ty:ignore[unresolved-reference]
                     return {"error": msg}
 
                 if retry_count < RETRY_LIMIT:
-                    log.warning(  # noqa: F821
+                    log.warning(  # noqa: F821  # ty:ignore[unresolved-reference]
                         f"Rate limited (Retry {retry_count + 1}/{RETRY_LIMIT}): {msg}"
                     )
                     next_browser = random.choice([b for b in BROWSERS if b != browser])
@@ -512,7 +512,7 @@ async def _check_license_plate(
                 response_data = orjson.loads(resp.content)
                 if retry_count < RETRY_LIMIT:
                     msg = response_data.get("message", "Verification failed")
-                    log.warning(  # noqa: F821
+                    log.warning(  # noqa: F821  # ty:ignore[unresolved-reference]
                         f"Verification failed (Retry {retry_count + 1}/{RETRY_LIMIT}): {msg}"
                     )
                     next_browser = random.choice([b for b in BROWSERS if b != browser])
@@ -536,24 +536,24 @@ async def _check_license_plate(
 
         except (RequestsError, orjson.JSONDecodeError) as error:
             if retry_count < RETRY_LIMIT:
-                log.warning(f"Error (Retry {retry_count + 1}/{RETRY_LIMIT}): {error}")  # noqa: F821
+                log.warning(f"Error (Retry {retry_count + 1}/{RETRY_LIMIT}): {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
                 next_browser = random.choice([b for b in BROWSERS if b != browser])
                 await asyncio.sleep(random.uniform(*RETRY_DELAY) * (retry_count + 1))
                 return await _check_license_plate(license_plate, vehicle_type, retry_count + 1, next_browser)
-            log.error(  # noqa: F821
+            log.error(  # noqa: F821  # ty:ignore[unresolved-reference]
                 f"Lookup failed for {license_plate} after {RETRY_LIMIT} retries: {error}"
             )
             return {"error": f"Failed after {RETRY_LIMIT} retries: {error}"}
 
 
-@time_trigger("startup")  # noqa: F821
+@time_trigger("startup")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def build_cached_ctx() -> None:
     """Initialize cache and prune expired entries on startup."""
     await _cache_prepare_db(force=True)
     await _prune_expired()
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def traffic_fine_lookup_tool(
     license_plate: str, vehicle_type: str, bypass_caching: bool = False
 ) -> dict[str, Any]:
@@ -618,7 +618,7 @@ async def traffic_fine_lookup_tool(
         cached_value, ttl = await _cache_get(cache_key)
         if cached_value is not None:
             if ttl is not None and ttl < CACHE_REFRESH_THRESHOLD:
-                task.create(_check_license_plate, license_plate, vehicle_type)  # noqa: F821
+                task.create(_check_license_plate, license_plate, vehicle_type)  # noqa: F821  # ty:ignore[unresolved-reference]
             return orjson.loads(cached_value)
 
         response = await _check_license_plate(license_plate, vehicle_type)
@@ -630,5 +630,5 @@ async def traffic_fine_lookup_tool(
             )
         return response
     except Exception as error:
-        log.error(f"Unexpected error for {license_plate}: {error}")  # noqa: F821
+        log.error(f"Unexpected error for {license_plate}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}

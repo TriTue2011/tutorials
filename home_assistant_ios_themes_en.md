@@ -6,30 +6,31 @@ This guide helps you install a beautiful set of iOS themes, automatically switch
 
 - **HACS:** Ensure you have [HACS](https://github.com/hacs) installed.
 - **Themes Configuration:** Ensure your `configuration.yaml` file includes the configuration line to load themes (if not, add it):
+
   ```yaml
   frontend:
     themes: !include_dir_merge_named themes
   ```
 
-### Install via HACS:
+### Install via HACS
 
-1.  Go to **HACS** > **Frontend**.
-2.  Search for and install **iOS Themes** ([basnijholt/lovelace-ios-themes](https://github.com/basnijholt/lovelace-ios-themes)).
-3.  Go to **HACS** > **Integrations**.
-4.  Search for and install **Spook** ([frenck/spook](https://github.com/frenck/spook)).
+1. Go to **HACS** > **Frontend**.
+2. Search for and install **iOS Themes** ([basnijholt/lovelace-ios-themes](https://github.com/basnijholt/lovelace-ios-themes)).
+3. Go to **HACS** > **Integrations**.
+4. Search for and install **Spook** ([frenck/spook](https://github.com/frenck/spook)).
     - _Note:_ Spook provides the `input_select.random` feature required for this guide.
 
 ## 2. Configure Local Backgrounds
 
 This helps backgrounds load faster from your local network instead of downloading from the internet every time you open the app.
 
-1.  Use File Editor or VS Code to access your Home Assistant configuration directory.
-2.  Navigate to the `themes/ios-themes` folder (where HACS downloaded the themes).
-3.  Copy all `.jpg` image files from there.
-4.  Paste them into the `www/ios-themes` folder.
+1. Use File Editor or VS Code to access your Home Assistant configuration directory.
+2. Navigate to the `themes/ios-themes` folder (where HACS downloaded the themes).
+3. Copy all `.jpg` image files from there.
+4. Paste them into the `www/ios-themes` folder.
     - _If the `www` folder does not exist, create it at the same level as your `configuration.yaml` file._
     - _If the `ios-themes` folder does not exist within `www`, create it._
-5.  **Restart** Home Assistant to apply the changes.
+5. **Restart** Home Assistant to apply the changes.
 
 ## 3. Create Automatic Theme Switching (Auto Light/Dark)
 
@@ -121,5 +122,5 @@ mode: restart
 
 **Most Important Step:** For the automation to change your interface, you must select **Use default theme** mode in your user settings.
 
-1.  Click on the **User Profile** icon in the bottom-left corner of the sidebar.
-2.  Under **Theme**, select **Use default theme**.
+1. Click on the **User Profile** icon in the bottom-left corner of the sidebar.
+2. Under **Theme**, select **Use default theme**.

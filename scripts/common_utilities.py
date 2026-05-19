@@ -53,7 +53,7 @@ def _acquire_index_lock(key: str):
     return _IndexLockContext(key)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _get_db_connection() -> sqlite3.Connection:
     """Create a configured SQLite connection with optimized PRAGMAs."""
     conn = sqlite3.connect(DB_PATH)
@@ -63,7 +63,7 @@ def _get_db_connection() -> sqlite3.Connection:
     return conn
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _ensure_cache_db() -> None:
     """Initialize the cache database schema and directory."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -82,7 +82,7 @@ def _ensure_cache_db() -> None:
         conn.commit()
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _ensure_cache_db_once(force: bool = False) -> None:
     """Ensure the cache database exists, optionally forcing a rebuild."""
     global _CACHE_READY
@@ -98,7 +98,7 @@ def _ensure_cache_db_once(force: bool = False) -> None:
             _CACHE_READY = True
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _reset_cache_ready() -> None:
     """Mark the cache database schema as stale."""
     global _CACHE_READY
@@ -112,7 +112,7 @@ def _cache_prepare_db_sync(force: bool = False) -> bool:
     return True
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _prune_expired_sync() -> int:
     """Remove expired entries from the cache database."""
     for attempt in range(2):
@@ -135,7 +135,7 @@ def _prune_expired_sync() -> int:
     return 0
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cache_get_sync(key: str) -> str | None:
     """Fetch a cache record synchronously by key."""
     for attempt in range(2):
@@ -165,7 +165,7 @@ def _cache_get_sync(key: str) -> str | None:
     return None
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     """Persist or update a cache entry synchronously."""
     for attempt in range(2):
@@ -195,7 +195,7 @@ def _cache_set_sync(key: str, value: str, ttl_seconds: int) -> bool:
     return False
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cache_delete_sync(key: str) -> int:
     """Remove a cache entry synchronously by key."""
     for attempt in range(2):
@@ -241,12 +241,12 @@ async def _prune_expired() -> int:
     return await asyncio.to_thread(_prune_expired_sync)
 
 
-@time_trigger("startup")  # noqa: F821
+@time_trigger("startup")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def initialize_cache_db() -> None:
     """Initialize cache and prune expired entries on startup."""
     await _cache_prepare_db(force=True)
     await _prune_expired()
-    state.set(  # noqa: F821
+    state.set(  # noqa: F821  # ty:ignore[unresolved-reference]
         f"binary_sensor.pyscript_{__name__}",
         "on",
         {
@@ -254,16 +254,16 @@ async def initialize_cache_db() -> None:
             "device_class": "connectivity",
         },
     )
-    log.info(f"Pyscript {__name__} is ready.")  # noqa: F821
+    log.info(f"Pyscript {__name__} is ready.")  # noqa: F821  # ty:ignore[unresolved-reference]
 
 
-@time_trigger("cron(0 * * * *)")  # noqa: F821
+@time_trigger("cron(0 * * * *)")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def prune_cache_db() -> None:
     """Regularly prune expired entries from the cache database."""
     await _prune_expired()
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_cache_get(key: str) -> dict[str, Any]:
     """
     yaml
@@ -300,7 +300,7 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
             "error": "not_found",
         }
     except Exception as error:
-        log.error(f"{__name__}: cache_get failed for '{key}': {error}")  # noqa: F821
+        log.error(f"{__name__}: cache_get failed for '{key}': {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {
             "status": "error",
             "op": "get",
@@ -309,7 +309,7 @@ async def memory_cache_get(key: str) -> dict[str, Any]:
         }
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_cache_forget(key: str) -> dict[str, Any]:
     """
     yaml
@@ -339,7 +339,7 @@ async def memory_cache_forget(key: str) -> dict[str, Any]:
             "deleted": deleted,
         }
     except Exception as error:
-        log.error(f"{__name__}: cache_forget failed for '{key}': {error}")  # noqa: F821
+        log.error(f"{__name__}: cache_forget failed for '{key}': {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {
             "status": "error",
             "op": "forget",
@@ -348,7 +348,7 @@ async def memory_cache_forget(key: str) -> dict[str, Any]:
         }
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_cache_set(
     key: str,
     value: Any,
@@ -404,7 +404,7 @@ async def memory_cache_set(
             "ttl": ttl,
         }
     except Exception as error:
-        log.error(f"{__name__}: cache_set failed for '{key}': {error}")  # noqa: F821
+        log.error(f"{__name__}: cache_set failed for '{key}': {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {
             "status": "error",
             "op": "set",
@@ -413,7 +413,7 @@ async def memory_cache_set(
         }
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_cache_index_update(
     index_key: str,
     add: Any | None = None,
@@ -558,7 +558,7 @@ async def memory_cache_index_update(
                 "changed": changed,
             }
         except Exception as error:
-            log.error(f"{__name__}: index_update failed for '{cleaned_key}': {error}")  # noqa: F821
+            log.error(f"{__name__}: index_update failed for '{cleaned_key}': {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
             return {
                 "status": "error",
                 "op": "index_update",

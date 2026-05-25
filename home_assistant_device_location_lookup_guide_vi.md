@@ -33,8 +33,8 @@ Nếu điện thoại của bạn có cả tracker từ Mobile App và Bermuda:
 
 1. **Chỉ expose tracker của Bermuda** cho Voice Assist (để định vị phòng chính xác hơn).
 2. **Đổi tên thiết bị Bermuda** trùng với tên thiết bị Mobile App.
-    - _Ví dụ:_ Nếu Mobile App tên là `Pixel 9`, hãy đổi tên thiết bị Bermuda thành `Pixel 9` (hoặc `Pixel 9 BLE`).
-    - _Tại sao?_ Việc này giúp liên kết vị trí chính xác từ Bermuda với khả năng "Đổ chuông" của Mobile App.
+   - _Ví dụ:_ Nếu Mobile App tên là `Pixel 9`, hãy đổi tên thiết bị Bermuda thành `Pixel 9` (hoặc `Pixel 9 BLE`).
+   - _Tại sao?_ Việc này giúp liên kết vị trí chính xác từ Bermuda với khả năng "Đổ chuông" của Mobile App.
 
 ### Bước 2: Tạo Shell Command lấy Alias
 

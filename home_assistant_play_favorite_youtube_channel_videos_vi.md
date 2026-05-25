@@ -24,7 +24,7 @@ Hướng dẫn này cho phép bạn sử dụng Home Assistant Voice để phát
 Để tính năng này hoạt động, bạn cần cài đặt hai tích hợp (một từ HACS và một có sẵn):
 
 1. **Feedparser:** Dùng để đọc dữ liệu RSS từ YouTube.
-    [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
+   [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
 2. **Media Extractor:** Dùng để trích xuất link video/audio trực tiếp từ YouTube. Đây là một tích hợp **có sẵn (Built-in)** của Home Assistant. Vào **Settings** > **Devices & Services** > **Add Integration** và tìm từ khóa `Media extractor`.
 
 - Sau khi cài đặt xong, hãy **khởi động lại** Home Assistant.
@@ -90,11 +90,11 @@ sensor:
 1. Sau khi khởi động lại HA, vào **Settings** > **Voice assistants** > **Expose**.
 2. Tìm và expose các sensor kênh YouTube mới tạo.
 
-    ![image](images/20250527_gCfAcK.png)
+   ![image](images/20250527_gCfAcK.png)
 
 3. Tạo thêm các **Alias** cho các kênh (ví dụ: "Hoa Ban", "Sơn Tùng") để dễ nhớ hoặc dễ phát âm bằng giọng nói, đặc biệt là với kênh nước ngoài.
 
-    ![image](images/20250604_VhChze.png)
+   ![image](images/20250604_VhChze.png)
 
 ### 1.5. Cấu hình hỗ trợ Alias cho Assist
 

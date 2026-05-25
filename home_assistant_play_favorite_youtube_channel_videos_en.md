@@ -24,7 +24,7 @@ This guide allows you to use Home Assistant Voice to play the latest videos from
 To enable this feature, you need two custom/built-in integrations:
 
 1. **Feedparser:** Reads YouTube RSS feeds.
-    [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
+   [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
 2. **Media Extractor:** Extracts direct video/audio URLs from YouTube. This is a **built-in** integration. Go to **Settings** > **Devices & Services** > **Add Integration** and search for `Media extractor`.
 
 - After installing, **restart** Home Assistant.
@@ -90,11 +90,11 @@ For Voice Assist to recognize and interact with your YouTube channels:
 1. After restarting HA, go to **Settings** > **Voice assistants** > **Expose**.
 2. Find and expose the newly created YouTube channel sensors.
 
-    ![image](images/20250527_gCfAcK.png)
+   ![image](images/20250527_gCfAcK.png)
 
 3. Create additional **Aliases** for the channels (e.g., "Hoa Ban", "Son Tung") to make them easier to remember or pronounce, especially for foreign channels.
 
-    ![image](images/20250604_VhChze.png)
+   ![image](images/20250604_VhChze.png)
 
 ### 1.5. Configure Alias Support for Assist
 

@@ -18,7 +18,7 @@ This guide helps you install a beautiful set of iOS themes, automatically switch
 2. Search for and install **iOS Themes** ([basnijholt/lovelace-ios-themes](https://github.com/basnijholt/lovelace-ios-themes)).
 3. Go to **HACS** > **Integrations**.
 4. Search for and install **Spook** ([frenck/spook](https://github.com/frenck/spook)).
-    - _Note:_ Spook provides the `input_select.random` feature required for this guide.
+   - _Note:_ Spook provides the `input_select.random` feature required for this guide.
 
 ## 2. Configure Local Backgrounds
 
@@ -28,8 +28,8 @@ This helps backgrounds load faster from your local network instead of downloadin
 2. Navigate to the `themes/ios-themes` folder (where HACS downloaded the themes).
 3. Copy all `.jpg` image files from there.
 4. Paste them into the `www/ios-themes` folder.
-    - _If the `www` folder does not exist, create it at the same level as your `configuration.yaml` file._
-    - _If the `ios-themes` folder does not exist within `www`, create it._
+   - _If the `www` folder does not exist, create it at the same level as your `configuration.yaml` file._
+   - _If the `ios-themes` folder does not exist within `www`, create it._
 5. **Restart** Home Assistant to apply the changes.
 
 ## 3. Create Automatic Theme Switching (Auto Light/Dark)

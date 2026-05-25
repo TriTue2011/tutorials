@@ -49,10 +49,10 @@ template:
               {% set ignored_integration_entities.entities = ignored_integration_entities.entities + integration_entities(integration) %}
             {% endfor %}
             {% set candidates = states
-              | selectattr('state', 'in', ['unavailable'])
+              | selectattr('state', 'eq', 'unavailable')
+              | rejectattr('entity_id', 'eq', this.entity_id)
               | rejectattr('domain', 'in', ignored_domains)
               | rejectattr('entity_id', 'in', ignored_integration_entities.entities)
-              | rejectattr('entity_id', 'eq', this.entity_id)
               | map(attribute='entity_id')
               | list %}
             {% set ns = namespace(final=[]) %}

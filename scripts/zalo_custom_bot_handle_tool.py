@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import mimetypes
 import os
 import secrets
@@ -64,6 +65,33 @@ def _open_file(path: str, mode: str):
 
 
 @pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
+def _download_file_chunks_with_headers(url: str, original_name: str, directory: str) -> str:
+    """Download a file in chunks using httpx.Client, guess the extension, and write to disk."""
+    with httpx.Client(timeout=300) as client, client.stream("GET", url) as resp:
+        resp.raise_for_status()
+        content_type = resp.headers.get("Content-Type", "") or ""
+        ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
+
+        name = original_name
+        if not Path(name).suffix and ext:
+            name += ext
+
+        base, extension = os.path.splitext(name)
+        timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+        file_name = f"{base}_{timestamp}_{secrets.token_hex(4)}{extension}"
+        file_path = os.path.join(directory, file_name)
+
+        with open(file_path, "wb") as f:
+            for chunk in resp.iter_bytes(65536):
+                f.write(chunk)
+            f.flush()
+            with contextlib.suppress(OSError):
+                os.fsync(f.fileno())
+
+        return file_path
+
+
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
     """Remove files from a directory older than a specified cutoff time."""
     path = Path(directory)
@@ -91,31 +119,15 @@ async def _download_file(client: httpx.AsyncClient, url: str) -> tuple[str, None
         parsed_url = urlparse(url)
         original_name = Path(parsed_url.path).name
 
-        async with client.stream("GET", url) as resp:
-            resp.raise_for_status()
-            content_type = resp.headers.get("Content-Type", "")
-            ext = mimetypes.guess_extension(content_type.split(";")[0].strip()) or ""
-
-            if not Path(original_name).suffix and ext:
-                original_name += ext
-
-            base, extension = os.path.splitext(original_name)
-            timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
-            file_name = f"{base}_{timestamp}_{secrets.token_hex(4)}{extension}"
-
-            file_path = os.path.join(DIRECTORY, file_name)
-
-            f = await asyncio.to_thread(_open_file, file_path, "wb")
-            try:
-                async for chunk in resp.aiter_bytes(65536):
-                    await asyncio.to_thread(f.write, chunk)
-                await asyncio.to_thread(f.flush)
-                await asyncio.to_thread(os.fsync, f.fileno())
-            finally:
-                await asyncio.to_thread(f.close)
+        file_path = await asyncio.to_thread(
+            _download_file_chunks_with_headers,
+            url,
+            original_name,
+            DIRECTORY,
+        )
 
         return file_path, None
-    except (httpx.HTTPError, OSError) as error:
+    except Exception as error:
         return None, f"Download failed: {error}"
 
 

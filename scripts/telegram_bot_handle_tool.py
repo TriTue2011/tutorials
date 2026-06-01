@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import mimetypes
 import os
 import secrets
@@ -112,19 +113,10 @@ async def _download_file(client: httpx.AsyncClient, file_id: str) -> tuple[str, 
 
         file_path = os.path.join(DIRECTORY, file_name)
 
-        f = await asyncio.to_thread(_open_file, file_path, "wb")
-        try:
-            async with client.stream("GET", url) as resp:
-                resp.raise_for_status()
-                async for chunk in resp.aiter_bytes(65536):
-                    await asyncio.to_thread(f.write, chunk)
-            await asyncio.to_thread(f.flush)
-            await asyncio.to_thread(os.fsync, f.fileno())
-        finally:
-            await asyncio.to_thread(f.close)
+        await asyncio.to_thread(_download_file_chunks, url, file_path)
 
         return file_path, None
-    except (httpx.HTTPError, OSError) as error:
+    except Exception as error:
         return None, f"Download failed: {error}"
 
 
@@ -307,6 +299,18 @@ def _external_url() -> str | None:
 def _open_file(path: str, mode: str):
     """Safely open a file using native Python."""
     return open(path, mode)
+
+
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
+def _download_file_chunks(url: str, file_path: str) -> None:
+    """Download a URL in chunks using httpx to save memory."""
+    with httpx.Client(timeout=300) as client, client.stream("GET", url) as resp, open(file_path, "wb") as f:
+        resp.raise_for_status()
+        for chunk in resp.iter_bytes(65536):
+            f.write(chunk)
+        f.flush()
+        with contextlib.suppress(OSError):
+            os.fsync(f.fileno())
 
 
 @pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]

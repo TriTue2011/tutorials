@@ -11,7 +11,7 @@ import math
 from typing import Any
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def jd_from_date(dd: int, mm: int, yy: int) -> int:
     """Compute the Julian day number for a given Gregorian date."""
     a = int((14 - mm) / 12.0)
@@ -23,7 +23,7 @@ def jd_from_date(dd: int, mm: int, yy: int) -> int:
     return jd
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def jd_to_date(jd: int) -> list[int]:
     """Convert a Julian day number to a Gregorian date [day, month, year]."""
     if jd > 2299160:
@@ -43,7 +43,7 @@ def jd_to_date(jd: int) -> list[int]:
     return [day, month, year]
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def new_moon(k: int) -> float:
     """Compute the Julian date of the k-th new moon since 1900-01-01."""
     t = k / 1236.85
@@ -70,7 +70,7 @@ def new_moon(k: int) -> float:
     return jd_new
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def sun_longitude(jdn: float) -> float:
     """Compute the true longitude of the sun for a given Julian date."""
     t = (jdn - 2451545.0) / 36525.0
@@ -86,19 +86,19 @@ def sun_longitude(jdn: float) -> float:
     return longitude
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def get_sun_longitude(day_number: int, time_zone: int) -> int:
     """Compute the solar term index (0-11) for midnight of a given Julian day."""
     return int(sun_longitude(day_number - 0.5 - time_zone / 24.0) / math.pi * 6)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def get_new_moon_day(k: int, time_zone: int) -> int:
     """Compute the Julian day of the k-th new moon for a specific time zone."""
     return int(new_moon(k) + 0.5 + time_zone / 24.0)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def get_lunar_month_11(yy: int, time_zone: int) -> int:
     """Find the start of the 11th lunar month for a given Gregorian year."""
     off = jd_from_date(31, 12, yy) - 2415021.0
@@ -110,7 +110,7 @@ def get_lunar_month_11(yy: int, time_zone: int) -> int:
     return nm
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def get_leap_month_offset(a11: int, time_zone: int) -> int:
     """Calculate the index of the leap month following the 11th lunar month."""
     k = int((a11 - 2415021.076998695) / 29.530588853 + 0.5)
@@ -125,7 +125,7 @@ def get_leap_month_offset(a11: int, time_zone: int) -> int:
     return i - 1
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def solar_to_lunar(dd: int, mm: int, yy: int, time_zone: int = 7) -> list[int]:
     """Convert a Gregorian (Solar) date to its corresponding Lunar date."""
     day_number = jd_from_date(dd, mm, yy)
@@ -158,7 +158,7 @@ def solar_to_lunar(dd: int, mm: int, yy: int, time_zone: int = 7) -> list[int]:
     return [lunar_day, lunar_month, lunar_year, lunar_leap, day_number]
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def lunar_to_solar(
     lunar_day: int,
     lunar_month: int,
@@ -190,7 +190,7 @@ def lunar_to_solar(
     return jd_to_date(month_start + lunar_day - 1)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def get_solar_term(day_number: int, time_zone: int) -> int:
     """Calculate the solar term index (0-23) for a given Julian day."""
     return int((sun_longitude(day_number - 0.5 - time_zone / 24.0) / math.pi) * 12)
@@ -994,7 +994,7 @@ def get_number_of_days(date: str) -> int:
     return (end_date - start_date).days
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str, Any]:
     """
     yaml
@@ -1083,7 +1083,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str,
 
             return response
         except Exception as error:
-            log.error(  # noqa: F821
+            log.error(  # noqa: F821  # ty:ignore[unresolved-reference]
                 f"{__name__}: Solar to Lunar conversion failed for {date}: {error}"
             )
             return {"error": f"Error converting Solar date {date} to Lunar date: {error}"}
@@ -1138,7 +1138,7 @@ def date_conversion_tool(conversion_type: str, date: str, **kwargs) -> dict[str,
             response["field_mapping"] = FIELD_MAPPING
             return response
         except Exception as error:
-            log.error(  # noqa: F821
+            log.error(  # noqa: F821  # ty:ignore[unresolved-reference]
                 f"{__name__}: Lunar to Solar conversion failed for {date}: {error}"
             )
             return {"error": f"Error converting Lunar date {date} {kwargs} to Solar date: {error}"}

@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import mimetypes
 import os
 import secrets
@@ -11,7 +12,7 @@ import orjson
 from homeassistant.helpers import network
 
 DIRECTORY = "/media/telegram"
-TOKEN = pyscript.config.get("telegram_bot_token")  # noqa: F821
+TOKEN = pyscript.config.get("telegram_bot_token")  # noqa: F821  # ty:ignore[unresolved-reference]
 if TOKEN:
     TOKEN = TOKEN.strip()
 
@@ -112,19 +113,10 @@ async def _download_file(client: httpx.AsyncClient, file_id: str) -> tuple[str, 
 
         file_path = os.path.join(DIRECTORY, file_name)
 
-        f = await asyncio.to_thread(_open_file, file_path, "wb")
-        try:
-            async with client.stream("GET", url) as resp:
-                resp.raise_for_status()
-                async for chunk in resp.aiter_bytes(65536):
-                    await asyncio.to_thread(f.write, chunk)
-            await asyncio.to_thread(f.flush)
-            await asyncio.to_thread(os.fsync, f.fileno())
-        finally:
-            await asyncio.to_thread(f.close)
+        await asyncio.to_thread(_download_file_chunks, url, file_path)
 
         return file_path, None
-    except (httpx.HTTPError, OSError) as error:
+    except Exception as error:
         return None, f"Download failed: {error}"
 
 
@@ -284,7 +276,7 @@ async def _send_chat_action(
 def _internal_url() -> str | None:
     """Return the internal Home Assistant base URL."""
     try:
-        return network.get_url(hass, allow_external=False)  # noqa: F821
+        return network.get_url(hass, allow_external=False)  # noqa: F821  # ty:ignore[unresolved-reference]
     except network.NoURLAvailableError:
         return None
 
@@ -293,7 +285,7 @@ def _external_url() -> str | None:
     """Return the external HTTPS Home Assistant base URL."""
     try:
         return network.get_url(
-            hass,  # noqa: F821
+            hass,  # noqa: F821  # ty:ignore[unresolved-reference]
             allow_internal=False,
             allow_ip=False,
             require_ssl=True,
@@ -303,13 +295,25 @@ def _external_url() -> str | None:
         return None
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _open_file(path: str, mode: str):
     """Safely open a file using native Python."""
     return open(path, mode)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
+def _download_file_chunks(url: str, file_path: str) -> None:
+    """Download a URL in chunks using httpx to save memory."""
+    with httpx.Client(timeout=300) as client, client.stream("GET", url) as resp, open(file_path, "wb") as f:
+        resp.raise_for_status()
+        for chunk in resp.iter_bytes(65536):
+            f.write(chunk)
+        f.flush()
+        with contextlib.suppress(OSError):
+            os.fsync(f.fileno())
+
+
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _cleanup_disk_sync(directory: str, cutoff: float) -> None:
     """Remove files from a directory older than a specified cutoff time."""
     path = Path(directory)
@@ -331,7 +335,7 @@ async def _cleanup_old_files(directory: str, days: int = 30) -> None:
     await asyncio.to_thread(_cleanup_disk_sync, directory, cutoff)
 
 
-@time_trigger("shutdown")  # noqa: F821
+@time_trigger("shutdown")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def _close_session() -> None:
     """Close the shared AsyncClient on service shutdown."""
     global _session
@@ -340,13 +344,13 @@ async def _close_session() -> None:
         _session = None
 
 
-@time_trigger("cron(0 0 * * *)")  # noqa: F821
+@time_trigger("cron(0 0 * * *)")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def _daily_cleanup() -> None:
     """Perform daily cleanup of archived media files."""
     await _cleanup_old_files(DIRECTORY, days=30)
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def send_telegram_message(
     chat_id: str,
     message: str,
@@ -415,11 +419,11 @@ async def send_telegram_message(
             return {"error": "Failed to send message"}
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_telegram_file(file_id: str) -> dict[str, Any]:
     """
     yaml
@@ -460,11 +464,11 @@ async def get_telegram_file(file_id: str) -> dict[str, Any]:
             response["supported"] = False
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_telegram_webhook() -> dict[str, Any]:
     """
     yaml
@@ -475,11 +479,11 @@ async def get_telegram_webhook() -> dict[str, Any]:
         client = await _ensure_session()
         return await _get_webhook_info(client)
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
     """
     yaml
@@ -504,11 +508,11 @@ async def set_telegram_webhook(webhook_id: str | None = None) -> dict[str, Any]:
             response["webhook_id"] = webhook_id
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def delete_telegram_webhook() -> dict[str, Any]:
     """
     yaml
@@ -519,11 +523,11 @@ async def delete_telegram_webhook() -> dict[str, Any]:
         client = await _ensure_session()
         return await _delete_webhook(client)
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_telegram_updates(
     timeout: int = 30, offset: int | None = None, limit: int | None = None
 ) -> dict[str, Any]:
@@ -569,11 +573,11 @@ async def get_telegram_updates(
             }
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def get_telegram_bot_info() -> dict[str, Any]:
     """
     yaml
@@ -584,11 +588,11 @@ async def get_telegram_bot_info() -> dict[str, Any]:
         client = await _ensure_session()
         return await _get_me(client)
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def send_telegram_chat_action(
     chat_id: str,
     message_thread_id: int | None = None,
@@ -648,11 +652,11 @@ async def send_telegram_chat_action(
             return {"error": "Failed to send message"}
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def send_telegram_photo(
     chat_id: str,
     file_path: str,
@@ -727,5 +731,5 @@ async def send_telegram_photo(
             return {"error": "Failed to send photo"}
         return response
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}

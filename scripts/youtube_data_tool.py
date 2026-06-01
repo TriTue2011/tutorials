@@ -4,7 +4,7 @@ from typing import Any
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-YOUTUBE_API_KEY = pyscript.config.get("youtube_api_key")  # noqa: F821
+YOUTUBE_API_KEY = pyscript.config.get("youtube_api_key")  # noqa: F821  # ty:ignore[unresolved-reference]
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -15,7 +15,7 @@ if not YOUTUBE_API_KEY:
     raise ValueError("You need to configure your YouTube API key")
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _build_youtube_client() -> Any:
     """Initialize the Google API client for YouTube v3."""
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=YOUTUBE_API_KEY)
@@ -30,7 +30,7 @@ async def _ensure_youtube_client() -> None:
                 YOUTUBE_CLIENT = await asyncio.to_thread(_build_youtube_client)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def youtube_search(
     client: Any,
     query: str,
@@ -54,7 +54,7 @@ def youtube_search(
     return search_response
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
     """
     yaml
@@ -150,11 +150,11 @@ async def youtube_search_tool(query: str, **kwargs) -> dict[str, Any]:
             }
         return response
     except HttpError as error:
-        log.error(f"{__name__}: YouTube API Error: {error}")  # noqa: F821
+        log.error(f"{__name__}: YouTube API Error: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {
             "error": "YouTube API Error",
             "detail": str(error),
         }
     except Exception as error:
-        log.error(f"{__name__}: {error}")  # noqa: F821
+        log.error(f"{__name__}: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {"error": f"An unexpected error occurred during processing: {error}"}

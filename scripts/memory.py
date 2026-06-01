@@ -77,13 +77,13 @@ def _ensure_result_entity_name(force: bool = False) -> None:
         result_entity_name = _build_result_entity_name()
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _utcnow_iso() -> str:
     """Return current UTC time in ISO 8601 format."""
     return datetime.now(UTC).isoformat()
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _dt_from_iso(s: str) -> datetime | None:
     """Parse an ISO 8601 string into a datetime object."""
     try:
@@ -92,7 +92,7 @@ def _dt_from_iso(s: str) -> datetime | None:
         return None
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _get_db_connection() -> sqlite3.Connection:
     """Create a configured SQLite connection with optimized PRAGMAs."""
     conn = sqlite3.connect(DB_PATH)
@@ -103,7 +103,7 @@ def _get_db_connection() -> sqlite3.Connection:
     return conn
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _ensure_db() -> None:
     """Initialize the database schema and indices."""
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -178,7 +178,7 @@ def _ensure_db() -> None:
         conn.commit()
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _ensure_db_once(force: bool = False) -> None:
     """Ensure the database is initialized, optionally forcing a rebuild."""
     global _DB_READY
@@ -194,7 +194,7 @@ def _ensure_db_once(force: bool = False) -> None:
             _DB_READY = True
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _normalize_value(s: str) -> str:
     """Normalize text value to Unicode NFC form."""
     if s is None:
@@ -202,7 +202,7 @@ def _normalize_value(s: str) -> str:
     return unicodedata.normalize("NFC", str(s))
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _strip_diacritics(value: str) -> str:
     """Remove diacritics and normalize locale-specific characters."""
     if value is None:
@@ -221,7 +221,7 @@ def _strip_diacritics(value: str) -> str:
     return "".join(filtered)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _normalize_search_text(value: str | None) -> str:
     """Normalize text for search indexing and querying."""
     if value is None:
@@ -233,13 +233,13 @@ def _normalize_search_text(value: str | None) -> str:
     return re.sub(r"\s+", " ", cleaned).strip()
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _normalize_tags(s: str) -> str:
     """Normalize space-separated tags for consistent searching."""
     return _normalize_search_text(s)
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _normalize_key(s: str) -> str:
     """Normalize a memory key to a standard alphanumeric format."""
     if s is None:
@@ -270,7 +270,7 @@ def _condense_candidate_for_selection(entry: dict[str, Any], *, score: float | N
     return data
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _calculate_match_score(source_tokens: set[str], candidate_tokens: set[str], bm25_raw: float | None) -> float:
     """Calculate a combined match score using Jaccard similarity and BM25."""
     if not source_tokens or not candidate_tokens:
@@ -308,7 +308,7 @@ async def _search_tag_candidates(
     try:
         raw_matches = await _memory_search_db(tags_search, limit=limit_value)
     except sqlite3.Error as lookup_err:
-        log.error(f"memory {log_context} failed for '{tags_search}': {lookup_err}")  # noqa: F821
+        log.error(f"memory {log_context} failed for '{tags_search}': {lookup_err}")  # noqa: F821  # ty:ignore[unresolved-reference]
         return []
     if not raw_matches:
         return []
@@ -356,7 +356,7 @@ async def _find_tag_matches_for_query(
     return [_condense_candidate_for_selection(entry, score=score) for entry, score in candidates]
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _tokenize_query(q: str) -> list[str]:
     """Tokenize query string into normalized word tokens."""
     normalized = _normalize_search_text(q)
@@ -365,7 +365,7 @@ def _tokenize_query(q: str) -> list[str]:
     return normalized.split()
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _near_distance_for_tokens(n: int) -> int:
     """Calculate NEAR distance threshold based on token count."""
     if n <= 1:
@@ -378,7 +378,7 @@ def _near_distance_for_tokens(n: int) -> int:
     return val
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _build_fts_queries(raw_query: str) -> list[str]:
     """Generate prioritized FTS5 query variants for improved recall."""
     normalized_query = _normalize_search_text(raw_query)
@@ -418,7 +418,7 @@ def _build_fts_queries(raw_query: str) -> list[str]:
     return out
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _fetch_with_expiry(cur: sqlite3.Cursor, key: str) -> tuple[bool, sqlite3.Row | None]:
     """Retrieve a row and check if its expiration date has passed."""
     row = cur.execute(
@@ -449,10 +449,10 @@ def _set_result(state_value: str = "ok", **attrs: Any) -> None:
     """Update the memory result sensor state and attributes."""
     _ensure_result_entity_name()
     attrs.update(result_entity_name)
-    state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)  # noqa: F821
+    state.set(RESULT_ENTITY, value=state_value, new_attributes=attrs)  # noqa: F821  # ty:ignore[unresolved-reference]
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _reset_db_ready() -> None:
     """Reset the database initialization flag."""
     global _DB_READY
@@ -460,7 +460,7 @@ def _reset_db_ready() -> None:
         _DB_READY = False
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_set_db_sync(
     key_norm: str,
     value_norm: str,
@@ -509,7 +509,7 @@ def _memory_set_db_sync(
     return False
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_key_exists_db_sync(key_norm: str) -> bool:
     """Synchronously check if a memory key exists."""
     for attempt in range(2):
@@ -531,7 +531,7 @@ def _memory_key_exists_db_sync(key_norm: str) -> bool:
     return False
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     """Synchronously fetch a memory record and update its last-used timestamp."""
     for attempt in range(2):
@@ -570,7 +570,7 @@ def _memory_get_db_sync(key_norm: str) -> tuple[str, dict[str, Any] | None]:
     return "error", None
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     """Synchronously search for memory records matching the provided query."""
     normalized_query = _normalize_search_text(query)
@@ -609,7 +609,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
                             (mv, limit),
                         ).fetchall()
                     except sqlite3.Error as error:
-                        log.warning(f"FTS variant failed: {error}")  # noqa: F821
+                        log.warning(f"FTS variant failed: {error}")  # noqa: F821  # ty:ignore[unresolved-reference]
                         continue
                     for row in fetched:
                         key = row["key"]
@@ -668,7 +668,7 @@ def _memory_search_db_sync(query: str, limit: int) -> list[dict[str, Any]]:
     return []
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_forget_db_sync(key_norm: str) -> int:
     """Synchronously delete a memory record by its key."""
     for attempt in range(2):
@@ -690,7 +690,7 @@ def _memory_forget_db_sync(key_norm: str) -> int:
     return 0
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     """Synchronously remove expired memory records."""
     grace = max(int(grace_days), 0)
@@ -718,7 +718,7 @@ def _memory_purge_expired_db_sync(grace_days: int = 0) -> int:
     return 0
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     """Synchronously rebuild the FTS index from the main memory table."""
     for attempt in range(2):
@@ -798,7 +798,7 @@ def _memory_reindex_fts_db_sync() -> tuple[int, int]:
     return 0, 0
 
 
-@pyscript_compile  # noqa: F821
+@pyscript_compile  # noqa: F821  # ty:ignore[unresolved-reference]
 def _memory_health_check_db_sync() -> tuple[int, int, int]:
     """Synchronously perform a health check on the memory database."""
     for attempt in range(2):
@@ -883,7 +883,7 @@ async def _memory_health_check_db() -> tuple[int, int, int]:
     return await asyncio.to_thread(_memory_health_check_db_sync)
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_set(
     key: str,
     value: str,
@@ -956,7 +956,7 @@ async def memory_set(
             key=key_norm or "",
             error="key_or_value_missing",
         )
-        log.error("memory_set: missing key or value")  # noqa: F821
+        log.error("memory_set: missing key or value")  # noqa: F821  # ty:ignore[unresolved-reference]
         return {
             "status": "error",
             "op": "set",
@@ -1016,7 +1016,7 @@ async def memory_set(
                     error="duplicate_tags",
                     matches=duplicate_options,
                 )
-                log.error("memory_set: duplicate tags detected, refusing to overwrite")  # noqa: F821
+                log.error("memory_set: duplicate tags detected, refusing to overwrite")  # noqa: F821  # ty:ignore[unresolved-reference]
                 return {
                     "status": "error",
                     "op": "set",
@@ -1026,7 +1026,7 @@ async def memory_set(
                     "matches": duplicate_options,
                 }
             forced_duplicate_override = True
-            log.warning("memory_set: duplicate tags override forced by force_new")  # noqa: F821
+            log.warning("memory_set: duplicate tags override forced by force_new")  # noqa: F821  # ty:ignore[unresolved-reference]
 
         ok_db = await _memory_set_db(
             key_norm=key_norm,
@@ -1074,12 +1074,12 @@ async def memory_set(
             response["duplicate_matches"] = duplicate_options
         return response
     except Exception as e:
-        log.error(f"memory_set failed: {e}")  # noqa: F821
+        log.error(f"memory_set failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]
         _set_result("error", op="set", key=key_norm, error=str(e))
         return {"status": "error", "op": "set", "key": key_norm, "error": str(e)}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_get(key: str):
     """
     yaml
@@ -1110,7 +1110,7 @@ async def memory_get(key: str):
     try:
         status, payload = await _memory_get_db(key_norm)
     except Exception as e:
-        log.error(f"memory_get failed: {e}")  # noqa: F821
+        log.error(f"memory_get failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]
         _set_result("error", op="get", key=key_norm, error=str(e))
         return {"status": "error", "op": "get", "key": key_norm, "error": str(e)}
 
@@ -1145,7 +1145,7 @@ async def memory_get(key: str):
     return {"status": "ok", "op": "get", **res}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_search(query: str, limit: int = 5):
     """
     yaml
@@ -1190,7 +1190,7 @@ async def memory_search(query: str, limit: int = 5):
     try:
         results = await _memory_search_db(query, lim)
     except Exception as e:
-        log.error(f"memory_search failed: {e}")  # noqa: F821
+        log.error(f"memory_search failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]
         _set_result("error", op="search", query=query, error=str(e))
         return {"status": "error", "op": "search", "query": query, "error": str(e)}
 
@@ -1210,7 +1210,7 @@ async def memory_search(query: str, limit: int = 5):
     }
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_forget(key: str):
     """
     yaml
@@ -1239,7 +1239,7 @@ async def memory_forget(key: str):
     try:
         deleted = await _memory_forget_db(key_norm)
     except Exception as e:
-        log.error(f"memory_forget failed: {e}")  # noqa: F821
+        log.error(f"memory_forget failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]
         _set_result("error", op="forget", key=key_norm, error=str(e))
         return {"status": "error", "op": "forget", "key": key_norm, "error": str(e)}
 
@@ -1265,7 +1265,7 @@ async def memory_forget(key: str):
     return {"status": "ok", "op": "forget", "key": key_norm, "deleted": deleted}
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_purge_expired(grace_days: int | None = None):
     """
     yaml
@@ -1299,7 +1299,7 @@ async def memory_purge_expired(grace_days: int | None = None):
     try:
         removed = await _memory_purge_expired_db(grace)
     except Exception as e:
-        log.error(f"memory_purge_expired failed: {e}")  # noqa: F821
+        log.error(f"memory_purge_expired failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]
         _set_result("error", op="purge_expired", grace_days=grace, error=str(e))
         return {
             "status": "error",
@@ -1317,7 +1317,7 @@ async def memory_purge_expired(grace_days: int | None = None):
     }
 
 
-@service(supports_response="only")  # noqa: F821
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_reindex_fts():
     """
     yaml
@@ -1327,7 +1327,7 @@ async def memory_reindex_fts():
     try:
         before, after = await _memory_reindex_fts_db()
     except Exception as e:
-        log.error(f"memory_reindex_fts failed: {e}")  # noqa: F821
+        log.error(f"memory_reindex_fts failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]
         _set_result("error", op="reindex_fts", error=str(e))
         return {"status": "error", "op": "reindex_fts", "error": str(e)}
 
@@ -1340,8 +1340,8 @@ async def memory_reindex_fts():
     }
 
 
-@time_trigger("startup")  # noqa: F821
-@service(supports_response="only")  # noqa: F821
+@time_trigger("startup")  # noqa: F821  # ty:ignore[unresolved-reference]
+@service(supports_response="only")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_health_check():
     """
     yaml
@@ -1361,7 +1361,7 @@ async def memory_health_check():
             fts_rows=fts_rows,
             ts=ts,
         )
-        log.info(  # noqa: F821
+        log.info(  # noqa: F821  # ty:ignore[unresolved-reference]
             f"memory.py health: rows={rows}, expired={expired}, fts_rows={fts_rows}"
         )
         return {
@@ -1374,15 +1374,15 @@ async def memory_health_check():
             "ts": ts,
         }
     except Exception as e:
-        log.error(f"memory_health_check failed: {e}")  # noqa: F821
+        log.error(f"memory_health_check failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]
         _set_result("error", op="health", error=str(e))
         return {"status": "error", "op": "health", "error": str(e)}
 
 
-@time_trigger("cron(0 3 * * *)")  # noqa: F821
+@time_trigger("cron(0 3 * * *)")  # noqa: F821  # ty:ignore[unresolved-reference]
 async def memory_daily_housekeeping():
     """Perform daily memory database maintenance."""
     try:
         await memory_purge_expired(grace_days=HOUSEKEEPING_GRACE_DAYS)
     except Exception as e:
-        log.error(f"memory_daily_housekeeping failed: {e}")  # noqa: F821
+        log.error(f"memory_daily_housekeeping failed: {e}")  # noqa: F821  # ty:ignore[unresolved-reference]

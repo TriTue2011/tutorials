@@ -6,30 +6,31 @@ Hướng dẫn này giúp bạn cài đặt bộ giao diện iOS đẹp mắt, t
 
 - **HACS:** Đảm bảo bạn đã cài đặt [HACS](https://github.com/hacs).
 - **Cấu hình Themes:** Đảm bảo file `configuration.yaml` của bạn đã có dòng cấu hình để load themes (nếu chưa có, hãy thêm vào):
+
   ```yaml
   frontend:
     themes: !include_dir_merge_named themes
   ```
 
-### Cài đặt qua HACS:
+### Cài đặt qua HACS
 
-1.  Truy cập **HACS** > **Frontend**.
-2.  Tìm kiếm và cài đặt **iOS Themes** ([basnijholt/lovelace-ios-themes](https://github.com/basnijholt/lovelace-ios-themes)).
-3.  Truy cập **HACS** > **Integrations**.
-4.  Tìm kiếm và cài đặt **Spook** ([frenck/spook](https://github.com/frenck/spook)).
-    - _Lưu ý:_ Spook cung cấp tính năng `input_select.random` cần thiết cho hướng dẫn này.
+1. Truy cập **HACS** > **Frontend**.
+2. Tìm kiếm và cài đặt **iOS Themes** ([basnijholt/lovelace-ios-themes](https://github.com/basnijholt/lovelace-ios-themes)).
+3. Truy cập **HACS** > **Integrations**.
+4. Tìm kiếm và cài đặt **Spook** ([frenck/spook](https://github.com/frenck/spook)).
+   - _Lưu ý:_ Spook cung cấp tính năng `input_select.random` cần thiết cho hướng dẫn này.
 
 ## 2. Cấu hình hình nền cục bộ (Local Backgrounds)
 
 Việc này giúp hình nền tải nhanh hơn từ mạng nội bộ thay vì phải tải từ internet mỗi lần mở app.
 
-1.  Sử dụng File Editor hoặc VS Code để truy cập thư mục cấu hình Home Assistant.
-2.  Tìm đến thư mục `themes/ios-themes` (nơi HACS đã tải về).
-3.  Sao chép toàn bộ các file ảnh `.jpg` trong đó.
-4.  Dán chúng vào thư mục `www/ios-themes`.
-    - _Nếu chưa có thư mục `www`, hãy tạo mới nó ngang hàng với file `configuration.yaml`._
-    - _Nếu chưa có thư mục `ios-themes` trong `www`, hãy tạo mới nó._
-5.  **Khởi động lại** Home Assistant để áp dụng các thay đổi.
+1. Sử dụng File Editor hoặc VS Code để truy cập thư mục cấu hình Home Assistant.
+2. Tìm đến thư mục `themes/ios-themes` (nơi HACS đã tải về).
+3. Sao chép toàn bộ các file ảnh `.jpg` trong đó.
+4. Dán chúng vào thư mục `www/ios-themes`.
+   - _Nếu chưa có thư mục `www`, hãy tạo mới nó ngang hàng với file `configuration.yaml`._
+   - _Nếu chưa có thư mục `ios-themes` trong `www`, hãy tạo mới nó._
+5. **Khởi động lại** Home Assistant để áp dụng các thay đổi.
 
 ## 3. Tạo tính năng tự động đổi Theme (Auto Light/Dark)
 
@@ -121,5 +122,5 @@ mode: restart
 
 **Bước quan trọng nhất:** Để automation có thể thay đổi giao diện của bạn, bạn phải chọn chế độ **Use default theme** trong cài đặt người dùng.
 
-1.  Nhấn vào biểu tượng **Hồ sơ người dùng (User Profile)** ở góc dưới cùng bên trái thanh menu.
-2.  Tại mục **Theme**, chọn **Use default theme**.
+1. Nhấn vào biểu tượng **Hồ sơ người dùng (User Profile)** ở góc dưới cùng bên trái thanh menu.
+2. Tại mục **Theme**, chọn **Use default theme**.

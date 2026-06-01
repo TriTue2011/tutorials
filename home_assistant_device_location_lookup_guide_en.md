@@ -24,17 +24,17 @@
 
 ### Step 1: Expose Device Trackers to Voice Assist
 
-1.  Navigate to **Settings** > **Voice assistants** > **Expose**.
-2.  Expose **only one** `device_tracker` entity per physical device.
-3.  **Tip:** Add friendly **Aliases** to your entities (e.g., "My Phone", "Keys") to make voice commands more natural.
+1. Navigate to **Settings** > **Voice assistants** > **Expose**.
+2. Expose **only one** `device_tracker` entity per physical device.
+3. **Tip:** Add friendly **Aliases** to your entities (e.g., "My Phone", "Keys") to make voice commands more natural.
 
 **Important for Bermuda Users:**
 If your phone has both a Mobile App tracker and a Bermuda tracker:
 
-1.  **Expose only the Bermuda tracker** to Voice Assist (it provides better room-level accuracy).
-2.  **Rename the Bermuda device** to match the Mobile App device name.
-    - _Example:_ If your Mobile App device is named `Pixel 9`, rename your Bermuda device to `Pixel 9` (or `Pixel 9 BLE`).
-    - _Why?_ This links the accurate location from Bermuda with the "Ring" capability of the Mobile App.
+1. **Expose only the Bermuda tracker** to Voice Assist (it provides better room-level accuracy).
+2. **Rename the Bermuda device** to match the Mobile App device name.
+   - _Example:_ If your Mobile App device is named `Pixel 9`, rename your Bermuda device to `Pixel 9` (or `Pixel 9 BLE`).
+   - _Why?_ This links the accurate location from Bermuda with the "Ring" capability of the Mobile App.
 
 ### Step 2: Create a Shell Command for Alias Retrieval
 
@@ -71,8 +71,8 @@ template:
 
 **After adding these codes:**
 
-1.  **Restart** Home Assistant.
-2.  **Note:** If you add or change an Alias later, you must reload Template entities (Developer Tools > YAML > Template Entities) or restart HA.
+1. **Restart** Home Assistant.
+2. **Note:** If you add or change an Alias later, you must reload Template entities (Developer Tools > YAML > Template Entities) or restart HA.
 
 ### Step 4: Install Blueprints
 
@@ -82,11 +82,11 @@ This blueprint powers the logic to find where your devices are.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
 
-1.  Import the blueprint.
-2.  Create a **Script** from it.
-3.  In the script settings, select the **Template Sensor** (`sensor.assist_entity_ids_and_aliases`) you created in Step 3.
-4.  **Keep the default script name** (or ensure it's easy for the LLM to recognize).
-5.  **Expose** this new script to Voice Assist.
+1. Import the blueprint.
+2. Create a **Script** from it.
+3. In the script settings, select the **Template Sensor** (`sensor.assist_entity_ids_and_aliases`) you created in Step 3.
+4. **Keep the default script name** (or ensure it's easy for the LLM to recognize).
+5. **Expose** this new script to Voice Assist.
 
 #### 2. Device Ringing Blueprint
 
@@ -94,10 +94,10 @@ This blueprint allows Voice Assist to make your device ring.
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
 
-1.  Import the blueprint.
-2.  Create a **Script** from it.
-3.  **Keep the default script name**.
-4.  **Expose** this new script to Voice Assist.
+1. Import the blueprint.
+2. Create a **Script** from it.
+3. **Keep the default script name**.
+4. **Expose** this new script to Voice Assist.
 
 ## Usage Examples
 

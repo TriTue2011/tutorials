@@ -10,8 +10,8 @@ We will create a smart `binary_sensor` that automatically scans your entire syst
 
 To avoid false alarms from devices you don't care about, create a label to mark them.
 
-1.  Go to **Settings** > **Devices & Services** > **Labels**.
-2.  Create a new label named: `ignored`
+1. Go to **Settings** > **Devices & Services** > **Labels**.
+2. Create a new label named: `ignored`
 
 ![image](images/20250426_GwdtEl.png)
 
@@ -49,10 +49,10 @@ template:
               {% set ignored_integration_entities.entities = ignored_integration_entities.entities + integration_entities(integration) %}
             {% endfor %}
             {% set candidates = states
-              | selectattr('state', 'in', ['unavailable'])
+              | selectattr('state', 'eq', 'unavailable')
+              | rejectattr('entity_id', 'eq', this.entity_id)
               | rejectattr('domain', 'in', ignored_domains)
               | rejectattr('entity_id', 'in', ignored_integration_entities.entities)
-              | rejectattr('entity_id', 'eq', this.entity_id)
               | map(attribute='entity_id')
               | list %}
             {% set ns = namespace(final=[]) %}

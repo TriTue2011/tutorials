@@ -10,8 +10,8 @@ Chúng ta sẽ tạo một `binary_sensor` thông minh, tự động quét toàn
 
 Để tránh báo động giả từ các thiết bị bạn không quan tâm, hãy tạo một nhãn để đánh dấu chúng.
 
-1.  Vào **Settings** > **Devices & Services** > **Labels**.
-2.  Tạo nhãn mới tên là: `ignored`
+1. Vào **Settings** > **Devices & Services** > **Labels**.
+2. Tạo nhãn mới tên là: `ignored`
 
 ![image](images/20250426_GwdtEl.png)
 
@@ -49,10 +49,10 @@ template:
               {% set ignored_integration_entities.entities = ignored_integration_entities.entities + integration_entities(integration) %}
             {% endfor %}
             {% set candidates = states
-              | selectattr('state', 'in', ['unavailable'])
+              | selectattr('state', 'eq', 'unavailable')
+              | rejectattr('entity_id', 'eq', this.entity_id)
               | rejectattr('domain', 'in', ignored_domains)
               | rejectattr('entity_id', 'in', ignored_integration_entities.entities)
-              | rejectattr('entity_id', 'eq', this.entity_id)
               | map(attribute='entity_id')
               | list %}
             {% set ns = namespace(final=[]) %}

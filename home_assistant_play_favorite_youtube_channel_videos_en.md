@@ -23,9 +23,9 @@ This guide allows you to use Home Assistant Voice to play the latest videos from
 
 To enable this feature, you need two custom/built-in integrations:
 
-1.  **Feedparser:** Reads YouTube RSS feeds.
-    [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
-2.  **Media Extractor:** Extracts direct video/audio URLs from YouTube. This is a **built-in** integration. Go to **Settings** > **Devices & Services** > **Add Integration** and search for `Media extractor`.
+1. **Feedparser:** Reads YouTube RSS feeds.
+   [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=custom-components&repository=feedparser&category=Integration)
+2. **Media Extractor:** Extracts direct video/audio URLs from YouTube. This is a **built-in** integration. Go to **Settings** > **Devices & Services** > **Add Integration** and search for `Media extractor`.
 
 - After installing, **restart** Home Assistant.
 
@@ -33,9 +33,9 @@ To enable this feature, you need two custom/built-in integrations:
 
 You need the ID of the YouTube channel to configure the sensor.
 
-1.  Open Google and search for `Get YouTube Channel ID`.
-2.  Visit any site (e.g., `https://commentpicker.com/youtube-channel-id.php`).
-3.  Enter the URL of the YouTube channel you want to follow to get its ID.
+1. Open Google and search for `Get YouTube Channel ID`.
+2. Visit any site (e.g., `https://commentpicker.com/youtube-channel-id.php`).
+3. Enter the URL of the YouTube channel you want to follow to get its ID.
 
 ![image](images/20250527_FdZbGj.png)
 
@@ -87,14 +87,14 @@ sensor:
 
 For Voice Assist to recognize and interact with your YouTube channels:
 
-1.  After restarting HA, go to **Settings** > **Voice assistants** > **Expose**.
-2.  Find and expose the newly created YouTube channel sensors.
+1. After restarting HA, go to **Settings** > **Voice assistants** > **Expose**.
+2. Find and expose the newly created YouTube channel sensors.
 
-    ![image](images/20250527_gCfAcK.png)
+   ![image](images/20250527_gCfAcK.png)
 
-3.  Create additional **Aliases** for the channels (e.g., "Hoa Ban", "Son Tung") to make them easier to remember or pronounce, especially for foreign channels.
+3. Create additional **Aliases** for the channels (e.g., "Hoa Ban", "Son Tung") to make them easier to remember or pronounce, especially for foreign channels.
 
-    ![image](images/20250604_VhChze.png)
+   ![image](images/20250604_VhChze.png)
 
 ### 1.5. Configure Alias Support for Assist
 
@@ -142,11 +142,11 @@ This blueprint helps Assist fetch the latest video info from the requested YouTu
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fget_youtube_video_info_full_llm.yaml)
 
 - **Steps:**
-  1.  Import the blueprint.
-  2.  Create a new **Script** from this blueprint.
-  3.  Select the Template Sensor (`sensor.assist_entity_ids_and_aliases`) created in step 1.5.
-  4.  **Important:** Keep the default Script name.
-  5.  After creating, **Expose** that script to Voice Assist.
+  1. Import the blueprint.
+  2. Create a new **Script** from this blueprint.
+  3. Select the Template Sensor (`sensor.assist_entity_ids_and_aliases`) created in step 1.5.
+  4. **Important:** Keep the default Script name.
+  5. After creating, **Expose** that script to Voice Assist.
 
 ### 2.2. Install "Play Video" Blueprint
 
@@ -155,12 +155,12 @@ This blueprint is responsible for playing the found video on your media player d
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fplay_youtube_video_full_llm.yaml)
 
 - **Steps:**
-  1.  Import the blueprint.
-  2.  Create a new **Script** from this blueprint.
-  3.  Select the Template Sensor (`sensor.assist_entity_ids_and_aliases`) created in step 1.5.
-  4.  Select a **Default** Smart TV or speaker to play the video on (Assist will use this if you don't specify a device).
-  5.  **Important:** Keep the default Script name.
-  6.  After creating, **Expose** that script to Voice Assist.
+  1. Import the blueprint.
+  2. Create a new **Script** from this blueprint.
+  3. Select the Template Sensor (`sensor.assist_entity_ids_and_aliases`) created in step 1.5.
+  4. Select a **Default** Smart TV or speaker to play the video on (Assist will use this if you don't specify a device).
+  5. **Important:** Keep the default Script name.
+  6. After creating, **Expose** that script to Voice Assist.
 
 ## 3. Example Voice Commands
 

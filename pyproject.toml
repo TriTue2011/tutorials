@@ -11,8 +11,8 @@ dev = [
   "beautifulsoup4",
   "curl-cffi",
   "google-api-python-client",
-  "h2>=4,<5",
-  "homeassistant>=2026.5.0",
+  "homeassistant>=2026.6.0",
+  "httpx[http2]",
   "ruff",
   "ty",
 ]

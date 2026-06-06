@@ -39,8 +39,6 @@ Biến Home Assistant thành một trợ lý cá nhân thực thụ với bộ s
   - [Voice Assist - Dự báo Thời tiết](#voice-assist---dự-báo-thời-tiết)
   - [Voice Assist - Điều khiển Nhạc](#voice-assist---điều-khiển-nhạc)
   - [Voice Assist - Định vị & Tìm kiếm Thiết bị](#voice-assist---định-vị--tìm-kiếm-thiết-bị)
-  - [Voice Assist - Tra cứu Phạt nguội](#voice-assist---tra-cứu-phạt-nguội)
-  - [Tự động Cảnh báo Phạt nguội](#tự-động-cảnh-báo-phạt-nguội)
   - [Đồng bộ Trạng thái Thiết bị](#đồng-bộ-trạng-thái-thiết-bị)
   - [Các Blueprint đã lỗi thời](#các-blueprint-đã-lỗi-thời)
     - [Voice Assist - Điều khiển Quạt (Cũ)](#voice-assist---điều-khiển-quạt-cũ)
@@ -565,47 +563,6 @@ Tra cứu dự báo thời tiết tại nhà cho các khoảng thời gian cụ 
    [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
 2. **Blueprint Đổ chuông (LLM):** Kích hoạt thiết bị đổ chuông.
    [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
-
----
-
-## Voice Assist - Tra cứu Phạt nguội
-
-Tra cứu tình trạng phạt nguội của bất kỳ phương tiện nào bằng giọng nói, sử dụng dữ liệu trực tiếp từ Cổng thông tin của Cục CSGT.
-
-**Lưu ý:** Tính năng này chỉ áp dụng cho hệ thống tra cứu phạt nguội tại Việt Nam.
-
-**Ví dụ lệnh thoại:**
-
-- "Kiểm tra phạt nguội ô tô 30G-123.45."
-- "Xe máy 29-T1 567.89 có bị phạt nguội không?"
-
-**Ứng dụng thực tế:**
-
-- **Kiểm tra định kỳ:** "Kiểm tra phạt nguội xe 30A-123.45" - Đảm bảo phương tiện của bạn không có vi phạm tồn đọng trước khi đi đăng kiểm hoặc làm thủ tục hành chính.
-- **Phòng tránh rắc rối:** Chủ động nắm bắt thông tin phạt nguội của bản thân hoặc người thân để xử lý kịp thời, tránh các phiền phức không đáng có.
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
-
----
-
-## Tự động Cảnh báo Phạt nguội
-
-Nhận cảnh báo ngay khi có vi phạm giao thông mới được ghi nhận trên hệ thống của Cục CSGT cho xe của bạn.
-
-**Lưu ý:** Tính năng này chỉ áp dụng cho hệ thống tra cứu phạt nguội tại Việt Nam.
-
-**Tính năng nổi bật:**
-
-- **Tự động kiểm tra:** Định kỳ quét hệ thống để phát hiện vi phạm mới.
-- **Thông báo tức thì:** Gửi thông báo đến Home Assistant ngay khi có phạt nguội.
-- **Hỗ trợ nhiều xe:** Dễ dàng cấu hình để theo dõi nhiều biển số xe cùng lúc.
-
-**Ứng dụng thực tế:**
-
-- **Nắm bắt sớm thông tin:** Nhận cảnh báo ngay lập tức để xử lý phạt nguội kịp thời, tránh tình trạng bị phạt chồng hoặc tăng nặng.
-- **Quản lý chủ động:** Tự động theo dõi và quản lý tình trạng phạt nguội cho tất cả phương tiện của gia đình mà không cần kiểm tra thủ công.
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
 ---
 

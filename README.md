@@ -39,8 +39,6 @@ Transform Home Assistant into a fully-fledged personal teammate with this curate
   - [Voice Assist - Weather Forecast](#voice-assist---weather-forecast)
   - [Voice Assist - Music Control](#voice-assist---music-control)
   - [Voice Assist - Device Location & Find](#voice-assist---device-location--find)
-  - [Voice Assist - Traffic Fine Lookup](#voice-assist---traffic-fine-lookup)
-  - [Automatic Traffic Fine Notifications](#automatic-traffic-fine-notifications)
   - [Device State Synchronization](#device-state-synchronization)
   - [Obsolete Blueprints](#obsolete-blueprints)
     - [Voice Assist - Smart Fan Control (Legacy)](#voice-assist---smart-fan-control-legacy)
@@ -565,53 +563,6 @@ To use this feature, you need to install **both blueprints**:
    [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_location_lookup_full_llm.yaml)
 2. **Ringing Blueprint (LLM):** Triggers the device to ring.
    [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Fdevice_ringing_full_llm.yaml)
-
----
-
-## Voice Assist - Traffic Fine Lookup
-
-Drive with peace of mind. Check traffic violation status for any vehicle by voice, using live data from the national traffic police portal.
-
-**Note:** This feature is only applicable to the traffic fine system in Vietnam.
-
-**Key Features:**
-
-- **Real-time Checks:** Instantly query the official database for traffic violations.
-- **Any Vehicle:** Check fines for your car, motorbike, or even a vehicle you're considering buying.
-- **Proactive Awareness:** Stay informed and avoid accumulating late fees.
-
-**Example Voice Commands:**
-
-- "Check traffic fines for car 30G-123.45."
-- "Does motorbike 29-T1 567.89 have any fines?"
-
-**Use Cases:**
-
-- **Periodic Checks:** "Check fines for car 30A-123.45" - Ensure your vehicle has no outstanding violations before inspections or administrative procedures.
-- **Proactive Management:** Proactively check your or your family's traffic fine status to handle them promptly and avoid unnecessary complications.
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_lookup_full_llm.yaml)
-
----
-
-## Automatic Traffic Fine Notifications
-
-Never miss an important alert. Receive instant notifications the moment a new traffic violation is recorded for your vehicle in the national police system.
-
-**Note:** This feature is only applicable to the traffic fine system in Vietnam.
-
-**Key Features:**
-
-- **Continuous Monitoring:** Periodically scans the system to detect new violations automatically.
-- **Instant Alerts:** Get a notification directly to Home Assistant as soon as a fine is detected.
-- **Multi-Vehicle Support:** Easily configure to monitor multiple license plates for your entire family.
-
-**Use Cases:**
-
-- **Timely Awareness:** Receive immediate alerts to address traffic fines promptly, preventing accumulating penalties or escalated issues.
-- **Proactive Management:** Automatically monitor and manage the traffic fine status for all your household vehicles without manual checks.
-
-[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fluuquangvu%2Ftutorials%2Fblob%2Fmain%2Ftraffic_fine_notification.yaml)
 
 ---
 

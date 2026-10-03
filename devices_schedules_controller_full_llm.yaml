@@ -149,7 +149,7 @@ mode: parallel
 max_exceeded: silent
 description: Manages device timers (start, cancel, pause, resume, list)
 variables:
-  version: 20260821
+  version: 20261003
 fields:
   mode:
     name: Mode
@@ -551,7 +551,7 @@ sequence:
                           {{ _clean_value }}
                         {% endif %}
                       {% endif %}
-                    _item_target_service: >-
+                    _item_target_action: >-
                       {% set current_entity_id = _current_entity | default('') %}
                       {% set domain = current_entity_id.split('.')[0] %}
                       {% if domain in ['button', 'input_button'] %}
@@ -573,7 +573,7 @@ sequence:
                       {% else %}
                         {{ _action_service_map.get(_action_normalized, '') }}
                       {% endif %}
-                    _item_service_data: >-
+                    _item_action_data: >-
                       {% set d = dict() %}
                       {% if _action_normalized == 'set_position' %}
                         {% set d = dict(position=_item_final_value) %}
@@ -603,7 +603,7 @@ sequence:
                       {% else %}
                         {{ {'entity_id': _current_entity} }}
                       {% endif %}
-                - service: script.turn_on
+                - action: script.turn_on
                   target:
                     entity_id: "{{ _timer_script }}"
                   data:
@@ -612,9 +612,9 @@ sequence:
                       target_entity: "{{ _current_entity }}"
                       duration_seconds: "{{ _duration_seconds }}"
                       expire_actions:
-                        - action: "{{ _item_target_service }}"
+                        - action: "{{ _item_target_action }}"
                           target: "{{ _item_target_dict }}"
-                          data: "{{ _item_service_data }}"
+                          data: "{{ _item_action_data }}"
                 - variables:
                     _responses: "{{ (_responses | default([])) + [dict(mode='start', entity=_current_entity, status='queued', duration_seconds=_duration_seconds, action=_action_normalized, value=_item_final_value)] }}"
           - variables:
@@ -633,7 +633,7 @@ sequence:
                   - repeat:
                       for_each: "{{ _resolved_entities }}"
                       sequence:
-                        - service: "{{ _timer_script }}"
+                        - action: "{{ _timer_script }}"
                           data:
                             mode: cancel_all
                             target_entity: "{{ repeat.item }}"
@@ -641,7 +641,7 @@ sequence:
                         - variables:
                             _responses: "{{ (_responses | default([])) + [_call_result] }}"
             default:
-              - service: "{{ _timer_script }}"
+              - action: "{{ _timer_script }}"
                 data:
                   mode: cancel_all
                 response_variable: _call_result
@@ -658,7 +658,7 @@ sequence:
           - repeat:
               for_each: "{{ _resolved_entities }}"
               sequence:
-                - service: "{{ _timer_script }}"
+                - action: "{{ _timer_script }}"
                   data:
                     mode: extend
                     target_entity: "{{ repeat.item }}"
@@ -677,7 +677,7 @@ sequence:
           - repeat:
               for_each: "{{ _resolved_entities }}"
               sequence:
-                - service: "{{ _timer_script }}"
+                - action: "{{ _timer_script }}"
                   data:
                     mode: "{{ _mode }}"
                     target_entity: "{{ repeat.item }}"
@@ -700,7 +700,7 @@ sequence:
                   - repeat:
                       for_each: "{{ _resolved_entities }}"
                       sequence:
-                        - service: "{{ _timer_script }}"
+                        - action: "{{ _timer_script }}"
                           data:
                             mode: list
                             list_entity_filter: "{{ repeat.item }}"
@@ -708,7 +708,7 @@ sequence:
                         - variables:
                             _responses: "{{ (_responses | default([])) + [_call_result] }}"
             default:
-              - service: "{{ _timer_script }}"
+              - action: "{{ _timer_script }}"
                 data:
                   mode: list
                 response_variable: _call_result
